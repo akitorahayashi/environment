@@ -63,25 +63,12 @@ jobs:
       
       - name: Homebrewパッケージの確認
         run: |
-          # Brewfileから必要なパッケージをチェック
-          if [ -f "$GITHUB_WORKSPACE/config/Brewfile" ]; then
-            echo "Brewfileから必要なパッケージを確認中..."
-            # 重要なパッケージのみチェック
-            brew list git && echo "gitがインストールされています ✅" || (echo "gitがインストールされていません ❌" && exit 1)
-            brew list jq && echo "jqがインストールされています ✅" || (echo "jqがインストールされていません ❌" && exit 1)
-            
-            # Brewfileに記載されている他の重要なパッケージも確認
-            # 例: xcodes, flutter など（存在する場合）
-            if grep -q "xcodes" "$GITHUB_WORKSPACE/config/Brewfile"; then
-              brew list xcodes && echo "xcodesがインストールされています ✅" || echo "xcodesがインストールされていません（オプション） ⚠️"
-            fi
-            
-            if grep -q "flutter" "$GITHUB_WORKSPACE/config/Brewfile"; then
-              brew list flutter && echo "flutterがインストールされています ✅" || echo "flutterがインストールされていません（オプション） ⚠️"
-            fi
-          else
-            echo "Brewfileが見つかりません。パッケージの確認をスキップします"
-          fi
+          echo "CI環境では必須パッケージのみインストールされていることを確認します"
+          # 特定のパッケージのみチェック
+          brew list git && echo "gitがインストールされています ✅" || (echo "gitがインストールされていません ❌" && exit 1)
+          brew list jq && echo "jqがインストールされています ✅" || (echo "jqがインストールされていません ❌" && exit 1)
+          brew list xcodes && echo "xcodesがインストールされています ✅" || (echo "xcodesがインストールされていません ❌" && exit 1)
+          
           echo "Homebrewパッケージの確認が完了しました ✅"
       
       - name: Flutter設定の確認（インストールされている場合）

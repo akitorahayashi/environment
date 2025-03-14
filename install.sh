@@ -214,6 +214,26 @@ install_brewfile() {
 
     echo "Homebrew パッケージの状態を確認中..."
 
+    # CI環境では必須パッケージのみインストール
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境では特定のパッケージのみインストールします"
+        # CI環境で必要な最小限のパッケージをインストール
+        brew install git jq || true
+        
+        # xcodesは別途インストール（依存関係が少ない）
+        if ! command_exists xcodes; then
+            echo "xcodes をインストール中..."
+            brew tap xcodesorg/homebrew-xcodes
+            brew install xcodes
+        else
+            echo "xcodes はすでにインストールされています"
+        fi
+        
+        echo "CI環境での必須パッケージのインストールが完了しました ✅"
+        return
+    fi
+
+    # 通常環境では全パッケージをインストール
     # インストール済みのパッケージリストを一度だけ取得
     local installed_formulas=$(brew list --formula)
     local installed_casks=$(brew list --cask)
