@@ -11,11 +11,8 @@ if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 fi
 
-# Flutter のパスを設定
-if [[ -d "/opt/homebrew/Caskroom/flutter" ]]; then
-    FLUTTER_VERSION=$(ls /opt/homebrew/Caskroom/flutter | sort -rV | head -n 1)
-    export PATH="/opt/homebrew/Caskroom/flutter/${FLUTTER_VERSION}/flutter/bin:$PATH"
-fi
+# FlutterはHomebrewによって/opt/homebrew/binに直接インストールされる
+# 追加のPATH設定は不要
 
 # SSH Agent Configuration
 if [ -z "$SSH_AUTH_SOCK" ]; then

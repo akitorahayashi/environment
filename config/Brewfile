@@ -1,6 +1,5 @@
-# 必要な tap
+# caskを有効にする
 tap "homebrew/cask"
-tap "XcodesOrg/homebrew-xcodes"
 
 # Formula
 brew "git"
