@@ -482,6 +482,12 @@ setup_xcode() {
 setup_mac_settings() {
     echo "🖥 Mac のシステム設定を適用中..."
     
+    # CI環境ではスキップ
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境ではMacシステム設定の適用をスキップします"
+        return 0
+    fi
+    
     if [[ -f "$REPO_ROOT/macos/setup_mac_settings.sh" ]]; then
         source "$REPO_ROOT/macos/setup_mac_settings.sh"
         echo "✅ Mac のシステム設定が適用されました"

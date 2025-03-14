@@ -25,4 +25,5 @@ defaults write NSGlobalDomain _HIHideMenuBar -bool false
 mkdir -p "/Users/akitorahayashi/Desktop"
 defaults write com.apple.screencapture location "/Users/akitorahayashi/Desktop"
 killall SystemUIServer
+
 echo "Mac のシステム設定が適用されました ✅"
