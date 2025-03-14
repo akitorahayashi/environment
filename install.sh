@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# CI環境かどうかを検出
+IS_CI=${CI:-false}
+
 start_time=$(date +%s)
 echo "Macをセットアップ中..."
 
@@ -11,7 +14,17 @@ command_exists() {
 install_xcode_tools() {
     if ! xcode-select -p &>/dev/null; then
         echo "Xcode Command Line Tools をインストール中..."
-        xcode-select --install
+        if [ "$IS_CI" = "true" ]; then
+            # CI環境ではすでにインストールされていることを前提とする
+            echo "CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
+        else
+            xcode-select --install
+            # インストールが完了するまで待機
+            echo "インストールが完了するまで待機しています..."
+            until xcode-select -p &>/dev/null; do
+                sleep 5
+            done
+        fi
         echo "Xcode Command Line Tools のインストール完了 ✅"
     else
         echo "Xcode Command Line Tools はすでにインストールされています"
@@ -266,6 +279,11 @@ setup_cursor() {
 setup_xcode() {
     echo "🔄 Xcode の設定中..."
 
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境では Xcode のセットアップをスキップします"
+        return 0
+    fi
+
     # xcodes がインストールされているか確認
     if ! command -v xcodes >/dev/null 2>&1; then
         echo "❌ xcodes がインストールされていません。先に Brewfile を適用してください。"
@@ -342,6 +360,11 @@ setup_xcode() {
 setup_mac_settings() {
     echo "🖥 Mac のシステム設定を適用中..."
     
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境では Mac のシステム設定をスキップします"
+        return 0
+    fi
+    
     if [[ -f "$HOME/environment/macos/setup_mac_settings.sh" ]]; then
         source "$HOME/environment/macos/setup_mac_settings.sh"
         echo "✅ Mac のシステム設定が適用されました"
@@ -353,6 +376,11 @@ setup_mac_settings() {
 # SSH エージェントのセットアップ
 setup_ssh_agent() {
     echo "🔐 SSH エージェントをセットアップ中..."
+    
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境では SSH エージェントのセットアップをスキップします"
+        return 0
+    fi
     
     # SSH エージェントを起動
     eval "$(ssh-agent -s)"
