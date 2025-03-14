@@ -156,8 +156,10 @@ install_brewfile() {
         [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
 
         # "brew" または "cask" で始まる行をパース
-        if [[ "$line" =~ ^brew\ \"(.*)\"$ ]]; then
+        if [[ "$line" =~ ^brew\ \"(.*)\"$ || "$line" =~ ^brew\ \"(.*)\".*$ || "$line" =~ ^brew\ (.*)$ ]]; then
             package_name="${BASH_REMATCH[1]}"
+            # 引用符が含まれている場合は削除
+            package_name=$(echo "$package_name" | sed 's/"//g')
             
             # インストール済みリストから確認
             if echo "$installed_formulas" | grep -q "^$package_name\$"; then
@@ -167,8 +169,10 @@ install_brewfile() {
                 brew install "$package_name"
             fi
 
-        elif [[ "$line" =~ ^cask\ \"(.*)\"$ ]]; then
+        elif [[ "$line" =~ ^cask\ \"(.*)\"$ || "$line" =~ ^cask\ \"(.*)\".*$ || "$line" =~ ^cask\ (.*)$ ]]; then
             package_name="${BASH_REMATCH[1]}"
+            # 引用符が含まれている場合は削除
+            package_name=$(echo "$package_name" | sed 's/"//g')
             
             # インストール済みリストから確認
             if echo "$installed_casks" | grep -q "^$package_name\$"; then
