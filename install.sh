@@ -124,10 +124,20 @@ install_homebrew() {
 
 setup_shell_config() {
     echo "シェルの設定を適用中..."
-
-    touch "$HOME/.zprofile"
     
-    # リポジトリから設定ファイルをコピー（CI環境と本番環境共通）
+    # ディレクトリとファイルの存在確認
+    if [[ ! -d "$REPO_ROOT/shell" ]]; then
+        show_error "$REPO_ROOT/shell ディレクトリが見つかりません"
+        return 1
+    fi
+    
+    if [[ ! -f "$REPO_ROOT/shell/.zprofile" ]]; then
+        show_error "$REPO_ROOT/shell/.zprofile ファイルが見つかりません"
+        return 1
+    fi
+    
+    # .zprofileファイルをコピー
+    touch "$HOME/.zprofile"
     cp "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
     
     # 設定を反映
