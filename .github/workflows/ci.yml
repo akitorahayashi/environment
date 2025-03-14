@@ -78,12 +78,12 @@ jobs:
       
       - name: Homebrewパッケージの確認
         run: |
-          echo "CI環境で指定された重要パッケージがインストールされているか確認します"
+          echo "CI環境で指定された特定のパッケージがインストールされているか確認します"
           
-          # 重要パッケージの確認リスト
-          IMPORTANT_PACKAGES="git jq xcodes cursor visual-studio-code"
+          # 特定のパッケージのリスト
+          SPECIFIC_PACKAGES="git xcodes cursor"
           
-          for package in $IMPORTANT_PACKAGES; do
+          for package in $SPECIFIC_PACKAGES; do
             if brew list $package &>/dev/null; then
               echo "$packageがインストールされています ✅"
             else
@@ -94,7 +94,7 @@ jobs:
           
           echo "Homebrewパッケージの確認が完了しました ✅"
       
-      - name: Flutter設定の確認（インストールされている場合）
+      - name: Flutterの設定の確認
         run: |
           if command -v flutter &>/dev/null; then
             echo "Flutterがインストールされています。基本設定を確認中..."
@@ -105,16 +105,15 @@ jobs:
               echo "Android SDKの環境変数が設定されていません（CI環境では想定内） ⚠️"
             fi
             
-            # Flutter doctorの基本チェック（エラーがあっても失敗しないように）
+            # Flutter doctorのチェック
             flutter --version || echo "Flutterのバージョン確認に失敗しました（CI環境では想定内） ⚠️"
           else
             echo "Flutterがインストールされていません。確認をスキップします"
           fi
       
-      - name: Cursor設定の確認（インストールされている場合）
+      - name: Cursorがインストールされているか確認
         run: |
-          echo "CI環境でもCursorのセットアップを実行します ✅"
-          # Cursorがインストールされているか確認
+          echo "Cursorがインストールされているか確認"
           if [ -d "/Applications/Cursor.app" ]; then
             echo "Cursorがインストールされています ✅"
           else

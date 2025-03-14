@@ -187,14 +187,24 @@ install_brewfile() {
 
     # CI環境での処理改善
     if [ "$IS_CI" = "true" ]; then
-        echo "CI環境で実践的なテストを実行します"
-        
         # 優先度の高い重要パッケージ
-        CI_IMPORTANT_PACKAGES="git jq xcodes cursor visual-studio-code"
+        CI_SPECIFIC_PACKAGES="git xcodes cursor"
         
-        # 重要パッケージをインストール
-        echo "重要なパッケージをインストール中..."
-        for package in $CI_IMPORTANT_PACKAGES; do
+        # インストールが必要なパッケージがあるか確認
+        NEED_INSTALL=false
+        for package in $CI_SPECIFIC_PACKAGES; do
+            if ! brew list $package &>/dev/null; then
+                NEED_INSTALL=true
+                break
+            fi
+        done
+        
+        # インストールが必要な場合のみメッセージを表示
+        if [ "$NEED_INSTALL" = "true" ]; then
+            echo "重要なパッケージをインストール中..."
+        fi
+        
+        for package in $CI_SPECIFIC_PACKAGES; do
             if ! brew list $package &>/dev/null; then
                 echo "➕ $package をインストール中..."
                 brew install $package || echo "⚠️ $package のインストールに失敗しましたが続行します"
@@ -203,7 +213,7 @@ install_brewfile() {
             fi
         done
         
-        echo "✅ CI環境での重要パッケージのインストールが完了しました"
+        echo "✅ CI環境での特定のパッケージのインストールが完了しました"
         return
     fi
 
