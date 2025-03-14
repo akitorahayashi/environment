@@ -172,6 +172,52 @@ jobs:
           
           echo "✅ Flutterの設定が完了しました"
       
+      - name: Cursorの設定の確認
+        run: |
+          # Cursorがインストールされているか確認
+          if ! brew list cursor &>/dev/null; then
+            echo "❌ Cursorがインストールされていません"
+            exit 1
+          fi
+          echo "✅ Cursorがインストールされています"
+          
+          # Cursor設定ディレクトリの確認
+          CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
+          mkdir -p "$CURSOR_CONFIG_DIR"
+          
+          # リポジトリに設定ファイルが存在するか確認
+          if [ -d "$GITHUB_WORKSPACE/cursor" ]; then
+            echo "✅ Cursorの設定ディレクトリが存在します"
+            
+            # settings.jsonが作成されているか確認
+            if [ -f "$GITHUB_WORKSPACE/cursor/settings.json" ]; then
+              echo "✅ settings.jsonファイルが存在します"
+              
+              # Flutter SDKパスの設定チェック
+              if grep -q "dart.flutterSdkPath" "$GITHUB_WORKSPACE/cursor/settings.json"; then
+                echo "✅ Flutter SDKパス設定が存在します"
+              else
+                echo "⚠️ Flutter SDKパス設定が見つかりません"
+              fi
+            else
+              echo "⚠️ settings.jsonファイルが見つかりません"
+            fi
+            
+            # extensions.jsonが存在するか確認
+            if [ -f "$GITHUB_WORKSPACE/cursor/extensions.json" ]; then
+              echo "✅ 拡張機能リストファイルが存在します"
+              # 推奨拡張機能の数を確認
+              EXTENSION_COUNT=$(grep -o '"[^"]*"' "$GITHUB_WORKSPACE/cursor/extensions.json" | grep -v "recommendations" | wc -l | tr -d ' ')
+              echo "🧩 $EXTENSION_COUNT 個の拡張機能が定義されています"
+            else
+              echo "⚠️ 拡張機能リストが見つかりません"
+            fi
+          else
+            echo "⚠️ Cursorの設定ディレクトリが見つかりません"
+          fi
+          
+          echo "✅ Cursorの設定確認が完了しました"
+      
       - name: スクリプトの冪等性テスト
         env:
           CI: true

@@ -233,11 +233,61 @@ setup_cursor() {
         return
     fi
 
+    # Cursor 設定ディレクトリの作成（存在しない場合）
+    CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
+    if [[ ! -d "$CURSOR_CONFIG_DIR" ]]; then
+        mkdir -p "$CURSOR_CONFIG_DIR"
+        echo "✅ Cursor 設定ディレクトリを作成しました"
+    fi
+
     # 設定の復元スクリプトが存在するか確認し、実行
     if [[ -f "$REPO_ROOT/cursor/restore_cursor_settings.sh" ]]; then
+        echo "🔄 Cursor 設定を復元しています..."
         bash "$REPO_ROOT/cursor/restore_cursor_settings.sh"
+        
+        # 設定ファイルが正しく復元されたか確認
+        REQUIRED_SETTINGS=("settings.json" "keybindings.json" "extensions.json")
+        for setting in "${REQUIRED_SETTINGS[@]}"; do
+            if [[ -f "$CURSOR_CONFIG_DIR/$setting" ]]; then
+                echo "✅ $setting が正常に復元されました"
+            else
+                echo "⚠️ $setting の復元に失敗しました"
+            fi
+        done
     else
         echo "Cursor の復元スクリプトが見つかりません。設定の復元をスキップします。"
+    fi
+
+    # 拡張機能の確認とインストール
+    if [[ -f "$REPO_ROOT/cursor/extensions.json" ]]; then
+        echo "🧩 Cursor 拡張機能を確認中..."
+        
+        # Cursorコマンドラインツールのパス
+        CURSOR_CLI="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+        
+        # CI環境では拡張機能のインストールをスキップ
+        if [ "$IS_CI" != "true" ] && [ -f "$CURSOR_CLI" ]; then
+            # インストール済み拡張機能のリストを取得
+            echo "インストール済み拡張機能を確認中..."
+            INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions 2>/dev/null || echo "")
+            
+            # extensions.jsonから拡張機能IDを抽出してインストール
+            EXTENSIONS=$(cat "$REPO_ROOT/cursor/extensions.json" | grep -o '"[^"]*"' | grep -v "recommendations" | tr -d '"')
+            
+            for extension in $EXTENSIONS; do
+                if echo "$INSTALLED_EXTENSIONS" | grep -q "$extension"; then
+                    echo "✅ 拡張機能 $extension はすでにインストールされています"
+                else
+                    echo "🔄 拡張機能 $extension をインストール中..."
+                    "$CURSOR_CLI" --install-extension "$extension" || echo "❌ $extension のインストールに失敗しました"
+                    echo "✅ 拡張機能 $extension をインストールしました"
+                fi
+            done
+        else
+            echo "CI環境または Cursor CLI が見つからないため、拡張機能のインストールをスキップします"
+        fi
+    else
+        echo "拡張機能リストが見つかりません。拡張機能のインストールをスキップします。"
     fi
 
     # Flutter SDK のパスを Cursor に適用
@@ -249,8 +299,19 @@ setup_cursor() {
             CURSOR_SETTINGS="$REPO_ROOT/cursor/settings.json"
             
             echo "🔧 Flutter SDK のパスを Cursor に適用中..."
-            jq --arg path "$FLUTTER_SDK_PATH" '.["dart.flutterSdkPath"] = $path' "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
-            echo "✅ Flutter SDK のパスを $FLUTTER_SDK_PATH に設定しました！"
+            if [[ -f "$CURSOR_SETTINGS" ]]; then
+                # 現在のFlutterパス設定を確認
+                CURRENT_PATH=$(cat "$CURSOR_SETTINGS" | grep -o '"dart.flutterSdkPath": "[^"]*"' | cut -d'"' -f4)
+                
+                if [[ "$CURRENT_PATH" != "$FLUTTER_SDK_PATH" ]]; then
+                    jq --arg path "$FLUTTER_SDK_PATH" '.["dart.flutterSdkPath"] = $path' "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
+                    echo "✅ Flutter SDK のパスを $FLUTTER_SDK_PATH に更新しました！"
+                else
+                    echo "✅ Flutter SDK のパスはすでに正しく設定されています"
+                fi
+            else
+                echo "⚠️ Cursor の設定ファイルが見つかりません"
+            fi
         else
             echo "⚠️ Flutter SDK のディレクトリが見つかりませんでした。"
         fi
