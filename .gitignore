@@ -7,7 +7,6 @@ xcode/xcode_defaults.plist
 *.xcodeproj/project.xcworkspace/xcuserdata/
 
 # macOS関連
-.DS_Store
 .AppleDouble
 .LSOverride
 ._*

@@ -84,12 +84,6 @@ If you see a message like this, SSH authentication was successful:
 Hi akitorahayashi! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-### 6. Reload the Shell
-After setup is complete, reload the shell to apply the changes:
-```sh
-exec $SHELL -l
-```
-
 ## Features
 
 ### 1. Git Configuration

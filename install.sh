@@ -28,14 +28,14 @@ install_xcode_tools() {
         else
             xcode-select --install
             # インストールが完了するまで待機
-            echo "インストールが完了するまで待機しています..."
+            echo "インストールが完了するまで待機..."
             until xcode-select -p &>/dev/null; do
                 sleep 5
             done
         fi
         echo "✅ Xcode Command Line Tools のインストール完了"
     else
-        echo "✅ Xcode Command Line Tools はすでにインストールされています"
+        echo "✅ Xcode Command Line Tools はすでにインストール済み"
     fi
 }
 
@@ -50,7 +50,7 @@ install_rosetta() {
         if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* ]]; then
             # すでに Rosetta 2 がインストールされているかチェック
             if pgrep oahd >/dev/null 2>&1; then
-                echo "✅ Rosetta 2 はすでにインストールされています"
+                echo "✅ Rosetta 2 はすでにインストール済み"
                 return
             fi
 
@@ -65,15 +65,15 @@ install_rosetta() {
 
             # インストールの成否をチェック
             if pgrep oahd >/dev/null 2>&1; then
-                echo "✅ Rosetta 2 のインストールが完了しました"
+                echo "✅ Rosetta 2 のインストールが完了した"
             else
-                echo "❌ Rosetta 2 のインストールに失敗しました"
+                echo "❌ Rosetta 2 のインストールに失敗した"
             fi
         else
-            echo "✅ この Mac ($MAC_MODEL) には Rosetta 2 は不要です"
+            echo "✅ この Mac ($MAC_MODEL) には Rosetta 2 は不要"
         fi
     else
-        echo "✅ この Mac は Apple Silicon ではないため、Rosetta 2 は不要です"
+        echo "✅ この Mac は Apple Silicon ではないため、Rosetta 2 は不要"
     fi
 }
 
@@ -82,7 +82,7 @@ install_homebrew() {
     if ! command_exists brew; then
         echo "Homebrew をインストール中..."
         if [ "$IS_CI" = "true" ]; then
-            echo "CI環境では対話型のHomebrewインストールをスキップします"
+            echo "CI環境では非対話型でインストールします"
             # CI環境では非対話型でインストール
             NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         else
@@ -90,26 +90,21 @@ install_homebrew() {
         fi
         echo "✅ Homebrew のインストール完了"
     else
-        echo "✅ Homebrew はすでにインストールされています"
+        echo "✅ Homebrew はすでにインストール済み"
     fi
 }
 
 setup_shell_config() {
     echo "シェルの設定を適用中..."
     
-    # CI環境でも基本設定を適用するように変更
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境でも基本的なシェル設定を適用します"
-    fi
-    
     # ディレクトリとファイルの存在確認
     if [[ ! -d "$REPO_ROOT/shell" ]]; then
-        echo "❌ $REPO_ROOT/shell ディレクトリが見つかりません"
+        echo "❌ $REPO_ROOT/shell ディレクトリが見つからない"
         return 1
     fi
     
     if [[ ! -f "$REPO_ROOT/shell/.zprofile" ]]; then
-        echo "❌ $REPO_ROOT/shell/.zprofile ファイルが見つかりません"
+        echo "❌ $REPO_ROOT/shell/.zprofile ファイルが見つからない"
         return 1
     fi
     
@@ -127,7 +122,7 @@ setup_shell_config() {
         source "$HOME/.zprofile"
     fi
     
-    echo "✅ シェルの設定の適用完了"
+    echo "✅ シェルの設定を適用完了"
 }
 
 # Git の設定を適用
@@ -137,7 +132,7 @@ setup_git_config() {
     ln -sf "$REPO_ROOT/git/.gitignore_global" "${HOME}/.gitignore_global"
     
     git config --global core.excludesfile "${HOME}/.gitignore_global"
-    echo "✅ Git 設定を適用しました"
+    echo "✅ Git の設定を適用完了"
 }
 
 # アプリを開く関数
@@ -146,11 +141,11 @@ open_app() {
     local bundle_name="$2"
     
     if [ "$IS_CI" = "true" ]; then
-        echo "CI環境ではアプリの起動をスキップします: $package_name"
+        echo "CI環境ではアプリの起動をスキップ: $package_name"
         return
     fi
     
-    echo "✨ $package_name を起動準備中..."
+    echo "✨ $package_name を起動中..."
     # インストール完了後、少し待機
     sleep 2
     
@@ -163,15 +158,15 @@ open_app() {
     
     for app_path in "${app_paths[@]}"; do
         if [ -d "$app_path" ]; then
-            echo "🚀 $package_name を起動します..."
+            echo "🚀 $package_name を起動中..."
             if ! open -a "$bundle_name" 2>/dev/null; then
-                echo "⚠️ $package_name の起動に失敗しました"
+                echo "⚠️ $package_name の起動に失敗"
             fi
             return
         fi
     done
     
-    echo "$package_name が見つかりません"
+    echo "$package_name が見つからない"
 }
 
 # Brewfile に記載されているパッケージをインストール
@@ -179,145 +174,41 @@ install_brewfile() {
     local brewfile_path="$REPO_ROOT/config/Brewfile"
     
     if [[ ! -f "$brewfile_path" ]]; then
-        echo "⚠️ Warning: $brewfile_path が見つかりません。スキップします。"
+        echo "⚠️ Warning: $brewfile_path が見つからないのでスキップ"
         return
     fi
 
-    echo "Homebrew パッケージの状態を確認中..."
+    echo "Homebrew パッケージのインストールを開始します..."
 
-    # CI環境での処理改善
     if [ "$IS_CI" = "true" ]; then
-        # 優先度の高い重要パッケージ
-        CI_SPECIFIC_PACKAGES="git xcodes cursor"
-        
-        # インストールが必要なパッケージがあるか確認
-        NEED_INSTALL=false
-        for package in $CI_SPECIFIC_PACKAGES; do
-            if ! brew list $package &>/dev/null; then
-                NEED_INSTALL=true
-                break
-            fi
-        done
-        
-        # インストールが必要な場合のみメッセージを表示
-        if [ "$NEED_INSTALL" = "true" ]; then
-            echo "特定のパッケージをインストール中..."
-        fi
-        
-        for package in $CI_SPECIFIC_PACKAGES; do
-            if ! brew list $package &>/dev/null; then
-                echo "➕ $package をインストール中..."
-                brew install $package || echo "⚠️ $package のインストールに失敗しましたが続行します"
-            else
-                echo "✅ $package はすでにインストールされています"
-            fi
-        done
-        
-        echo "✅ CI環境での特定のパッケージのインストールが完了しました"
+        # CI環境では最小限のパッケージのみインストール
+        echo "CI環境では最小限のパッケージをインストールします"
+        brew install git xcodes cursor || true
         return
     fi
 
     # 通常環境では全パッケージをインストール
-    # インストール済みのパッケージリストを一度だけ取得
-    local installed_formulas=$(brew list --formula)
-    local installed_casks=$(brew list --cask)
-
-    # Brewfile からインストールすべきパッケージを1行ずつ処理
-    while IFS= read -r line; do
-        # コメントや空行をスキップ
-        [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
-
-        # "brew" または "cask" で始まる行をパース
-        if [[ "$line" =~ ^brew\ \"(.*)\"$ || "$line" =~ ^brew\ \"(.*)\".*$ || "$line" =~ ^brew\ (.*)$ ]]; then
-            package_name="${BASH_REMATCH[1]}"
-            # 引用符が含まれている場合は削除
-            package_name=$(echo "$package_name" | sed 's/"//g')
-            
-            # インストール済みリストから確認
-            if echo "$installed_formulas" | grep -q "^$package_name\$"; then
-                echo "✔ $package_name はすでにインストールされています"
-            else
-                echo "➕ $package_name をインストール中..."
-                brew install --formula "$package_name"
-            fi
-
-        elif [[ "$line" =~ ^cask\ \"(.*)\"$ || "$line" =~ ^cask\ \"(.*)\".*$ || "$line" =~ ^cask\ (.*)$ ]]; then
-            package_name="${BASH_REMATCH[1]}"
-            # 引用符が含まれている場合は削除
-            package_name=$(echo "$package_name" | sed 's/"//g')
-            
-            # インストール済みリストから確認
-            if echo "$installed_casks" | grep -q "^$package_name\$"; then
-                echo "✔ $package_name はすでにインストールされています"
-            else
-                echo "➕ $package_name をインストール中..."
-                if brew install --cask "$package_name"; then
-                    # アプリ名とバンドル名のマッピング
-                    local bundle_name=""
-                    case "$package_name" in
-                        "android-studio")
-                            bundle_name="Android Studio.app"
-                            ;;
-                        "google-chrome")
-                            bundle_name="Google Chrome.app"
-                            ;;
-                        "slack")
-                            bundle_name="Slack.app"
-                            ;;
-                        "spotify")
-                            bundle_name="Spotify.app"
-                            ;;
-                        "zoom")
-                            bundle_name="zoom.us.app"
-                            ;;
-                        "notion")
-                            bundle_name="Notion.app"
-                            ;;
-                        "figma")
-                            bundle_name="Figma.app"
-                            ;;
-                        "cursor")
-                            bundle_name="Cursor.app"
-                            ;;
-                    esac
-
-                    # バンドル名が設定されている場合のみ開く
-                    if [ -n "$bundle_name" ]; then
-                        open_app "$package_name" "$bundle_name"
-                    fi
-                else
-                    echo "❌ $package_name のインストールに失敗しました"
-                fi
-            fi
-        fi
-    done < "$brewfile_path"
-
-    echo "✅ Homebrew パッケージの適用が完了しました"
+    brew bundle --file "$brewfile_path"
+    echo "✅ Homebrew パッケージのインストールが完了しました"
 }
 
-# Flutter のセットアップ（Android SDK のパスを適切に設定）
+# Flutter のセットアップ
 setup_flutter() {
     if ! command_exists flutter; then
         echo "Flutter がインストールされていません。セットアップをスキップします。"
         return
     fi
 
-    echo "Flutter 環境をセットアップ中..."
-    
-    # Android SDK のパスを適切に設定
-    export ANDROID_HOME="$HOME/Library/Android/sdk"
-    export ANDROID_SDK_ROOT="$ANDROID_HOME"
-    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
+    echo "Flutter の環境をセットアップ中..."
 
     if [ "$IS_CI" = "true" ]; then
         echo "CI環境では対話型の flutter doctor --android-licenses をスキップします"
         flutter doctor || true
     else
         flutter doctor --android-licenses
-        flutter doctor
     fi
 
-    echo "✅ Flutter 環境のセットアップ完了"
+    echo "✅ Flutter の環境のセットアップ完了"
 }
 
 # Cursor のセットアップ
@@ -384,61 +275,17 @@ setup_xcode() {
     fi
 
     # シミュレータのインストール
-    echo "📲 各プラットフォームのシミュレータを確認中..."
-    
-    # シミュレータがインストール済みかチェックする関数
-    check_simulator() {
-        local platform="$1"
-        local runtime_name="$2"
-        
-        # xcrun simctl list runtimes でインストール済みのランタイムを確認
-        if xcrun simctl list runtimes | grep -q "$runtime_name"; then
-            return 0  # インストール済み
+    echo "📲 シミュレータをインストール中..."
+    for platform in iOS watchOS tvOS visionOS; do
+        if ! xcrun simctl list runtimes | grep -q "$platform"; then
+            echo "➕ $platform シミュレータをインストール中..."
+            xcodebuild -downloadPlatform "$platform"
         else
-            return 1  # 未インストール
+            echo "✅ $platform シミュレータは既にインストールされています"
         fi
-    }
-    
-    # iOS シミュレータ
-    if check_simulator "iOS" "iOS"; then
-        echo "✅ iOS シミュレータは既にインストールされています"
-    else
-        echo "📱 iOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform iOS
-    fi
-    
-    # watchOS シミュレータ
-    if check_simulator "watchOS" "watchOS"; then
-        echo "✅ watchOS シミュレータは既にインストールされています"
-    else
-        echo "⌚ watchOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform watchOS
-    fi
-    
-    # tvOS シミュレータ
-    if check_simulator "tvOS" "tvOS"; then
-        echo "✅ tvOS シミュレータは既にインストールされています"
-    else
-        echo "📺 tvOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform tvOS
-    fi
-    
-    # visionOS シミュレータ
-    if check_simulator "visionOS" "visionOS"; then
-        echo "✅ visionOS シミュレータは既にインストールされています"
-    else
-        echo "👓 visionOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform visionOS
-    fi
-    
-    echo "✅ すべてのシミュレータの確認が完了しました"
+    done
 
-    if [[ -f "$REPO_ROOT/xcode/restore_xcode_settings.sh" ]]; then
-        bash "$REPO_ROOT/xcode/restore_xcode_settings.sh"
-        echo "✅ Xcode 設定の適用が完了しました！"
-    else
-        echo "restore_xcode_settings.sh が見つかりません"
-    fi
+    echo "✅ Xcode のセットアップが完了しました！"
 }
 
 # Mac のシステム設定を適用
@@ -469,12 +316,20 @@ setup_ssh_agent() {
     # SSH キーが存在するか確認し、なければ作成
     if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
         echo "🛠 SSH キーが見つかりません。新しく生成します..."
+        
+        # .gitconfigからメールアドレスを取得
+        local git_email=$(git config --get user.email)
+        if [ -z "$git_email" ]; then
+            echo "⚠️ .gitconfigにメールアドレスが設定されていません"
+            git_email="your_email@example.com"
+        fi
+        
         if [ "$IS_CI" = "true" ]; then
             echo "CI環境では対話型のSSHキー生成をスキップします"
             # CI環境では非対話型でキーを生成（実際のメールアドレスは使用しない）
             ssh-keygen -t ed25519 -C "ci-test@example.com" -f "$HOME/.ssh/id_ed25519" -N "" -q
         else
-            ssh-keygen -t ed25519 -C "your_email@example.com" -f "$HOME/.ssh/id_ed25519" -N ""
+            ssh-keygen -t ed25519 -C "$git_email" -f "$HOME/.ssh/id_ed25519" -N ""
         fi
         echo "✅ SSH キーの生成が完了しました"
     fi
@@ -515,17 +370,17 @@ setup_github_cli() {
 # 実行順序
 install_xcode_tools     # 開発に必要な Xcode Command Line Tools をインストール
 install_rosetta        # Apple M1, M2 向けに Rosetta 2 をインストール
-install_homebrew       # パッケージマネージャの Homebrew をインストール
+install_homebrew       # Homebrew をインストール
+install_brewfile      # Brewfile のパッケージをインストール
 setup_shell_config    # zsh の設定を適用
-setup_github_cli      # GitHub CLIのセットアップを追加
-install_brewfile      # Brewfile から必要なパッケージをインストール
+setup_github_cli      # GitHub CLIのセットアップ
 
-setup_git_config      # Git の設定とグローバル gitignore を適用
-setup_ssh_agent      # SSH キーの自動追加のためのエージェントを設定
+setup_git_config      # Git の設定と gitignore_global を適用
+setup_ssh_agent      # SSH キーのエージェントを設定
 
-setup_mac_settings    # Mac のシステム設定（トラックパッド、Dock など）を適用
-setup_xcode          # Xcode 16.2 のインストールと設定の復元
-setup_flutter        # Flutter 開発環境をセットアップ
+setup_mac_settings    # Mac のシステム設定を復元
+setup_xcode          # Xcode 16.2 とシミュレータのインストール
+setup_flutter        # Flutter の開発環境をセットアップ
 setup_cursor         # Cursor IDE の設定を復元
 
 end_time=$(date +%s)

@@ -47,6 +47,14 @@ TRACKPAD_SPEED=$(get_default_value -g com.apple.trackpad.scaling 1.5)
 TAP_TO_CLICK=$(get_default_value com.apple.AppleMultitouchTrackpad Clicking 1)
 DRAGGING=$(get_default_value com.apple.AppleMultitouchTrackpad Dragging 0)
 THREE_FINGER_DRAG=$(get_default_value com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag 0)
+FIRST_CLICK_THRESHOLD=$(get_default_value com.apple.AppleMultitouchTrackpad FirstClickThreshold 1)
+SECOND_CLICK_THRESHOLD=$(get_default_value com.apple.AppleMultitouchTrackpad SecondClickThreshold 1)
+ACTUATE_DETENTS=$(get_default_value com.apple.AppleMultitouchTrackpad ActuateDetents true)
+FORCE_SUPPRESSED=$(get_default_value com.apple.AppleMultitouchTrackpad ForceSuppressed false)
+THREE_FINGER_TAP=$(get_default_value com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture 0)
+RIGHT_CLICK=$(get_default_value com.apple.AppleMultitouchTrackpad TrackpadRightClick true)
+BT_RIGHT_CLICK=$(get_default_value com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick true)
+BT_CLICKING=$(get_default_value com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking true)
 
 # システムサウンドの設定
 STARTUP_SOUND=$(get_default_value com.apple.systemsound "com.apple.sound.beep.flash" false)
@@ -64,16 +72,31 @@ echo "defaults write -g com.apple.sound.beep.sound -string \"$ALERT_SOUND\"" >> 
 # アクセントカラーの設定
 ACCENT_COLOR=$(get_default_value -g AppleAccentColor 0)
 
+# トラックパッド設定を出力
+echo "" >> "$OUTPUT_FILE"
+echo "# トラックパッド設定" >> "$OUTPUT_FILE"
+echo "echo \"トラックパッドの設定を適用中...\"" >> "$OUTPUT_FILE"
+echo "# 軌跡の速さ (0.0 - 3.0 の範囲で設定)" >> "$OUTPUT_FILE"
 echo "defaults write -g com.apple.trackpad.scaling -float $TRACKPAD_SPEED" >> "$OUTPUT_FILE"
+echo "# クリックの強さ (0 - 2 の範囲で設定)" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int $FIRST_CLICK_THRESHOLD" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.AppleMultitouchTrackpad SecondClickThreshold -int $SECOND_CLICK_THRESHOLD" >> "$OUTPUT_FILE"
+echo "# 強めのクリックと触覚フィードバック" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.AppleMultitouchTrackpad ActuateDetents -bool $ACTUATE_DETENTS" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.AppleMultitouchTrackpad ForceSuppressed -bool $FORCE_SUPPRESSED" >> "$OUTPUT_FILE"
+echo "# 調べる＆データ検出 (1本指で強めのクリック)" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int $THREE_FINGER_TAP" >> "$OUTPUT_FILE"
+echo "# 副ボタンのクリック (2本指でクリック)" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool $RIGHT_CLICK" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool $BT_RIGHT_CLICK" >> "$OUTPUT_FILE"
+echo "# タップでクリック" >> "$OUTPUT_FILE"
 echo "defaults write com.apple.AppleMultitouchTrackpad Clicking -bool $TAP_TO_CLICK" >> "$OUTPUT_FILE"
+echo "defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool $BT_CLICKING" >> "$OUTPUT_FILE"
 echo "defaults write com.apple.AppleMultitouchTrackpad Dragging -bool $DRAGGING" >> "$OUTPUT_FILE"
 echo "defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool $THREE_FINGER_DRAG" >> "$OUTPUT_FILE"
 
-# システムサウンドの設定を追加
-echo "defaults write com.apple.systemsound com.apple.sound.uiaudio.enabled -bool $UI_SOUND" >> "$OUTPUT_FILE"
-
-# アクセントカラーの設定を追加
-echo "defaults write -g AppleAccentColor -int $ACCENT_COLOR" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+echo "# マウス設定" >> "$OUTPUT_FILE"
 
 # マウスの速度
 MOUSE_SPEED=$(get_default_value -g com.apple.mouse.scaling 1.5)
