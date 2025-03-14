@@ -97,10 +97,9 @@ install_homebrew() {
 setup_shell_config() {
     echo "シェルの設定を適用中..."
     
-    # CI環境ではスキップ
+    # CI環境でも基本設定を適用するように変更
     if [ "$IS_CI" = "true" ]; then
-        echo "CI環境ではシェル設定の適用をスキップします"
-        return 0
+        echo "CI環境でも基本的なシェル設定を適用します"
     fi
     
     # ディレクトリとファイルの存在確認
@@ -123,8 +122,8 @@ setup_shell_config() {
     # シンボリックリンクを作成
     ln -sf "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
     
-    # 設定を反映
-    if [ -f "$HOME/.zprofile" ]; then
+    # 設定を反映（CI環境ではスキップ）
+    if [ "$IS_CI" != "true" ] && [ -f "$HOME/.zprofile" ]; then
         source "$HOME/.zprofile"
     fi
     
@@ -186,22 +185,25 @@ install_brewfile() {
 
     echo "Homebrew パッケージの状態を確認中..."
 
-    # CI環境では必須パッケージのみインストール
+    # CI環境での処理改善
     if [ "$IS_CI" = "true" ]; then
-        echo "CI環境では特定のパッケージのみインストールします"
-        # CI環境で必要な最小限のパッケージをインストール
-        brew install git jq || true
+        echo "CI環境で実践的なテストを実行します"
         
-        # xcodesは別途インストール（依存関係が少ない）
-        if ! command_exists xcodes; then
-            echo "xcodes をインストール中..."
-            brew tap xcodesorg/homebrew-xcodes
-            brew install xcodes
-        else
-            echo "✅ xcodes はすでにインストールされています"
-        fi
+        # 優先度の高い重要パッケージ
+        CI_IMPORTANT_PACKAGES="git jq xcodes cursor visual-studio-code"
         
-        echo "✅ CI環境での必須パッケージのインストールが完了しました"
+        # 重要パッケージをインストール
+        echo "重要なパッケージをインストール中..."
+        for package in $CI_IMPORTANT_PACKAGES; do
+            if ! brew list $package &>/dev/null; then
+                echo "➕ $package をインストール中..."
+                brew install $package || echo "⚠️ $package のインストールに失敗しましたが続行します"
+            else
+                echo "✅ $package はすでにインストールされています"
+            fi
+        done
+        
+        echo "✅ CI環境での重要パッケージのインストールが完了しました"
         return
     fi
 

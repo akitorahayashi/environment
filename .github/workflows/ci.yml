@@ -61,13 +61,36 @@ jobs:
           
           echo "Git設定の確認が完了しました ✅"
       
+      - name: シェル設定の確認
+        run: |
+          test -f ~/.zprofile && echo ".zprofileが存在します ✅" || (echo ".zprofileが存在しません ❌" && exit 1)
+          
+          # シンボリックリンクの検証
+          if [ "$(readlink ~/.zprofile)" = "$GITHUB_WORKSPACE/shell/.zprofile" ]; then
+            echo ".zprofileのシンボリックリンクが正しく設定されています ✅"
+          else
+            echo ".zprofileのシンボリックリンクが正しくありません ❌"
+            echo "実際のリンク先: $(readlink ~/.zprofile)"
+            exit 1
+          fi
+          
+          echo "シェル設定の確認が完了しました ✅"
+      
       - name: Homebrewパッケージの確認
         run: |
-          echo "CI環境では必須パッケージのみインストールされていることを確認します"
-          # 特定のパッケージのみチェック
-          brew list git && echo "gitがインストールされています ✅" || (echo "gitがインストールされていません ❌" && exit 1)
-          brew list jq && echo "jqがインストールされています ✅" || (echo "jqがインストールされていません ❌" && exit 1)
-          brew list xcodes && echo "xcodesがインストールされています ✅" || (echo "xcodesがインストールされていません ❌" && exit 1)
+          echo "CI環境で指定された重要パッケージがインストールされているか確認します"
+          
+          # 重要パッケージの確認リスト
+          IMPORTANT_PACKAGES="git jq xcodes cursor visual-studio-code"
+          
+          for package in $IMPORTANT_PACKAGES; do
+            if brew list $package &>/dev/null; then
+              echo "$packageがインストールされています ✅"
+            else
+              echo "$packageがインストールされていません ❌"
+              exit 1
+            fi
+          done
           
           echo "Homebrewパッケージの確認が完了しました ✅"
       
@@ -95,7 +118,8 @@ jobs:
           if [ -d "/Applications/Cursor.app" ]; then
             echo "Cursorがインストールされています ✅"
           else
-            echo "Cursorがインストールされていません（CI環境では想定内） ⚠️"
+            echo "Cursorがインストールされていません ❌"
+            exit 1
           fi
       
       - name: スクリプトの冪等性テスト
