@@ -1,49 +1,79 @@
-# CI for macOS Environment Setup
+# CI Workflow 
 
-This document describes the CI (Continuous Integration) setup for the macOS environment setup script (`install.sh`). This CI workflow is designed to automatically verify that the environment setup script works correctly in a clean macOS environment.
+This directory contains the Continuous Integration (CI) workflow configuration for automating the validation of the macOS environment setup process.
 
-## CI Workflow Overview
+## Overview
 
-CI is executed using GitHub Actions at the following times:
-- When pushing to the `main` branch
-- When creating a pull request targeting the `main` branch
-- Manual execution (workflow_dispatch)
+The CI workflow (`ci.yml`) is designed to:
 
-## Verification Items
+1. Validate the installation script (`install.sh`) works correctly on macOS
+2. Ensure all tools and applications are properly installed and configured
+3. Verify the idempotency of the installation script (can be run multiple times without side effects)
+4. Confirm all configuration files are properly set up
 
-The CI workflow verifies the following items:
+## Workflow Details
 
-### 1. Basic Installation
-- Whether Homebrew is correctly installed
-- Whether Xcode Command Line Tools are available
+### Triggers
 
-### 2. Git Configuration
-- Whether the `.gitconfig` file is correctly symlinked
-- Whether the `.gitignore_global` file is correctly symlinked
-- Whether `core.excludesfile` is correctly configured
+The workflow runs on:
+- Push to the `main` branch
+- Pull requests to the `main` branch
+- Manual execution via workflow dispatch
 
-### 3. Shell Configuration
-- Whether the `.zprofile` file is correctly symlinked
+### Environment
 
-### 4. Homebrew Packages
-- Whether important packages (git, xcodes, cursor) are correctly installed
+- **Runner**: macOS latest
+- **Timeout**: 120 minutes (extended to accommodate Xcode installation)
 
-### 5. Flutter Configuration (if installed)
-- Whether Android SDK environment variables are correctly set
+### Steps Overview
 
-### 6. Cursor Configuration
-- Whether the Cursor application is correctly installed
+1. **Repository Checkout**
+   - Clones the repository into the CI environment
 
-### 7. Idempotence Test
-- Verify that no new installations occur when running the script a second time
-- Verify that the script can be safely executed multiple times
+2. **GitHub Authentication Setup**
+   - Configures GitHub authentication for the CI environment
 
-## GitHub Actions Usage Limitations
+3. **Installation Script Execution**
+   - Runs the `install.sh` script with CI-specific environment variables
+   - Uses `GITHUB_TOKEN_CI` for authentication with GitHub APIs
 
-Since this repository is a public repository, the use of GitHub Actions is basically free. However, the following points should be noted:
+4. **Validation Steps**
+   - **Homebrew**: Verifies Homebrew is installed correctly
+   - **Xcode**: Confirms Xcode Command Line Tools, Xcode 16.2, and simulators
+   - **Git**: Ensures Git configuration files are properly linked
+   - **Shell**: Checks shell configuration is correctly applied
+   - **Homebrew Packages**: Validates all packages in Brewfile are installed
+   - **Flutter**: Confirms Flutter is properly installed and configured
+   - **Cursor**: Checks Cursor IDE configuration (settings, extensions, Flutter SDK path)
+   - **macOS Settings**: Analyzes the macOS system settings configuration
 
-- macOS runners consume 10x the minutes (100 minutes used counts as 1,000 minutes)
-- GitHub Free account's monthly free quota is 2,000 minutes
-- Even for public repositories, care should be taken with the number of macOS runner uses
+5. **Idempotency Test**
+   - Runs the installation script a second time
+   - Ensures no new installations are performed
+   - Checks for specific keywords that would indicate non-idempotent behavior
 
-For more details, see [GitHub Actions Pricing](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions).
+## Key Validation Checks
+
+### Flutter SDK Configuration
+- Verifies Flutter is installed at `/opt/homebrew/bin/flutter`
+- Runs `flutter doctor` to validate the installation
+- Confirms Xcode integration
+
+### Cursor IDE Setup
+- Validates Cursor is installed via Homebrew
+- Checks for required configuration files (settings.json, extensions.json)
+- Confirms Flutter SDK path integration
+- Counts defined extensions
+
+### macOS System Settings
+- Analyzes settings file for common configurations (Dock, Finder, screenshots)
+- Performs syntax validation
+- Checks for potentially dangerous commands
+
+## Modifying the Workflow
+
+When modifying the CI workflow:
+1. Update the steps to match any changes in the installation script
+2. Ensure timeout values are appropriate for all installation steps
+3. Add validation for any new tools or configurations
+4. Update the idempotency test patterns as needed
