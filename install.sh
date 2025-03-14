@@ -6,6 +6,13 @@ IS_CI=${CI:-false}
 start_time=$(date +%s)
 echo "Macをセットアップ中..."
 
+# リポジトリのルートディレクトリを設定
+if [ "$IS_CI" = "true" ] && [ -n "$GITHUB_WORKSPACE" ]; then
+    REPO_ROOT="$GITHUB_WORKSPACE"
+else
+    REPO_ROOT="$HOME/environment"
+fi
+
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -75,33 +82,46 @@ install_homebrew() {
     fi
 }
 
-setup_zprofile() {
-    echo "Homebrew のパス設定を更新中..."
-    # zprofile シンボリックリンク
-    rm -f "$HOME/.zprofile"
-    ln -s "$HOME/environment/shell/.zprofile" "$HOME/.zprofile"
-
-    if ! grep -q '/opt/homebrew/bin/brew shellenv' "$HOME/environment/shell/.zprofile"; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/environment/shell/.zprofile"
+setup_shell_config() {
+    echo "シェルの設定を適用中..."
+    
+    if [ "$IS_CI" = "true" ]; then
+        # CI環境でも本番環境と同じように設定ファイルをコピー
+        echo "CI環境でシェル設定ファイルをコピーします"
+        
+        # shell/ディレクトリが存在しない場合は作成
+        mkdir -p "$REPO_ROOT/shell"
+        
+        # 空の.zshrcファイルを作成
+        touch "$REPO_ROOT/shell/.zshrc"
+        
+        # 空の.zprofileファイルを作成
+        touch "$REPO_ROOT/shell/.zprofile"
     fi
-
-    source "$HOME/.zprofile"
-    echo "Homebrew のパス設定が完了 ✅"
+    
+    # リポジトリから設定ファイルをコピー（CI環境と本番環境共通）
+    cp "$REPO_ROOT/shell/.zshrc" "$HOME/.zshrc"
+    cp "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
+    
+    # 設定を反映
+    if [ -f "$HOME/.zprofile" ]; then
+        source "$HOME/.zprofile"
+    fi
+    if [ -f "$HOME/.zshrc" ]; then
+        source "$HOME/.zshrc"
+    fi
+    
+    echo "シェルの設定の適用完了 ✅"
 }
 
 # Git の設定を適用
 setup_git_config() {
-    ln -sf "${HOME}/environment/git/.gitconfig" "${HOME}/.gitconfig"
-    ln -sf "${HOME}/environment/git/.gitignore_global" "${HOME}/.gitignore_global"
+    # シンボリックリンクを作成
+    ln -sf "$REPO_ROOT/git/.gitconfig" "${HOME}/.gitconfig"
+    ln -sf "$REPO_ROOT/git/.gitignore_global" "${HOME}/.gitignore_global"
+    
     git config --global core.excludesfile "${HOME}/.gitignore_global"
     echo "Git 設定を適用しました ✅"
-}
-
-# シェルの設定を適用
-setup_shell_config() {
-    echo "シェルの設定を適用中..."
-    ln -sf "${HOME}/environment/shell/.zshrc" "${HOME}/.zshrc"
-    echo "シェルの設定の適用完了 ✅"
 }
 
 # アプリを開く関数
@@ -135,7 +155,7 @@ open_app() {
 
 # Brewfile に記載されているパッケージをインストール
 install_brewfile() {
-    local brewfile_path="$HOME/environment/config/Brewfile"
+    local brewfile_path="$REPO_ROOT/config/Brewfile"
     
     if [[ ! -f "$brewfile_path" ]]; then
         echo "Warning: $brewfile_path が見つかりません。スキップします。"
@@ -252,10 +272,10 @@ setup_cursor() {
     fi
 
     # 設定の復元スクリプトが存在するか確認し、実行
-    if [[ -f "$HOME/environment/cursor/restore_cursor_settings.sh" ]]; then
-        bash "$HOME/environment/cursor/restore_cursor_settings.sh"
+    if [[ -f "$REPO_ROOT/cursor/restore_cursor_settings.sh" ]]; then
+        bash "$REPO_ROOT/cursor/restore_cursor_settings.sh"
     else
-        echo "⚠ Cursor の復元スクリプトが見つかりません。設定の復元をスキップします。"
+        echo "Cursor の復元スクリプトが見つかりません。設定の復元をスキップします。"
     fi
 
     # Flutter SDK のパスを Cursor に適用
@@ -263,13 +283,13 @@ setup_cursor() {
     FLUTTER_SDK_PATH="/opt/homebrew/Caskroom/flutter/${FLUTTER_VERSION}/flutter"
 
     if [[ -d "$FLUTTER_SDK_PATH" ]]; then
-        CURSOR_SETTINGS="$HOME/environment/cursor/settings.json"
+        CURSOR_SETTINGS="$REPO_ROOT/cursor/settings.json"
         
         echo "🔧 Flutter SDK のパスを Cursor に適用中..."
         jq --arg path "$FLUTTER_SDK_PATH" '.["dart.flutterSdkPath"] = $path' "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
         echo "✅ Flutter SDK のパスを $FLUTTER_SDK_PATH に設定しました！"
     else
-        echo "⚠ Homebrew でインストールされた Flutter SDK が見つかりませんでした。"
+        echo "Homebrew でインストールされた Flutter SDK が見つかりませんでした。"
     fi
 
     echo "✅ Cursor のセットアップが完了しました！"
@@ -348,8 +368,8 @@ setup_xcode() {
     
     echo "✅ すべてのシミュレータの確認が完了しました"
 
-    if [[ -f "$HOME/environment/xcode/restore_xcode_settings.sh" ]]; then
-        bash "$HOME/environment/xcode/restore_xcode_settings.sh"
+    if [[ -f "$REPO_ROOT/xcode/restore_xcode_settings.sh" ]]; then
+        bash "$REPO_ROOT/xcode/restore_xcode_settings.sh"
         echo "✅ Xcode 設定の適用が完了しました！"
     else
         echo "restore_xcode_settings.sh が見つかりません"
@@ -365,8 +385,8 @@ setup_mac_settings() {
         return 0
     fi
     
-    if [[ -f "$HOME/environment/macos/setup_mac_settings.sh" ]]; then
-        source "$HOME/environment/macos/setup_mac_settings.sh"
+    if [[ -f "$REPO_ROOT/macos/setup_mac_settings.sh" ]]; then
+        source "$REPO_ROOT/macos/setup_mac_settings.sh"
         echo "✅ Mac のシステム設定が適用されました"
     else
         echo "⚠️ setup_mac_settings.sh が見つかりません"
@@ -401,17 +421,39 @@ setup_ssh_agent() {
     fi
 }
 
+# GitHub CLI のインストールと認証
+setup_github_cli() {
+    if ! command_exists gh; then
+        echo "GitHub CLI をインストール中..."
+        brew install gh
+        echo "GitHub CLI のインストール完了 ✅"
+    else
+        echo "GitHub CLI はすでにインストールされています"
+    fi
+
+    # 認証状態をチェック
+    if ! gh auth status &>/dev/null; then
+        echo "GitHub CLI の認証を行います..."
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では認証をスキップします"
+        else
+            gh auth login
+        fi
+    else
+        echo "GitHub CLI はすでに認証済みです ✅"
+    fi
+}
 
 # 実行順序
 install_xcode_tools     # 開発に必要な Xcode Command Line Tools をインストール
 install_rosetta        # Apple Silicon Mac 向けに Rosetta 2 をインストール
 install_homebrew       # パッケージマネージャの Homebrew をインストール
-setup_zprofile        # Homebrew のパス設定を .zprofile に追加
+setup_shell_config    # zsh の設定を適用
+setup_github_cli      # GitHub CLIのセットアップを追加
 install_brewfile      # Brewfile から必要なパッケージをインストール
 
 setup_git_config      # Git の設定とグローバル gitignore を適用
 setup_ssh_agent      # SSH キーの自動追加のためのエージェントを設定
-setup_shell_config    # zsh の設定を適用
 
 setup_mac_settings    # Mac のシステム設定（トラックパッド、Dock など）を適用
 setup_xcode          # Xcode 16.2 のインストールと設定の復元

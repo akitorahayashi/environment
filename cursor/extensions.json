@@ -3,6 +3,7 @@
         "dart-code.dart-code",
         "dart-code.flutter",
         "cschleiden.vscode-github-actions",
+        "github.vscode-github-actions",
         "GitHub.copilot",
         "GitHub.copilot-chat"
     ]

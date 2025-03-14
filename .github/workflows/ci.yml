@@ -28,28 +28,21 @@ jobs:
         
       - name: Xcodeコマンドラインツールの確認
         run: xcode-select -p
-        
+      
       - name: シェル設定の確認
         run: |
+          # .zshrcと.zprofileの存在確認
           test -f ~/.zshrc && echo "zshrcが存在します ✅" || (echo "zshrcが存在しません ❌" && exit 1)
           test -f ~/.zprofile && echo "zprofileが存在します ✅" || (echo "zprofileが存在しません ❌" && exit 1)
           
-          # シンボリックリンクの検証
-          if [ "$(readlink ~/.zshrc)" = "$HOME/environment/shell/.zshrc" ]; then
-            echo "zshrcのシンボリックリンクが正しく設定されています ✅"
+          # ファイルの内容確認
+          if grep -q 'Homebrew' ~/.zshrc; then
+            echo "zshrcにHomebrewの設定が含まれています ✅"
           else
-            echo "zshrcのシンボリックリンクが正しくありません ❌"
+            echo "zshrcにHomebrewの設定が含まれていません ❌"
             exit 1
           fi
           
-          if [ "$(readlink ~/.zprofile)" = "$HOME/environment/shell/.zprofile" ]; then
-            echo "zprofileのシンボリックリンクが正しく設定されています ✅"
-          else
-            echo "zprofileのシンボリックリンクが正しくありません ❌"
-            exit 1
-          fi
-          
-          # Homebrewパスの設定確認
           if grep -q '/opt/homebrew/bin/brew shellenv' ~/.zprofile; then
             echo "zprofileにHomebrewパスが正しく設定されています ✅"
           else
@@ -65,17 +58,19 @@ jobs:
           test -f ~/.gitignore_global && echo "gitignore_globalが存在します ✅" || (echo "gitignore_globalが存在しません ❌" && exit 1)
           
           # シンボリックリンクの検証
-          if [ "$(readlink ~/.gitconfig)" = "$HOME/environment/git/.gitconfig" ]; then
+          if [ "$(readlink ~/.gitconfig)" = "$GITHUB_WORKSPACE/git/.gitconfig" ]; then
             echo "gitconfigのシンボリックリンクが正しく設定されています ✅"
           else
             echo "gitconfigのシンボリックリンクが正しくありません ❌"
+            echo "実際のリンク先: $(readlink ~/.gitconfig)"
             exit 1
           fi
           
-          if [ "$(readlink ~/.gitignore_global)" = "$HOME/environment/git/.gitignore_global" ]; then
+          if [ "$(readlink ~/.gitignore_global)" = "$GITHUB_WORKSPACE/git/.gitignore_global" ]; then
             echo "gitignore_globalのシンボリックリンクが正しく設定されています ✅"
           else
             echo "gitignore_globalのシンボリックリンクが正しくありません ❌"
+            echo "実際のリンク先: $(readlink ~/.gitignore_global)"
             exit 1
           fi
           
@@ -92,7 +87,7 @@ jobs:
       - name: Homebrewパッケージの確認
         run: |
           # Brewfileから必要なパッケージをチェック
-          if [ -f "$HOME/environment/config/Brewfile" ]; then
+          if [ -f "$GITHUB_WORKSPACE/config/Brewfile" ]; then
             echo "Brewfileから必要なパッケージを確認中..."
             # 重要なパッケージのみチェック
             brew list git && echo "gitがインストールされています ✅" || (echo "gitがインストールされていません ❌" && exit 1)
@@ -100,11 +95,11 @@ jobs:
             
             # Brewfileに記載されている他の重要なパッケージも確認
             # 例: xcodes, flutter など（存在する場合）
-            if grep -q "xcodes" "$HOME/environment/config/Brewfile"; then
+            if grep -q "xcodes" "$GITHUB_WORKSPACE/config/Brewfile"; then
               brew list xcodes && echo "xcodesがインストールされています ✅" || echo "xcodesがインストールされていません（オプション） ⚠️"
             fi
             
-            if grep -q "flutter" "$HOME/environment/config/Brewfile"; then
+            if grep -q "flutter" "$GITHUB_WORKSPACE/config/Brewfile"; then
               brew list flutter && echo "flutterがインストールされています ✅" || echo "flutterがインストールされていません（オプション） ⚠️"
             fi
           else
@@ -135,12 +130,63 @@ jobs:
             echo "Cursorがインストールされています ✅"
             
             # 設定ファイルの存在確認
-            if [ -f "$HOME/environment/cursor/settings.json" ]; then
+            if [ -f "$GITHUB_WORKSPACE/cursor/settings.json" ]; then
               echo "Cursorの設定ファイルが存在します ✅"
               
               # Flutter SDKパスの設定確認（Flutterがインストールされている場合）
-              if command -v flutter &>/dev/null && grep -q "dart.flutterSdkPath" "$HOME/environment/cursor/settings.json"; then
+              if command -v flutter &>/dev/null && grep -q "dart.flutterSdkPath" "$GITHUB_WORKSPACE/cursor/settings.json"; then
                 echo "Cursorの設定にFlutter SDKパスが設定されています ✅"
+              fi
+              
+              # 拡張機能の設定ファイルの存在確認
+              if [ -f "$GITHUB_WORKSPACE/cursor/extensions.json" ]; then
+                echo "Cursorの拡張機能設定ファイルが存在します ✅"
+                
+                # 拡張機能の内容確認
+                echo "インストールされる拡張機能一覧:"
+                cat "$GITHUB_WORKSPACE/cursor/extensions.json" | jq -r '.recommendations[]'
+                
+                # 必須拡張機能の確認
+                REQUIRED_EXTENSIONS=(
+                  "github.vscode-github-actions"
+                  "dart-code.dart-code"
+                  "dart-code.flutter"
+                )
+                
+                for ext in "${REQUIRED_EXTENSIONS[@]}"; do
+                  if grep -q "$ext" "$GITHUB_WORKSPACE/cursor/extensions.json"; then
+                    echo "必須拡張機能 $ext が設定されています ✅"
+                  else
+                    echo "必須拡張機能 $ext が設定されていません ❌"
+                    exit 1
+                  fi
+                done
+                
+                # 拡張機能のインストールスクリプトの確認
+                if [ -f "$GITHUB_WORKSPACE/cursor/restore_cursor_settings.sh" ]; then
+                  echo "拡張機能のインストールスクリプトが存在します ✅"
+                  
+                  # スクリプト内に必要な機能が含まれているか確認
+                  if grep -q "list-extensions" "$GITHUB_WORKSPACE/cursor/restore_cursor_settings.sh"; then
+                    echo "拡張機能のインストールスクリプトに既存拡張機能のチェック機能が含まれています ✅"
+                  else
+                    echo "拡張機能のインストールスクリプトに既存拡張機能のチェック機能が含まれていません ❌"
+                    exit 1
+                  fi
+                  
+                  if grep -q "Extension already installed" "$GITHUB_WORKSPACE/cursor/restore_cursor_settings.sh"; then
+                    echo "拡張機能のインストールスクリプトにスキップ機能が含まれています ✅"
+                  else
+                    echo "拡張機能のインストールスクリプトにスキップ機能が含まれていません ❌"
+                    exit 1
+                  fi
+                else
+                  echo "拡張機能のインストールスクリプトが存在しません ❌"
+                  exit 1
+                fi
+              else
+                echo "Cursorの拡張機能設定ファイルが存在しません ❌"
+                exit 1
               fi
             else
               echo "Cursorの設定ファイルが存在しません ⚠️"
@@ -152,7 +198,81 @@ jobs:
       - name: スクリプトの冪等性テスト
         run: |
           echo "インストールスクリプトを再度実行して冪等性をテスト中..."
-          ./install.sh
+          # 2回目の実行結果をログファイルに保存
+          ./install.sh > idempotency_test_log.txt 2>&1
+          
+          # 実行が成功したことを確認
+          if [ $? -ne 0 ]; then
+            echo "2回目の実行が失敗しました ❌"
+            cat idempotency_test_log.txt
+            exit 1
+          fi
+          
+          # 冪等性の確認：新規インストールが行われていないことを確認
+          echo "新規インストールが行われていないか確認中..."
+          INSTALL_KEYWORDS=(
+            "インストール中"
+            "をインストール "
+            "➕"  # Brewfileインストール時のマーカー
+          )
+          
+          # 除外すべきパターン（正当なインストールメッセージ）
+          EXCLUDE_PATTERNS=(
+            "すでにインストールされています"
+            "インストールされていません"
+            "インストール完了"
+            "のインストール完了"
+          )
+          
+          INSTALL_FOUND=false
+          for keyword in "${INSTALL_KEYWORDS[@]}"; do
+            # インストールメッセージを検出
+            if grep -q "$keyword" idempotency_test_log.txt; then
+              # 検出された行を取得
+              DETECTED_LINES=$(grep "$keyword" idempotency_test_log.txt)
+              
+              # 除外パターンに一致するかチェック
+              EXCLUDE_MATCH=false
+              for exclude in "${EXCLUDE_PATTERNS[@]}"; do
+                if echo "$DETECTED_LINES" | grep -q "$exclude"; then
+                  EXCLUDE_MATCH=true
+                  break
+                fi
+              done
+              
+              # 除外パターンに一致しない場合のみ警告
+              if [ "$EXCLUDE_MATCH" = false ]; then
+                echo "警告: 「$keyword」が検出されました。新規インストールが行われている可能性があります ❌"
+                echo "$DETECTED_LINES"
+                INSTALL_FOUND=true
+              fi
+            fi
+          done
+          
+          if [ "$INSTALL_FOUND" = true ]; then
+            echo "冪等性テスト失敗: 2回目の実行で新規インストールが検出されました ❌"
+            exit 1
+          else
+            echo "新規インストールは行われていません ✅"
+          fi
+          
+          # スキップメッセージの確認（参考情報）
+          echo "スキップメッセージの確認中（参考情報）..."
+          
+          # 主要コンポーネントのスキップメッセージを確認
+          SKIP_MESSAGES=(
+            "すでにインストールされています"
+            "はすでにインストールされています"
+          )
+          
+          for message in "${SKIP_MESSAGES[@]}"; do
+            if grep -q "$message" idempotency_test_log.txt; then
+              echo "「$message」のスキップメッセージを確認 ✅"
+            else
+              echo "「$message」のスキップメッセージが見つかりません（警告のみ） ⚠️"
+            fi
+          done
+          
           echo "冪等性テストが完了しました ✅"
         env:
           CI: true  # CI環境であることを示す 
