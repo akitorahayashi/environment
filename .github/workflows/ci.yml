@@ -10,6 +10,7 @@ on:
 jobs:
   test-install:
     runs-on: macos-latest
+    timeout-minutes: 120  # Xcodeのインストールに時間がかかるため、タイムアウトを延長
     
     steps:
       - name: リポジトリのチェックアウト
@@ -26,8 +27,30 @@ jobs:
       - name: Homebrewのインストールの確認
         run: brew --version
         
-      - name: Xcodeコマンドラインツールの確認
-        run: xcode-select -p
+      - name: Xcodeのインストール確認
+        run: |
+          # Xcode Command Line Toolsの確認
+          if ! xcode-select -p &>/dev/null; then
+            echo "❌ Xcode Command Line Toolsがインストールされていません"
+            exit 1
+          fi
+          echo "✅ Xcode Command Line Toolsがインストールされています"
+          
+          # Xcode 16.2の確認
+          if ! xcodes installed | grep -q "16.2"; then
+            echo "❌ Xcode 16.2がインストールされていません"
+            exit 1
+          fi
+          echo "✅ Xcode 16.2がインストールされています"
+          
+          # シミュレータの確認
+          for platform in iOS watchOS tvOS visionOS; do
+            if ! xcrun simctl list runtimes | grep -q "$platform"; then
+              echo "❌ $platform シミュレータがインストールされていません"
+              exit 1
+            fi
+            echo "✅ $platform シミュレータがインストールされています"
+          done
       
       - name: Git設定の確認
         run: |
@@ -78,77 +101,118 @@ jobs:
       
       - name: Homebrewパッケージの確認
         run: |
-          echo "CI環境で指定された特定のパッケージがインストールされているか確認します"
+          echo "Brewfileに記載されたパッケージがインストールされているか確認します"
           
-          # 特定のパッケージのリスト
-          SPECIFIC_PACKAGES="git xcodes cursor"
+          # Brewfileの存在確認
+          if [ ! -f "$GITHUB_WORKSPACE/config/Brewfile" ]; then
+            echo "❌ Brewfileが見つかりません"
+            exit 1
+          fi
           
-          for package in $SPECIFIC_PACKAGES; do
-            if brew list $package &>/dev/null; then
-              echo "$packageがインストールされています ✅"
-            else
-              echo "$packageがインストールされていません ❌"
-              exit 1
+          # Brewfileに記載されたパッケージを確認
+          while IFS= read -r line; do
+            # コメント行と空行をスキップ
+            [[ $line =~ ^#.*$ ]] && continue
+            [[ -z $line ]] && continue
+            
+            # brew install または brew cask install の行を抽出
+            if [[ $line =~ ^(brew|cask)\ install\ ([^#]+) ]]; then
+              package="${BASH_REMATCH[2]}"
+              if ! brew list "$package" &>/dev/null; then
+                echo "❌ $package がインストールされていません"
+                exit 1
+              fi
+              echo "✅ $package がインストールされています"
             fi
-          done
+          done < "$GITHUB_WORKSPACE/config/Brewfile"
           
           echo "Homebrewパッケージの確認が完了しました ✅"
       
       - name: Flutterの設定の確認
         run: |
-          if command -v flutter &>/dev/null; then
-            echo "Flutterがインストールされています。基本設定を確認中..."
-            # 環境変数の設定確認
-            if [ -n "$ANDROID_HOME" ] || [ -n "$ANDROID_SDK_ROOT" ]; then
-              echo "Android SDKの環境変数が設定されています ✅"
-            else
-              echo "Android SDKの環境変数が設定されていません（CI環境では想定内） ⚠️"
-            fi
-            
-            # Flutter doctorのチェック
-            flutter --version || echo "Flutterのバージョン確認に失敗しました（CI環境では想定内） ⚠️"
-          else
-            echo "Flutterがインストールされていません。確認をスキップします"
+          if ! command -v flutter &>/dev/null; then
+            echo "❌ Flutterがインストールされていません"
+            exit 1
           fi
+          
+          echo "✅ Flutterがインストールされています"
+          
+          # Flutterのパスが正しく設定されているか確認
+          FLUTTER_PATH=$(which flutter)
+          echo "Flutter PATH: $FLUTTER_PATH"
+          
+          if [[ "$FLUTTER_PATH" != *"/opt/homebrew/Caskroom/flutter"* ]]; then
+            echo "❌ Flutterのパスが想定と異なります"
+            echo "期待: /opt/homebrew/Caskroom/flutter"
+            echo "実際: $FLUTTER_PATH"
+            exit 1
+          fi
+          echo "✅ Flutterのパスが正しく設定されています"
+          
+          # Flutter SDKのディレクトリ構造を確認
+          FLUTTER_DIR=$(dirname $(dirname $FLUTTER_PATH))
+          if [ ! -d "$FLUTTER_DIR/bin" ] || [ ! -f "$FLUTTER_DIR/bin/flutter" ]; then
+            echo "❌ Flutter SDKの構造が不正です"
+            exit 1
+          fi
+          echo "✅ Flutter SDKの構造が正しいです"
+          
+          # バージョン情報の確認
+          if ! flutter --version > flutter_version.txt; then
+            echo "❌ Flutterバージョンの取得に失敗しました"
+            exit 1
+          fi
+          
+          cat flutter_version.txt
+          echo "✅ Flutterのバージョン情報が取得できました"
+          
+          # Flutter doctorの実行
+          echo "flutter doctor を実行中..."
+          flutter doctor -v
+          
+          # Xcodeの確認
+          if ! flutter doctor -v | grep -q "Xcode"; then
+            echo "❌ Xcodeが見つかりません"
+            exit 1
+          fi
+          
+          echo "✅ Flutterの設定が完了しました"
       
       - name: スクリプトの冪等性テスト
         env:
           CI: true
         run: |
           echo "インストールスクリプトを再度実行して冪等性をテスト中..."
-          # 2回目の実行結果をログファイルに保存
           ./install.sh > idempotency_test_log.txt 2>&1
           
-          # 実行が成功したことを確認
           if [ $? -ne 0 ]; then
-            echo "2回目の実行が失敗しました ❌"
+            echo "❌ 2回目の実行が失敗しました"
             cat idempotency_test_log.txt
             exit 1
           fi
           
-          # 冪等性の確認：新規インストールが行われていないことを確認
+          # 冪等性の確認
           echo "新規インストールが行われていないか確認中..."
           INSTALL_KEYWORDS=(
             "インストール中"
             "をインストール "
-            "➕"  # Brewfileインストール時のマーカー
+            "➕"
+            "Xcode 16.2 をインストール中"
+            "シミュレータをインストール中"
           )
           
-          # 除外すべきパターン（正当なインストールメッセージ）
           EXCLUDE_PATTERNS=(
             "すでにインストールされています"
             "インストールされていません"
             "インストール完了"
+            "CI環境では"
           )
           
           INSTALL_FOUND=false
           for keyword in "${INSTALL_KEYWORDS[@]}"; do
-            # インストールメッセージを検出
             if grep -q "$keyword" idempotency_test_log.txt; then
-              # 検出された行を取得
               DETECTED_LINES=$(grep "$keyword" idempotency_test_log.txt)
               
-              # 除外パターンに一致するかチェック
               EXCLUDE_MATCH=false
               for exclude in "${EXCLUDE_PATTERNS[@]}"; do
                 if echo "$DETECTED_LINES" | grep -q "$exclude"; then
@@ -157,9 +221,8 @@ jobs:
                 fi
               done
               
-              # 除外パターンに一致しない場合のみ警告
               if [ "$EXCLUDE_MATCH" = false ]; then
-                echo "警告: 「$keyword」が検出されました。新規インストールが行われている可能性があります ❌"
+                echo "❌ 警告: 「$keyword」が検出されました"
                 echo "$DETECTED_LINES"
                 INSTALL_FOUND=true
               fi
@@ -167,26 +230,10 @@ jobs:
           done
           
           if [ "$INSTALL_FOUND" = true ]; then
-            echo "冪等性テスト失敗: 2回目の実行で新規インストールが検出されました ❌"
+            echo "❌ 冪等性テスト失敗: 2回目の実行で新規インストールが検出されました"
             exit 1
           else
-            echo "新規インストールは行われていません ✅"
+            echo "✅ 新規インストールは行われていません"
           fi
           
-          # スキップメッセージの確認（参考情報）
-          echo "スキップメッセージの確認中（参考情報）..."
-          
-          # 主要コンポーネントのスキップメッセージを確認
-          SKIP_MESSAGES=(
-            "すでにインストールされています"
-          )
-          
-          for message in "${SKIP_MESSAGES[@]}"; do
-            if grep -q "$message" idempotency_test_log.txt; then
-              echo "「$message」のスキップメッセージを確認 ✅"
-            else
-              echo "「$message」のスキップメッセージが見つかりません（警告のみ） ⚠️"
-            fi
-          done
-          
-          echo "冪等性テストが完了しました ✅"
+          echo "✅ 冪等性テストが完了しました"

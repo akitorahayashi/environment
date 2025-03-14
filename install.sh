@@ -180,14 +180,7 @@ install_brewfile() {
 
     echo "Homebrew パッケージのインストールを開始します..."
 
-    if [ "$IS_CI" = "true" ]; then
-        # CI環境では最小限のパッケージのみインストール
-        echo "CI環境では最小限のパッケージをインストールします"
-        brew install git xcodes cursor || true
-        return
-    fi
-
-    # 通常環境では全パッケージをインストール
+    # CI環境でも全てのパッケージをインストール
     brew bundle --file "$brewfile_path"
     echo "✅ Homebrew パッケージのインストールが完了しました"
 }
@@ -250,14 +243,27 @@ setup_cursor() {
     echo "✅ Cursor のセットアップが完了しました！"
 }
 
-# Xcode の設定
-setup_xcode() {
-    echo "🔄 Xcode の設定中..."
+# Xcode とシミュレータのインストール
+install_xcode() {
+    echo "🔄 Xcode のインストールを開始します..."
 
-    # CI環境ではXcodeのインストールをスキップ
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境ではXcodeのインストールと設定をスキップします"
-        return 0
+    # Xcode Command Line Tools のインストール
+    if ! xcode-select -p &>/dev/null; then
+        echo "Xcode Command Line Tools をインストール中..."
+        if [ "$IS_CI" = "true" ]; then
+            # CI環境ではすでにインストールされていることを前提とする
+            echo "CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
+        else
+            xcode-select --install
+            # インストールが完了するまで待機
+            echo "インストールが完了するまで待機..."
+            until xcode-select -p &>/dev/null; do
+                sleep 5
+            done
+        fi
+        echo "✅ Xcode Command Line Tools のインストール完了"
+    else
+        echo "✅ Xcode Command Line Tools はすでにインストール済み"
     fi
 
     # xcodes がインストールされているか確認
@@ -285,7 +291,7 @@ setup_xcode() {
         fi
     done
 
-    echo "✅ Xcode のセットアップが完了しました！"
+    echo "✅ Xcode とシミュレータのインストールが完了しました！"
 }
 
 # Mac のシステム設定を適用
@@ -368,20 +374,36 @@ setup_github_cli() {
 }
 
 # 実行順序
-install_xcode_tools     # 開発に必要な Xcode Command Line Tools をインストール
 install_rosetta        # Apple M1, M2 向けに Rosetta 2 をインストール
 install_homebrew       # Homebrew をインストール
-install_brewfile      # Brewfile のパッケージをインストール
-setup_shell_config    # zsh の設定を適用
-setup_github_cli      # GitHub CLIのセットアップ
+install_brewfile       # Brewfile のパッケージをインストール
 
-setup_git_config      # Git の設定と gitignore_global を適用
-setup_ssh_agent      # SSH キーのエージェントを設定
+# 時間のかかるインストールを開始
+echo "🔄 時間のかかるインストールプロセスを開始します..."
+install_xcode &        # Xcode Command Line Tools、Xcode 16.2、シミュレータのインストールをバックグラウンドで開始
+XCODE_PID=$!
 
-setup_mac_settings    # Mac のシステム設定を復元
-setup_xcode          # Xcode 16.2 とシミュレータのインストール
-setup_flutter        # Flutter の開発環境をセットアップ
-setup_cursor         # Cursor IDE の設定を復元
+# 他の設定を並行して行う
+setup_shell_config     # zsh の設定を適用
+setup_git_config       # Git の設定と gitignore_global を適用
+setup_ssh_agent        # SSH キーのエージェントを設定
+setup_github_cli       # GitHub CLIのセットアップ
+setup_mac_settings     # Mac のシステム設定を復元
+
+# Xcodeのインストールが完了するのを待つ
+echo "⏳ Xcodeのインストールが完了するのを待っています..."
+wait $XCODE_PID
+if [ $? -ne 0 ]; then
+  echo "❌ Xcodeのインストールに失敗しました"
+  exit 1
+fi
+echo "✅ Xcodeのインストールが完了しました"
+
+# Xcodeに依存するものを最後にインストール
+setup_flutter          # Flutter の開発環境をセットアップ
+setup_cursor           # Cursorのセットアップ
+
+echo "🎉 すべてのインストールと設定が完了しました！"
 
 end_time=$(date +%s)
 elapsed_time=$((end_time - start_time))
