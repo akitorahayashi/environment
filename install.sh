@@ -164,6 +164,10 @@ install_brewfile() {
 
     echo "Homebrew パッケージの状態を確認中..."
 
+    # インストール済みのパッケージリストを一度だけ取得
+    local installed_formulas=$(brew list --formula)
+    local installed_casks=$(brew list --cask)
+
     # Brewfile からインストールすべきパッケージを1行ずつ処理
     while IFS= read -r line; do
         # コメントや空行をスキップ
@@ -173,63 +177,55 @@ install_brewfile() {
         if [[ "$line" =~ ^brew\ \"(.*)\"$ ]]; then
             package_name="${BASH_REMATCH[1]}"
             
-            # `brew list` で確認し、未インストールならインストール
-            if ! brew list --formula | grep -q "^$package_name\$"; then
+            # インストール済みリストから確認
+            if echo "$installed_formulas" | grep -q "^$package_name\$"; then
+                echo "✔ $package_name はすでにインストールされています"
+            else
                 echo "➕ $package_name をインストール中..."
                 brew install "$package_name"
-            else
-                echo "✔ $package_name はすでにインストールされています"
             fi
 
         elif [[ "$line" =~ ^cask\ \"(.*)\"$ ]]; then
             package_name="${BASH_REMATCH[1]}"
             
-            # アプリがすでにインストールされているか確認
-            local was_installed=false
-            if brew list --cask | grep -q "^$package_name\$"; then
-                was_installed=true
+            # インストール済みリストから確認
+            if echo "$installed_casks" | grep -q "^$package_name\$"; then
                 echo "✔ $package_name はすでにインストールされています"
             else
                 echo "➕ $package_name をインストール中..."
                 if brew install --cask "$package_name"; then
-                    # インストールが成功し、かつ新規インストールの場合のみ開く
-                    if [ "$was_installed" = false ]; then
-                        # アプリ名とバンドル名のマッピング
-                        local bundle_name=""
-                        case "$package_name" in
-                            "flutter")
-                                # Flutter SDKはアプリではないのでスキップ
-                                ;;
-                            "android-studio")
-                                bundle_name="Android Studio.app"
-                                ;;
-                            "google-chrome")
-                                bundle_name="Google Chrome.app"
-                                ;;
-                            "slack")
-                                bundle_name="Slack.app"
-                                ;;
-                            "spotify")
-                                bundle_name="Spotify.app"
-                                ;;
-                            "zoom")
-                                bundle_name="zoom.us.app"
-                                ;;
-                            "notion")
-                                bundle_name="Notion.app"
-                                ;;
-                            "figma")
-                                bundle_name="Figma.app"
-                                ;;
-                            "cursor")
-                                bundle_name="Cursor.app"
-                                ;;
-                        esac
+                    # アプリ名とバンドル名のマッピング
+                    local bundle_name=""
+                    case "$package_name" in
+                        "android-studio")
+                            bundle_name="Android Studio.app"
+                            ;;
+                        "google-chrome")
+                            bundle_name="Google Chrome.app"
+                            ;;
+                        "slack")
+                            bundle_name="Slack.app"
+                            ;;
+                        "spotify")
+                            bundle_name="Spotify.app"
+                            ;;
+                        "zoom")
+                            bundle_name="zoom.us.app"
+                            ;;
+                        "notion")
+                            bundle_name="Notion.app"
+                            ;;
+                        "figma")
+                            bundle_name="Figma.app"
+                            ;;
+                        "cursor")
+                            bundle_name="Cursor.app"
+                            ;;
+                    esac
 
-                        # バンドル名が設定されている場合のみ開く
-                        if [ -n "$bundle_name" ]; then
-                            open_app "$package_name" "$bundle_name"
-                        fi
+                    # バンドル名が設定されている場合のみ開く
+                    if [ -n "$bundle_name" ]; then
+                        open_app "$package_name" "$bundle_name"
                     fi
                 else
                     echo "❌ $package_name のインストールに失敗しました"
@@ -255,8 +251,12 @@ setup_flutter() {
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 
-    flutter doctor --android-licenses
-    flutter doctor
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境ではflutter doctorをスキップします"
+    else
+        flutter doctor --android-licenses
+        flutter doctor
+    fi
 
     echo "Flutter 環境のセットアップ完了 ✅"
 }
@@ -264,6 +264,11 @@ setup_flutter() {
 # Cursor のセットアップ
 setup_cursor() {
     echo "🔄 Cursor のセットアップを開始します..."
+
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境では Cursor のセットアップをスキップします"
+        return 0
+    fi
 
     # Cursor がインストールされているか確認
     if ! command -v cursor &>/dev/null; then
@@ -279,17 +284,21 @@ setup_cursor() {
     fi
 
     # Flutter SDK のパスを Cursor に適用
-    FLUTTER_VERSION=$(ls /opt/homebrew/Caskroom/flutter | sort -rV | head -n 1)
-    FLUTTER_SDK_PATH="/opt/homebrew/Caskroom/flutter/${FLUTTER_VERSION}/flutter"
+    if [ -d "/opt/homebrew/Caskroom/flutter" ]; then
+        FLUTTER_VERSION=$(ls /opt/homebrew/Caskroom/flutter | sort -rV | head -n 1)
+        FLUTTER_SDK_PATH="/opt/homebrew/Caskroom/flutter/${FLUTTER_VERSION}/flutter"
 
-    if [[ -d "$FLUTTER_SDK_PATH" ]]; then
-        CURSOR_SETTINGS="$REPO_ROOT/cursor/settings.json"
-        
-        echo "🔧 Flutter SDK のパスを Cursor に適用中..."
-        jq --arg path "$FLUTTER_SDK_PATH" '.["dart.flutterSdkPath"] = $path' "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
-        echo "✅ Flutter SDK のパスを $FLUTTER_SDK_PATH に設定しました！"
+        if [[ -d "$FLUTTER_SDK_PATH" ]]; then
+            CURSOR_SETTINGS="$REPO_ROOT/cursor/settings.json"
+            
+            echo "🔧 Flutter SDK のパスを Cursor に適用中..."
+            jq --arg path "$FLUTTER_SDK_PATH" '.["dart.flutterSdkPath"] = $path' "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
+            echo "✅ Flutter SDK のパスを $FLUTTER_SDK_PATH に設定しました！"
+        else
+            echo "⚠️ Flutter SDK のディレクトリが見つかりませんでした。"
+        fi
     else
-        echo "Homebrew でインストールされた Flutter SDK が見つかりませんでした。"
+        echo "⚠️ Homebrew の Flutter Caskroom ディレクトリが見つかりませんでした。"
     fi
 
     echo "✅ Cursor のセットアップが完了しました！"
@@ -311,7 +320,7 @@ setup_xcode() {
     fi
 
     # Xcode 16.2 がインストールされているか確認
-    if ! xcodes installed | grep -q "16.2"; then
+    if ! xcodes installed --formula | grep -q "16.2"; then
         echo "📱 Xcode 16.2 をインストール中..."
         xcodes install 16.2 --select
     else
