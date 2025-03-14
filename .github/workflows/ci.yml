@@ -118,9 +118,17 @@ jobs:
       
       - name: Cursor設定の確認（インストールされている場合）
         run: |
-          echo "CI環境ではCursorのセットアップをスキップします ✅"
+          echo "CI環境でもCursorのセットアップを実行します ✅"
+          # Cursorがインストールされているか確認
+          if [ -d "/Applications/Cursor.app" ]; then
+            echo "Cursorがインストールされています ✅"
+          else
+            echo "Cursorがインストールされていません（CI環境では想定内） ⚠️"
+          fi
       
       - name: スクリプトの冪等性テスト
+        env:
+          CI: true
         run: |
           echo "インストールスクリプトを再度実行して冪等性をテスト中..."
           # 2回目の実行結果をログファイルに保存
@@ -199,5 +207,3 @@ jobs:
           done
           
           echo "冪等性テストが完了しました ✅"
-        env:
-          CI: true  # CI環境であることを示す 

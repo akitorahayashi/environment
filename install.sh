@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# エラーハンドリングの設定
+set -e  # エラーが発生した時点でスクリプトを終了
+trap 'echo "エラーが発生しました。行番号: $LINENO, コマンド: $BASH_COMMAND"; exit 1' ERR
+
 # CI環境かどうかを検出
 IS_CI=${CI:-false}
 
@@ -12,6 +16,31 @@ if [ "$IS_CI" = "true" ] && [ -n "$GITHUB_WORKSPACE" ]; then
 else
     REPO_ROOT="$HOME/environment"
 fi
+
+# 進捗表示用の関数
+show_progress() {
+    local message="$1"
+    local emoji="${2:-✨}"
+    echo "$emoji $message"
+}
+
+# 成功メッセージ表示用の関数
+show_success() {
+    local message="$1"
+    echo "✅ $message"
+}
+
+# 警告メッセージ表示用の関数
+show_warning() {
+    local message="$1"
+    echo "⚠️ $message"
+}
+
+# エラーメッセージ表示用の関数
+show_error() {
+    local message="$1"
+    echo "❌ $message"
+}
 
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -43,31 +72,36 @@ install_rosetta() {
     if [[ "$(uname -m)" == "arm64" ]]; then
         # Mac のチップモデルを取得
         MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
-        echo "Mac Model: $MAC_MODEL"  # デバッグ出力
+        show_progress "Mac Model: $MAC_MODEL" "🖥"
 
         # M1 または M2 の場合のみ Rosetta 2 をインストール
         if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* ]]; then
             # すでに Rosetta 2 がインストールされているかチェック
             if pgrep oahd >/dev/null 2>&1; then
-                echo "Rosetta 2 はすでにインストールされています ✅"
+                show_success "Rosetta 2 はすでにインストールされています"
                 return
             fi
 
             # Rosetta 2 をインストール
-            echo "Rosetta 2 を $MAC_MODEL 向けにインストール中..."
-            softwareupdate --install-rosetta --agree-to-license
+            show_progress "Rosetta 2 を $MAC_MODEL 向けにインストール中..." "🔄"
+            if [ "$IS_CI" = "true" ]; then
+                # CI環境では非対話型でインストール
+                softwareupdate --install-rosetta --agree-to-license || true
+            else
+                softwareupdate --install-rosetta --agree-to-license
+            fi
 
             # インストールの成否をチェック
             if pgrep oahd >/dev/null 2>&1; then
-                echo "Rosetta 2 のインストールが完了しました ✅"
+                show_success "Rosetta 2 のインストールが完了しました"
             else
-                echo "Rosetta 2 のインストールに失敗しました ❌"
+                show_error "Rosetta 2 のインストールに失敗しました"
             fi
         else
-            echo "この Mac ($MAC_MODEL) には Rosetta 2 は不要です ✅"
+            show_success "この Mac ($MAC_MODEL) には Rosetta 2 は不要です"
         fi
     else
-        echo "この Mac は Apple Silicon ではないため、Rosetta 2 は不要です ✅"
+        show_success "この Mac は Apple Silicon ではないため、Rosetta 2 は不要です"
     fi
 }
 
@@ -75,7 +109,13 @@ install_rosetta() {
 install_homebrew() {
     if ! command_exists brew; then
         echo "Homebrew をインストール中..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では対話型のHomebrewインストールをスキップします"
+            # CI環境では非対話型でインストール
+            NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        else
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
         echo "Homebrew のインストール完了 ✅"
     else
         echo "Homebrew はすでにインストールされています"
@@ -111,6 +151,11 @@ open_app() {
     local package_name="$1"
     local bundle_name="$2"
     
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境ではアプリの起動をスキップします: $package_name"
+        return
+    fi
+    
     echo "✨ $package_name を起動準備中..."
     # インストール完了後、少し待機
     sleep 2
@@ -132,7 +177,7 @@ open_app() {
         fi
     done
     
-    echo "⚠️ $package_name が見つかりません"
+    echo "$package_name が見つかりません"
 }
 
 # Brewfile に記載されているパッケージをインストール
@@ -166,7 +211,7 @@ install_brewfile() {
                 echo "✔ $package_name はすでにインストールされています"
             else
                 echo "➕ $package_name をインストール中..."
-                brew install "$package_name"
+                brew install --formula "$package_name"
             fi
 
         elif [[ "$line" =~ ^cask\ \"(.*)\"$ || "$line" =~ ^cask\ \"(.*)\".*$ || "$line" =~ ^cask\ (.*)$ ]]; then
@@ -238,7 +283,8 @@ setup_flutter() {
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 
     if [ "$IS_CI" = "true" ]; then
-        echo "CI環境ではflutter doctorをスキップします"
+        echo "CI環境では対話型の flutter doctor --android-licenses をスキップします"
+        flutter doctor || true
     else
         flutter doctor --android-licenses
         flutter doctor
@@ -251,10 +297,6 @@ setup_flutter() {
 setup_cursor() {
     echo "🔄 Cursor のセットアップを開始します..."
 
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境では Cursor のセットアップをスキップします"
-        return 0
-    fi
 
     # Cursor がインストールされているか確認
     if ! command -v cursor &>/dev/null; then
@@ -294,11 +336,6 @@ setup_cursor() {
 setup_xcode() {
     echo "🔄 Xcode の設定中..."
 
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境では Xcode のセットアップをスキップします"
-        return 0
-    fi
-
     # xcodes がインストールされているか確認
     if ! command -v xcodes >/dev/null 2>&1; then
         echo "❌ xcodes がインストールされていません。先に Brewfile を適用してください。"
@@ -308,7 +345,13 @@ setup_xcode() {
     # Xcode 16.2 がインストールされているか確認
     if ! xcodes installed --formula | grep -q "16.2"; then
         echo "📱 Xcode 16.2 をインストール中..."
-        xcodes install 16.2 --select
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では対話型のXcodeインストールをスキップします"
+            # CI環境では非対話型でインストール（または必要最小限の操作のみ）
+            xcodes install 16.2 --select --non-interactive || true
+        else
+            xcodes install 16.2 --select
+        fi
     else
         echo "✅ Xcode 16.2 はすでにインストールされています"
     fi
@@ -334,7 +377,13 @@ setup_xcode() {
         echo "✅ iOS シミュレータは既にインストールされています"
     else
         echo "📱 iOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform iOS
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では対話型のシミュレータインストールをスキップします"
+            # CI環境では非対話型でインストール（または必要最小限の操作のみ）
+            xcodebuild -downloadPlatform iOS -allowProvisioningUpdates || true
+        else
+            xcodebuild -downloadPlatform iOS
+        fi
     fi
     
     # watchOS シミュレータ
@@ -342,7 +391,12 @@ setup_xcode() {
         echo "✅ watchOS シミュレータは既にインストールされています"
     else
         echo "⌚ watchOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform watchOS
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では対話型のシミュレータインストールをスキップします"
+            xcodebuild -downloadPlatform watchOS -allowProvisioningUpdates || true
+        else
+            xcodebuild -downloadPlatform watchOS
+        fi
     fi
     
     # tvOS シミュレータ
@@ -350,7 +404,12 @@ setup_xcode() {
         echo "✅ tvOS シミュレータは既にインストールされています"
     else
         echo "📺 tvOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform tvOS
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では対話型のシミュレータインストールをスキップします"
+            xcodebuild -downloadPlatform tvOS -allowProvisioningUpdates || true
+        else
+            xcodebuild -downloadPlatform tvOS
+        fi
     fi
     
     # visionOS シミュレータ
@@ -358,7 +417,12 @@ setup_xcode() {
         echo "✅ visionOS シミュレータは既にインストールされています"
     else
         echo "👓 visionOS シミュレータをインストール中..."
-        xcodebuild -downloadPlatform visionOS
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では対話型のシミュレータインストールをスキップします"
+            xcodebuild -downloadPlatform visionOS -allowProvisioningUpdates || true
+        else
+            xcodebuild -downloadPlatform visionOS
+        fi
     fi
     
     echo "✅ すべてのシミュレータの確認が完了しました"
@@ -375,16 +439,11 @@ setup_xcode() {
 setup_mac_settings() {
     echo "🖥 Mac のシステム設定を適用中..."
     
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境では Mac のシステム設定をスキップします"
-        return 0
-    fi
-    
     if [[ -f "$REPO_ROOT/macos/setup_mac_settings.sh" ]]; then
         source "$REPO_ROOT/macos/setup_mac_settings.sh"
         echo "✅ Mac のシステム設定が適用されました"
     else
-        echo "⚠️ setup_mac_settings.sh が見つかりません"
+        echo "setup_mac_settings.sh が見つかりません"
     fi
 }
 
@@ -392,18 +451,19 @@ setup_mac_settings() {
 setup_ssh_agent() {
     echo "🔐 SSH エージェントをセットアップ中..."
     
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境では SSH エージェントのセットアップをスキップします"
-        return 0
-    fi
-    
     # SSH エージェントを起動
     eval "$(ssh-agent -s)"
     
     # SSH キーが存在するか確認し、なければ作成
     if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
         echo "🛠 SSH キーが見つかりません。新しく生成します..."
-        ssh-keygen -t ed25519 -C "your_email@example.com" -f "$HOME/.ssh/id_ed25519" -N ""
+        if [ "$IS_CI" = "true" ]; then
+            echo "CI環境では対話型のSSHキー生成をスキップします"
+            # CI環境では非対話型でキーを生成（実際のメールアドレスは使用しない）
+            ssh-keygen -t ed25519 -C "ci-test@example.com" -f "$HOME/.ssh/id_ed25519" -N "" -q
+        else
+            ssh-keygen -t ed25519 -C "your_email@example.com" -f "$HOME/.ssh/id_ed25519" -N ""
+        fi
         echo "✅ SSH キーの生成が完了しました"
     fi
 
@@ -430,7 +490,8 @@ setup_github_cli() {
     if ! gh auth status &>/dev/null; then
         echo "GitHub CLI の認証を行います..."
         if [ "$IS_CI" = "true" ]; then
-            echo "CI環境では認証をスキップします"
+            echo "CI環境ではトークンがないため、認証はスキップします"
+            # CI環境では認証情報がないため、実際の認証はスキップ
         else
             gh auth login
         fi
@@ -441,7 +502,7 @@ setup_github_cli() {
 
 # 実行順序
 install_xcode_tools     # 開発に必要な Xcode Command Line Tools をインストール
-install_rosetta        # Apple Silicon Mac 向けに Rosetta 2 をインストール
+install_rosetta        # Apple M1, M2 向けに Rosetta 2 をインストール
 install_homebrew       # パッケージマネージャの Homebrew をインストール
 setup_shell_config    # zsh の設定を適用
 setup_github_cli      # GitHub CLIのセットアップを追加
