@@ -11,9 +11,9 @@ brew "act"
 brew "swiftlint"
 brew "fdupes"
 brew "xcodes"
-brew "flutter"
 
 # Cask
+cask "flutter"
 cask "android-studio"
 cask "google-chrome"
 cask "slack"

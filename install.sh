@@ -196,11 +196,11 @@ setup_flutter() {
     FLUTTER_PATH=$(which flutter)
     echo "Flutter PATH: $FLUTTER_PATH"
     
-    # 期待するパスでなければ、警告を表示
-    if [[ "$FLUTTER_PATH" != "/opt/homebrew/bin/flutter" ]]; then
+    # パスが正しいか確認
+    if [[ "$FLUTTER_PATH" != *"/opt/homebrew/Caskroom/flutter"* ]]; then
         echo "⚠️ Flutterが期待するパスにインストールされていません"
         echo "現在のパス: $FLUTTER_PATH"
-        echo "期待するパス: /opt/homebrew/bin/flutter"
+        echo "期待するパス: /opt/homebrew/Caskroom/flutter/*/flutter/bin/flutter"
     fi
 
     # Flutter doctorの実行

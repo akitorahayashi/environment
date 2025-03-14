@@ -149,9 +149,9 @@ jobs:
           echo "Flutter PATH: $FLUTTER_PATH"
           
           # パスが正しいか確認
-          if [[ "$FLUTTER_PATH" != "/opt/homebrew/bin/flutter" ]]; then
+          if [[ "$FLUTTER_PATH" != *"/opt/homebrew/Caskroom/flutter"* ]]; then
             echo "❌ Flutterのパスが想定と異なります"
-            echo "期待: /opt/homebrew/bin/flutter"
+            echo "期待: /opt/homebrew/Caskroom/flutter/*/flutter/bin/flutter"
             echo "実際: $FLUTTER_PATH"
             exit 1
           fi
