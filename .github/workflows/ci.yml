@@ -175,6 +175,7 @@ jobs:
       - name: スクリプトの冪等性テスト
         env:
           CI: true
+          GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "インストールスクリプトを再度実行して冪等性をテスト中..."
           ./install.sh > idempotency_test_log.txt 2>&1
@@ -192,7 +193,6 @@ jobs:
             "をインストール "
             "➕"
             "Xcode 16.2 をインストール中"
-            "シミュレータをインストール中"
           )
           
           EXCLUDE_PATTERNS=(
@@ -200,6 +200,8 @@ jobs:
             "インストールされていません"
             "インストール完了"
             "CI環境では"
+            "シミュレータの確認中"
+            "すべてのシミュレータは既にインストールされています"
           )
           
           INSTALL_FOUND=false

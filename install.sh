@@ -299,15 +299,29 @@ install_xcode() {
     fi
 
     # シミュレータのインストール
-    echo "📲 シミュレータをインストール中..."
+    echo "📲 シミュレータの確認中..."
+    local need_install=false
     for platform in iOS watchOS tvOS visionOS; do
         if ! xcrun simctl list runtimes | grep -q "$platform"; then
-            echo "➕ $platform シミュレータをインストール中..."
-            xcodebuild -downloadPlatform "$platform"
+            need_install=true
+            echo "❓ $platform シミュレータが見つかりません"
         else
             echo "✅ $platform シミュレータは既にインストールされています"
         fi
     done
+
+    # シミュレータのインストールが必要な場合のみインストール処理を実行
+    if [ "$need_install" = true ]; then
+        echo "📲 不足しているシミュレータをインストール中..."
+        for platform in iOS watchOS tvOS visionOS; do
+            if ! xcrun simctl list runtimes | grep -q "$platform"; then
+                echo "➕ $platform シミュレータをインストール中..."
+                xcodebuild -downloadPlatform "$platform"
+            fi
+        done
+    else
+        echo "✅ すべてのシミュレータは既にインストールされています"
+    fi
 
     echo "✅ Xcode とシミュレータのインストールが完了しました！"
 }
@@ -397,7 +411,7 @@ install_homebrew       # Homebrew をインストール
 install_brewfile       # Brewfile のパッケージをインストール
 
 # 時間のかかるインストールを開始
-echo "🔄 時間のかかるインストールプロセスを開始します..."
+echo "🔄 時間のかかるXcodeのインストールを開始します..."
 install_xcode &        # Xcode Command Line Tools、Xcode 16.2、シミュレータのインストールをバックグラウンドで開始
 XCODE_PID=$!
 
