@@ -16,12 +16,6 @@ jobs:
       - name: リポジトリのチェックアウト
         uses: actions/checkout@v3
       
-      - name: GitHub認証の設定
-        run: |
-          # GitHubの認証を設定
-          git config --global url."https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          echo "✅ GitHub認証を設定しました"
-      
       - name: インストールスクリプトの実行権限付与
         run: chmod +x install.sh
       
