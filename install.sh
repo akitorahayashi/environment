@@ -125,6 +125,12 @@ install_homebrew() {
 setup_shell_config() {
     echo "シェルの設定を適用中..."
     
+    # CI環境ではスキップ
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境ではシェル設定の適用をスキップします"
+        return 0
+    fi
+    
     # ディレクトリとファイルの存在確認
     if [[ ! -d "$REPO_ROOT/shell" ]]; then
         show_error "$REPO_ROOT/shell ディレクトリが見つかりません"

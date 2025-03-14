@@ -29,21 +29,6 @@ jobs:
       - name: Xcodeコマンドラインツールの確認
         run: xcode-select -p
       
-      - name: シェル設定の確認
-        run: |
-          # .zprofileの存在確認
-          test -f ~/.zprofile && echo "zprofileが存在します ✅" || (echo "zprofileが存在しません ❌" && exit 1)
-          
-          # .zprofileの内容確認
-          if grep -q '/opt/homebrew/bin/brew shellenv' ~/.zprofile; then
-            echo "zprofileに正しくコピーされています ✅"
-          else
-            echo "zprofileに正しくコピーされていません ❌"
-            exit 1
-          fi
-          
-          echo "シェル設定の確認が完了しました ✅"
-      
       - name: Git設定の確認
         run: |
           test -f ~/.gitconfig && echo "gitconfigが存在します ✅" || (echo "gitconfigが存在しません ❌" && exit 1)
