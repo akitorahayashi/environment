@@ -192,8 +192,18 @@ setup_flutter() {
         return
     fi
 
-    echo "Flutter の環境をセットアップ中..."
+    # Flutterのパスを確認
+    FLUTTER_PATH=$(which flutter)
+    echo "Flutter PATH: $FLUTTER_PATH"
+    
+    # 期待するパスでなければ、警告を表示
+    if [[ "$FLUTTER_PATH" != "/opt/homebrew/bin/flutter" ]]; then
+        echo "⚠️ Flutterが期待するパスにインストールされていません"
+        echo "現在のパス: $FLUTTER_PATH"
+        echo "期待するパス: /opt/homebrew/bin/flutter"
+    fi
 
+    # Flutter doctorの実行
     if [ "$IS_CI" = "true" ]; then
         echo "CI環境では対話型の flutter doctor --android-licenses をスキップします"
         flutter doctor || true
@@ -207,7 +217,6 @@ setup_flutter() {
 # Cursor のセットアップ
 setup_cursor() {
     echo "🔄 Cursor のセットアップを開始します..."
-
 
     # Cursor がインストールされているか確認
     if ! command -v cursor &>/dev/null; then
@@ -223,10 +232,10 @@ setup_cursor() {
     fi
 
     # Flutter SDK のパスを Cursor に適用
-    if [ -d "/opt/homebrew/Caskroom/flutter" ]; then
-        FLUTTER_VERSION=$(ls /opt/homebrew/Caskroom/flutter | sort -rV | head -n 1)
-        FLUTTER_SDK_PATH="/opt/homebrew/Caskroom/flutter/${FLUTTER_VERSION}/flutter"
-
+    if command -v flutter &>/dev/null; then
+        FLUTTER_PATH=$(which flutter)
+        FLUTTER_SDK_PATH=$(dirname $(dirname $(readlink -f "$FLUTTER_PATH")))
+        
         if [[ -d "$FLUTTER_SDK_PATH" ]]; then
             CURSOR_SETTINGS="$REPO_ROOT/cursor/settings.json"
             
@@ -237,7 +246,7 @@ setup_cursor() {
             echo "⚠️ Flutter SDK のディレクトリが見つかりませんでした。"
         fi
     else
-        echo "⚠️ Homebrew の Flutter Caskroom ディレクトリが見つかりませんでした。"
+        echo "⚠️ Flutterがインストールされていません。"
     fi
 
     echo "✅ Cursor のセットアップが完了しました！"

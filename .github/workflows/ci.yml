@@ -97,7 +97,7 @@ jobs:
             exit 1
           fi
           
-          echo "シェル設定の確認が完了しました ✅"
+          echo "シェルの設定の確認が完了しました ✅"
       
       - name: Homebrewパッケージの確認
         run: |
@@ -137,38 +137,25 @@ jobs:
           
           echo "✅ Flutterがインストールされています"
           
-          # Flutterのパスが正しく設定されているか確認
+          # Flutterのパスを確認
           FLUTTER_PATH=$(which flutter)
           echo "Flutter PATH: $FLUTTER_PATH"
           
-          if [[ "$FLUTTER_PATH" != *"/opt/homebrew/Caskroom/flutter"* ]]; then
+          # パスが正しいか確認
+          if [[ "$FLUTTER_PATH" != "/opt/homebrew/bin/flutter" ]]; then
             echo "❌ Flutterのパスが想定と異なります"
-            echo "期待: /opt/homebrew/Caskroom/flutter"
+            echo "期待: /opt/homebrew/bin/flutter"
             echo "実際: $FLUTTER_PATH"
             exit 1
           fi
           echo "✅ Flutterのパスが正しく設定されています"
           
-          # Flutter SDKのディレクトリ構造を確認
-          FLUTTER_DIR=$(dirname $(dirname $FLUTTER_PATH))
-          if [ ! -d "$FLUTTER_DIR/bin" ] || [ ! -f "$FLUTTER_DIR/bin/flutter" ]; then
-            echo "❌ Flutter SDKの構造が不正です"
-            exit 1
-          fi
-          echo "✅ Flutter SDKの構造が正しいです"
-          
-          # バージョン情報の確認
-          if ! flutter --version > flutter_version.txt; then
-            echo "❌ Flutterバージョンの取得に失敗しました"
-            exit 1
-          fi
-          
-          cat flutter_version.txt
-          echo "✅ Flutterのバージョン情報が取得できました"
-          
-          # Flutter doctorの実行
+          # Flutter doctorを実行して機能確認
           echo "flutter doctor を実行中..."
-          flutter doctor -v
+          if ! flutter doctor -v; then
+            echo "❌ flutter doctorの実行に失敗しました"
+            exit 1
+          fi
           
           # Xcodeの確認
           if ! flutter doctor -v | grep -q "Xcode"; then
