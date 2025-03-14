@@ -85,30 +85,12 @@ install_homebrew() {
 setup_shell_config() {
     echo "シェルの設定を適用中..."
     
-    if [ "$IS_CI" = "true" ]; then
-        # CI環境でも本番環境と同じように設定ファイルをコピー
-        echo "CI環境でシェル設定ファイルをコピーします"
-        
-        # shell/ディレクトリが存在しない場合は作成
-        mkdir -p "$REPO_ROOT/shell"
-        
-        # 空の.zshrcファイルを作成
-        touch "$REPO_ROOT/shell/.zshrc"
-        
-        # 空の.zprofileファイルを作成
-        touch "$REPO_ROOT/shell/.zprofile"
-    fi
-    
     # リポジトリから設定ファイルをコピー（CI環境と本番環境共通）
-    cp "$REPO_ROOT/shell/.zshrc" "$HOME/.zshrc"
     cp "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
     
     # 設定を反映
     if [ -f "$HOME/.zprofile" ]; then
         source "$HOME/.zprofile"
-    fi
-    if [ -f "$HOME/.zshrc" ]; then
-        source "$HOME/.zshrc"
     fi
     
     echo "シェルの設定の適用完了 ✅"

@@ -31,22 +31,14 @@ jobs:
       
       - name: シェル設定の確認
         run: |
-          # .zshrcと.zprofileの存在確認
-          test -f ~/.zshrc && echo "zshrcが存在します ✅" || (echo "zshrcが存在しません ❌" && exit 1)
+          # .zprofileの存在確認
           test -f ~/.zprofile && echo "zprofileが存在します ✅" || (echo "zprofileが存在しません ❌" && exit 1)
           
-          # ファイルの内容確認
-          if grep -q 'Homebrew' ~/.zshrc; then
-            echo "zshrcにHomebrewの設定が含まれています ✅"
-          else
-            echo "zshrcにHomebrewの設定が含まれていません ❌"
-            exit 1
-          fi
-          
+          # .zprofileの内容確認
           if grep -q '/opt/homebrew/bin/brew shellenv' ~/.zprofile; then
-            echo "zprofileにHomebrewパスが正しく設定されています ✅"
+            echo "zprofileに正しくコピーされています ✅"
           else
-            echo "zprofileにHomebrewパスが設定されていません ❌"
+            echo "zprofileに正しくコピーされていません ❌"
             exit 1
           fi
           
