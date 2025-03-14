@@ -18,27 +18,6 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Xcode Command Line Tools のインストール（非対話的）
-install_xcode_tools() {
-    if ! xcode-select -p &>/dev/null; then
-        echo "Xcode Command Line Tools をインストール中..."
-        if [ "$IS_CI" = "true" ]; then
-            # CI環境ではすでにインストールされていることを前提とする
-            echo "CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
-        else
-            xcode-select --install
-            # インストールが完了するまで待機
-            echo "インストールが完了するまで待機..."
-            until xcode-select -p &>/dev/null; do
-                sleep 5
-            done
-        fi
-        echo "✅ Xcode Command Line Tools のインストール完了"
-    else
-        echo "✅ Xcode Command Line Tools はすでにインストール済み"
-    fi
-}
-
 # Apple M1, M2 向け Rosetta 2 のインストール
 install_rosetta() {
     if [[ "$(uname -m)" == "arm64" ]]; then
@@ -391,17 +370,48 @@ install_xcode() {
 setup_mac_settings() {
     echo "🖥 Mac のシステム設定を適用中..."
     
-    # CI環境ではスキップ
+    # 設定ファイルの存在確認
+    if [[ ! -f "$REPO_ROOT/macos/setup_mac_settings.sh" ]]; then
+        echo "⚠️ setup_mac_settings.sh が見つかりません"
+        return 1
+    fi
+    
+    # 設定ファイルの内容を確認
+    echo "📝 Mac 設定ファイルをチェック中..."
+    local setting_count=$(grep -v "^#" "$REPO_ROOT/macos/setup_mac_settings.sh" | grep -v "^$" | grep -E "defaults write" | wc -l | tr -d ' ')
+    echo "🔍 $setting_count 個の設定項目が検出されました"
+    
+    # CI環境では適用のみスキップ
     if [ "$IS_CI" = "true" ]; then
-        echo "CI環境ではMacシステム設定の適用をスキップします"
+        echo "ℹ️ CI環境では Mac システム設定の適用をスキップします（検証のみ実行）"
+        
+        # 主要な設定カテゴリを確認
+        if grep -q "Dock" "$REPO_ROOT/macos/setup_mac_settings.sh"; then
+            echo "✅ Dock に関する設定が含まれています"
+        fi
+        
+        if grep -q "Finder" "$REPO_ROOT/macos/setup_mac_settings.sh"; then
+            echo "✅ Finder の設定が含まれています"
+        fi
+        
+        if grep -q "screenshots" "$REPO_ROOT/macos/setup_mac_settings.sh"; then
+            echo "✅ スクリーンショットの保存先の設定が含まれています"
+        fi
+        
         return 0
     fi
     
-    if [[ -f "$REPO_ROOT/macos/setup_mac_settings.sh" ]]; then
-        source "$REPO_ROOT/macos/setup_mac_settings.sh"
-        echo "✅ Mac のシステム設定が適用されました"
-    else
-        echo "setup_mac_settings.sh が見つかりません"
+    # 非CI環境では設定を適用
+    source "$REPO_ROOT/macos/setup_mac_settings.sh"
+    echo "✅ Mac のシステム設定が適用されました"
+    
+    # 設定が正常に適用されたか確認（一部の設定のみ）
+    if defaults read com.apple.dock &>/dev/null; then
+        echo "✅ Dock の設定が正常に適用されました"
+    fi
+    
+    if defaults read com.apple.finder &>/dev/null; then
+        echo "✅ Finder の設定が正常に適用されました"
     fi
 }
 

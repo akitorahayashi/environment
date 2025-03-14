@@ -91,7 +91,7 @@ jobs:
           
           echo "Git設定の確認が完了しました ✅"
       
-      - name: シェル設定の確認
+      - name: シェルの設定の確認
         run: |
           test -f ~/.zprofile && echo ".zprofileが存在します ✅" || (echo ".zprofileが存在しません ❌" && exit 1)
           
@@ -217,6 +217,58 @@ jobs:
           fi
           
           echo "✅ Cursorの設定確認が完了しました"
+      
+      - name: Mac設定ファイルの確認
+        run: |
+          # Mac設定ファイルが存在するか確認
+          if [ ! -d "$GITHUB_WORKSPACE/macos" ]; then
+            echo "⚠️ macosディレクトリが見つかりません"
+          else
+            echo "✅ macosディレクトリが存在します"
+            
+            # setup_mac_settings.shが存在するか確認
+            if [ ! -f "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh" ]; then
+              echo "⚠️ setup_mac_settings.shファイルが見つかりません"
+            else
+              echo "✅ setup_mac_settings.shファイルが存在します"
+              
+              # 設定ファイルの内容を確認
+              echo "📝 Mac設定ファイルの内容を分析中..."
+              SETTING_COUNT=$(grep -v "^#" "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh" | grep -v "^$" | grep -E "defaults write" | wc -l | tr -d ' ')
+              echo "🔍 $SETTING_COUNT 個の設定項目が検出されました"
+              
+              # 主要な設定カテゴリを確認
+              if grep -q "Dock" "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
+                echo "✅ Dock設定が含まれています"
+              fi
+              
+              if grep -q "Finder" "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
+                echo "✅ Finder設定が含まれています"
+              fi
+              
+              if grep -q "screenshots" "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
+                echo "✅ スクリーンショットの保存先の設定が含まれています"
+              fi
+              
+              # 危険な設定がないか確認
+              if grep -q "rm -rf" "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
+                echo "⚠️ 警告: 危険なコマンド(rm -rf)が含まれています"
+              else
+                echo "✅ 危険なコマンドは含まれていません"
+              fi
+              
+              # シンタックスチェック
+              echo "🔍 シェルスクリプトのシンタックスをチェック中..."
+              if bash -n "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
+                echo "✅ シェルスクリプトのシンタックスは正常です"
+              else
+                echo "❌ シェルスクリプトにシンタックスエラーがあります"
+                exit 1
+              fi
+            fi
+          fi
+          
+          echo "✅ Mac設定ファイルの確認が完了しました"
       
       - name: スクリプトの冪等性テスト
         env:
