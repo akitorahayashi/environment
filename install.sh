@@ -180,6 +180,15 @@ install_brewfile() {
 
     echo "Homebrew パッケージのインストールを開始します..."
 
+    # GitHub認証の設定 (CI環境用)
+    if [ -n "$GITHUB_TOKEN_CI" ]; then
+        echo "🔑 CI環境用のGitHub認証を設定中..."
+        # 認証情報を環境変数に設定
+        export HOMEBREW_GITHUB_API_TOKEN="$GITHUB_TOKEN_CI"
+        # Gitの認証設定
+        git config --global url."https://${GITHUB_ACTOR:-github-actions}:${GITHUB_TOKEN_CI}@github.com/".insteadOf "https://github.com/"
+    fi
+
     # CI環境でも全てのパッケージをインストール
     brew bundle --file "$brewfile_path"
     echo "✅ Homebrew パッケージのインストールが完了しました"
