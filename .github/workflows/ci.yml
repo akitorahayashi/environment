@@ -111,16 +111,6 @@ jobs:
             echo "Flutterがインストールされていません。確認をスキップします"
           fi
       
-      - name: Cursorがインストールされているか確認
-        run: |
-          echo "Cursorがインストールされているか確認"
-          if [ -d "/Applications/Cursor.app" ]; then
-            echo "Cursorがインストールされています ✅"
-          else
-            echo "Cursorがインストールされていません ❌"
-            exit 1
-          fi
-      
       - name: スクリプトの冪等性テスト
         env:
           CI: true

@@ -201,7 +201,7 @@ install_brewfile() {
         
         # インストールが必要な場合のみメッセージを表示
         if [ "$NEED_INSTALL" = "true" ]; then
-            echo "重要なパッケージをインストール中..."
+            echo "特定のパッケージをインストール中..."
         fi
         
         for package in $CI_SPECIFIC_PACKAGES; do
