@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# エラーハンドリングの設定
-set -e  # エラーが発生した時点でスクリプトを終了
-trap 'echo "エラーが発生しました。行番号: $LINENO, コマンド: $BASH_COMMAND"; exit 1' ERR
-
 # CI環境かどうかを検出
 IS_CI=${CI:-false}
 
@@ -17,31 +13,7 @@ else
     REPO_ROOT="$HOME/environment"
 fi
 
-# 進捗表示用の関数
-show_progress() {
-    local message="$1"
-    local emoji="${2:-✨}"
-    echo "$emoji $message"
-}
-
-# 成功メッセージ表示用の関数
-show_success() {
-    local message="$1"
-    echo "✅ $message"
-}
-
-# 警告メッセージ表示用の関数
-show_warning() {
-    local message="$1"
-    echo "⚠️ $message"
-}
-
-# エラーメッセージ表示用の関数
-show_error() {
-    local message="$1"
-    echo "❌ $message"
-}
-
+# コマンドが存在するかチェックするヘルパー関数
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -61,9 +33,9 @@ install_xcode_tools() {
                 sleep 5
             done
         fi
-        echo "Xcode Command Line Tools のインストール完了 ✅"
+        echo "✅ Xcode Command Line Tools のインストール完了"
     else
-        echo "Xcode Command Line Tools はすでにインストールされています"
+        echo "✅ Xcode Command Line Tools はすでにインストールされています"
     fi
 }
 
@@ -72,18 +44,18 @@ install_rosetta() {
     if [[ "$(uname -m)" == "arm64" ]]; then
         # Mac のチップモデルを取得
         MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
-        show_progress "Mac Model: $MAC_MODEL" "🖥"
+        echo "🖥 Mac Model: $MAC_MODEL"
 
         # M1 または M2 の場合のみ Rosetta 2 をインストール
         if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* ]]; then
             # すでに Rosetta 2 がインストールされているかチェック
             if pgrep oahd >/dev/null 2>&1; then
-                show_success "Rosetta 2 はすでにインストールされています"
+                echo "✅ Rosetta 2 はすでにインストールされています"
                 return
             fi
 
             # Rosetta 2 をインストール
-            show_progress "Rosetta 2 を $MAC_MODEL 向けにインストール中..." "🔄"
+            echo "🔄 Rosetta 2 を $MAC_MODEL 向けにインストール中..."
             if [ "$IS_CI" = "true" ]; then
                 # CI環境では非対話型でインストール
                 softwareupdate --install-rosetta --agree-to-license || true
@@ -93,15 +65,15 @@ install_rosetta() {
 
             # インストールの成否をチェック
             if pgrep oahd >/dev/null 2>&1; then
-                show_success "Rosetta 2 のインストールが完了しました"
+                echo "✅ Rosetta 2 のインストールが完了しました"
             else
-                show_error "Rosetta 2 のインストールに失敗しました"
+                echo "❌ Rosetta 2 のインストールに失敗しました"
             fi
         else
-            show_success "この Mac ($MAC_MODEL) には Rosetta 2 は不要です"
+            echo "✅ この Mac ($MAC_MODEL) には Rosetta 2 は不要です"
         fi
     else
-        show_success "この Mac は Apple Silicon ではないため、Rosetta 2 は不要です"
+        echo "✅ この Mac は Apple Silicon ではないため、Rosetta 2 は不要です"
     fi
 }
 
@@ -116,9 +88,9 @@ install_homebrew() {
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
-        echo "Homebrew のインストール完了 ✅"
+        echo "✅ Homebrew のインストール完了"
     else
-        echo "Homebrew はすでにインストールされています"
+        echo "✅ Homebrew はすでにインストールされています"
     fi
 }
 
@@ -133,12 +105,12 @@ setup_shell_config() {
     
     # ディレクトリとファイルの存在確認
     if [[ ! -d "$REPO_ROOT/shell" ]]; then
-        show_error "$REPO_ROOT/shell ディレクトリが見つかりません"
+        echo "❌ $REPO_ROOT/shell ディレクトリが見つかりません"
         return 1
     fi
     
     if [[ ! -f "$REPO_ROOT/shell/.zprofile" ]]; then
-        show_error "$REPO_ROOT/shell/.zprofile ファイルが見つかりません"
+        echo "❌ $REPO_ROOT/shell/.zprofile ファイルが見つかりません"
         return 1
     fi
     
@@ -156,7 +128,7 @@ setup_shell_config() {
         source "$HOME/.zprofile"
     fi
     
-    echo "シェルの設定の適用完了 ✅"
+    echo "✅ シェルの設定の適用完了"
 }
 
 # Git の設定を適用
@@ -166,7 +138,7 @@ setup_git_config() {
     ln -sf "$REPO_ROOT/git/.gitignore_global" "${HOME}/.gitignore_global"
     
     git config --global core.excludesfile "${HOME}/.gitignore_global"
-    echo "Git 設定を適用しました ✅"
+    echo "✅ Git 設定を適用しました"
 }
 
 # アプリを開く関数
@@ -208,7 +180,7 @@ install_brewfile() {
     local brewfile_path="$REPO_ROOT/config/Brewfile"
     
     if [[ ! -f "$brewfile_path" ]]; then
-        echo "Warning: $brewfile_path が見つかりません。スキップします。"
+        echo "⚠️ Warning: $brewfile_path が見つかりません。スキップします。"
         return
     fi
 
@@ -226,10 +198,10 @@ install_brewfile() {
             brew tap xcodesorg/homebrew-xcodes
             brew install xcodes
         else
-            echo "xcodes はすでにインストールされています"
+            echo "✅ xcodes はすでにインストールされています"
         fi
         
-        echo "CI環境での必須パッケージのインストールが完了しました ✅"
+        echo "✅ CI環境での必須パッケージのインストールが完了しました"
         return
     fi
 
@@ -308,7 +280,7 @@ install_brewfile() {
         fi
     done < "$brewfile_path"
 
-    echo "Homebrew パッケージの適用が完了しました ✅"
+    echo "✅ Homebrew パッケージの適用が完了しました"
 }
 
 # Flutter のセットアップ（Android SDK のパスを適切に設定）
@@ -333,7 +305,7 @@ setup_flutter() {
         flutter doctor
     fi
 
-    echo "Flutter 環境のセットアップ完了 ✅"
+    echo "✅ Flutter 環境のセットアップ完了"
 }
 
 # Cursor のセットアップ
@@ -379,6 +351,12 @@ setup_cursor() {
 setup_xcode() {
     echo "🔄 Xcode の設定中..."
 
+    # CI環境ではXcodeのインストールをスキップ
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境ではXcodeのインストールと設定をスキップします"
+        return 0
+    fi
+
     # xcodes がインストールされているか確認
     if ! command -v xcodes >/dev/null 2>&1; then
         echo "❌ xcodes がインストールされていません。先に Brewfile を適用してください。"
@@ -386,15 +364,9 @@ setup_xcode() {
     fi
 
     # Xcode 16.2 がインストールされているか確認
-    if ! xcodes installed --formula | grep -q "16.2"; then
+    if ! xcodes installed | grep -q "16.2"; then
         echo "📱 Xcode 16.2 をインストール中..."
-        if [ "$IS_CI" = "true" ]; then
-            echo "CI環境では対話型のXcodeインストールをスキップします"
-            # CI環境では非対話型でインストール（または必要最小限の操作のみ）
-            xcodes install 16.2 --select --non-interactive || true
-        else
-            xcodes install 16.2 --select
-        fi
+        xcodes install 16.2 --select
     else
         echo "✅ Xcode 16.2 はすでにインストールされています"
     fi
@@ -420,13 +392,7 @@ setup_xcode() {
         echo "✅ iOS シミュレータは既にインストールされています"
     else
         echo "📱 iOS シミュレータをインストール中..."
-        if [ "$IS_CI" = "true" ]; then
-            echo "CI環境では対話型のシミュレータインストールをスキップします"
-            # CI環境では非対話型でインストール（または必要最小限の操作のみ）
-            xcodebuild -downloadPlatform iOS -allowProvisioningUpdates || true
-        else
-            xcodebuild -downloadPlatform iOS
-        fi
+        xcodebuild -downloadPlatform iOS
     fi
     
     # watchOS シミュレータ
@@ -434,12 +400,7 @@ setup_xcode() {
         echo "✅ watchOS シミュレータは既にインストールされています"
     else
         echo "⌚ watchOS シミュレータをインストール中..."
-        if [ "$IS_CI" = "true" ]; then
-            echo "CI環境では対話型のシミュレータインストールをスキップします"
-            xcodebuild -downloadPlatform watchOS -allowProvisioningUpdates || true
-        else
-            xcodebuild -downloadPlatform watchOS
-        fi
+        xcodebuild -downloadPlatform watchOS
     fi
     
     # tvOS シミュレータ
@@ -447,12 +408,7 @@ setup_xcode() {
         echo "✅ tvOS シミュレータは既にインストールされています"
     else
         echo "📺 tvOS シミュレータをインストール中..."
-        if [ "$IS_CI" = "true" ]; then
-            echo "CI環境では対話型のシミュレータインストールをスキップします"
-            xcodebuild -downloadPlatform tvOS -allowProvisioningUpdates || true
-        else
-            xcodebuild -downloadPlatform tvOS
-        fi
+        xcodebuild -downloadPlatform tvOS
     fi
     
     # visionOS シミュレータ
@@ -460,12 +416,7 @@ setup_xcode() {
         echo "✅ visionOS シミュレータは既にインストールされています"
     else
         echo "👓 visionOS シミュレータをインストール中..."
-        if [ "$IS_CI" = "true" ]; then
-            echo "CI環境では対話型のシミュレータインストールをスキップします"
-            xcodebuild -downloadPlatform visionOS -allowProvisioningUpdates || true
-        else
-            xcodebuild -downloadPlatform visionOS
-        fi
+        xcodebuild -downloadPlatform visionOS
     fi
     
     echo "✅ すべてのシミュレータの確認が完了しました"
@@ -530,9 +481,9 @@ setup_github_cli() {
     if ! command_exists gh; then
         echo "GitHub CLI をインストール中..."
         brew install gh
-        echo "GitHub CLI のインストール完了 ✅"
+        echo "✅ GitHub CLI のインストール完了"
     else
-        echo "GitHub CLI はすでにインストールされています"
+        echo "✅ GitHub CLI はすでにインストールされています"
     fi
 
     # 認証状態をチェック
@@ -545,7 +496,7 @@ setup_github_cli() {
             gh auth login
         fi
     else
-        echo "GitHub CLI はすでに認証済みです ✅"
+        echo "✅ GitHub CLI はすでに認証済みです"
     fi
 }
 
