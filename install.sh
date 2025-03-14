@@ -136,9 +136,14 @@ setup_shell_config() {
         return 1
     fi
     
-    # .zprofileファイルをコピー
-    touch "$HOME/.zprofile"
-    cp "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
+    # .zprofileファイルをシンボリックリンクとして設定
+    if [[ -L "$HOME/.zprofile" || -f "$HOME/.zprofile" ]]; then
+        # 既存のファイルやシンボリックリンクが存在する場合は削除
+        rm -f "$HOME/.zprofile"
+    fi
+    
+    # シンボリックリンクを作成
+    ln -sf "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
     
     # 設定を反映
     if [ -f "$HOME/.zprofile" ]; then
