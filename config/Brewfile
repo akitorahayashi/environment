@@ -1,0 +1,24 @@
+# 必要な tap
+tap "homebrew/cask"
+tap "xcodesorg/homebrew-xcodes"
+
+# Formula
+brew "git"
+brew "gh"
+brew "cocoapods"
+brew "fastlane"
+brew "act"
+brew "swiftlint"
+brew "fdupes"
+brew "xcodes"
+
+# Cask
+cask "flutter"
+cask "android-studio"
+cask "google-chrome"
+cask "slack"
+cask "spotify"
+cask "zoom"
+cask "notion"
+cask "figma"
+cask "cursor"

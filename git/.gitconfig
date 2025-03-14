@@ -1,0 +1,16 @@
+[user]
+    name = akitorahayashi
+    email = atora.has75@gmail.com
+
+[alias]
+    co = checkout
+    br = branch
+    cm = commit
+    st = status
+    lg = log --oneline --graph --decorate --all
+
+[github]
+    user = akitorahayashi
+    
+[core]
+	excludesfile = /Users/akitorahayashi/.gitignore_global

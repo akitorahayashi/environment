@@ -1,0 +1,18 @@
+# 機密情報を含むファイル
+xcode/xcode_defaults.plist
+**/xcuserdata/
+**/xcshareddata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# macOS関連
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# その他の一時ファイル
+*.swp
+*.swo
+*~
