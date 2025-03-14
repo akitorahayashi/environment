@@ -124,6 +124,8 @@ install_homebrew() {
 
 setup_shell_config() {
     echo "シェルの設定を適用中..."
+
+    touch "$HOME/.zprofile"
     
     # リポジトリから設定ファイルをコピー（CI環境と本番環境共通）
     cp "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
