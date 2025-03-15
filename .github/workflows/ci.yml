@@ -267,41 +267,35 @@ jobs:
             if [ -f "$GITHUB_WORKSPACE/cursor/extensions.json" ]; then
               echo "✅ extensions.jsonファイルが存在します"
               
-              # 拡張機能IDの形式を確認
-              if grep -q "Dart-Code.dart-code" "$GITHUB_WORKSPACE/cursor/extensions.json"; then
-                echo "✅ 拡張機能IDの大文字小文字が正しく設定されています"
-              else
-                echo "⚠️ 拡張機能IDの大文字小文字に問題がある可能性があります"
-                cat "$GITHUB_WORKSPACE/cursor/extensions.json"
-              fi
-              
-              # 推奨拡張機能の数を確認
-              EXTENSION_COUNT=$(grep -o '"[^"]*"' "$GITHUB_WORKSPACE/cursor/extensions.json" | grep -v "recommendations" | wc -l | tr -d ' ')
-              echo "🧩 $EXTENSION_COUNT 個の拡張機能が定義されています"
-              
-              # Cursorコマンドラインツールのパス
-              CURSOR_CLI="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
-              
-              # 拡張機能のインストール状態を確認
-              if [ -f "$CURSOR_CLI" ]; then
-                echo "✅ Cursor CLIが利用可能です"
+              # リストアスクリプトを実行して設定を復元
+              if [ -f "$GITHUB_WORKSPACE/cursor/restore_cursor_settings.sh" ]; then
+                echo "🔄 Cursor設定を復元しています..."
+                bash "$GITHUB_WORKSPACE/cursor/restore_cursor_settings.sh"
                 
-                # インストールされた拡張機能を確認
-                INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions 2>/dev/null || echo "")
-                echo "インストールされた拡張機能:"
-                echo "$INSTALLED_EXTENSIONS"
+                # 設定ファイルが正しく復元されたか確認
+                if [ -f "$CURSOR_CONFIG_DIR/extensions.json" ]; then
+                  echo "✅ extensions.jsonがCursorの設定ディレクトリにコピーされました"
+                else
+                  echo "❌ extensions.jsonのコピーに失敗しました"
+                  exit 1
+                fi
                 
-                # extensions.jsonの拡張機能がインストールされているか確認
-                EXTENSIONS=$(grep -o '"[^"]*"' "$GITHUB_WORKSPACE/cursor/extensions.json" | grep -v "recommendations" | tr -d '"')
-                for extension in $EXTENSIONS; do
-                  if echo "$INSTALLED_EXTENSIONS" | grep -qi "$extension"; then
-                    echo "✅ 拡張機能 $extension はインストールされています"
-                  else
-                    echo "⚠️ 拡張機能 $extension はインストールされていません"
-                  fi
-                done
+                if [ -f "$CURSOR_CONFIG_DIR/settings.json" ]; then
+                  echo "✅ settings.jsonがCursorの設定ディレクトリにコピーされました"
+                else
+                  echo "❌ settings.jsonのコピーに失敗しました"
+                  exit 1
+                fi
+                
+                if [ -f "$CURSOR_CONFIG_DIR/keybindings.json" ]; then
+                  echo "✅ keybindings.jsonがCursorの設定ディレクトリにコピーされました"
+                else
+                  echo "❌ keybindings.jsonのコピーに失敗しました"
+                  exit 1
+                fi
               else
-                echo "⚠️ Cursor CLIが見つかりません"
+                echo "❌ restore_cursor_settings.shスクリプトが見つかりません"
+                exit 1
               fi
             else
               echo "⚠️ extensions.jsonファイルが見つかりません"

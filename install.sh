@@ -282,46 +282,6 @@ setup_cursor() {
         INSTALL_SUCCESS=false
     fi
 
-    # 拡張機能の確認とインストール
-    if [[ -f "$REPO_ROOT/cursor/extensions.json" ]]; then
-        echo "🧩 Cursor 拡張機能を確認中..."
-        
-        # Cursorコマンドラインツールのパス
-        CURSOR_CLI="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
-        
-        # Cursorコマンドラインツールが存在するか確認
-        if [ -f "$CURSOR_CLI" ]; then
-            # インストール済み拡張機能のリストを取得
-            echo "インストール済み拡張機能を確認中..."
-            INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions 2>/dev/null || echo "")
-            
-            # extensions.jsonから拡張機能IDを直接抽出
-            EXTENSIONS=$(grep -o '"[^"]*"' "$REPO_ROOT/cursor/extensions.json" | grep -v "recommendations" | tr -d '"')
-            
-            # 拡張機能をインストール
-            for extension in $EXTENSIONS; do
-                if echo "$INSTALLED_EXTENSIONS" | grep -qi "$extension"; then
-                    echo "✅ 拡張機能 $extension はすでにインストールされています"
-                else
-                    echo "🔄 拡張機能 $extension をインストール中..."
-                    if ! "$CURSOR_CLI" --install-extension "$extension"; then
-                        echo "❌ $extension のインストールに失敗しました"
-                        # CI環境でもエラーを記録するが、インストールは継続
-                        INSTALL_SUCCESS=false
-                    else
-                        echo "✅ 拡張機能 $extension をインストールしました"
-                    fi
-                fi
-            done
-        else
-            echo "❌ Cursor CLI が見つかりません。拡張機能のインストールをスキップします。"
-            INSTALL_SUCCESS=false
-        fi
-    else
-        echo "❌ 拡張機能リストが見つかりません。拡張機能のインストールをスキップします。"
-        INSTALL_SUCCESS=false
-    fi
-
     # Flutter SDK のパスを Cursor に適用
     if command -v flutter &>/dev/null; then
         FLUTTER_PATH=$(which flutter)
@@ -348,17 +308,13 @@ setup_cursor() {
                 fi
             else
                 echo "⚠️ Cursor の設定ファイルが見つかりません"
-                INSTALL_SUCCESS=false
             fi
         else
-            echo "⚠️ Flutter SDK のディレクトリが見つかりませんでした。"
-            INSTALL_SUCCESS=false
+            echo "⚠️ Flutter SDK のパスを特定できませんでした"
         fi
-    else
-        echo "⚠️ Flutterがインストールされていません。"
     fi
 
-    echo "✅ Cursor のセットアップが完了しました！"
+    echo "✅ Cursor のセットアップ完了"
 }
 
 # Xcode とシミュレータのインストール
