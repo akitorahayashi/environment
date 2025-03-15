@@ -114,7 +114,7 @@ jobs:
           
           echo "✅ SwiftLintは正常に動作しています"
       
-      - name: Git設定の確認
+      - name: Gitの設定の確認
         run: |
           test -f ~/.gitconfig && echo "gitconfigが存在します ✅" || (echo "gitconfigが存在しません ❌" && exit 1)
           test -f ~/.gitignore_global && echo "gitignore_globalが存在します ✅" || (echo "gitignore_globalが存在しません ❌" && exit 1)
@@ -415,47 +415,6 @@ jobs:
           fi
           
           echo "Mac設定ファイルの確認が完了しました ✅"
-      
-      - name: インストールスクリプトの修正が有効か検証
-        run: |
-          echo "修正したインストールスクリプトの検証:"
-          
-          # 1. Homebrew PATH問題の修正を確認
-          if grep -q 'eval "$(/opt/homebrew/bin/brew shellenv)"' install.sh; then
-            echo "✅ Homebrew PATH即時有効化の修正が含まれています"
-          else
-            echo "❌ Homebrew PATH即時有効化の修正が見つかりません"
-          fi
-          
-          # 2. Xcodeインストールの待機問題の修正を確認
-          if grep -q "if ! install_xcode" install.sh && ! grep -q "XCODE_PID" install.sh; then
-            echo "✅ Xcodeインストールの同期実行の修正が含まれています"
-          else
-            echo "❌ Xcodeインストールの待機処理に問題があります"
-          fi
-          
-          # 3. SwiftLintがXcodeインストール後に直接インストールされる処理の確認
-          if grep -q "Xcode インストール後に SwiftLint をインストール" install.sh && grep -q "brew install swiftlint" install.sh; then
-            echo "✅ SwiftLintが直接インストールされる処理が含まれています"
-          else
-            echo "❌ SwiftLintのインストール処理に問題があります"
-          fi
-          
-          # 4. エラートラッキングの改善を確認
-          if grep -q "INSTALL_SUCCESS=" install.sh; then
-            echo "✅ インストール成功/失敗のトラッキングが実装されています"
-          else
-            echo "❌ インストール状態のトラッキングが見つかりません"
-          fi
-          
-          # 5. アプリ起動機能の改善を確認
-          if grep -q "launch_installed_apps" install.sh; then
-            echo "✅ アプリ起動機能の改善が含まれています"
-          else
-            echo "❌ アプリ起動機能の改善が見つかりません"
-          fi
-          
-          echo "インストールスクリプトの修正検証が完了しました"
 
   # 全体の検証結果の表示
   summary:
