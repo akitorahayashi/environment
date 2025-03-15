@@ -32,17 +32,13 @@ jobs:
       
       - name: インストールスクリプトの実行
         run: |
-          # インストールを実行し、終了ステータスを確認
+          # インストールを直接実行
           ./install.sh
           
           # インストールスクリプトの終了コードを保存
           INSTALL_EXIT_CODE=$?
           
           echo "インストールスクリプトの終了コード: $INSTALL_EXIT_CODE"
-          
-          # ログの最後の部分を確認
-          echo "インストールログの最後の部分:"
-          tail -n 20 install.log
           
           # スクリプトの終了ステータスを確認
           if [ $INSTALL_EXIT_CODE -ne 0 ]; then
@@ -282,6 +278,31 @@ jobs:
               # 推奨拡張機能の数を確認
               EXTENSION_COUNT=$(grep -o '"[^"]*"' "$GITHUB_WORKSPACE/cursor/extensions.json" | grep -v "recommendations" | wc -l | tr -d ' ')
               echo "🧩 $EXTENSION_COUNT 個の拡張機能が定義されています"
+              
+              # Cursorコマンドラインツールのパス
+              CURSOR_CLI="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+              
+              # 拡張機能のインストール状態を確認
+              if [ -f "$CURSOR_CLI" ]; then
+                echo "✅ Cursor CLIが利用可能です"
+                
+                # インストールされた拡張機能を確認
+                INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions 2>/dev/null || echo "")
+                echo "インストールされた拡張機能:"
+                echo "$INSTALLED_EXTENSIONS"
+                
+                # extensions.jsonの拡張機能がインストールされているか確認
+                EXTENSIONS=$(grep -o '"[^"]*"' "$GITHUB_WORKSPACE/cursor/extensions.json" | grep -v "recommendations" | tr -d '"')
+                for extension in $EXTENSIONS; do
+                  if echo "$INSTALLED_EXTENSIONS" | grep -qi "$extension"; then
+                    echo "✅ 拡張機能 $extension はインストールされています"
+                  else
+                    echo "⚠️ 拡張機能 $extension はインストールされていません"
+                  fi
+                done
+              else
+                echo "⚠️ Cursor CLIが見つかりません"
+              fi
             else
               echo "⚠️ extensions.jsonファイルが見つかりません"
             fi

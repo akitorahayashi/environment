@@ -289,29 +289,24 @@ setup_cursor() {
         # Cursorコマンドラインツールのパス
         CURSOR_CLI="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
         
-        # CI環境では拡張機能のインストールをスキップ
-        if [ "$IS_CI" != "true" ] && [ -f "$CURSOR_CLI" ]; then
+        # Cursorコマンドラインツールが存在するか確認
+        if [ -f "$CURSOR_CLI" ]; then
             # インストール済み拡張機能のリストを取得
             echo "インストール済み拡張機能を確認中..."
             INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions 2>/dev/null || echo "")
             
-            # 拡張機能のフォーマットを修正して正しい大文字小文字で保存
-            EXTENSIONS_FIXED=(
-                "Dart-Code.dart-code"
-                "Dart-Code.flutter"
-                "github.vscode-github-actions"
-                "GitHub.copilot"
-                "GitHub.copilot-chat"
-            )
+            # extensions.jsonから拡張機能IDを直接抽出
+            EXTENSIONS=$(grep -o '"[^"]*"' "$REPO_ROOT/cursor/extensions.json" | grep -v "recommendations" | tr -d '"')
             
-            for extension in "${EXTENSIONS_FIXED[@]}"; do
-                extension_lower=$(echo "$extension" | tr '[:upper:]' '[:lower:]')
-                if echo "$INSTALLED_EXTENSIONS" | grep -qi "$extension_lower"; then
+            # 拡張機能をインストール
+            for extension in $EXTENSIONS; do
+                if echo "$INSTALLED_EXTENSIONS" | grep -qi "$extension"; then
                     echo "✅ 拡張機能 $extension はすでにインストールされています"
                 else
                     echo "🔄 拡張機能 $extension をインストール中..."
                     if ! "$CURSOR_CLI" --install-extension "$extension"; then
                         echo "❌ $extension のインストールに失敗しました"
+                        # CI環境でもエラーを記録するが、インストールは継続
                         INSTALL_SUCCESS=false
                     else
                         echo "✅ 拡張機能 $extension をインストールしました"
@@ -319,10 +314,11 @@ setup_cursor() {
                 fi
             done
         else
-            echo "CI環境または Cursor CLI が見つからないため、拡張機能のインストールをスキップします"
+            echo "❌ Cursor CLI が見つかりません。拡張機能のインストールをスキップします。"
+            INSTALL_SUCCESS=false
         fi
     else
-        echo "拡張機能リストが見つかりません。拡張機能のインストールをスキップします。"
+        echo "❌ 拡張機能リストが見つかりません。拡張機能のインストールをスキップします。"
         INSTALL_SUCCESS=false
     fi
 

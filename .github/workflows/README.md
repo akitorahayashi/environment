@@ -46,6 +46,7 @@ The workflow runs on:
    - **Homebrew Packages**: Validates all packages listed in Brewfile are installed
    - **Flutter**: Checks installation, configuration, path, and verification via flutter doctor
    - **Cursor**: Validates IDE settings, extensions, Flutter SDK path
+   - **Cursor Extensions**: Verifies extensions are correctly installed from extensions.json
    - **Cask Apps**: Confirms installed applications and launch target settings
    - **macOS Settings**: Analyzes settings files and key categories
    - **Installation Script Improvements**: Validates PATH fixes, Xcode installation wait, SwiftLint installation, error tracking, app launch functionality
@@ -87,6 +88,8 @@ The workflow runs on:
 - Configuration file verification (settings.json, extensions.json)
 - Flutter SDK path settings verification
 - Count of defined extensions
+- Active verification of extension installation using Cursor CLI
+- Dynamic extension list extraction from extensions.json
 
 ### macOS Settings Validation
 - Existence of settings files
@@ -99,3 +102,4 @@ The workflow runs on:
 - Direct SwiftLint installation process
 - Installation state tracking
 - App launch functionality improvements
+- Enhanced Cursor extension installation and verification

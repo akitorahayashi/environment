@@ -1,24 +1,23 @@
 #!/bin/bash
 
+# 環境変数の設定
+ENVIRONMENT_DIR="$HOME/environment"
+if [[ -n "$GITHUB_WORKSPACE" ]]; then
+    ENVIRONMENT_DIR="$GITHUB_WORKSPACE"
+fi
+
 # Cursorの設定ディレクトリ
 CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
-ENVIRONMENT_CURSOR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENVIRONMENT_CURSOR_DIR="$ENVIRONMENT_DIR/cursor"
 
-# リストア対象のファイル
-FILES_TO_RESTORE=(
-    "settings.json"
-    "keybindings.json"
-    "extensions.json"
-)
-
-# Cursorがインストールされているか確認
+# 設定ディレクトリが存在することを確認
 if [ ! -d "$CURSOR_CONFIG_DIR" ]; then
-    echo "Cursor is not installed. Please install Cursor first."
-    exit 1
+    mkdir -p "$CURSOR_CONFIG_DIR"
 fi
 
 # 設定ファイルのリストア
 echo "Restoring Cursor settings..."
+FILES_TO_RESTORE=("settings.json" "keybindings.json" "extensions.json")
 for file in "${FILES_TO_RESTORE[@]}"; do
     if [ -f "$ENVIRONMENT_CURSOR_DIR/$file" ]; then
         echo "Restoring $file..."
@@ -42,7 +41,7 @@ if [ -f "$ENVIRONMENT_CURSOR_DIR/extensions.json" ]; then
         INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions | tr '[:upper:]' '[:lower:]')
         
         # extensions.jsonから拡張機能IDを抽出してインストール
-        EXTENSIONS=$(cat "$ENVIRONMENT_CURSOR_DIR/extensions.json" | grep -o '"[^"]*"' | grep -v "recommendations" | tr -d '"')
+        EXTENSIONS=$(grep -o '"[^"]*"' "$ENVIRONMENT_CURSOR_DIR/extensions.json" | grep -v "recommendations" | tr -d '"')
         
         for extension in $EXTENSIONS; do
             # 拡張機能IDを小文字に変換して比較
@@ -58,7 +57,8 @@ if [ -f "$ENVIRONMENT_CURSOR_DIR/extensions.json" ]; then
         
         echo "Extensions installation completed!"
     else
-        echo "Warning: Cursor CLI not found at $CURSOR_CLI. Extensions will not be automatically installed."
+        echo "Error: Cursor CLI not found at $CURSOR_CLI"
+        exit 1
     fi
 fi
 
