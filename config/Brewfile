@@ -10,7 +10,9 @@ brew "xcodes"
 
 # Cask
 cask "flutter"
+cask "android-commandlinetools"
 cask "android-studio"
+cask "temurin" # JavaのOpenJDK実装
 cask "google-chrome"
 cask "slack"
 cask "spotify"

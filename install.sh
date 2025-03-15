@@ -176,12 +176,118 @@ setup_flutter() {
         INSTALL_SUCCESS=false
     fi
 
+    # Android SDK の cmdline-tools が正しく設定されているか確認
+    ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
+    CMDLINE_TOOLS_PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest"
+    
+    echo "🔄 Android SDK のセットアップを確認中..."
+    
+    # Android SDK ディレクトリが存在するか確認
+    if [ ! -d "$ANDROID_SDK_ROOT" ]; then
+        echo "Android SDK ディレクトリを作成します..."
+        mkdir -p "$ANDROID_SDK_ROOT"
+    fi
+    
+    # android-commandlinetoolsとJavaが利用可能か確認
+    if ! command -v sdkmanager &>/dev/null; then
+        echo "⚠️ Android Command Line Toolsが見つかりません（Brewfileでインストールされるはず）"
+        INSTALL_SUCCESS=false
+    fi
+    
+    if ! command -v java &>/dev/null; then
+        echo "⚠️ Javaが見つかりません（Brewfileでtemurinがインストールされるはず）"
+        INSTALL_SUCCESS=false
+    fi
+    
+    # cmdline-tools のパスが正しいか確認
+    if [ ! -d "$CMDLINE_TOOLS_PATH" ]; then
+        echo "Android SDK のコマンドラインツールをセットアップ中..."
+        
+        # Homebrew でインストールされた Android SDK Command Line Tools のパス
+        BREW_CMDLINE_TOOLS="/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest"
+        
+        if [ -d "$BREW_CMDLINE_TOOLS" ]; then
+            echo "Homebrew でインストールされたコマンドラインツールを設定中..."
+            
+            # cmdline-tools ディレクトリ構造を作成
+            mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+            
+            # latest シンボリックリンクを作成
+            ln -sf "$BREW_CMDLINE_TOOLS" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+            
+            echo "✅ Android SDK コマンドラインツールをセットアップしました"
+        else
+            echo "❌ Homebrew の Android SDK コマンドラインツールが見つかりません"
+            echo "config/Brewfileから自動的にインストールされるはずです"
+            INSTALL_SUCCESS=false
+        fi
+    fi
+    
+    # 環境変数を設定
+    export ANDROID_SDK_ROOT="$ANDROID_SDK_ROOT"
+    export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+    
+    # sdkmanager を使って必要なパッケージをインストール
+    if [ -f "$CMDLINE_TOOLS_PATH/bin/sdkmanager" ]; then
+        echo "🔄 Android SDK コンポーネントを確認中..."
+        
+        # すでにインストールされているパッケージを確認
+        INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list 2>/dev/null | grep -E "^Installed packages:" -A100 | grep -v "^Available" | grep -v "^Installed")
+        
+        # platform-tools の確認とインストール
+        if ! echo "$INSTALLED_PACKAGES" | grep -q "platform-tools"; then
+            echo "platform-tools をインストール中..."
+            echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" "platform-tools" > /dev/null
+        else
+            echo "✅ platform-tools はすでにインストール済み"
+        fi
+        
+        # build-tools の確認とインストール
+        if ! echo "$INSTALLED_PACKAGES" | grep -q "build-tools;35.0.1"; then
+            echo "build-tools;35.0.1 をインストール中..."
+            echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" "build-tools;35.0.1" > /dev/null
+        else
+            echo "✅ build-tools;35.0.1 はすでにインストール済み"
+        fi
+        
+        # platforms の確認とインストール
+        if ! echo "$INSTALLED_PACKAGES" | grep -q "platforms;android-34"; then
+            echo "platforms;android-34 をインストール中..."
+            echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" "platforms;android-34" > /dev/null
+        else
+            echo "✅ platforms;android-34 はすでにインストール済み"
+        fi
+        
+        echo "✅ Android SDK コンポーネントの確認が完了しました"
+    else
+        echo "❌ sdkmanager が見つかりません"
+        INSTALL_SUCCESS=false
+    fi
+
     # Flutter doctorの実行
     if [ "$IS_CI" = "true" ]; then
         echo "CI環境では対話型の flutter doctor --android-licenses をスキップします"
         flutter doctor || true
     else
-        flutter doctor --android-licenses || INSTALL_SUCCESS=false
+        # ライセンス同意状態を確認
+        LICENSE_STATUS=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses --status 2>&1 | grep -c "All SDK package licenses accepted." || echo "0")
+        
+        if [ "$LICENSE_STATUS" = "0" ]; then
+            echo "🔄 Android SDK ライセンスに同意中..."
+            if [ -f "$CMDLINE_TOOLS_PATH/bin/sdkmanager" ]; then
+                # 全てのライセンスに自動で同意
+                yes | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses > /dev/null
+                echo "✅ Android SDK ライセンスに同意しました"
+                
+                # 明示的にflutter doctorでAndroidライセンスに同意
+                flutter doctor --android-licenses
+            fi
+        else
+            echo "✅ Android SDK ライセンスはすでに同意済みです"
+        fi
+        
+        echo "🔄 Flutter doctor を実行中..."
+        flutter doctor -v || INSTALL_SUCCESS=false
     fi
 
     echo "✅ Flutter の環境のセットアップ完了"

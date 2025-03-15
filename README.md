@@ -53,6 +53,7 @@ The `install.sh` script implements the following features:
 
 10. **Flutter Configuration**
     - Properly configures Flutter and automatically accepts Android SDK licenses
+    - Automatically sets up Android SDK environment
     
 11. **SSH Key Generation and Configuration**
     - Generates an SSH key (`id_ed25519`) if it doesn't exist
