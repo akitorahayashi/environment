@@ -135,17 +135,6 @@ Applies system settings from `macos/setup_mac_settings.sh`:
 ./cursor/restore_cursor_settings.sh
 ```
 
-### 10. Xcode Settings Backup and Restore
-#### Backup
-```bash
-./xcode/backup_xcode_settings.sh
-```
-
-#### Restore
-```bash
-./xcode/restore_xcode_settings.sh
-```
-
 ## CI Environment Operation
 
 This script has CI testing implemented with GitHub Actions to verify:
