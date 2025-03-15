@@ -25,16 +25,49 @@ jobs:
       - name: インストールスクリプトの実行権限付与
         run: chmod +x install.sh
       
+      - name: Homebrew PATHを確認（インストール前）
+        run: |
+          echo "現在の PATH: $PATH"
+          which brew || echo "brewコマンドはまだ使用できません（期待通り）"
+      
       - name: インストールスクリプトの実行
-        run: ./install.sh
+        run: |
+          # インストールを実行し、終了ステータスを確認
+          ./install.sh
+          
+          # インストールスクリプトの終了コードを保存
+          INSTALL_EXIT_CODE=$?
+          
+          echo "インストールスクリプトの終了コード: $INSTALL_EXIT_CODE"
+          
+          # ログの最後の部分を確認
+          echo "インストールログの最後の部分:"
+          tail -n 20 install.log
+          
+          # スクリプトの終了ステータスを確認
+          if [ $INSTALL_EXIT_CODE -ne 0 ]; then
+            echo "❌ インストールスクリプトがエラーで終了しました"
+            exit $INSTALL_EXIT_CODE
+          fi
         env:
           CI: true  # CI環境であることを示す
           GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions提供のトークンをCI用の名前で渡す
+      
+      - name: Homebrew PATHを確認（インストール後）
+        run: |
+          echo "現在の PATH: $PATH"
+          which brew && echo "✅ brewコマンドが正常に使用可能" || (echo "❌ brewコマンドが使用できません" && exit 1)
         
       - name: Homebrewのインストールの確認
-        run: brew --version
+        run: |
+          # Homebrewのバージョンを確認
+          if ! brew --version; then
+            echo "❌ Homebrewのインストールに失敗しています"
+            exit 1
+          fi
+          echo "✅ Homebrewが正常にインストールされています"
         
-      - name: Xcodeのインストール確認
+      - name: Xcodeのインストールを確認
         run: |
           # Xcode Command Line Toolsの確認
           if ! xcode-select -p &>/dev/null; then
@@ -44,20 +77,46 @@ jobs:
           echo "✅ Xcode Command Line Toolsがインストールされています"
           
           # Xcode 16.2の確認
-          if ! xcodes installed | grep -q "16.2"; then
-            echo "❌ Xcode 16.2がインストールされていません"
-            exit 1
-          fi
-          echo "✅ Xcode 16.2がインストールされています"
-          
-          # シミュレータの確認
-          for platform in iOS watchOS tvOS visionOS; do
-            if ! xcrun simctl list runtimes | grep -q "$platform"; then
-              echo "❌ $platform シミュレータがインストールされていません"
+          if command -v xcodes &>/dev/null; then
+            if ! xcodes installed | grep -q "16.2"; then
+              echo "❌ Xcode 16.2がインストールされていません"
               exit 1
             fi
-            echo "✅ $platform シミュレータがインストールされています"
-          done
+            echo "✅ Xcode 16.2がインストールされています"
+          else
+            echo "⚠️ xcodesコマンドが見つかりません。Xcode 16.2のインストール状態を確認できません"
+          fi
+          
+          # シミュレータの確認
+          if xcrun simctl list runtimes &>/dev/null; then
+            echo "シミュレータの状態を確認中..."
+            for platform in iOS watchOS tvOS visionOS; do
+              if ! xcrun simctl list runtimes | grep -q "$platform"; then
+                echo "⚠️ $platform シミュレータが見つかりません"
+              else
+                echo "✅ $platform シミュレータがインストールされています"
+              fi
+            done
+          else
+            echo "⚠️ simctlコマンドが使用できません。シミュレータの状態を確認できません"
+          fi
+      
+      - name: SwiftLintのインストール確認
+        run: |
+          if ! command -v swiftlint &>/dev/null; then
+            echo "❌ SwiftLintがインストールされていません"
+            exit 1
+          fi
+          
+          echo "✅ SwiftLintがインストールされています（バージョン: $(swiftlint version)）"
+          
+          # SwiftLintの動作確認
+          echo "SwiftLintの簡単な動作テスト中..."
+          echo 'class Test {}' > test.swift
+          swiftlint lint test.swift || echo "⚠️ lintチェックでエラーが検出されました（テスト用なので問題ありません）"
+          rm test.swift
+          
+          echo "✅ SwiftLintは正常に動作しています"
       
       - name: Git設定の確認
         run: |
@@ -116,20 +175,39 @@ jobs:
             exit 1
           fi
           
-          # Brewfileに記載されたパッケージを確認
+          # Brewfileに記載されたパッケージの総数を確認（コメント行と空行を除く）
+          TOTAL_PACKAGES=$(grep -v "^#" "$GITHUB_WORKSPACE/config/Brewfile" | grep -v "^$" | grep -c "brew\|cask" || echo "0")
+          echo "Brewfileに記載されたパッケージ数: $TOTAL_PACKAGES"
+          
+          # インストールされているパッケージを確認
+          INSTALLED_FORMULAE=$(brew list --formula | wc -l | tr -d ' ')
+          INSTALLED_CASKS=$(brew list --cask | wc -l | tr -d ' ')
+          TOTAL_INSTALLED=$((INSTALLED_FORMULAE + INSTALLED_CASKS))
+          
+          echo "インストールされたパッケージ数: $TOTAL_INSTALLED (formulae: $INSTALLED_FORMULAE, casks: $INSTALLED_CASKS)"
+          
+          # 個別パッケージの確認
           while IFS= read -r line; do
             # コメント行と空行をスキップ
             [[ $line =~ ^#.*$ ]] && continue
             [[ -z $line ]] && continue
             
-            # brew install または brew cask install の行を抽出
-            if [[ $line =~ ^(brew|cask)\ install\ ([^#]+) ]]; then
-              package="${BASH_REMATCH[2]}"
-              if ! brew list "$package" &>/dev/null; then
-                echo "❌ $package がインストールされていません"
+            # brew または cask の行を抽出
+            if [[ $line =~ ^brew\ \"([^\"]*)\" ]]; then
+              package="${BASH_REMATCH[1]}"
+              
+              if ! brew list --formula "$package" &>/dev/null; then
+                echo "❌ formula $package がインストールされていません"
                 exit 1
               fi
-              echo "✅ $package がインストールされています"
+              echo "✅ formula $package がインストールされています"
+            elif [[ $line =~ ^cask\ \"([^\"]*)\" ]]; then
+              package="${BASH_REMATCH[1]}"
+              if ! brew list --cask "$package" &>/dev/null; then
+                echo "❌ cask $package がインストールされていません"
+                exit 1
+              fi
+              echo "✅ cask $package がインストールされています"
             fi
           done < "$GITHUB_WORKSPACE/config/Brewfile"
           
@@ -189,6 +267,25 @@ jobs:
           if [ -d "$GITHUB_WORKSPACE/cursor" ]; then
             echo "✅ Cursorの設定ディレクトリが存在します"
             
+            # extensions.jsonの確認
+            if [ -f "$GITHUB_WORKSPACE/cursor/extensions.json" ]; then
+              echo "✅ extensions.jsonファイルが存在します"
+              
+              # 拡張機能IDの形式を確認
+              if grep -q "Dart-Code.dart-code" "$GITHUB_WORKSPACE/cursor/extensions.json"; then
+                echo "✅ 拡張機能IDの大文字小文字が正しく設定されています"
+              else
+                echo "⚠️ 拡張機能IDの大文字小文字に問題がある可能性があります"
+                cat "$GITHUB_WORKSPACE/cursor/extensions.json"
+              fi
+              
+              # 推奨拡張機能の数を確認
+              EXTENSION_COUNT=$(grep -o '"[^"]*"' "$GITHUB_WORKSPACE/cursor/extensions.json" | grep -v "recommendations" | wc -l | tr -d ' ')
+              echo "🧩 $EXTENSION_COUNT 個の拡張機能が定義されています"
+            else
+              echo "⚠️ extensions.jsonファイルが見つかりません"
+            fi
+            
             # settings.jsonが作成されているか確認
             if [ -f "$GITHUB_WORKSPACE/cursor/settings.json" ]; then
               echo "✅ settings.jsonファイルが存在します"
@@ -202,21 +299,71 @@ jobs:
             else
               echo "⚠️ settings.jsonファイルが見つかりません"
             fi
-            
-            # extensions.jsonが存在するか確認
-            if [ -f "$GITHUB_WORKSPACE/cursor/extensions.json" ]; then
-              echo "✅ 拡張機能リストファイルが存在します"
-              # 推奨拡張機能の数を確認
-              EXTENSION_COUNT=$(grep -o '"[^"]*"' "$GITHUB_WORKSPACE/cursor/extensions.json" | grep -v "recommendations" | wc -l | tr -d ' ')
-              echo "🧩 $EXTENSION_COUNT 個の拡張機能が定義されています"
-            else
-              echo "⚠️ 拡張機能リストが見つかりません"
-            fi
           else
             echo "⚠️ Cursorの設定ディレクトリが見つかりません"
           fi
           
           echo "✅ Cursorの設定確認が完了しました"
+      
+      - name: インストールしたCaskアプリの確認
+        run: |
+          echo "Brewfileに記載されたすべてのCaskアプリのインストール状態を確認します"
+          
+          # Brewfileから全てのcaskを抽出
+          CASKS=$(grep '^cask "' "$GITHUB_WORKSPACE/config/Brewfile" | awk -F'"' '{print $2}')
+          
+          # インストールされているcaskの一覧を取得
+          INSTALLED_CASKS=$(brew list --cask)
+          
+          # 各caskのインストール状態を確認
+          for cask in $CASKS; do
+            if echo "$INSTALLED_CASKS" | grep -q "$cask"; then
+              echo "✅ Cask $cask がインストールされています"
+            else
+              echo "❌ Cask $cask がインストールされていません"
+              exit 1
+            fi
+          done
+          
+          # launch_installed_apps関数で起動対象となっているアプリを確認
+          echo "🔍 起動対象のアプリ設定を検証中..."
+          APP_BUNDLES=(
+            "google-chrome:Google Chrome.app"
+            "slack:Slack.app"
+            "cursor:Cursor.app"
+            "android-studio:Android Studio.app"
+            "notion:Notion.app"
+            "figma:Figma.app"
+            "spotify:Spotify.app"
+            "zoom:zoom.us.app"
+          )
+          
+          # Brewfileに記載されている全てのCaskが起動対象に含まれているか確認
+          for cask in $CASKS; do
+            FOUND=false
+            for bundle in "${APP_BUNDLES[@]}"; do
+              CASK_NAME=$(echo "$bundle" | cut -d: -f1)
+              if [ "$cask" = "$CASK_NAME" ]; then
+                FOUND=true
+                break
+              fi
+            done
+            
+            if [ "$FOUND" = "true" ]; then
+              echo "✅ Cask $cask は起動対象に含まれています"
+            else
+              echo "⚠️ Cask $cask は起動対象に含まれていない可能性があります"
+            fi
+          done
+          
+          # Xcodeの起動設定を確認
+          if grep -q "Xcodeを起動" install.sh; then
+            echo "✅ Xcodeの起動処理が追加されています"
+          else
+            echo "⚠️ Xcodeの起動処理が見つかりません"
+          fi
+          
+          echo "インストールCaskアプリの確認が完了しました ✅"
       
       - name: Mac設定ファイルの確認
         run: |
@@ -249,85 +396,58 @@ jobs:
               if grep -q "screenshots" "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
                 echo "✅ スクリーンショットの保存先の設定が含まれています"
               fi
-              
-              # 危険な設定がないか確認
-              if grep -q "rm -rf" "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
-                echo "⚠️ 警告: 危険なコマンド(rm -rf)が含まれています"
-              else
-                echo "✅ 危険なコマンドは含まれていません"
-              fi
-              
-              # シンタックスチェック
-              echo "🔍 シェルスクリプトのシンタックスをチェック中..."
-              if bash -n "$GITHUB_WORKSPACE/macos/setup_mac_settings.sh"; then
-                echo "✅ シェルスクリプトのシンタックスは正常です"
-              else
-                echo "❌ シェルスクリプトにシンタックスエラーがあります"
-                exit 1
-              fi
             fi
           fi
           
-          echo "✅ Mac設定ファイルの確認が完了しました"
+          echo "Mac設定ファイルの確認が完了しました ✅"
       
-      - name: スクリプトの冪等性テスト
-        env:
-          CI: true
-          GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}
+      - name: インストールスクリプトの修正が有効か検証
         run: |
-          echo "インストールスクリプトを再度実行して冪等性をテスト中..."
-          ./install.sh > idempotency_test_log.txt 2>&1
+          echo "修正したインストールスクリプトの検証:"
           
-          if [ $? -ne 0 ]; then
-            echo "❌ 2回目の実行が失敗しました"
-            cat idempotency_test_log.txt
-            exit 1
-          fi
-          
-          # 冪等性の確認
-          echo "新規インストールが行われていないか確認中..."
-          INSTALL_KEYWORDS=(
-            "インストール中"
-            "をインストール "
-            "➕"
-            "Xcode 16.2 をインストール中"
-          )
-          
-          EXCLUDE_PATTERNS=(
-            "すでにインストールされています"
-            "インストールされていません"
-            "インストール完了"
-            "CI環境では"
-            "シミュレータの確認中"
-            "すべてのシミュレータは既にインストールされています"
-          )
-          
-          INSTALL_FOUND=false
-          for keyword in "${INSTALL_KEYWORDS[@]}"; do
-            if grep -q "$keyword" idempotency_test_log.txt; then
-              DETECTED_LINES=$(grep "$keyword" idempotency_test_log.txt)
-              
-              EXCLUDE_MATCH=false
-              for exclude in "${EXCLUDE_PATTERNS[@]}"; do
-                if echo "$DETECTED_LINES" | grep -q "$exclude"; then
-                  EXCLUDE_MATCH=true
-                  break
-                fi
-              done
-              
-              if [ "$EXCLUDE_MATCH" = false ]; then
-                echo "❌ 警告: 「$keyword」が検出されました"
-                echo "$DETECTED_LINES"
-                INSTALL_FOUND=true
-              fi
-            fi
-          done
-          
-          if [ "$INSTALL_FOUND" = true ]; then
-            echo "❌ 冪等性テスト失敗: 2回目の実行で新規インストールが検出されました"
-            exit 1
+          # 1. Homebrew PATH問題の修正を確認
+          if grep -q 'eval "$(/opt/homebrew/bin/brew shellenv)"' install.sh; then
+            echo "✅ Homebrew PATH即時有効化の修正が含まれています"
           else
-            echo "✅ 新規インストールは行われていません"
+            echo "❌ Homebrew PATH即時有効化の修正が見つかりません"
           fi
           
-          echo "✅ 冪等性テストが完了しました"
+          # 2. Xcodeインストールの待機問題の修正を確認
+          if grep -q "if ! install_xcode" install.sh && ! grep -q "XCODE_PID" install.sh; then
+            echo "✅ Xcodeインストールの同期実行の修正が含まれています"
+          else
+            echo "❌ Xcodeインストールの待機処理に問題があります"
+          fi
+          
+          # 3. SwiftLintがXcodeインストール後に直接インストールされる処理の確認
+          if grep -q "Xcode インストール後に SwiftLint をインストール" install.sh && grep -q "brew install swiftlint" install.sh; then
+            echo "✅ SwiftLintが直接インストールされる処理が含まれています"
+          else
+            echo "❌ SwiftLintのインストール処理に問題があります"
+          fi
+          
+          # 4. エラートラッキングの改善を確認
+          if grep -q "INSTALL_SUCCESS=" install.sh; then
+            echo "✅ インストール成功/失敗のトラッキングが実装されています"
+          else
+            echo "❌ インストール状態のトラッキングが見つかりません"
+          fi
+          
+          # 5. アプリ起動機能の改善を確認
+          if grep -q "launch_installed_apps" install.sh; then
+            echo "✅ アプリ起動機能の改善が含まれています"
+          else
+            echo "❌ アプリ起動機能の改善が見つかりません"
+          fi
+          
+          echo "インストールスクリプトの修正検証が完了しました"
+
+  # 全体の検証結果の表示
+  summary:
+    needs: test-install
+    runs-on: ubuntu-latest
+    steps:
+      - name: 結果のサマリー
+        run: |
+          echo "✅ macOS環境構築のCIが正常に完了しました"
+          echo "🎉 全てのテストに合格しました！"

@@ -3,6 +3,73 @@
 This repository contains the `install.sh` script for automatically setting up a macOS environment.
 By running this script, you can configure Git settings, install Homebrew, set up Xcode Command Line Tools, install various development tools, and set up SSH keys for GitHub.
 
+## Implementation Features
+
+The `install.sh` script implements the following features:
+
+1. **CI Environment Detection**
+   - Automatically detects GitHub Actions environment and applies appropriate settings
+   - Supports non-interactive installation mode and error checking
+
+2. **Rosetta 2 Installation (for Apple Silicon)**
+   - Automatically installs only on Apple M1/M2 chips
+   - Not required for newer Apple Silicon (M3 and later)
+
+3. **Homebrew Setup**
+   - Installs if not already installed
+   - Uses `/opt/homebrew` for Apple Silicon (ARM) devices
+   - Immediate PATH activation
+
+4. **Shell Configuration**
+   - Creates symlink for `.zprofile`
+   - Applies shell environment settings
+
+5. **Git Configuration**
+   - Creates symlinks for `git/.gitconfig` and `git/.gitignore_global`
+   - Applies Git settings
+
+6. **macOS Settings**
+   - Applies system settings from `macos/setup_mac_settings.sh`
+   - Trackpad and mouse speed settings
+   - Keyboard repeat rate settings
+   - Dock settings (size, auto-hide, hot corners)
+   - Finder settings
+   - Screenshot save location settings
+
+7. **Package Installation from Brewfile**
+   - Installs packages listed in `config/Brewfile` using `brew bundle`
+   - **CLI Tools**: `git`, `gh`, `cocoapods`, `fastlane`, `act`, `swiftlint`, `fdupes`, `xcodes`
+   - **Development Tools**: `flutter`, `android-studio`, `cursor`
+   - **Apps**: `google-chrome`, `slack`, `spotify`, `zoom`, `notion`, `figma`
+
+8. **Xcode Installation and Setup**
+   - Automatically installs Xcode using the `xcodes` CLI tool
+   - Configures simulators
+   - Verifies installation completion through synchronous execution
+
+9. **SwiftLint Installation**
+   - Automatically installs after Xcode installation
+   - Verifies functionality
+
+10. **Flutter Configuration**
+    - Properly configures Flutter and automatically accepts Android SDK licenses
+    
+11. **SSH Key Generation and Configuration**
+    - Generates an SSH key (`id_ed25519`) if it doesn't exist
+    - Automatically sets up the SSH agent
+    - Configures agent to avoid entering passphrases
+
+12. **Cursor Configuration**
+    - Provides backup and restore functionality for settings
+    - Configures Flutter SDK integration
+
+13. **Launching Installed Apps**
+    - Automatically launches key applications after installation
+
+14. **Error Tracking**
+    - Tracks installation success/failure
+    - Provides detailed logging
+
 ## Directory Structure
 
 ```
@@ -83,54 +150,14 @@ If you see a message like this, SSH authentication was successful:
 Hi akitorahayashi! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-## Features
+## Cursor Settings Backup and Restore
 
-### 1. Git Configuration
-Symlinks `environment/git/.gitconfig` and `environment/git/.gitignore_global` to your home directory.
-
-### 2. Homebrew
-Installs Homebrew if it's not already installed.
-Uses `/opt/homebrew` for Apple Silicon (ARM) devices.
-
-### 3. Package Installation from Brewfile
-Installs packages listed in `config/Brewfile` using `brew bundle`:
-- **CLI Tools**: `git`, `gh`, `cocoapods`, `fastlane`, `act`, `swiftlint`, `fdupes`, `xcodes`
-- **Development Tools**: `flutter`, `android-studio`, `cursor`
-- **Apps**: `google-chrome`, `slack`, `spotify`, `zoom`, `notion`, `figma`
-
-### 4. Xcode Installation and Setup
-Automatically installs Xcode using the `xcodes` CLI tool.
-
-### 5. Rosetta 2 for Apple Silicon
-Automatically installs Rosetta 2 only on Apple M1/M2 Macs.
-Not required for newer Apple Silicon (M3 and later).
-
-### 6. Flutter Configuration
-If Flutter is installed, it will be properly configured and
-Android SDK licenses will be accepted.
-
-### 7. SSH Key Generation and Configuration
-Generates an SSH key (`id_ed25519`) if it doesn't exist.
-Sets up the SSH agent automatically to save you from entering passphrases:
-- Automatically starts the SSH agent
-- Adds your SSH key to the agent
-- Starts the agent when the shell starts
-
-### 8. macOS System Settings
-Applies system settings from `macos/setup_mac_settings.sh`:
-- Trackpad and mouse speed
-- Keyboard repeat rate
-- Dock settings (size, auto-hide, hot corners)
-- Finder settings
-- Screenshot save location
-
-### 9. Cursor Settings Backup and Restore
-#### Backup
+### Backup
 ```bash
 ./cursor/backup_cursor_settings.sh
 ```
 
-#### Restore
+### Restore
 ```bash
 ./cursor/restore_cursor_settings.sh
 ```

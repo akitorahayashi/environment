@@ -18,6 +18,9 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# 終了ステータスを追跡する変数
+INSTALL_SUCCESS=true
+
 # Apple M1, M2 向け Rosetta 2 のインストール
 install_rosetta() {
     if [[ "$(uname -m)" == "arm64" ]]; then
@@ -47,6 +50,7 @@ install_rosetta() {
                 echo "✅ Rosetta 2 のインストールが完了した"
             else
                 echo "❌ Rosetta 2 のインストールに失敗した"
+                INSTALL_SUCCESS=false
             fi
         else
             echo "✅ この Mac ($MAC_MODEL) には Rosetta 2 は不要"
@@ -67,6 +71,14 @@ install_homebrew() {
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
+        
+        # Homebrew PATH設定を即時有効化
+        if [[ "$(uname -m)" == "arm64" ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        else
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+        
         echo "✅ Homebrew のインストール完了"
     else
         echo "✅ Homebrew はすでにインストール済み"
@@ -79,11 +91,13 @@ setup_shell_config() {
     # ディレクトリとファイルの存在確認
     if [[ ! -d "$REPO_ROOT/shell" ]]; then
         echo "❌ $REPO_ROOT/shell ディレクトリが見つからない"
+        INSTALL_SUCCESS=false
         return 1
     fi
     
     if [[ ! -f "$REPO_ROOT/shell/.zprofile" ]]; then
         echo "❌ $REPO_ROOT/shell/.zprofile ファイルが見つからない"
+        INSTALL_SUCCESS=false
         return 1
     fi
     
@@ -133,19 +147,43 @@ open_app() {
         "/Applications/${bundle_name}"
         "$HOME/Applications/${bundle_name}"
         "/opt/homebrew/Caskroom/${package_name}/latest/${bundle_name}"
+        "/opt/homebrew/Caskroom/${package_name}/*/Contents/MacOS/*"
     )
     
     for app_path in "${app_paths[@]}"; do
-        if [ -d "$app_path" ]; then
-            echo "🚀 $package_name を起動中..."
-            if ! open -a "$bundle_name" 2>/dev/null; then
-                echo "⚠️ $package_name の起動に失敗"
+        if [ -d "$app_path" ] || [ -e "$app_path" ]; then
+            echo "🚀 $package_name を起動中... ($app_path)"
+            if [[ "$app_path" == *"*"* ]]; then
+                # ワイルドカードパスの場合、実際のパスを見つける
+                for actual_path in $app_path; do
+                    if [ -e "$actual_path" ]; then
+                        open "$actual_path" 2>/dev/null || open -a "$bundle_name" 2>/dev/null
+                        if [ $? -eq 0 ]; then
+                            echo "✅ $package_name を起動しました"
+                            return
+                        fi
+                    fi
+                done
+            else
+                if ! open -a "$bundle_name" 2>/dev/null; then
+                    echo "⚠️ $package_name の起動に失敗。別の方法で試行中..."
+                    open "$app_path" 2>/dev/null
+                    if [ $? -eq 0 ]; then
+                        echo "✅ $package_name を起動しました"
+                        return
+                    else
+                        echo "❌ $package_name の起動に失敗しました"
+                    fi
+                else
+                    echo "✅ $package_name を起動しました"
+                    return
+                fi
             fi
             return
         fi
     done
     
-    echo "$package_name が見つからない"
+    echo "❌ $package_name が見つかりません"
 }
 
 # Brewfile に記載されているパッケージをインストール
@@ -169,8 +207,12 @@ install_brewfile() {
     fi
 
     # CI環境でも全てのパッケージをインストール
-    brew bundle --file "$brewfile_path"
-    echo "✅ Homebrew パッケージのインストールが完了しました"
+    if ! brew bundle --file "$brewfile_path"; then
+        echo "⚠️ 一部のパッケージのインストールに失敗しました"
+        INSTALL_SUCCESS=false
+    else
+        echo "✅ Homebrew パッケージのインストールが完了しました"
+    fi
 }
 
 # Flutter のセットアップ
@@ -189,6 +231,7 @@ setup_flutter() {
         echo "⚠️ Flutterが期待するパスにインストールされていません"
         echo "現在のパス: $FLUTTER_PATH"
         echo "期待するパス: /opt/homebrew/bin/flutter"
+        INSTALL_SUCCESS=false
     fi
 
     # Flutter doctorの実行
@@ -196,7 +239,7 @@ setup_flutter() {
         echo "CI環境では対話型の flutter doctor --android-licenses をスキップします"
         flutter doctor || true
     else
-        flutter doctor --android-licenses
+        flutter doctor --android-licenses || INSTALL_SUCCESS=false
     fi
 
     echo "✅ Flutter の環境のセットアップ完了"
@@ -207,7 +250,7 @@ setup_cursor() {
     echo "🔄 Cursor のセットアップを開始します..."
 
     # Cursor がインストールされているか確認
-    if ! command -v cursor &>/dev/null; then
+    if ! ls /Applications/Cursor.app &>/dev/null; then
         echo "❌ Cursor がインストールされていません。スキップします。"
         return
     fi
@@ -231,10 +274,12 @@ setup_cursor() {
                 echo "✅ $setting が正常に復元されました"
             else
                 echo "⚠️ $setting の復元に失敗しました"
+                INSTALL_SUCCESS=false
             fi
         done
     else
         echo "Cursor の復元スクリプトが見つかりません。設定の復元をスキップします。"
+        INSTALL_SUCCESS=false
     fi
 
     # 拡張機能の確認とインストール
@@ -250,16 +295,27 @@ setup_cursor() {
             echo "インストール済み拡張機能を確認中..."
             INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions 2>/dev/null || echo "")
             
-            # extensions.jsonから拡張機能IDを抽出してインストール
-            EXTENSIONS=$(cat "$REPO_ROOT/cursor/extensions.json" | grep -o '"[^"]*"' | grep -v "recommendations" | tr -d '"')
+            # 拡張機能のフォーマットを修正して正しい大文字小文字で保存
+            EXTENSIONS_FIXED=(
+                "Dart-Code.dart-code"
+                "Dart-Code.flutter"
+                "github.vscode-github-actions"
+                "GitHub.copilot"
+                "GitHub.copilot-chat"
+            )
             
-            for extension in $EXTENSIONS; do
-                if echo "$INSTALLED_EXTENSIONS" | grep -q "$extension"; then
+            for extension in "${EXTENSIONS_FIXED[@]}"; do
+                extension_lower=$(echo "$extension" | tr '[:upper:]' '[:lower:]')
+                if echo "$INSTALLED_EXTENSIONS" | grep -qi "$extension_lower"; then
                     echo "✅ 拡張機能 $extension はすでにインストールされています"
                 else
                     echo "🔄 拡張機能 $extension をインストール中..."
-                    "$CURSOR_CLI" --install-extension "$extension" || echo "❌ $extension のインストールに失敗しました"
-                    echo "✅ 拡張機能 $extension をインストールしました"
+                    if ! "$CURSOR_CLI" --install-extension "$extension"; then
+                        echo "❌ $extension のインストールに失敗しました"
+                        INSTALL_SUCCESS=false
+                    else
+                        echo "✅ 拡張機能 $extension をインストールしました"
+                    fi
                 fi
             done
         else
@@ -267,6 +323,7 @@ setup_cursor() {
         fi
     else
         echo "拡張機能リストが見つかりません。拡張機能のインストールをスキップします。"
+        INSTALL_SUCCESS=false
     fi
 
     # Flutter SDK のパスを Cursor に適用
@@ -275,24 +332,31 @@ setup_cursor() {
         FLUTTER_SDK_PATH=$(dirname $(dirname $(readlink -f "$FLUTTER_PATH")))
         
         if [[ -d "$FLUTTER_SDK_PATH" ]]; then
-            CURSOR_SETTINGS="$REPO_ROOT/cursor/settings.json"
+            CURSOR_SETTINGS="$CURSOR_CONFIG_DIR/settings.json"
             
             echo "🔧 Flutter SDK のパスを Cursor に適用中..."
             if [[ -f "$CURSOR_SETTINGS" ]]; then
                 # 現在のFlutterパス設定を確認
-                CURRENT_PATH=$(cat "$CURSOR_SETTINGS" | grep -o '"dart.flutterSdkPath": "[^"]*"' | cut -d'"' -f4)
+                CURRENT_PATH=$(cat "$CURSOR_SETTINGS" | grep -o '"dart.flutterSdkPath": "[^"]*"' | cut -d'"' -f4 || echo "")
                 
                 if [[ "$CURRENT_PATH" != "$FLUTTER_SDK_PATH" ]]; then
-                    jq --arg path "$FLUTTER_SDK_PATH" '.["dart.flutterSdkPath"] = $path' "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
-                    echo "✅ Flutter SDK のパスを $FLUTTER_SDK_PATH に更新しました！"
+                    # settings.jsonにFlutter SDKパスを追加
+                    if ! command -v jq &>/dev/null; then
+                        echo "⚠️ jqコマンドが見つかりません。手動でsettings.jsonを更新してください。"
+                    else
+                        jq --arg path "$FLUTTER_SDK_PATH" '.["dart.flutterSdkPath"] = $path' "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
+                        echo "✅ Flutter SDK のパスを $FLUTTER_SDK_PATH に更新しました！"
+                    fi
                 else
                     echo "✅ Flutter SDK のパスはすでに正しく設定されています"
                 fi
             else
                 echo "⚠️ Cursor の設定ファイルが見つかりません"
+                INSTALL_SUCCESS=false
             fi
         else
             echo "⚠️ Flutter SDK のディレクトリが見つかりませんでした。"
+            INSTALL_SUCCESS=false
         fi
     else
         echo "⚠️ Flutterがインストールされていません。"
@@ -304,6 +368,7 @@ setup_cursor() {
 # Xcode とシミュレータのインストール
 install_xcode() {
     echo "🔄 Xcode のインストールを開始します..."
+    local xcode_install_success=true
 
     # Xcode Command Line Tools のインストール
     if ! xcode-select -p &>/dev/null; then
@@ -326,44 +391,92 @@ install_xcode() {
 
     # xcodes がインストールされているか確認
     if ! command -v xcodes >/dev/null 2>&1; then
-        echo "❌ xcodes がインストールされていません。先に Brewfile を適用してください。"
-        return 1
+        echo "❌ xcodes がインストールされていません。インストールします..."
+        if brew install xcodes; then
+            echo "✅ xcodes をインストールしました"
+        else
+            echo "❌ xcodes のインストールに失敗しました"
+            xcode_install_success=false
+            INSTALL_SUCCESS=false
+        fi
     fi
 
     # Xcode 16.2 がインストールされているか確認
-    if ! xcodes installed | grep -q "16.2"; then
-        echo "📱 Xcode 16.2 をインストール中..."
-        xcodes install 16.2 --select
+    if command -v xcodes >/dev/null 2>&1; then
+        if ! xcodes installed | grep -q "16.2"; then
+            echo "📱 Xcode 16.2 をインストール中..."
+            if ! xcodes install 16.2 --select; then
+                echo "❌ Xcode 16.2 のインストールに失敗しました"
+                xcode_install_success=false
+                INSTALL_SUCCESS=false
+            fi
+        else
+            echo "✅ Xcode 16.2 はすでにインストールされています"
+        fi
     else
-        echo "✅ Xcode 16.2 はすでにインストールされています"
+        xcode_install_success=false
+        echo "❌ xcodes が使用できないため、Xcode 16.2 をインストールできません"
     fi
 
     # シミュレータのインストール
-    echo "📲 シミュレータの確認中..."
-    local need_install=false
-    for platform in iOS watchOS tvOS visionOS; do
-        if ! xcrun simctl list runtimes | grep -q "$platform"; then
-            need_install=true
-            echo "❓ $platform シミュレータが見つかりません"
-        else
-            echo "✅ $platform シミュレータは既にインストールされています"
-        fi
-    done
-
-    # シミュレータのインストールが必要な場合のみインストール処理を実行
-    if [ "$need_install" = true ]; then
-        echo "📲 不足しているシミュレータをインストール中..."
+    if [ "$xcode_install_success" = true ]; then
+        echo "📲 シミュレータの確認中..."
+        local need_install=false
         for platform in iOS watchOS tvOS visionOS; do
-            if ! xcrun simctl list runtimes | grep -q "$platform"; then
-                echo "➕ $platform シミュレータをインストール中..."
-                xcodebuild -downloadPlatform "$platform"
+            if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform"; then
+                need_install=true
+                echo "❓ $platform シミュレータが見つかりません"
+            else
+                echo "✅ $platform シミュレータは既にインストールされています"
             fi
         done
+
+        # シミュレータのインストールが必要な場合のみインストール処理を実行
+        if [ "$need_install" = true ]; then
+            echo "📲 不足しているシミュレータをインストール中..."
+            for platform in iOS watchOS tvOS visionOS; do
+                if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform"; then
+                    echo "➕ $platform シミュレータをインストール中..."
+                    if ! xcodebuild -downloadPlatform "$platform"; then
+                        echo "❌ $platform シミュレータのインストールに失敗しました"
+                        INSTALL_SUCCESS=false
+                    fi
+                fi
+            done
+        else
+            echo "✅ すべてのシミュレータは既にインストールされています"
+        fi
     else
-        echo "✅ すべてのシミュレータは既にインストールされています"
+        echo "❌ Xcode のインストールに失敗したため、シミュレータのインストールをスキップします"
     fi
 
-    echo "✅ Xcode とシミュレータのインストールが完了しました！"
+    # Xcode インストール後に SwiftLint をインストール
+    if [ "$xcode_install_success" = true ] && ! command -v swiftlint >/dev/null 2>&1; then
+        echo "🔄 SwiftLint をインストール中..."
+        if brew install swiftlint; then
+            echo "✅ SwiftLint のインストールが完了しました"
+        else
+            echo "❌ SwiftLint のインストールに失敗しました"
+            INSTALL_SUCCESS=false
+        fi
+    elif command -v swiftlint >/dev/null 2>&1; then
+        echo "✅ SwiftLint はすでにインストールされています"
+    fi
+
+    if [ "$xcode_install_success" = true ]; then
+        echo "✅ Xcode とシミュレータのインストールが完了しました！"
+        
+        # CI環境でなければXcodeを起動
+        if [ "$IS_CI" != "true" ] && [ -d "/Applications/Xcode.app" ]; then
+            echo "🚀 Xcodeを起動しています..."
+            open -a "Xcode.app" || echo "⚠️ Xcodeの起動に失敗しました"
+        fi
+        
+        return 0
+    else
+        echo "❌ Xcode またはシミュレータのインストールに失敗しました"
+        return 1
+    fi
 }
 
 # Mac のシステム設定を適用
@@ -373,6 +486,7 @@ setup_mac_settings() {
     # 設定ファイルの存在確認
     if [[ ! -f "$REPO_ROOT/macos/setup_mac_settings.sh" ]]; then
         echo "⚠️ setup_mac_settings.sh が見つかりません"
+        INSTALL_SUCCESS=false
         return 1
     fi
     
@@ -402,16 +516,27 @@ setup_mac_settings() {
     fi
     
     # 非CI環境では設定を適用
-    source "$REPO_ROOT/macos/setup_mac_settings.sh"
+    source "$REPO_ROOT/macos/setup_mac_settings.sh" || {
+        echo "❌ Mac 設定の適用中にエラーが発生しました"
+        INSTALL_SUCCESS=false
+        return 1
+    }
+    
     echo "✅ Mac のシステム設定が適用されました"
     
     # 設定が正常に適用されたか確認（一部の設定のみ）
     if defaults read com.apple.dock &>/dev/null; then
         echo "✅ Dock の設定が正常に適用されました"
+    else
+        echo "⚠️ Dock の設定の適用に問題がある可能性があります"
+        INSTALL_SUCCESS=false
     fi
     
     if defaults read com.apple.finder &>/dev/null; then
         echo "✅ Finder の設定が正常に適用されました"
+    else
+        echo "⚠️ Finder の設定の適用に問題がある可能性があります"
+        INSTALL_SUCCESS=false
     fi
 }
 
@@ -449,6 +574,7 @@ setup_ssh_agent() {
         echo "✅ SSH キーが正常に追加されました"
     else
         echo "⚠️ SSH キーの追加に失敗しました。手動でパスフレーズを入力する必要があります"
+        INSTALL_SUCCESS=false
     fi
 }
 
@@ -469,47 +595,90 @@ setup_github_cli() {
             echo "CI環境ではトークンがないため、認証はスキップします"
             # CI環境では認証情報がないため、実際の認証はスキップ
         else
-            gh auth login
+            gh auth login || INSTALL_SUCCESS=false
         fi
     else
         echo "✅ GitHub CLI はすでに認証済みです"
     fi
 }
 
+# インストールしたアプリを起動する関数
+launch_installed_apps() {
+    if [ "$IS_CI" = "true" ]; then
+        echo "CI環境ではアプリの起動をスキップします"
+        return
+    fi
+    
+    echo "🚀 インストールしたアプリを起動します..."
+    
+    # アプリとそのバンドル名のマッピング
+    declare -A app_bundles=(
+        ["google-chrome"]="Google Chrome.app"
+        ["slack"]="Slack.app"
+        ["cursor"]="Cursor.app"
+        ["android-studio"]="Android Studio.app"
+        ["notion"]="Notion.app"
+        ["figma"]="Figma.app"
+        ["spotify"]="Spotify.app"
+        ["zoom"]="zoom.us.app"
+    )
+    
+    # インストール済みのCaskを確認
+    INSTALLED_CASKS=$(brew list --cask 2>/dev/null)
+    
+    # 各アプリを起動
+    for app in "${!app_bundles[@]}"; do
+        if echo "$INSTALLED_CASKS" | grep -q "$app"; then
+            echo "🔍 $app が見つかりました。起動を試みます..."
+            open_app "$app" "${app_bundles[$app]}"
+            # アプリごとに少し間隔を空ける
+            sleep 1
+        fi
+    done
+
+    # Xcodeの起動（インストールされている場合）
+    if [ -d "/Applications/Xcode.app" ]; then
+        echo "🔍 Xcode.app が見つかりました。起動を試みます..."
+        open_app "xcode" "Xcode.app"
+    fi
+}
+
 # 実行順序
 install_rosetta        # Apple M1, M2 向けに Rosetta 2 をインストール
 install_homebrew       # Homebrew をインストール
-install_brewfile       # Brewfile のパッケージをインストール
-
-# 時間のかかるインストールを開始
-echo "🔄 時間のかかるXcodeのインストールを開始します..."
-install_xcode &        # Xcode Command Line Tools、Xcode 16.2、シミュレータのインストールをバックグラウンドで開始
-XCODE_PID=$!
-
-# 他の設定を並行して行う
 setup_shell_config     # zsh の設定を適用
 setup_git_config       # Git の設定と gitignore_global を適用
 setup_ssh_agent        # SSH キーのエージェントを設定
 setup_github_cli       # GitHub CLIのセットアップ
 setup_mac_settings     # Mac のシステム設定を復元
+install_brewfile       # Brewfile のパッケージをインストール
 
-# Xcodeのインストールが完了するのを待つ
-echo "⏳ Xcodeのインストールが完了するのを待っています..."
-wait $XCODE_PID
-if [ $? -ne 0 ]; then
-  echo "❌ Xcodeのインストールに失敗しました"
-  exit 1
+# Xcodeのインストールを実行（同期的に）
+echo "🔄 Xcodeのインストールを開始します..."
+if ! install_xcode; then
+    echo "❌ Xcodeのインストールに問題がありました"
+    INSTALL_SUCCESS=false
+else
+    echo "✅ Xcodeのインストールが完了しました"
 fi
-echo "✅ Xcodeのインストールが完了しました"
 
-# Xcodeに依存するものを最後にインストール
+# Xcodeに依存するものをインストール
 setup_flutter          # Flutter の開発環境をセットアップ
 setup_cursor           # Cursorのセットアップ
+launch_installed_apps  # インストールしたアプリを起動
 
-echo "🎉 すべてのインストールと設定が完了しました！"
-
+# インストール結果の表示
 end_time=$(date +%s)
 elapsed_time=$((end_time - start_time))
-echo "セットアップ完了 🎉（所要時間: ${elapsed_time}秒）"
 
-exec $SHELL -l
+if [ "$INSTALL_SUCCESS" = true ]; then
+    echo "🎉 すべてのインストールと設定が完了しました！"
+    echo "セットアップ完了 🎉（所要時間: ${elapsed_time}秒）"
+else
+    echo "⚠️ セットアップは完了しましたが、一部の処理に問題がありました。"
+    echo "ログを確認して、必要に応じて個別にインストールや設定を行ってください。"
+    echo "セットアップ完了（所要時間: ${elapsed_time}秒）"
+fi
+
+# 新しいシェルセッションを開始
+exec $SHELL -l 

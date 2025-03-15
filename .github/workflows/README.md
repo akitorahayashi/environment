@@ -6,7 +6,7 @@ This directory contains the Continuous Integration (CI) workflow configuration f
 
 The CI workflow (`ci.yml`) is designed to:
 
-1. Validate the installation script (`install.sh`) works correctly on macOS
+1. Validate that the installation script (`install.sh`) works correctly on macOS
 2. Ensure all tools and applications are properly installed and configured
 3. Verify the idempotency of the installation script (can be run multiple times without side effects)
 4. Confirm all configuration files are properly set up
@@ -22,7 +22,7 @@ The workflow runs on:
 
 ### Environment
 
-- **Runner**: macOS latest
+- **Runner**: Latest macOS version
 - **Timeout**: 120 minutes (extended to accommodate Xcode installation)
 
 ### Steps Overview
@@ -38,42 +38,64 @@ The workflow runs on:
    - Uses `GITHUB_TOKEN_CI` for authentication with GitHub APIs
 
 4. **Validation Steps**
-   - **Homebrew**: Verifies Homebrew is installed correctly
-   - **Xcode**: Confirms Xcode Command Line Tools, Xcode 16.2, and simulators
-   - **Git**: Ensures Git configuration files are properly linked
-   - **Shell**: Checks shell configuration is correctly applied
-   - **Homebrew Packages**: Validates all packages in Brewfile are installed
-   - **Flutter**: Confirms Flutter is properly installed and configured
-   - **Cursor**: Checks Cursor IDE configuration (settings, extensions, Flutter SDK path)
-   - **macOS Settings**: Analyzes the macOS system settings configuration
+   - **Homebrew**: Verifies PATH (before and after installation), version check
+   - **Xcode**: Confirms Command Line Tools, Xcode 16.2, and various simulators
+   - **SwiftLint**: Verifies installation and functionality
+   - **Git**: Ensures correct symlinks for configuration files
+   - **Shell**: Verifies zprofile settings
+   - **Homebrew Packages**: Validates all packages listed in Brewfile are installed
+   - **Flutter**: Checks installation, configuration, path, and verification via flutter doctor
+   - **Cursor**: Validates IDE settings, extensions, Flutter SDK path
+   - **Cask Apps**: Confirms installed applications and launch target settings
+   - **macOS Settings**: Analyzes settings files and key categories
+   - **Installation Script Improvements**: Validates PATH fixes, Xcode installation wait, SwiftLint installation, error tracking, app launch functionality
 
-5. **Idempotency Test**
-   - Runs the installation script a second time
-   - Ensures no new installations are performed
-   - Checks for specific keywords that would indicate non-idempotent behavior
+5. **Overall Validation Results**
+   - Displays summary of all test results
 
-## Key Validation Checks
+## Key Validation Areas
 
-### Flutter SDK Configuration
-- Verifies Flutter is installed at `/opt/homebrew/bin/flutter`
-- Runs `flutter doctor` to validate the installation
-- Confirms Xcode integration
+### Homebrew Validation
+- Proper PATH configuration (before and after installation)
+- Availability of brew command
+- Version information verification
 
-### Cursor IDE Setup
-- Validates Cursor is installed via Homebrew
-- Checks for required configuration files (settings.json, extensions.json)
-- Confirms Flutter SDK path integration
-- Counts defined extensions
+### Xcode Validation
+- Command Line Tools installation verification
+- Xcode 16.2 installation verification
+- iOS, watchOS, tvOS, visionOS simulator verification
 
-### macOS System Settings
-- Analyzes settings file for common configurations (Dock, Finder, screenshots)
-- Performs syntax validation
-- Checks for potentially dangerous commands
+### Git Configuration Validation
+- Existence of `.gitconfig` and `.gitignore_global`
+- Proper symlink configuration
+- Git excludesfile settings verification
 
-## Modifying the Workflow
+### Shell Configuration Validation
+- Existence and symlink verification for `.zprofile`
 
-When modifying the CI workflow:
-1. Update the steps to match any changes in the installation script
-2. Ensure timeout values are appropriate for all installation steps
-3. Add validation for any new tools or configurations
-4. Update the idempotency test patterns as needed
+### Homebrew Package Validation
+- Installation verification for all packages (formula/cask) listed in Brewfile
+- Verification of total installed package count
+
+### Flutter Configuration Validation
+- Installation path verification (`/opt/homebrew/bin/flutter`)
+- Functionality verification via `flutter doctor`
+- Xcode integration verification
+
+### Cursor IDE Validation
+- Installation verification via Homebrew
+- Configuration file verification (settings.json, extensions.json)
+- Flutter SDK path settings verification
+- Count of defined extensions
+
+### macOS Settings Validation
+- Existence of settings files
+- Key setting categories like Dock, Finder, screenshots
+- Analysis of setting item count
+
+## Installation Script Improvement Validation
+- Immediate Homebrew PATH activation
+- Synchronous Xcode installation execution
+- Direct SwiftLint installation process
+- Installation state tracking
+- App launch functionality improvements
