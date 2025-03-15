@@ -38,20 +38,17 @@ if [ -f "$ENVIRONMENT_CURSOR_DIR/extensions.json" ]; then
     if [ -f "$CURSOR_CLI" ]; then
         # インストール済み拡張機能のリストを取得
         echo "Checking installed extensions..."
-        INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions | tr '[:upper:]' '[:lower:]')
+        INSTALLED_EXTENSIONS=$("$CURSOR_CLI" --list-extensions)
         
         # extensions.jsonから拡張機能IDを抽出してインストール
         EXTENSIONS=$(grep -o '"[^"]*"' "$ENVIRONMENT_CURSOR_DIR/extensions.json" | grep -v "recommendations" | tr -d '"')
         
         for extension in $EXTENSIONS; do
-            # 拡張機能IDを小文字に変換して比較
-            EXTENSION_LOWER=$(echo "$extension" | tr '[:upper:]' '[:lower:]')
-            
-            if echo "$INSTALLED_EXTENSIONS" | grep -q "$EXTENSION_LOWER"; then
+            if echo "$INSTALLED_EXTENSIONS" | grep -q "$extension"; then
                 echo "Extension already installed: $extension ✅"
             else
                 echo "Installing extension: $extension"
-                "$CURSOR_CLI" --install-extension "$extension" || echo "Failed to install $extension ❌"
+                "$CURSOR_CLI" --install-extension "$extension" --force || echo "Failed to install $extension ❌"
             fi
         done
         
