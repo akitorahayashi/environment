@@ -18,7 +18,6 @@ environment/
 ├── macos/          # macOS specific settings
 ├── shell/          # Shell related settings
 │   └── .zprofile
-├── xcode/          # Xcode related settings
 └── install.sh      # Main installation script
 ```
 
