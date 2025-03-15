@@ -128,64 +128,6 @@ setup_git_config() {
     echo "✅ Git の設定を適用完了"
 }
 
-# アプリを開く関数
-open_app() {
-    local package_name="$1"
-    local bundle_name="$2"
-    
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境ではアプリの起動をスキップ: $package_name"
-        return
-    fi
-    
-    echo "✨ $package_name を起動中..."
-    # インストール完了後、少し待機
-    sleep 2
-    
-    # 複数のパスをチェック
-    local app_paths=(
-        "/Applications/${bundle_name}"
-        "$HOME/Applications/${bundle_name}"
-        "/opt/homebrew/Caskroom/${package_name}/latest/${bundle_name}"
-        "/opt/homebrew/Caskroom/${package_name}/*/Contents/MacOS/*"
-    )
-    
-    for app_path in "${app_paths[@]}"; do
-        if [ -d "$app_path" ] || [ -e "$app_path" ]; then
-            echo "🚀 $package_name を起動中... ($app_path)"
-            if [[ "$app_path" == *"*"* ]]; then
-                # ワイルドカードパスの場合、実際のパスを見つける
-                for actual_path in $app_path; do
-                    if [ -e "$actual_path" ]; then
-                        open "$actual_path" 2>/dev/null || open -a "$bundle_name" 2>/dev/null
-                        if [ $? -eq 0 ]; then
-                            echo "✅ $package_name を起動しました"
-                            return
-                        fi
-                    fi
-                done
-            else
-                if ! open -a "$bundle_name" 2>/dev/null; then
-                    echo "⚠️ $package_name の起動に失敗。別の方法で試行中..."
-                    open "$app_path" 2>/dev/null
-                    if [ $? -eq 0 ]; then
-                        echo "✅ $package_name を起動しました"
-                        return
-                    else
-                        echo "❌ $package_name の起動に失敗しました"
-                    fi
-                else
-                    echo "✅ $package_name を起動しました"
-                    return
-                fi
-            fi
-            return
-        fi
-    done
-    
-    echo "❌ $package_name が見つかりません"
-}
-
 # Brewfile に記載されているパッケージをインストール
 install_brewfile() {
     local brewfile_path="$REPO_ROOT/config/Brewfile"
@@ -418,12 +360,6 @@ install_xcode() {
     if [ "$xcode_install_success" = true ]; then
         echo "✅ Xcode とシミュレータのインストールが完了しました！"
         
-        # CI環境でなければXcodeを起動
-        if [ "$IS_CI" != "true" ] && [ -d "/Applications/Xcode.app" ]; then
-            echo "🚀 Xcodeを起動しています..."
-            open -a "Xcode.app" || echo "⚠️ Xcodeの起動に失敗しました"
-        fi
-        
         return 0
     else
         echo "❌ Xcode またはシミュレータのインストールに失敗しました"
@@ -554,47 +490,6 @@ setup_github_cli() {
     fi
 }
 
-# インストールしたアプリを起動する関数
-launch_installed_apps() {
-    if [ "$IS_CI" = "true" ]; then
-        echo "CI環境ではアプリの起動をスキップします"
-        return
-    fi
-    
-    echo "🚀 インストールしたアプリを起動します..."
-    
-    # アプリとそのバンドル名のマッピング
-    declare -A app_bundles=(
-        ["google-chrome"]="Google Chrome.app"
-        ["slack"]="Slack.app"
-        ["cursor"]="Cursor.app"
-        ["android-studio"]="Android Studio.app"
-        ["notion"]="Notion.app"
-        ["figma"]="Figma.app"
-        ["spotify"]="Spotify.app"
-        ["zoom"]="zoom.us.app"
-    )
-    
-    # インストール済みのCaskを確認
-    INSTALLED_CASKS=$(brew list --cask 2>/dev/null)
-    
-    # 各アプリを起動
-    for app in "${!app_bundles[@]}"; do
-        if echo "$INSTALLED_CASKS" | grep -q "$app"; then
-            echo "🔍 $app が見つかりました。起動を試みます..."
-            open_app "$app" "${app_bundles[$app]}"
-            # アプリごとに少し間隔を空ける
-            sleep 1
-        fi
-    done
-
-    # Xcodeの起動（インストールされている場合）
-    if [ -d "/Applications/Xcode.app" ]; then
-        echo "🔍 Xcode.app が見つかりました。起動を試みます..."
-        open_app "xcode" "Xcode.app"
-    fi
-}
-
 # 実行順序
 install_rosetta        # Apple M1, M2 向けに Rosetta 2 をインストール
 install_homebrew       # Homebrew をインストール
@@ -617,7 +512,6 @@ fi
 # Xcodeに依存するものをインストール
 setup_flutter          # Flutter の開発環境をセットアップ
 setup_cursor           # Cursorのセットアップ
-launch_installed_apps  # インストールしたアプリを起動
 
 # インストール結果の表示
 end_time=$(date +%s)
