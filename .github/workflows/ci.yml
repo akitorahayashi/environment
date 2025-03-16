@@ -32,6 +32,10 @@ jobs:
       
       - name: インストールスクリプトの実行
         run: |
+          # Android SDK用の環境変数を設定
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+          export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
+          
           # インストールを直接実行
           ./install.sh
           
@@ -48,6 +52,8 @@ jobs:
         env:
           CI: true  # CI環境であることを示す
           GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions提供のトークンをCI用の名前で渡す
+          # Android SDKライセンスを自動的に同意するための設定
+          ANDROID_LICENSES: true
       
       - name: Homebrew PATHを確認（インストール後）
         run: |

@@ -1,4 +1,4 @@
-# macOS Environment Setup Script
+# MacOS Environment Setup
 
 This repository contains the `install.sh` script for automatically setting up a macOS environment.
 By running this script, you can configure Git settings, install Homebrew, set up Xcode Command Line Tools, install various development tools, and set up SSH keys for GitHub.
