@@ -283,12 +283,13 @@ setup_android_sdk_env() {
 
 # Android SDKライセンスに同意する関数
 accept_android_licenses() {
-    local auto_accept=$1
+    local auto_accept=${ANDROID_LICENSES:-false}
     
     log_start "Android SDK ライセンスに同意中..."
     
-    if [ "$auto_accept" = "true" ]; then
+    if [ "$auto_accept" = "true" ] || [ "$IS_CI" = "true" ]; then
         # 全てのライセンスに自動で同意（エラー処理を改善）
+        log_info "自動的にAndroid SDKライセンスに同意します"
         yes | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses > /dev/null 2>&1 || log_warning "Android SDK ライセンスへの同意に一部問題がありました"
         yes | flutter doctor --android-licenses || log_warning "Flutter Android ライセンスへの同意に一部問題がありました"
         log_success "Android SDK ライセンスに同意しました"
@@ -329,31 +330,76 @@ accept_android_licenses() {
 
 # Android SDKコンポーネントをインストールする関数
 install_android_sdk_components() {
-    if [ ! -f "$CMDLINE_TOOLS_PATH/bin/sdkmanager" ]; then
-        handle_error "sdkmanager が見つかりません"
-    fi
-    
     log_start "Android SDK コンポーネントを確認中..."
     
-    # すでにインストールされているパッケージを確認
-    INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list 2>/dev/null | grep -E "^Installed packages:" -A100 | grep -v "^Available" | grep -v "^Installed")
+    # sdkmanagerの存在確認
+    if [ ! -f "$CMDLINE_TOOLS_PATH/bin/sdkmanager" ]; then
+        handle_error "sdkmanager が見つかりません: $CMDLINE_TOOLS_PATH/bin/sdkmanager"
+    fi
     
     # 必要なコンポーネントのリスト
-    SDK_COMPONENTS=("platform-tools" "build-tools;35.0.1" "platforms;android-34")
+    SDK_COMPONENTS=(
+        "platform-tools"
+        "build-tools;35.0.1"
+        "platforms;android-34"
+        "platforms;android-33"
+        "platforms;android-32"
+        "build-tools;33.0.0"
+        "build-tools;32.0.0"
+        "build-tools;31.0.0"
+    )
+    
+    # インストール済みパッケージの取得
+    log_info "インストール済みパッケージを確認中..."
+    INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list 2>/dev/null | grep -E "^Installed packages:" -A100 | grep -v "^Available" | grep -v "^Installed")
     
     # 各コンポーネントをチェックしてインストール
     for component in "${SDK_COMPONENTS[@]}"; do
-        if ! echo "$INSTALLED_PACKAGES" | grep -q "$component"; then
-            log_start "$component をインストール中..."
-            if ! echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" "$component" > /dev/null; then
-                handle_error "$component のインストールに失敗しました"
-            fi
-        else
+        log_info "コンポーネント '$component' を確認中..."
+        
+        # インストール済みかチェック
+        if echo "$INSTALLED_PACKAGES" | grep -q "$component"; then
             log_success "$component はすでにインストール済み"
+            continue
+        fi
+        
+        # インストールを試みる
+        log_start "$component をインストール中..."
+        if echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" "$component" > /dev/null; then
+            log_success "$component のインストールが完了しました"
+        else
+            log_warning "$component のインストールに失敗しました"
+            
+            # CI環境での特別な処理
+            if [ "$IS_CI" = "true" ]; then
+                log_info "CI環境での代替インストールを試みます..."
+                # 代替のインストール方法を試す
+                if echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --install "$component" > /dev/null; then
+                    log_success "$component の代替インストールが成功しました"
+                else
+                    log_warning "$component の代替インストールも失敗しました"
+                    # CI環境では一部のコンポーネントが失敗しても続行
+                    continue
+                fi
+            else
+                # ローカル環境ではユーザーに確認
+                read -p "$component のインストールに失敗しました。続行しますか？ (y/N): " -n 1 -r
+                echo
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    handle_error "$component のインストールに失敗しました"
+                fi
+            fi
         fi
     done
     
-    log_success "Android SDK コンポーネントの確認が完了しました"
+    # インストール後の最終確認
+    log_info "インストール結果を確認中..."
+    "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list > /dev/null
+    if [ $? -eq 0 ]; then
+        log_success "Android SDK コンポーネントの確認が完了しました"
+    else
+        log_warning "インストール結果の確認に失敗しましたが、続行します"
+    fi
 }
 
 # Flutter のセットアップ
@@ -798,15 +844,29 @@ setup_github_cli() {
         log_success "GitHub CLI はすでにインストールされています"
     fi
 
+        # 待機メッセージを表示
+        echo "⏳ GitHub CLIの認証確認中..."
+
     # 認証状態をチェック
     if ! gh auth status &>/dev/null; then
         log_info "GitHub CLI の認証が必要です"
         
-        # CI環境ではスキップ
+        # CI環境での処理
         if [ "$IS_CI" = "true" ]; then
-            log_info "CI環境ではトークンがないため、認証はスキップします"
+            if [ -n "$GITHUB_TOKEN_CI" ]; then
+                log_info "CI環境用のGitHubトークンを使用して認証を行います"
+                echo "$GITHUB_TOKEN_CI" | gh auth login --with-token
+                if [ $? -eq 0 ]; then
+                    log_success "CI環境でのGitHub認証が完了しました"
+                else
+                    log_warning "CI環境でのGitHub認証に失敗しました"
+                fi
+            else
+                log_info "CI環境ではトークンがないため、認証はスキップします"
+            fi
             return 0
         fi
+        
         
         # ユーザーに認証をスキップするか尋ねる
         local skip_auth=""
