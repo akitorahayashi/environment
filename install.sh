@@ -52,10 +52,7 @@ main() {
     exec $SHELL -l
 }
 
-# スクリプトのメイン実行 - 関数が宣言される前に呼び出しを行っても問題ない
-trap main EXIT
-
-# ログ出力用のヘルパー関数
+# ログ出力
 log_info() {
     echo "ℹ️ $1"
 }
@@ -76,14 +73,24 @@ log_start() {
     echo "🔄 $1"
 }
 
-# エラー処理関数
+# エラーを処理する
 handle_error() {
     log_error "$1"
     log_error "スクリプトを終了します。"
     exit 1
 }
 
-# コマンドが存在するかチェックするヘルパー関数
+
+# パスワードプロンプトを表示する
+prompt_for_sudo() {
+    local reason="$1"
+    echo ""
+    echo "⚠️ 管理者権限が必要な操作を行います: $reason"
+    echo "🔒 Macロック解除時のパスワードを入力してください"
+    echo ""
+} 
+
+# コマンドが存在するかチェックする
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -520,6 +527,25 @@ install_xcode() {
             fi
         else
             log_success "Xcode 16.2 はすでにインストールされています"
+            
+            # Xcodeがインストールされている場合、正しいパスを設定
+            log_info "Xcodeのパスを確認中..."
+            local xcode_path=$(mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'" | head -n 1)
+            
+            if [ -n "$xcode_path" ]; then
+                log_info "Xcodeが見つかりました: $xcode_path"
+                # Xcodeのパスを設定
+                prompt_for_sudo "Xcodeのパスを設定する"
+                if sudo xcode-select --switch "$xcode_path/Contents/Developer" 2>/dev/null; then
+                    log_success "Xcodeのパスを設定しました"
+                else
+                    log_warning "sudo権限がないため、Xcodeのパスを設定できません"
+                    log_info "次のコマンドを手動で実行してください: sudo xcode-select --switch \"$xcode_path/Contents/Developer\""
+                    # sudo権限がない場合でもスクリプトを続行
+                fi
+            else
+                log_warning "Xcodeのパスが見つかりません"
+            fi
         fi
     else
         xcode_install_success=false
@@ -533,8 +559,11 @@ install_xcode() {
         local need_install=false
         local platforms=("iOS" "watchOS" "tvOS" "visionOS")
         
+        # シミュレータのチェック方法を改善
         for platform in "${platforms[@]}"; do
-            if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform"; then
+            # 複数の方法でシミュレータの存在を確認
+            if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform" && \
+               ! ls "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" 2>/dev/null | grep -q "$platform"; then
                 need_install=true
                 log_info "❓ $platform シミュレータが見つかりません"
             else
@@ -545,12 +574,41 @@ install_xcode() {
         # シミュレータのインストールが必要な場合のみインストール処理を実行
         if [ "$need_install" = true ]; then
             log_start "不足しているシミュレータをインストール中..."
+            
+            # Xcodeが正しく設定されているか確認
+            local xcode_selected_path=$(xcode-select -p)
+            if [[ "$xcode_selected_path" == *"CommandLineTools"* ]]; then
+                log_warning "Xcodeが正しく設定されていません。現在のパス: $xcode_selected_path"
+                
+                # Xcodeを自動検出して設定
+                local xcode_app_path=$(mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'" | head -n 1)
+                if [ -n "$xcode_app_path" ]; then
+                    prompt_for_sudo "シミュレータのインストールのためXcodeのパスを設定"
+                    if sudo xcode-select --switch "$xcode_app_path/Contents/Developer" 2>/dev/null; then
+                        log_success "Xcodeのパスを設定しました: $xcode_app_path/Contents/Developer"
+                    else
+                        log_warning "sudo権限がないため、シミュレータのインストールをスキップします"
+                        log_info "次のコマンドを手動で実行してください: sudo xcode-select --switch \"$xcode_app_path/Contents/Developer\""
+                        log_info "その後、Xcodeを起動し、Preferences -> Components からシミュレータをインストールしてください"
+                        return 0  # エラーとして扱わず続行
+                    fi
+                else
+                    log_warning "Xcodeが見つかりません。シミュレータのインストールをスキップします"
+                    return 0  # エラーとして扱わず続行
+                fi
+            fi
+            
+            # シミュレータをインストール
             for platform in "${platforms[@]}"; do
-                if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform"; then
+                if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform" && \
+                   ! ls "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" 2>/dev/null | grep -q "$platform"; then
                     log_info "➕ $platform シミュレータをインストール中..."
                     if ! xcodebuild -downloadPlatform "$platform"; then
-                        log_error "$platform シミュレータのインストールに失敗しました"
-                        return 1
+                        log_warning "$platform シミュレータのインストールに失敗しました"
+                        log_info "Xcodeを起動し、Preferences -> Components から手動でインストールしてください"
+                        # 失敗してもスクリプトを続行
+                    else
+                        log_success "$platform シミュレータをインストールしました"
                     fi
                 fi
             done
@@ -613,13 +671,25 @@ setup_mac_settings() {
         return 0
     fi
     
-    # 非CI環境では設定を適用
-    source "$REPO_ROOT/macos/setup_mac_settings.sh" || {
-        log_error "Mac 設定の適用中にエラーが発生しました"
-        return 1
-    }
+    # sudo権限があるか確認
+    if ! sudo -n true 2>/dev/null; then
+        # すでに認証済みでなければプロンプトを表示
+        prompt_for_sudo "Mac システム設定の適用"
+        # 再度確認（パスワード入力後）
+        if ! sudo -n true 2>/dev/null; then
+            log_warning "sudo権限がないため、一部のMac設定の適用をスキップする可能性があります"
+            log_info "ユーザーレベルの設定のみ適用します"
+        fi
+    fi
     
-    log_success "Mac のシステム設定が適用されました"
+    # 非CI環境では設定を適用
+    # エラーがあっても続行し、完全に失敗した場合のみエラー表示
+    if ! source "$REPO_ROOT/macos/setup_mac_settings.sh" 2>/dev/null; then
+        log_warning "Mac 設定の適用中に一部エラーが発生しました"
+        log_info "エラーを無視して続行します"
+    else
+        log_success "Mac のシステム設定が適用されました"
+    fi
     
     # 設定が正常に適用されたか確認（一部の設定のみ）
     for setting in "com.apple.dock" "com.apple.finder"; do
@@ -691,4 +761,7 @@ setup_github_cli() {
     else
         log_success "GitHub CLI はすでに認証済みです"
     fi
-} 
+}
+
+# メインスクリプトの実行
+main
