@@ -55,19 +55,33 @@ The `install.sh` script implements the following features:
     - Properly configures Flutter and automatically accepts Android SDK licenses
     - Automatically sets up Android SDK environment
     
-11. **SSH Key Generation and Configuration**
+11. **GitHub CLI Configuration**
+    - Configures GitHub CLI (`gh`) for terminal-based GitHub operations
+    - Supports authentication for both GitHub.com and GitHub Enterprise
+    - Enables efficient workflow with repositories, issues, and pull requests
+    - Facilitates CI/CD operations and release management from terminal
+    - After installation, additional authentication can be added via:
+      ```bash
+      # Add GitHub.com authentication
+      gh auth login
+      
+      # Add GitHub Enterprise authentication
+      gh auth login --hostname your-enterprise-hostname.com
+      ```
+    
+12. **SSH Key Generation and Configuration**
     - Generates an SSH key (`id_ed25519`) if it doesn't exist
     - Automatically sets up the SSH agent
     - Configures agent to avoid entering passphrases
 
-12. **Cursor Configuration**
+13. **Cursor Configuration**
     - Provides backup and restore functionality for settings
     - Configures Flutter SDK integration
 
-13. **Launching Installed Apps**
+14. **Launching Installed Apps**
     - Automatically launches key applications after installation
 
-14. **Error Tracking**
+15. **Error Tracking**
     - Tracks installation success/failure
     - Provides detailed logging
 
@@ -149,6 +163,39 @@ ssh -T git@github.com
 If you see a message like this, SSH authentication was successful:
 ```sh
 Hi akitorahayashi! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+### 6. Configure GitHub CLI
+The script will install GitHub CLI and prompt you for authentication. You can choose between:
+
+- **GitHub.com**: For personal repositories and open-source contributions
+- **GitHub Enterprise**: For company repositories (if your organization uses GitHub Enterprise)
+
+**Recommendation**: Start with GitHub.com authentication first, as it's the primary service. You can add GitHub Enterprise authentication later if needed.
+
+You can add multiple authentications after initial setup:
+```sh
+# Add additional GitHub.com authentication
+gh auth login
+
+# Add GitHub Enterprise authentication
+gh auth login --hostname your-enterprise-hostname.com
+```
+
+Using GitHub CLI will simplify many GitHub operations:
+```sh
+# Create a pull request
+gh pr create
+
+# View and checkout pull requests
+gh pr list
+gh pr checkout 123
+
+# Check repository status
+gh repo view
+
+# Create an issue
+gh issue create
 ```
 
 ## Cursor Settings Backup and Restore
