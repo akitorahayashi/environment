@@ -120,7 +120,7 @@ install_rosetta() {
     if [[ "$(uname -m)" == "arm64" ]]; then
         # Mac のチップモデルを取得
         MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
-        log_info "🖥 Mac Model: $MAC_MODEL"
+        log_info " 🖥  Mac Model: $MAC_MODEL"
 
         # M1 または M2 の場合のみ Rosetta 2 をインストール
         if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* ]]; then
@@ -285,28 +285,46 @@ setup_android_sdk_env() {
 accept_android_licenses() {
     local auto_accept=$1
     
+    log_start "Android SDK ライセンスに同意中..."
+    
     if [ "$auto_accept" = "true" ]; then
-        # 全てのライセンスに自動で同意
-        yes | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses > /dev/null || handle_error "Android SDK ライセンスへの同意に失敗しました"
-        yes | flutter doctor --android-licenses || handle_error "flutter doctor --android-licenses の実行に失敗しました"
+        # 全てのライセンスに自動で同意（エラー処理を改善）
+        yes | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses > /dev/null 2>&1 || log_warning "Android SDK ライセンスへの同意に一部問題がありました"
+        yes | flutter doctor --android-licenses || log_warning "Flutter Android ライセンスへの同意に一部問題がありました"
+        log_success "Android SDK ライセンスに同意しました"
     else
         # ライセンス同意状態を確認
-        LICENSE_STATUS=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses --status 2>&1 | grep -c "All SDK package licenses accepted." || echo "0")
-        
-        if [ "$LICENSE_STATUS" = "0" ]; then
-            log_start "Android SDK ライセンスに同意中..."
-            if [ -f "$CMDLINE_TOOLS_PATH/bin/sdkmanager" ]; then
-                # 全てのライセンスに自動で同意
-                yes | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses > /dev/null || handle_error "Android SDK ライセンスへの同意に失敗しました"
-                log_success "Android SDK ライセンスに同意しました"
-                
-                # 明示的にflutter doctorでAndroidライセンスに同意
-                flutter doctor --android-licenses || handle_error "flutter doctor --android-licenses の実行に失敗しました"
-            fi
-        else
+        if ! flutter doctor | grep -q "Some Android licenses not accepted"; then
             log_success "Android SDK ライセンスはすでに同意済みです"
+        else
+            log_info "Android SDK ライセンスへの同意が必要です"
+            if [ -f "$CMDLINE_TOOLS_PATH/bin/sdkmanager" ]; then
+                # sdkmanager ライセンスに同意（エラー処理を改善）
+                {
+                    yes | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --licenses 
+                } > /dev/null 2>&1 || log_warning "sdkmanager ライセンスへの同意で問題が発生しましたが、続行します"
+                
+                # Flutter Android ライセンスに明示的に同意（標準出力はリダイレクトせず）
+                log_info "Flutter の Android ライセンスに同意します..."
+                # 出力をリダイレクトせずに実行
+                {
+                    yes | flutter doctor --android-licenses
+                } || log_warning "flutter doctor --android-licenses で問題が発生しましたが、続行します"
+                
+                # 最終確認 - 成功したかどうかにかかわらず続行
+                if flutter doctor | grep -q "Some Android licenses not accepted"; then
+                    log_warning "Android ライセンスの同意が完全ではありません。手動で確認してください"
+                    log_info "手動で次のコマンドを実行してください: flutter doctor --android-licenses"
+                else
+                    log_success "Android SDK ライセンスに同意しました"
+                fi
+            fi
         fi
     fi
+    
+    # Flutterのdoctorを実行して最終状態を確認
+    log_info "Flutter doctorでライセンス状態を確認中..."
+    flutter doctor -v | grep -A 5 "Android toolchain" || true
 }
 
 # Android SDKコンポーネントをインストールする関数
@@ -528,23 +546,32 @@ install_xcode() {
         else
             log_success "Xcode 16.2 はすでにインストールされています"
             
-            # Xcodeがインストールされている場合、正しいパスを設定
-            log_info "Xcodeのパスを確認中..."
-            local xcode_path=$(mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'" | head -n 1)
+            # Xcodeがインストールされている場合、パス設定が必要か確認
+            log_info "Xcodeのパス設定を確認中..."
+            local current_xcode_path=$(xcode-select -p)
+            local expected_xcode_path=$(mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'" | head -n 1)
             
-            if [ -n "$xcode_path" ]; then
-                log_info "Xcodeが見つかりました: $xcode_path"
+            # 現在のパスがXcodeのDeveloperディレクトリを指しているかチェック
+            if [[ -n "$current_xcode_path" && "$current_xcode_path" == *"/Contents/Developer" && ! "$current_xcode_path" == *"CommandLineTools"* ]]; then
+                log_success "Xcodeのパスは正しく設定されています: $current_xcode_path"
+            elif [ -n "$expected_xcode_path" ]; then
+                log_info "Xcodeが見つかりました: $expected_xcode_path"
                 # Xcodeのパスを設定
-                prompt_for_sudo "Xcodeのパスを設定する"
-                if sudo xcode-select --switch "$xcode_path/Contents/Developer" 2>/dev/null; then
+                log_info "Xcodeのパスを設定します"
+                if xcode-select --switch "$expected_xcode_path/Contents/Developer" 2>/dev/null; then
                     log_success "Xcodeのパスを設定しました"
                 else
-                    log_warning "sudo権限がないため、Xcodeのパスを設定できません"
-                    log_info "次のコマンドを手動で実行してください: sudo xcode-select --switch \"$xcode_path/Contents/Developer\""
-                    # sudo権限がない場合でもスクリプトを続行
+                    # sudo権限が必要な場合のみプロンプト表示
+                    prompt_for_sudo "Xcodeのパスを設定する"
+                    if sudo xcode-select --switch "$expected_xcode_path/Contents/Developer" 2>/dev/null; then
+                        log_success "Xcodeのパスを設定しました"
+                    else
+                        log_warning "Xcodeのパス設定に失敗しましたが、続行します"
+                        log_info "必要に応じて次のコマンドを手動で実行してください: sudo xcode-select --switch \"$expected_xcode_path/Contents/Developer\""
+                    fi
                 fi
             else
-                log_warning "Xcodeのパスが見つかりません"
+                log_warning "Xcodeのパスが見つかりません。ただし続行します"
             fi
         fi
     else
@@ -561,19 +588,38 @@ install_xcode() {
         
         # シミュレータのチェック方法を改善
         for platform in "${platforms[@]}"; do
-            # 複数の方法でシミュレータの存在を確認
-            if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform" && \
-               ! ls "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" 2>/dev/null | grep -q "$platform"; then
+            # シミュレータの検証を複数の方法で実施
+            local simulator_found=false
+            
+            # 方法1: xcrun simctl list runtime でチェック
+            if xcrun simctl list runtimes 2>/dev/null | grep -q "$platform"; then
+                simulator_found=true
+                log_success "$platform シミュレータが見つかりました (simctl)"
+            # 方法2: Runtimesディレクトリをチェックするがファイルの中身も確認
+            elif [ -d "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" ] && ls -la "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" 2>/dev/null | grep -q "$platform"; then
+                # ディレクトリが存在し、かつ中身も確認
+                if [ -n "$(find "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" -name "*$platform*" -type d 2>/dev/null)" ]; then
+                    simulator_found=true
+                    log_success "$platform シミュレータが見つかりました (ファイルシステム)"
+                fi
+            fi
+            
+            # 方法3: デバイスリストに存在するか確認
+            if ! $simulator_found && xcrun simctl list devices 2>/dev/null | grep -q "$platform"; then
+                simulator_found=true
+                log_success "$platform 用のデバイスが存在します"
+            fi
+            
+            # シミュレータが見つからない場合は再インストールが必要
+            if ! $simulator_found; then
                 need_install=true
-                log_info "❓ $platform シミュレータが見つかりません"
-            else
-                log_success "$platform シミュレータは既にインストールされています"
+                log_info "❓ $platform シミュレータが見つかりません。インストールが必要です。"
             fi
         done
 
-        # シミュレータのインストールが必要な場合のみインストール処理を実行
+        # シミュレータのインストールが必要な場合
         if [ "$need_install" = true ]; then
-            log_start "不足しているシミュレータをインストール中..."
+            log_start "必要なシミュレータをインストール中..."
             
             # Xcodeが正しく設定されているか確認
             local xcode_selected_path=$(xcode-select -p)
@@ -598,22 +644,35 @@ install_xcode() {
                 fi
             fi
             
-            # シミュレータをインストール
+            # シミュレータのインストール
             for platform in "${platforms[@]}"; do
-                if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$platform" && \
-                   ! ls "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" 2>/dev/null | grep -q "$platform"; then
+                # シミュレータの検証を複数の方法で実施
+                local simulator_found=false
+                
+                # 同じチェックを再度実行
+                if xcrun simctl list runtimes 2>/dev/null | grep -q "$platform" || \
+                   ([ -d "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" ] && \
+                   [ -n "$(find "$HOME/Library/Developer/CoreSimulator/Profiles/Runtimes" -name "*$platform*" -type d 2>/dev/null)" ]); then
+                    simulator_found=true
+                fi
+                
+                # シミュレータが見つからない場合はインストールを試みる
+                if ! $simulator_found; then
                     log_info "➕ $platform シミュレータをインストール中..."
                     if ! xcodebuild -downloadPlatform "$platform"; then
                         log_warning "$platform シミュレータのインストールに失敗しました"
-                        log_info "Xcodeを起動し、Preferences -> Components から手動でインストールしてください"
-                        # 失敗してもスクリプトを続行
+                        log_info "Xcodeを起動し、Settings -> Platforms から手動でインストールしてください"
                     else
                         log_success "$platform シミュレータをインストールしました"
                     fi
                 fi
             done
+            
+            # インストール後の最終チェック
+            log_info "シミュレータの状態を確認中..."
+            xcrun simctl list runtimes 2>/dev/null | grep -E 'iOS|watchOS|tvOS|visionOS' || echo "利用可能なランタイムがありません"
         else
-            log_success "すべてのシミュレータは既にインストールされています"
+            log_success "すべての必要なシミュレータは既にインストールされています"
         fi
     else
         log_error "Xcode のインストールに失敗したため、シミュレータのインストールをスキップします"
@@ -669,17 +728,6 @@ setup_mac_settings() {
         done
         
         return 0
-    fi
-    
-    # sudo権限があるか確認
-    if ! sudo -n true 2>/dev/null; then
-        # すでに認証済みでなければプロンプトを表示
-        prompt_for_sudo "Mac システム設定の適用"
-        # 再度確認（パスワード入力後）
-        if ! sudo -n true 2>/dev/null; then
-            log_warning "sudo権限がないため、一部のMac設定の適用をスキップする可能性があります"
-            log_info "ユーザーレベルの設定のみ適用します"
-        fi
     fi
     
     # 非CI環境では設定を適用
@@ -752,10 +800,24 @@ setup_github_cli() {
 
     # 認証状態をチェック
     if ! gh auth status &>/dev/null; then
-        log_info "GitHub CLI の認証を行います..."
+        log_info "GitHub CLI の認証が必要です"
+        
+        # CI環境ではスキップ
         if [ "$IS_CI" = "true" ]; then
             log_info "CI環境ではトークンがないため、認証はスキップします"
+            return 0
+        fi
+        
+        # ユーザーに認証をスキップするか尋ねる
+        local skip_auth=""
+        read -p "GitHub CLI の認証をスキップしますか？ (y/N): " skip_auth
+        
+        if [[ "$skip_auth" =~ ^[Yy]$ ]]; then
+            log_info "GitHub CLI の認証をスキップします"
+            log_warning "後で必要に応じて 'gh auth login' を実行してください（README参照）"
+            return 0
         else
+            log_info "GitHub CLI の認証を行います..."
             gh auth login || log_warning "GitHub認証に失敗しました。後で手動で認証してください。"
         fi
     else
