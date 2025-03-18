@@ -1,8 +1,6 @@
 # Formula
 brew "git"
 brew "gh"
-brew "cocoapods"
-brew "fastlane"
 brew "act"
 # swiftlintはXcodeインストール後にinstall.shで直接インストール
 brew "fdupes"
