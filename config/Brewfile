@@ -7,6 +7,9 @@ brew "act"
 # swiftlintはXcodeインストール後にinstall.shで直接インストール
 brew "fdupes"
 brew "xcodes"
+brew "swiftgen"
+brew "rbenv"
+brew "ruby-build"
 
 # Cask
 cask "flutter"

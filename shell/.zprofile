@@ -27,3 +27,7 @@ fi
 if ! ssh-add -l > /dev/null 2>&1; then
     ssh-add ~/.ssh/id_ed25519 2>/dev/null
 fi
+# rbenv設定
+if command -v rbenv 1>/dev/null 2>&1; then
+  eval "$(rbenv init -)"
+fi

@@ -252,6 +252,130 @@ jobs:
           
           echo "✅ Flutterの設定が完了しました"
       
+      - name: Ruby環境のセットアップ確認
+        run: |
+          echo "Ruby環境の確認を開始します..."
+          
+          # rbenvのインストール確認
+          if ! command -v rbenv &>/dev/null; then
+            echo "❌ rbenvがインストールされていません"
+            exit 1
+          fi
+          echo "✅ rbenvがインストールされています（バージョン: $(rbenv --version)）"
+          
+          # ruby-buildのインストール確認
+          if ! command -v ruby-build &>/dev/null; then
+            echo "⚠️ ruby-buildコマンドが直接使用できません（ただしrbenvのプラグインとして動作している可能性があります）"
+          else
+            echo "✅ ruby-buildがインストールされています（バージョン: $(ruby-build --version)）"
+          fi
+          
+          # rbenv初期化コードの確認
+          if ! grep -q "rbenv init" ~/.zprofile; then
+            echo "❌ .zprofileにrbenv初期化コードが見つかりません"
+            exit 1
+          fi
+          echo "✅ .zprofileにrbenv初期化コードが設定されています"
+          
+          # rbenvを初期化して使用可能な状態にする
+          eval "$(rbenv init -)"
+          
+          # Rubyのバージョン確認
+          if ! command -v ruby &>/dev/null; then
+            echo "❌ Rubyがインストールされていません"
+            exit 1
+          fi
+          RUBY_VERSION=$(ruby -v)
+          echo "✅ Rubyがインストールされています：$RUBY_VERSION"
+          
+          # rbenvでインストールされたRubyを使用しているか確認
+          RUBY_PATH=$(which ruby)
+          if [[ "$RUBY_PATH" != *".rbenv"* ]]; then
+            echo "❌ rbenvでインストールされたRubyを使用していません"
+            echo "実際のパス: $RUBY_PATH"
+            exit 1
+          fi
+          echo "✅ rbenvでインストールされたRubyを使用しています：$RUBY_PATH"
+          
+          # グローバルRubyバージョンの確認
+          GLOBAL_RUBY=$(rbenv global)
+          echo "✅ rbenvのグローバルRubyバージョン: $GLOBAL_RUBY"
+          
+          # bundlerのインストール確認
+          if ! command -v bundler &>/dev/null; then
+            echo "❌ bundlerがインストールされていません"
+            exit 1
+          fi
+          echo "✅ bundlerがインストールされています（バージョン: $(bundler --version)）"
+          
+          # gemコマンドの確認
+          if ! command -v gem &>/dev/null; then
+            echo "❌ gemコマンドが使用できません"
+            exit 1
+          fi
+          echo "✅ gemコマンドが使用可能です（バージョン: $(gem --version)）"
+          
+          # gemlist設定ファイルの確認
+          GEMLIST_FILE="$GITHUB_WORKSPACE/config/gemlist"
+          if [ -f "$GEMLIST_FILE" ]; then
+            echo "✅ gemlist設定ファイルが存在します"
+            
+            # gemlistファイルから必須gemを抽出して確認
+            REQUIRED_GEMS=("bundler" "rails" "fastlane" "cocoapods")
+            for gem_name in "${REQUIRED_GEMS[@]}"; do
+              if gem list --local | grep -q "^$gem_name "; then
+                echo "✅ gem $gem_name がインストールされています"
+              else
+                echo "❌ gem $gem_name がインストールされていません"
+                exit 1
+              fi
+            done
+            
+            # gemlistファイルの内容を解析
+            TOTAL_GEMS=$(grep -v "^#" "$GEMLIST_FILE" | grep -v "^$" | wc -l | tr -d ' ')
+            echo "📊 gemlist設定ファイルには $TOTAL_GEMS 個のgemが記載されています"
+            
+            # インストールされているgemの数を確認
+            INSTALLED_GEMS=$(gem list --local | wc -l | tr -d ' ')
+            echo "📊 インストールされているgemの数: $INSTALLED_GEMS"
+          else
+            echo "⚠️ gemlist設定ファイルが見つかりません"
+            
+            # デフォルトgemリストの確認
+            DEFAULT_GEMS=("bundler" "rails" "rubocop" "pry" "rspec" "fastlane" "cocoapods")
+            for gem_name in "${DEFAULT_GEMS[@]}"; do
+              if gem list --local | grep -q "^$gem_name "; then
+                echo "✅ デフォルトgem $gem_name がインストールされています"
+              else
+                echo "⚠️ デフォルトgem $gem_name がインストールされていません"
+              fi
+            done
+          fi
+          
+          # インストールされているgemの確認
+          echo "インストールされているgemの一覧:"
+          gem list --local
+          
+          # 簡単なRubyスクリプトのテスト実行
+          echo 'puts "Hello from Ruby #{RUBY_VERSION}"' > test.rb
+          ruby test.rb
+          if [ $? -ne 0 ]; then
+            echo "❌ Rubyスクリプトの実行に失敗しました"
+            exit 1
+          fi
+          rm test.rb
+          
+          # Bundlerの動作確認
+          echo 'source "https://rubygems.org"' > Gemfile
+          echo 'gem "json"' >> Gemfile
+          if ! bundle install; then
+            echo "❌ bundle installの実行に失敗しました"
+            exit 1
+          fi
+          rm Gemfile Gemfile.lock
+          
+          echo "✅ Ruby環境の確認が完了しました"
+      
       - name: Cursorの設定の確認
         run: |
           # Cursorがインストールされているか確認
