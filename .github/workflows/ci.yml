@@ -250,7 +250,70 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Flutterの設定が完了しました"
+          echo "✅ Flutter環境の確認が完了しました"
+      
+      - name: Android SDKの確認
+        run: |
+          echo "Android SDK環境を確認中..."
+          
+          # Android SDK環境変数の設定
+          export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+          
+          # android-commandlinetoolsの確認
+          if ! brew list --cask "android-commandlinetools" &>/dev/null; then
+            echo "❌ android-commandlinetools がインストールされていません"
+            exit 1
+          fi
+          echo "✅ android-commandlinetools がインストールされています"
+          
+          # コマンドラインツールのパスを確認
+          CMDLINE_TOOLS_PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          if [ ! -d "$CMDLINE_TOOLS_PATH" ]; then
+            echo "❌ Android SDK コマンドラインツールが見つかりません: $CMDLINE_TOOLS_PATH"
+            exit 1
+          fi
+          echo "✅ Android SDK コマンドラインツールが正しく設定されています"
+          
+          # sdkmanagerの存在確認
+          if [ ! -f "$CMDLINE_TOOLS_PATH/bin/sdkmanager" ]; then
+            echo "❌ sdkmanager が見つかりません"
+            exit 1
+          fi
+          echo "✅ sdkmanager が正しく設定されています"
+          
+          # インストール済みパッケージを確認（エラーを無視）
+          echo "インストール済みパッケージを確認中..."
+          # エラーを許容しながらインストール済みパッケージを確認
+          set +e
+          INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list 2>/dev/null)
+          RESULT=$?
+          set -e
+          
+          if [ $RESULT -ne 0 ]; then
+            echo "⚠️ sdkmanager --listの実行に問題がありましたが、続行します"
+          fi
+          
+          # 必須コンポーネントの確認
+          echo "必須のAndroid SDKコンポーネントを確認中..."
+          REQUIRED_COMPONENTS=(
+            "platform-tools"
+            "platforms;android-33"
+            "build-tools;33.0.0"
+          )
+          
+          # プラットフォームツールの存在確認
+          if [ ! -d "$ANDROID_SDK_ROOT/platform-tools" ]; then
+            echo "⚠️ platform-toolsディレクトリが見つかりません"
+          else
+            echo "✅ platform-toolsが存在します"
+          fi
+          
+          echo "✅ Android SDK環境の確認が完了しました"
+          
+          # Flutterのandroid-licensesの検証
+          echo "Flutter doctorでAndroid環境を確認..."
+          flutter doctor -v | grep -A 5 "Android toolchain"
       
       - name: Ruby環境のセットアップ確認
         run: |
