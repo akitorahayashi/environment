@@ -60,20 +60,4 @@ install_brewfile() {
     else
         log_success "Homebrew パッケージのインストールが完了しました"
     fi
-    
-    # 重要なパッケージが正しくインストールされているか確認
-    check_critical_packages
-}
-
-# 重要なパッケージの確認
-check_critical_packages() {
-    log_start "重要なパッケージの確認中..."
-    
-    CRITICAL_PACKAGES=("flutter" "android-commandlinetools" "temurin")
-    for package in "${CRITICAL_PACKAGES[@]}"; do
-        if ! brew list --cask "$package" &>/dev/null; then
-            handle_error "重要なパッケージ '$package' が見つかりません"
-        fi
-        log_success "$package が正常にインストールされています"
-    done
 } 

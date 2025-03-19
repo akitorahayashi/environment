@@ -69,7 +69,6 @@ main() {
     
     # パッケージとプログラミング言語環境のインストール
     install_brewfile
-    check_critical_packages
     setup_ruby_env
     
     # Xcodeのインストール
