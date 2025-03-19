@@ -2,6 +2,7 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$SCRIPT_DIR"  # 元のSCRIPT_DIRを保存
 
 # CI環境かどうかを確認
 export IS_CI=${CI:-false}
@@ -16,62 +17,31 @@ fi
 # CI環境ではスクリプトに実行権限を付与
 if [ "$IS_CI" = "true" ]; then
     echo "CI環境のためスクリプトに実行権限を付与します..."
-    chmod +x "$SCRIPT_DIR/scripts/setup/"*.sh
-    chmod +x "$SCRIPT_DIR/scripts/utils/"*.sh
+    find "$SCRIPT_DIR/scripts" -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
+    echo "スクリプトディレクトリの内容:"
+    find "$SCRIPT_DIR/scripts" -type f -name "*.sh" | sort
 fi
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/scripts/utils/logging.sh"
-source "$SCRIPT_DIR/scripts/utils/helpers.sh"
-
-# Rosetta関数を直接定義（CI環境での問題回避のため）
-install_rosetta() {
-    if [[ "$(uname -m)" == "arm64" ]]; then
-        # Mac のチップモデルを取得
-        MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
-        log_info " 🖥  Mac Model: $MAC_MODEL"
-
-        # M1 または M2 の場合のみ Rosetta 2 をインストール
-        if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* ]]; then
-            # すでに Rosetta 2 がインストールされているかチェック
-            if pgrep oahd >/dev/null 2>&1; then
-                log_success "Rosetta 2 はすでにインストール済み"
-                return
-            fi
-
-            # Rosetta 2 をインストール
-            log_start "Rosetta 2 を $MAC_MODEL 向けにインストール中..."
-            if [ "$IS_CI" = "true" ]; then
-                # CI環境では非対話型でインストール
-                softwareupdate --install-rosetta --agree-to-license || true
-            else
-                softwareupdate --install-rosetta --agree-to-license
-            fi
-
-            # インストールの成否をチェック
-            if pgrep oahd >/dev/null 2>&1; then
-                log_success "Rosetta 2 のインストールが完了しました"
-            else
-                handle_error "Rosetta 2 のインストールに失敗しました"
-            fi
-        else
-            log_success "この Mac ($MAC_MODEL) には Rosetta 2 は不要"
-        fi
-    else
-        log_success "この Mac は Apple Silicon ではないため、Rosetta 2 は不要"
-    fi
+echo "ユーティリティスクリプトをロード中..."
+source "$SCRIPT_DIR/scripts/utils/logging.sh" || { 
+    echo "❌ logging.shをロードできませんでした。処理を終了します。" 
+    exit 1
 }
 
+source "$SCRIPT_DIR/scripts/utils/helpers.sh" || echo "警告: helpers.shをロードできませんでした"
+
 # セットアップ関数のロード
-source "$SCRIPT_DIR/scripts/setup/homebrew.sh"
-source "$SCRIPT_DIR/scripts/setup/mac.sh"
-source "$SCRIPT_DIR/scripts/setup/shell.sh"
-source "$SCRIPT_DIR/scripts/setup/git.sh"
-source "$SCRIPT_DIR/scripts/setup/ruby.sh"
-source "$SCRIPT_DIR/scripts/setup/xcode.sh"
-source "$SCRIPT_DIR/scripts/setup/android.sh"
-source "$SCRIPT_DIR/scripts/setup/flutter.sh"
-source "$SCRIPT_DIR/scripts/setup/cursor.sh"
+echo "セットアップスクリプトをロード中..."
+source "$ROOT_DIR/scripts/setup/homebrew.sh" || echo "警告: homebrew.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/mac.sh" || echo "警告: mac.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/shell.sh" || echo "警告: shell.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/git.sh" || echo "警告: git.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/ruby.sh" || echo "警告: ruby.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/android.sh" || echo "警告: android.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
 
 # エラー発生時に即座に終了する設定
 set -e
@@ -109,23 +79,23 @@ main() {
     else
         log_success "Xcodeのインストールが完了しました"
     fi
-    
+
     # Flutter関連のセットアップ
     setup_flutter
     
     # Cursorのセットアップ
     setup_cursor
-    
+
     # インストール結果の表示
     end_time=$(date +%s)
     elapsed_time=$((end_time - start_time))
-    
+
     # 実行完了メッセージ
     log_success "すべてのインストールと設定が完了しました！"
     log_success "セットアップ完了 🎉（所要時間: ${elapsed_time}秒）"
-    
+
     # 新しいシェルセッションを開始
-    exec $SHELL -l
+    [ "$IS_CI" != "true" ] && exec $SHELL -l
 }
 
 # メイン処理の実行

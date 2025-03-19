@@ -2,10 +2,12 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
 # Android SDK関連の関数をロード
-source "$SCRIPT_DIR/android.sh"
+source "$SETUP_DIR/android.sh"
 
 # Flutter のセットアップ
 setup_flutter() {
