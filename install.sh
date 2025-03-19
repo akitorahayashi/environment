@@ -3,6 +3,16 @@
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# CI環境かどうかを確認
+export IS_CI=${CI:-false}
+
+# リポジトリのルートディレクトリを設定
+if [ "$IS_CI" = "true" ] && [ -n "$GITHUB_WORKSPACE" ]; then
+    export REPO_ROOT="$GITHUB_WORKSPACE"
+else
+    export REPO_ROOT="$HOME/environment"
+fi
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/scripts/utils/logging.sh"
 source "$SCRIPT_DIR/scripts/utils/helpers.sh"
@@ -17,16 +27,6 @@ source "$SCRIPT_DIR/scripts/setup/xcode.sh"
 source "$SCRIPT_DIR/scripts/setup/android.sh"
 source "$SCRIPT_DIR/scripts/setup/flutter.sh"
 source "$SCRIPT_DIR/scripts/setup/cursor.sh"
-
-# CI環境かどうかを確認
-IS_CI=${CI:-false}
-
-# リポジトリのルートディレクトリを設定
-if [ "$IS_CI" = "true" ] && [ -n "$GITHUB_WORKSPACE" ]; then
-    REPO_ROOT="$GITHUB_WORKSPACE"
-else
-    REPO_ROOT="$HOME/environment"
-fi
 
 # エラー発生時に即座に終了する設定
 set -e
