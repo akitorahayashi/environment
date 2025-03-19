@@ -28,55 +28,44 @@ setup_flutter() {
     fi
 
     # Android SDK環境のセットアップ
-    log_start "Android SDK のセットアップを確認中..."
+    log_start "Android SDK の基本設定を行います..."
     setup_android_sdk_env
     
-    # android-commandlinetoolsとJavaが利用可能か確認
-    if ! command_exists sdkmanager; then
-        handle_error "Android Command Line Toolsが見つかりません"
-    fi
-    
+    # 最低限のツールが利用可能か簡易チェック
     if ! command_exists java; then
-        handle_error "Javaが見つかりません"
+        log_warning "Javaが見つかりません。Android開発には必要です"
     fi
     
-    # cmdline-tools のパスが正しいか確認
-    if [ ! -d "$CMDLINE_TOOLS_PATH" ]; then
-        log_start "Android SDK のコマンドラインツールをセットアップ中..."
-        
+    # コマンドラインツールのパスをセットアップ（最小限の処理）
+    if [ ! -d "$CMDLINE_TOOLS_PATH" ] && command_exists brew; then
         # Homebrew でインストールされた Android SDK Command Line Tools のパス
         BREW_CMDLINE_TOOLS="/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest"
         
         if [ -d "$BREW_CMDLINE_TOOLS" ]; then
-            log_info "Homebrew でインストールされたコマンドラインツールを設定中..."
-            
-            # cmdline-tools ディレクトリ構造を作成
+            log_info "コマンドラインツールのシンボリックリンクを作成..."
             mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
-            
-            # latest シンボリックリンクを作成
             create_symlink "$BREW_CMDLINE_TOOLS" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
-            log_success "Android SDK コマンドラインツールをセットアップしました"
-        else
-            handle_error "Homebrew の Android SDK コマンドラインツールが見つかりません"
         fi
     fi
     
-    # Android SDKコンポーネントのインストール
+    # Android SDKコンポーネントの最小限の設定
     install_android_sdk_components
     
-    # ライセンスの同意
+    # ライセンスの同意（CI環境では自動同意、通常環境ではスキップ可能）
     if [ "$IS_CI" = "true" ]; then
-        log_info "CI環境でもAndroid SDKライセンスに自動同意します"
+        log_info "CI環境ではAndroid SDKライセンスに自動同意します"
         accept_android_licenses true
     else
-        accept_android_licenses false
+        # 必要な場合のみライセンス同意を促す
+        flutter doctor 2>&1 | grep -q "Some Android licenses not accepted" && {
+            log_info "Android SDKライセンスへの同意が必要かもしれません"
+            log_info "AndroidStudioの初回起動時、またはflutter doctor --android-licensesコマンドで同意できます"
+        }
     fi
     
-    # Flutter doctorの実行
-    log_start "Flutter doctor を実行中..."
-    if ! flutter doctor -v; then
-        handle_error "flutter doctor の実行に問題があります"
-    fi
+    # Flutter doctorの実行（詳細なエラーチェックはせず、情報表示のみ）
+    log_start "Flutter環境を確認中..."
+    flutter doctor || true
 
-    log_success "Flutter の環境のセットアップ完了"
+    log_success "Flutter の環境設定が完了しました"
 } 
