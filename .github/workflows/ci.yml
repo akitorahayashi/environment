@@ -286,12 +286,15 @@ jobs:
           echo "インストール済みパッケージを確認中..."
           # エラーを許容しながらインストール済みパッケージを確認
           set +e
-          INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list 2>/dev/null)
+          INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list --sdk_root="$ANDROID_SDK_ROOT" 2>/dev/null)
           RESULT=$?
           set -e
           
           if [ $RESULT -ne 0 ]; then
             echo "⚠️ sdkmanager --listの実行に問題がありましたが、続行します"
+            # 代替方法でインストール済みパッケージを確認
+            INSTALLED_PACKAGES=$(find "$ANDROID_SDK_ROOT" -type d -name "platform-tools" -o -name "platforms" -o -name "build-tools" | sort)
+            echo "代替方法でインストール済みパッケージを検出: $(echo "$INSTALLED_PACKAGES" | wc -l | tr -d ' ') 個"
           fi
           
           # 必須コンポーネントの確認

@@ -1,34 +1,29 @@
 # MacOS Environment Setup
 
 This repository contains the `install.sh` script for automatically setting up a macOS environment.
-By running this script, you can configure Git settings, install Homebrew, set up Xcode Command Line Tools, install various development tools, and set up SSH keys for GitHub.
 
 ## Implementation Features
 
 The `install.sh` script implements the following features:
 
-1. **CI Environment Detection**
-   - Automatically detects GitHub Actions environment and applies appropriate settings
-   - Supports non-interactive installation mode and error checking
-
-2. **Rosetta 2 Installation (for Apple Silicon)**
+1. **Rosetta 2 Installation (for Apple Silicon)**
    - Automatically installs only on Apple M1/M2 chips
    - Not required for newer Apple Silicon (M3 and later)
 
-3. **Homebrew Setup**
+2. **Homebrew Setup**
    - Installs if not already installed
    - Uses `/opt/homebrew` for Apple Silicon (ARM) devices
    - Immediate PATH activation
 
-4. **Shell Configuration**
+3. **Shell Configuration**
    - Creates symlink for `.zprofile`
    - Applies shell environment settings
 
-5. **Git Configuration**
+4. **Git Configuration**
    - Creates symlinks for `git/.gitconfig` and `git/.gitignore_global`
    - Applies Git settings
 
-6. **macOS Settings**
+5. **macOS Settings**
    - Applies system settings from `macos/setup_mac_settings.sh`
    - Trackpad and mouse speed settings
    - Keyboard repeat rate settings
@@ -36,38 +31,37 @@ The `install.sh` script implements the following features:
    - Finder settings
    - Screenshot save location settings
 
-7. **Package Installation from Brewfile**
+6. **Package Installation from Brewfile**
    - Installs packages listed in `config/Brewfile` using `brew bundle`
    - **CLI Tools**: `git`, `gh`, `cocoapods`, `fastlane`, `act`, `swiftlint`, `fdupes`, `xcodes`
    - **Development Tools**: `flutter`, `android-studio`, `cursor`
    - **Ruby Environment**: `rbenv`, `ruby-build`
    - **Apps**: `google-chrome`, `slack`, `spotify`, `zoom`, `notion`, `figma`
 
-8. **Ruby Environment Setup (rbenv)**
+7. **Ruby Environment Setup (rbenv)**
    - Installs rbenv for Ruby version management
    - Sets up latest stable Ruby version
    - Installs bundler gem for dependency management
    - Configures shell integration for rbenv
    - Enables management of multiple Ruby versions for different projects
 
-9. **Xcode Installation and Setup**
+8. **Xcode Installation and Setup**
    - Automatically installs Xcode using the `xcodes` CLI tool
    - Configures simulators
    - Verifies installation completion through synchronous execution
 
-10. **SwiftLint Installation**
+9. **SwiftLint Installation**
     - Automatically installs after Xcode installation
     - Verifies functionality
 
-11. **Flutter Configuration**
+10. **Flutter Configuration**
     - Properly configures Flutter and automatically accepts Android SDK licenses
     - Automatically sets up Android SDK environment
     
-12. **GitHub CLI Configuration**
+11. **GitHub CLI Configuration**
     - Configures GitHub CLI (`gh`) for terminal-based GitHub operations
     - Supports authentication for both GitHub.com and GitHub Enterprise
     - Enables efficient workflow with repositories, issues, and pull requests
-    - Facilitates CI/CD operations and release management from terminal
     - After installation, additional authentication can be added via:
       ```bash
       # Add GitHub.com authentication
@@ -77,21 +71,14 @@ The `install.sh` script implements the following features:
       gh auth login --hostname your-enterprise-hostname.com
       ```
     
-13. **SSH Key Generation and Configuration**
+12. **SSH Key Generation and Configuration**
     - Generates an SSH key (`id_ed25519`) if it doesn't exist
     - Automatically sets up the SSH agent
     - Configures agent to avoid entering passphrases
 
-14. **Cursor Configuration**
+13. **Cursor Configuration**
     - Provides backup and restore functionality for settings
     - Configures Flutter SDK integration
-
-15. **Launching Installed Apps**
-    - Automatically launches key applications after installation
-
-16. **Error Tracking**
-    - Tracks installation success/failure
-    - Provides detailed logging
 
 ## Directory Structure
 
@@ -107,6 +94,20 @@ environment/
 │   ├── .gitconfig
 │   └── .gitignore_global
 ├── macos/          # macOS specific settings
+├── scripts/        # Refactored scripts
+│   ├── setup/      # Setup functions by feature
+│   │   ├── android.sh      # Android SDK setup
+│   │   ├── cursor.sh       # Cursor setup
+│   │   ├── flutter.sh      # Flutter setup
+│   │   ├── git.sh          # Git related setup
+│   │   ├── homebrew.sh     # Homebrew setup
+│   │   ├── mac.sh          # macOS setup
+│   │   ├── ruby.sh         # Ruby environment setup
+│   │   ├── shell.sh        # Shell setup
+│   │   └── xcode.sh        # Xcode setup
+│   └── utils/      # Utility functions
+│       ├── helpers.sh      # Helper functions
+│       └── logging.sh      # Logging related functions
 ├── shell/          # Shell related settings
 │   └── .zprofile
 └── install.sh      # Main installation script
@@ -242,45 +243,3 @@ The setup includes rbenv for Ruby version management, which enables using multip
 2. **bundler**: Ruby dependency manager
    - Automatically installed for the default Ruby version
    - Manages project-specific gem dependencies
-
-### Usage
-
-After installation, you can manage Ruby versions and dependencies as follows:
-
-#### Installing Ruby Versions
-```bash
-# List available Ruby versions
-rbenv install -l
-
-# Install a specific Ruby version
-rbenv install 3.2.0
-
-# Set global Ruby version
-rbenv global 3.2.0
-
-# Set Ruby version for current directory
-rbenv local 3.1.2
-```
-
-#### Managing Gems
-```bash
-# Create a new Gemfile for your project
-echo 'source "https://rubygems.org"' > Gemfile
-echo 'gem "rails"' >> Gemfile
-
-# Install gems specified in Gemfile
-bundle install
-
-# Update gems
-bundle update
-```
-
-#### Working with Multiple Ruby Projects
-Each project can have its own Ruby version and gem dependencies:
-
-1. Navigate to your project directory
-2. Set the Ruby version: `rbenv local 3.1.2`
-3. Create a Gemfile with your project dependencies
-4. Run `bundle install` to install the gems
-
-This way, each project maintains its own isolated environment.
