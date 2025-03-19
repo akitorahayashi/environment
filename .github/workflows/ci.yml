@@ -22,8 +22,13 @@ jobs:
           git config --global url."https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
           echo "✅ CI環境用のGitHub認証を設定しました"
       
-      - name: インストールスクリプトの実行権限付与
-        run: chmod +x install.sh
+      - name: スクリプトに実行権限を付与
+        run: |
+          chmod +x install.sh
+          # リファクタリングされたスクリプトにも実行権限を付与
+          chmod +x scripts/setup/*.sh
+          chmod +x scripts/utils/*.sh
+          echo "✅ 全スクリプトに実行権限を付与しました"
       
       - name: Homebrew PATHを確認（インストール前）
         run: |
@@ -35,6 +40,10 @@ jobs:
           # Android SDK用の環境変数を設定
           export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
           export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
+          
+          # リポジトリのルートディレクトリを明示的に設定
+          export REPO_ROOT=$GITHUB_WORKSPACE
+          export IS_CI=true
           
           # インストールを直接実行
           ./install.sh
