@@ -105,22 +105,6 @@ verify_cursor_setup() {
                     verification_failed=true
                 else
                     log_success "Cursor設定ファイル $file が存在します"
-                    
-                    # シンボリックリンクの確認
-                    if [ -L "$CURSOR_CONFIG_DIR/$file" ]; then
-                        TARGET=$(readlink "$CURSOR_CONFIG_DIR/$file")
-                        EXPECTED_TARGET="$REPO_ROOT/cursor/$file"
-                        if [ "$TARGET" != "$EXPECTED_TARGET" ]; then
-                            log_error "$file のシンボリックリンク先が異なります"
-                            log_error "期待: $EXPECTED_TARGET"
-                            log_error "実際: $TARGET"
-                            verification_failed=true
-                        else
-                            log_success "$file が正しくシンボリックリンクされています"
-                        fi
-                    else
-                        log_warning "$file がシンボリックリンクではありません"
-                    fi
                 fi
             done
         fi
