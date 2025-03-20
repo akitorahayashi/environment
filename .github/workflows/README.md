@@ -1,4 +1,4 @@
-# CI Workflow 
+# CI Workflow
 
 This directory contains the Continuous Integration (CI) workflow configuration for automating the validation of the macOS environment setup process.
 
@@ -25,81 +25,82 @@ The workflow runs on:
 - **Runner**: Latest macOS version
 - **Timeout**: 120 minutes (extended to accommodate Xcode installation)
 
-### Steps Overview
+### Jobs
 
-1. **Repository Checkout**
-   - Clones the repository into the CI environment
+The workflow consists of two main jobs:
 
-2. **GitHub Authentication Setup**
-   - Configures GitHub authentication for the CI environment
+#### 1. `test-install`
 
-3. **Installation Script Execution**
-   - Runs the `install.sh` script with CI-specific environment variables
-   - Uses `GITHUB_TOKEN_CI` for authentication with GitHub APIs
+This job performs the actual installation and verification:
 
-4. **Validation Steps**
-   - **Homebrew**: Verifies PATH (before and after installation), version check
-   - **Xcode**: Confirms Command Line Tools, Xcode 16.2, and various simulators
-   - **SwiftLint**: Verifies installation and functionality
-   - **Git**: Ensures correct symlinks for configuration files
-   - **Shell**: Verifies zprofile settings
-   - **Homebrew Packages**: Validates all packages listed in Brewfile are installed
-   - **Flutter**: Checks installation, configuration, path, and verification via flutter doctor
-   - **Cursor**: Validates IDE settings, extensions, Flutter SDK path
-   - **Cursor Extensions**: Verifies extensions are correctly installed from extensions.json
-   - **Cask Apps**: Confirms installed applications and launch target settings
-   - **macOS Settings**: Analyzes settings files and key categories
-   - **Installation Script Improvements**: Validates PATH fixes, Xcode installation wait, SwiftLint installation, error tracking, app launch functionality
+- **Repository Checkout**: Clones the repository
+- **GitHub Authentication Setup**: Configures authentication for the CI environment
+- **Script Permissions**: Ensures all scripts have execution permissions
+- **Installation Script Execution**: Runs `install.sh` with CI environment variables
+- **Environment Verification**: Runs `ci_verify.sh` to validate the installed environment
 
-5. **Overall Validation Results**
-   - Displays summary of all test results
+#### 2. `summary`
 
-## Key Validation Areas
+This job provides a summary of the overall CI process after the test-install job completes.
+
+### Environment Variables Used
+
+- `JAVA_HOME`: Java installation directory
+- `ANDROID_SDK_ROOT`: Android SDK location
+- `REPO_ROOT`: Repository root directory
+- `IS_CI`: Flag indicating CI environment
+- `ALLOW_COMPONENT_FAILURE`: Allows continuing even if non-critical components fail
+- `ANDROID_LICENSES`: Automatically accepts Android licenses
+- `GITHUB_TOKEN_CI`: Token for GitHub authentication
+
+## Verification Process
+
+The `ci_verify.sh` script performs comprehensive validation of all installed components:
 
 ### Homebrew Validation
-- Proper PATH configuration (before and after installation)
-- Availability of brew command
-- Version information verification
+- Verifies `brew` command availability
+- Checks Homebrew version information
+
+### Brewfile Package Validation
+- Counts total packages listed in Brewfile
+- Verifies installation of all formulas and casks
+- Reports any missing packages
 
 ### Xcode Validation
-- Command Line Tools installation verification
-- Xcode 16.2 installation verification
-- iOS, watchOS, tvOS, visionOS simulator verification
+- Verifies Xcode Command Line Tools installation
+- Confirms Xcode 16.2 installation
+- Checks iOS, watchOS, tvOS, and visionOS simulators
+
+### Android SDK Validation
+- Verifies Android SDK installation and configuration
+
+### Flutter Validation
+- Confirms Flutter installation and setup
+- Verifies Flutter environment configuration
 
 ### Git Configuration Validation
-- Existence of `.gitconfig` and `.gitignore_global`
-- Proper symlink configuration
-- Git excludesfile settings verification
+- Checks Git setup and configuration
 
-### Shell Configuration Validation
-- Existence and symlink verification for `.zprofile`
-
-### Homebrew Package Validation
-- Installation verification for all packages (formula/cask) listed in Brewfile
-- Verification of total installed package count
-
-### Flutter Configuration Validation
-- Installation path verification (`/opt/homebrew/bin/flutter`)
-- Functionality verification via `flutter doctor`
-- Xcode integration verification
+### Ruby Environment Validation
+- Verifies Ruby installation and setup
 
 ### Cursor IDE Validation
-- Installation verification via Homebrew
-- Configuration file verification (settings.json, extensions.json)
-- Flutter SDK path settings verification
-- Count of defined extensions
-- Active verification of extension installation using Cursor CLI
-- Dynamic extension list extraction from extensions.json
+- Confirms Cursor installation and configuration
+
+### Shell Configuration Validation
+- Verifies shell environment setup
 
 ### macOS Settings Validation
-- Existence of settings files
-- Key setting categories like Dock, Finder, screenshots
-- Analysis of setting item count
+- Checks macOS system configuration
 
-## Installation Script Improvement Validation
-- Immediate Homebrew PATH activation
-- Synchronous Xcode installation execution
-- Direct SwiftLint installation process
-- Installation state tracking
-- App launch functionality improvements
-- Enhanced Cursor extension installation and verification
+## Verification Results
+
+The verification process provides:
+- Individual results for each component
+- A summary of total verifications performed
+- Count of successful and failed verifications
+- Overall status of the environment setup
+
+## Using the CI Workflow
+
+This workflow serves as both validation of the installation process and documentation of expected environment state after installation. Developers can refer to the verification scripts to understand what components should be properly installed and configured.

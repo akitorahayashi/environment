@@ -84,33 +84,35 @@ The `install.sh` script implements the following features:
 
 ```
 environment/
-├── .github/        # GitHub related settings
-│   └── workflows/  # GitHub Actions workflows
-├── config/         # Various configuration files
-│   ├── Brewfile    # List of Homebrew packages
-│   └── gemlist     # Ruby gems to install (currently only bundler)
-├── cursor/         # Cursor IDE related settings
-├── git/            # Git related settings
+├── .github/        # GitHub関連の設定
+│   └── workflows/  # GitHub Actionsワークフロー
+│       ├── ci.yml           # CI設定ファイル
+│       └── ci_verify.sh     # CI検証スクリプト
+├── config/         # 各種設定ファイル
+│   ├── Brewfile    # Homebrewパッケージリスト
+│   └── gemlist     # インストールするRuby gems（現在はbundlerのみ）
+├── cursor/         # Cursor IDE関連の設定
+├── git/            # Git関連の設定
 │   ├── .gitconfig
 │   └── .gitignore_global
-├── macos/          # macOS specific settings
-├── scripts/        # Refactored scripts
-│   ├── setup/      # Setup functions by feature
-│   │   ├── android.sh      # Android SDK setup
-│   │   ├── cursor.sh       # Cursor setup
-│   │   ├── flutter.sh      # Flutter setup
-│   │   ├── git.sh          # Git related setup
-│   │   ├── homebrew.sh     # Homebrew setup
-│   │   ├── mac.sh          # macOS setup
-│   │   ├── ruby.sh         # Ruby environment setup
-│   │   ├── shell.sh        # Shell setup
-│   │   └── xcode.sh        # Xcode setup
-│   └── utils/      # Utility functions
-│       ├── helpers.sh      # Helper functions
-│       └── logging.sh      # Logging related functions
-├── shell/          # Shell related settings
+├── macos/          # macOS固有の設定
+├── scripts/        # リファクタリングされたスクリプト
+│   ├── setup/      # 機能別セットアップ関数
+│   │   ├── android.sh      # Android SDKセットアップ
+│   │   ├── cursor.sh       # Cursorセットアップ
+│   │   ├── flutter.sh      # Flutterセットアップ
+│   │   ├── git.sh          # Git関連セットアップ
+│   │   ├── homebrew.sh     # Homebrewセットアップ
+│   │   ├── mac.sh          # macOSセットアップ
+│   │   ├── ruby.sh         # Ruby環境セットアップ
+│   │   ├── shell.sh        # シェルセットアップ
+│   │   └── xcode.sh        # Xcodeセットアップ
+│   └── utils/      # ユーティリティ関数
+│       ├── helpers.sh      # ヘルパー関数
+│       └── logging.sh      # ロギング関連関数
+├── shell/          # シェル関連の設定
 │   └── .zprofile
-└── install.sh      # Main installation script
+└── install.sh      # メインインストールスクリプト
 ```
 
 ## Setup Instructions
