@@ -36,12 +36,23 @@ verify_shell_setup() {
     log_start "シェル環境を検証中..."
     local verification_failed=false
     
-    # zshの確認
-    if [ -z "$SHELL" ] || [[ "$SHELL" != *"zsh"* ]]; then
-        log_error "シェルがzshに設定されていません: $SHELL"
-        verification_failed=true
+    # シェルの確認（CI環境はbashを許容）
+    current_shell=$(echo $SHELL)
+    if [ "$IS_CI" = "true" ]; then
+        # CI環境ではbashも許容
+        if [[ "$current_shell" == */bash || "$current_shell" == */zsh ]]; then
+            log_success "CI環境: シェルがbashまたはzshです: $current_shell"
+        else
+            log_warning "CI環境: 未知のシェルが使用されています: $current_shell"
+        fi
     else
-        log_success "シェルがzshに正しく設定されています: $SHELL"
+        # 通常環境ではzshのみ
+        if [ "$current_shell" != "/bin/zsh" ] && [ "$current_shell" != "/usr/bin/zsh" ] && [ "$current_shell" != "/usr/local/bin/zsh" ]; then
+            log_error "シェルがzshに設定されていません: $current_shell"
+            verification_failed=true
+        else
+            log_success "シェルがzshに設定されています: $current_shell"
+        fi
     fi
     
     # .zprofileの確認

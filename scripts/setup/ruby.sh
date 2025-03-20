@@ -107,13 +107,35 @@ verify_ruby_setup() {
     fi
     log_success "rbenvコマンドが使用可能です: $(rbenv --version)"
     
-    # ruby-buildプラグインの確認
-    RUBY_BUILD_PATH="$(rbenv root)/plugins/ruby-build"
-    if [ ! -d "$RUBY_BUILD_PATH" ]; then
-        log_error "ruby-buildプラグインが見つかりません"
-        verification_failed=true
-    else
-        log_success "ruby-buildプラグインが存在します"
+    # ruby-buildの確認（複数の可能な形態に対応）
+    ruby_build_found=false
+
+    # 方法1: 直接コマンドとして存在するか確認
+    if command_exists ruby-build; then
+        log_success "ruby-buildコマンドが使用可能です"
+        ruby_build_found=true
+    # 方法2: rbenv installコマンドが使用可能か確認
+    elif rbenv install --version > /dev/null 2>&1; then
+        log_success "rbenv installコマンドが使用可能です（ruby-buildが正しく機能しています）"
+        ruby_build_found=true
+    # 方法3: rbenvプラグインディレクトリにruby-buildがあるか確認
+    elif [ -d "$(rbenv root)/plugins/ruby-build" ]; then
+        log_success "ruby-buildプラグインが存在します: $(rbenv root)/plugins/ruby-build"
+        ruby_build_found=true
+    # 方法4: Homebrewのリンクされたディレクトリにruby-buildがあるか確認
+    elif [ -f "/opt/homebrew/Cellar/ruby-build/"*"/bin/ruby-build" ]; then
+        log_success "ruby-buildがHomebrewからインストールされています"
+        ruby_build_found=true
+    fi
+
+    # 結果判定
+    if [ "$ruby_build_found" = "false" ]; then
+        if [ "$IS_CI" = "true" ] && command_exists ruby; then
+            log_info "CI環境: ruby-buildが見つかりませんが、rubyコマンドは使用可能です"
+        else
+            log_error "ruby-buildが見つかりません"
+            verification_failed=true
+        fi
     fi
     
     # rbenv初期化の確認
