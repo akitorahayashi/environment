@@ -55,9 +55,10 @@ The `install.sh` script implements the following features:
     - Verifies functionality
 
 10. **Flutter Configuration**
-    - Properly configures Flutter and automatically accepts Android SDK licenses
-    - Automatically sets up Android SDK environment
-    
+    - Basic Flutter environment configuration
+    - Flutter installation and PATH configuration
+    - Note: Android development environment is configured during the first launch of Android Studio
+
 11. **GitHub CLI Configuration**
     - Configures GitHub CLI (`gh`) for terminal-based GitHub operations
     - Supports authentication for both GitHub.com and GitHub Enterprise
@@ -161,7 +162,24 @@ This script will:
 - Restore Cursor settings
 - Configure Xcode and Flutter
 
-### 5. Create and Register an SSH Key for GitHub
+### 5. Android Development Environment Setup
+
+For Flutter app development, you need to launch Android Studio for the first time:
+
+```sh
+# Launch Android Studio
+open -a "Android Studio"
+```
+
+During first launch, the following will be automatically configured:
+- Android SDK components download
+- Installation of necessary platforms and build tools
+- Emulator setup
+- License agreements
+
+This will resolve any Android-related warnings in Flutter doctor.
+
+### 6. Create and Register an SSH Key for GitHub
 If no SSH key exists, the script will **automatically generate one**.
 After setup, you need to manually add the public key to GitHub:
 ```sh
@@ -177,7 +195,7 @@ If you see a message like this, SSH authentication was successful:
 Hi akitorahayashi! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-### 6. Configure GitHub CLI
+### 7. Configure GitHub CLI
 The script will install GitHub CLI and prompt you for authentication. You can choose between:
 
 - **GitHub.com**: For personal repositories and open-source contributions

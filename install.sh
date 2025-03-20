@@ -39,7 +39,6 @@ source "$ROOT_DIR/scripts/setup/shell.sh" || echo "警告: shell.shをロード�
 source "$ROOT_DIR/scripts/setup/git.sh" || echo "警告: git.shをロードできませんでした"
 source "$ROOT_DIR/scripts/setup/ruby.sh" || echo "警告: ruby.shをロードできませんでした"
 source "$ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロードできませんでした"
-source "$ROOT_DIR/scripts/setup/android.sh" || echo "警告: android.shをロードできませんでした"
 source "$ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
 source "$ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
 

@@ -8,7 +8,6 @@ ROOT_DIR="$( cd "$SCRIPT_DIR/../.." && pwd )"
 source "$ROOT_DIR/scripts/utils/helpers.sh"
 
 # セットアップスクリプトをロード
-source "$ROOT_DIR/scripts/setup/android.sh"
 source "$ROOT_DIR/scripts/setup/flutter.sh"
 source "$ROOT_DIR/scripts/setup/homebrew.sh"
 source "$ROOT_DIR/scripts/setup/xcode.sh"
@@ -42,11 +41,6 @@ run_all_verifications() {
     ((total_verifications++))
     log_info "Xcode環境の検証を開始..."
     verify_xcode_installation || ((failures++))
-    
-    # Android SDKの検証
-    ((total_verifications++))
-    log_info "Android SDK環境の検証を開始..."
-    verify_android_sdk_setup || ((failures++))
     
     # Flutterの検証
     ((total_verifications++))

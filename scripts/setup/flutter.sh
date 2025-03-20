@@ -6,8 +6,6 @@ SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
 
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
-# Android SDK関連の関数をロード
-source "$SETUP_DIR/android.sh"
 
 # Flutter のセットアップ
 setup_flutter() {
@@ -25,50 +23,6 @@ setup_flutter() {
         log_info "現在のパス: $FLUTTER_PATH"
         log_info "期待するパス: /opt/homebrew/bin/flutter"
         handle_error "Flutter のパスが正しくありません"
-    fi
-
-    # Android SDK環境のセットアップ
-    log_start "Android SDK の基本設定を行います..."
-    setup_android_sdk_env
-    
-    # 最低限のツールが利用可能か簡易チェック
-    if ! command_exists java; then
-        log_warning "Javaが見つかりません。Android開発には必要です"
-    fi
-    
-    # コマンドラインツールのパスをセットアップ（最小限の処理）
-    if [ ! -d "$CMDLINE_TOOLS_PATH" ] && command_exists brew; then
-        # Homebrew でインストールされた Android SDK Command Line Tools のパス
-        BREW_CMDLINE_TOOLS="/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest"
-        
-        if [ -d "$BREW_CMDLINE_TOOLS" ]; then
-            log_info "コマンドラインツールのシンボリックリンクを作成..."
-            mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
-            create_symlink "$BREW_CMDLINE_TOOLS" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
-        fi
-    fi
-    
-    # Android SDKコンポーネントの最小限の設定
-    install_android_sdk_components
-    
-    # ライセンスの同意（CI環境では自動同意、通常環境ではスキップ可能）
-    if [ "$IS_CI" = "true" ]; then
-        log_info "CI環境ではAndroid SDKライセンスに自動同意します"
-        export ANDROID_LICENSES=true
-        accept_android_licenses
-    else
-        # 必要な場合のみライセンス同意を促す
-        flutter doctor 2>&1 | grep -q "Some Android licenses not accepted" && {
-            log_info "Android SDKライセンスへの同意が必要かもしれません"
-            log_info "AndroidStudioの初回起動時、またはflutter doctor --android-licensesコマンドで同意できます"
-            
-            # ユーザーに同意するか確認
-            read -p "Android SDKライセンスに今すぐ同意しますか？ (y/N): " -n 1 -r
-            echo
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                accept_android_licenses
-            fi
-        }
     fi
     
     # Flutter doctorの実行（詳細なエラーチェックはせず、情報表示のみ）
@@ -135,32 +89,15 @@ verify_flutter_setup() {
 
 # FlutterとAndroid SDKの連携を検証する関数
 verify_flutter_android_integration() {
-    log_info "FlutterとAndroid SDKの連携を検証中..."
-    local integration_failed=false
+    log_info "Flutterの基本動作を検証中..."
     
-    # Android toolchainの状態確認
-    ANDROID_OUTPUT=$(flutter doctor -v | grep -A 10 "Android toolchain")
-    
-    # Android SDKの検出確認
-    if ! echo "$ANDROID_OUTPUT" | grep -q "Android SDK"; then
-        log_error "Android SDKがFlutterから検出されていません"
-        integration_failed=true
-    else
-        log_success "Android SDKがFlutterから検出されています"
-    fi
-    
-    # ライセンス同意確認
-    if echo "$ANDROID_OUTPUT" | grep -q "Some Android licenses not accepted"; then
-        log_warning "Android SDKライセンスに未同意のものがあります"
-    else
-        log_success "Android SDKライセンスに同意済みです"
-    fi
-    
-    if [ "$integration_failed" = "true" ]; then
-        log_error "FlutterとAndroid SDKの連携に問題があります"
+    # flutter --versionコマンドのみで基本チェック
+    if ! flutter --version > /dev/null 2>&1; then
+        log_error "Flutterコマンドの実行に失敗しました"
         return 1
     else
-        log_success "FlutterとAndroid SDKの連携は正常です"
-        return 0
+        log_success "Flutterコマンドが正常に動作しています"
     fi
+    
+    return 0
 } 
