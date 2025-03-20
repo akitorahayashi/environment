@@ -85,6 +85,27 @@ main() {
     # Cursorのセットアップ
     setup_cursor
 
+    # CI環境の場合、検証を実行
+    if [ "$IS_CI" = "true" ]; then
+        log_start "CI環境での検証を開始します..."
+        if [ -f "$ROOT_DIR/.github/workflows/ci_verify.sh" ]; then
+            chmod +x "$ROOT_DIR/.github/workflows/ci_verify.sh"
+            "$ROOT_DIR/.github/workflows/ci_verify.sh"
+            VERIFY_EXIT_CODE=$?
+            if [ $VERIFY_EXIT_CODE -ne 0 ]; then
+                log_error "CI環境での検証に失敗しました"
+                # CI環境では検証失敗でも続行（オプション）
+                if [ "$ALLOW_COMPONENT_FAILURE" != "true" ]; then
+                    exit $VERIFY_EXIT_CODE
+                fi
+            else
+                log_success "CI環境での検証が正常に完了しました"
+            fi
+        else
+            log_warning "検証スクリプトが見つかりません: $ROOT_DIR/.github/workflows/ci_verify.sh"
+        fi
+    fi
+
     # インストール結果の表示
     end_time=$(date +%s)
     elapsed_time=$((end_time - start_time))

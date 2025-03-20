@@ -73,4 +73,64 @@ setup_cursor() {
     fi
 
     log_success "Cursor のセットアップ完了"
+}
+
+# MARK: - Verify
+
+# Cursor環境を検証する関数
+verify_cursor_setup() {
+    log_start "Cursor環境を検証中..."
+    local verification_failed=false
+    
+    # Cursorアプリケーションの確認
+    if ! ls /Applications/Cursor.app &>/dev/null; then
+        log_error "Cursor.appが見つかりません"
+        verification_failed=true
+    else
+        log_success "Cursor.appが正しくインストールされています"
+        
+        # Cursor設定ディレクトリの確認
+        CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
+        if [ ! -d "$CURSOR_CONFIG_DIR" ]; then
+            log_error "Cursor設定ディレクトリが見つかりません"
+            verification_failed=true
+        else
+            log_success "Cursor設定ディレクトリが存在します"
+            
+            # 必要な設定ファイルの確認
+            REQUIRED_SETTINGS=("settings.json" "keybindings.json" "extensions.json")
+            for file in "${REQUIRED_SETTINGS[@]}"; do
+                if [ ! -f "$CURSOR_CONFIG_DIR/$file" ]; then
+                    log_error "Cursor設定ファイル $file が見つかりません"
+                    verification_failed=true
+                else
+                    log_success "Cursor設定ファイル $file が存在します"
+                    
+                    # シンボリックリンクの確認
+                    if [ -L "$CURSOR_CONFIG_DIR/$file" ]; then
+                        TARGET=$(readlink "$CURSOR_CONFIG_DIR/$file")
+                        EXPECTED_TARGET="$REPO_ROOT/cursor/$file"
+                        if [ "$TARGET" != "$EXPECTED_TARGET" ]; then
+                            log_error "$file のシンボリックリンク先が異なります"
+                            log_error "期待: $EXPECTED_TARGET"
+                            log_error "実際: $TARGET"
+                            verification_failed=true
+                        else
+                            log_success "$file が正しくシンボリックリンクされています"
+                        fi
+                    else
+                        log_warning "$file がシンボリックリンクではありません"
+                    fi
+                fi
+            done
+        fi
+    fi
+    
+    if [ "$verification_failed" = "true" ]; then
+        log_error "Cursor環境の検証に失敗しました"
+        return 1
+    else
+        log_success "Cursor環境の検証が完了しました"
+        return 0
+    fi
 } 

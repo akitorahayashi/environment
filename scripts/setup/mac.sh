@@ -91,4 +91,67 @@ setup_mac_settings() {
     done
     
     return 0
+}
+
+# Mac環境を検証する関数
+verify_mac_setup() {
+    log_start "Mac環境を検証中..."
+    local verification_failed=false
+    
+    # macOSバージョンの確認
+    OS_VERSION=$(sw_vers -productVersion)
+    if [ -z "$OS_VERSION" ]; then
+        log_error "macOSバージョンを取得できません"
+        verification_failed=true
+    else
+        log_success "macOSバージョン: $OS_VERSION"
+    fi
+    
+    # Arm64アーキテクチャの場合はRosetta 2を確認
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
+        log_info "Macモデル: $MAC_MODEL"
+        
+        if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* || "$MAC_MODEL" == *"M3"* ]]; then
+            # Rosetta 2の確認
+            if pgrep oahd >/dev/null 2>&1; then
+                log_success "Rosetta 2が正しく設定されています"
+            else
+                log_error "Rosetta 2が設定されていません"
+                verification_failed=true
+            fi
+        else
+            log_success "このMac ($MAC_MODEL) ではRosetta 2は不要です"
+        fi
+    else
+        log_success "Intel Macではないため、Rosetta 2は不要です"
+    fi
+    
+    # macOS設定の確認
+    if [ -f "$HOME/Library/Preferences/com.apple.finder.plist" ]; then
+        log_success "Finder設定ファイルが存在します"
+    else
+        log_warning "Finder設定ファイルが見つかりません"
+    fi
+    
+    if [ -f "$HOME/Library/Preferences/com.apple.dock.plist" ]; then
+        log_success "Dock設定ファイルが存在します"
+    else
+        log_warning "Dock設定ファイルが見つかりません"
+    fi
+    
+    # システム整合性の確認
+    if csrutil status | grep -q "enabled"; then
+        log_success "システム整合性保護が有効です"
+    else
+        log_warning "システム整合性保護が無効になっています"
+    fi
+    
+    if [ "$verification_failed" = "true" ]; then
+        log_error "Mac環境の検証に失敗しました"
+        return 1
+    else
+        log_success "Mac環境の検証が完了しました"
+        return 0
+    fi
 } 

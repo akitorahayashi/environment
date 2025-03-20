@@ -206,4 +206,97 @@ install_xcode() {
         log_error "Xcode またはシミュレータのインストールに失敗しました"
         return 1
     fi
+}
+
+# MARK: - Verify
+
+# Xcodeのインストールを検証する関数
+verify_xcode_setup() {
+    log_start "Xcode環境を検証中..."
+    local verification_failed=false
+    
+    # Xcode Command Line Toolsの確認
+    if ! xcode-select -p &>/dev/null; then
+        log_error "Xcode Command Line Toolsがインストールされていません"
+        verification_failed=true
+    else
+        log_success "Xcode Command Line Toolsがインストールされています: $(xcode-select -p)"
+    fi
+    
+    # xcodes コマンドの確認
+    if ! command_exists xcodes; then
+        log_error "xcodesコマンドが見つかりません"
+        verification_failed=true
+    else
+        log_success "xcodesコマンドが使用可能です: $(which xcodes)"
+    fi
+    
+    # Xcodeのバージョン確認
+    if command_exists xcodes; then
+        if ! xcodes installed | grep -q "16.2"; then
+            log_error "Xcode 16.2がインストールされていません"
+            verification_failed=true
+        else
+            log_success "Xcode 16.2がインストールされています"
+        fi
+    fi
+    
+    # xcodebuildコマンドの確認
+    if ! command_exists xcodebuild; then
+        log_error "xcodebuildコマンドが見つかりません"
+        verification_failed=true
+    else
+        XCODE_VERSION=$(xcodebuild -version | head -n 1)
+        log_success "xcodebuildコマンドが使用可能です: $XCODE_VERSION"
+    fi
+    
+    # シミュレータの確認
+    verify_xcode_simulators
+    
+    if [ "$verification_failed" = "true" ]; then
+        log_error "Xcode環境の検証に失敗しました"
+        return 1
+    else
+        log_success "Xcode環境の検証が完了しました"
+        return 0
+    fi
+}
+
+# Xcodeシミュレータのインストールを検証する関数
+verify_xcode_simulators() {
+    log_info "Xcodeシミュレータを検証中..."
+    local simulators_missing=false
+    local missing_simulators=0
+    
+    # simctlコマンドの確認
+    if ! xcrun simctl list runtimes &>/dev/null; then
+        log_error "simctlコマンドが正常に動作していません"
+        return 1
+    fi
+    
+    # 各プラットフォームのシミュレータを確認
+    for platform in iOS watchOS tvOS visionOS; do
+        if ! xcrun simctl list runtimes | grep -q "$platform"; then
+            log_warning "$platform シミュレータが見つかりません"
+            ((missing_simulators++))
+            simulators_missing=true
+        else
+            log_success "$platform シミュレータがインストールされています"
+            
+            # そのプラットフォームの最新バージョンを取得してデバイスを確認
+            LATEST_RUNTIME=$(xcrun simctl list runtimes | grep "$platform" | tail -n 1 | awk '{print $2}')
+            if [ -n "$LATEST_RUNTIME" ]; then
+                DEVICE_COUNT=$(xcrun simctl list devices | grep -A 100 "$LATEST_RUNTIME" | grep -m 1 -B 100 "==" | grep -v "==" | grep -v "^--" | grep -c "([0-9A-F-]\+) (")
+                log_info "$platform の利用可能なデバイス数: $DEVICE_COUNT"
+            fi
+        fi
+    done
+    
+    if [ "$simulators_missing" = "true" ]; then
+        log_warning "$missing_simulators 個のプラットフォームシミュレータがインストールされていません"
+        return 1
+    else
+        log_success "すべてのプラットフォームシミュレータがインストールされています"
+        return 0
+    fi
 } 

@@ -102,4 +102,89 @@ setup_github_cli() {
     else
         log_success "GitHub CLI はすでに認証済みです"
     fi
+}
+
+
+# MARK: - Verify
+
+# Git設定を検証する関数
+verify_git_setup() {
+    log_start "Git環境を検証中..."
+    local verification_failed=false
+    
+    # gitコマンドの確認
+    if ! command_exists git; then
+        log_error "gitコマンドが見つかりません"
+        return 1
+    fi
+    log_success "gitコマンドが使用可能です: $(git --version)"
+    
+    # git設定ファイルの確認
+    if [ ! -f "$HOME/.gitconfig" ]; then
+        log_error ".gitconfigが存在しません"
+        verification_failed=true
+    else
+        if [ -L "$HOME/.gitconfig" ]; then
+            GITCONFIG_TARGET=$(readlink "$HOME/.gitconfig")
+            if [ "$GITCONFIG_TARGET" = "$REPO_ROOT/git/.gitconfig" ]; then
+                log_success ".gitconfigが正しくシンボリックリンクされています"
+            else
+                log_error ".gitconfigのシンボリックリンク先が異なります"
+                log_error "期待: $REPO_ROOT/git/.gitconfig"
+                log_error "実際: $GITCONFIG_TARGET"
+                verification_failed=true
+            fi
+        else
+            log_warning ".gitconfigがシンボリックリンクではありません"
+        fi
+    fi
+    
+    # グローバルgitignoreの確認
+    if [ ! -f "$HOME/.gitignore_global" ]; then
+        log_error ".gitignore_globalが存在しません"
+        verification_failed=true
+    else
+        if [ -L "$HOME/.gitignore_global" ]; then
+            GITIGNORE_TARGET=$(readlink "$HOME/.gitignore_global")
+            if [ "$GITIGNORE_TARGET" = "$REPO_ROOT/git/.gitignore_global" ]; then
+                log_success ".gitignore_globalが正しくシンボリックリンクされています"
+            else
+                log_error ".gitignore_globalのシンボリックリンク先が異なります"
+                log_error "期待: $REPO_ROOT/git/.gitignore_global"
+                log_error "実際: $GITIGNORE_TARGET"
+                verification_failed=true
+            fi
+        else
+            log_warning ".gitignore_globalがシンボリックリンクではありません"
+        fi
+    fi
+    
+    # excludesfileの設定確認
+    EXCLUDE_FILE=$(git config --global core.excludesfile)
+    if [ -z "$EXCLUDE_FILE" ]; then
+        log_error "gitのexcludesfileが設定されていません"
+        verification_failed=true
+    elif [ "$EXCLUDE_FILE" != "$HOME/.gitignore_global" ]; then
+        log_error "gitのexcludesfileの設定が異なります"
+        log_error "期待: $HOME/.gitignore_global"
+        log_error "実際: $EXCLUDE_FILE"
+        verification_failed=true
+    else
+        log_success "gitのexcludesfileが正しく設定されています"
+    fi
+    
+    # SSHキーの確認
+    if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+        log_warning "SSH鍵ファイル(id_ed25519)が見つかりません"
+    else
+        log_success "SSH鍵ファイル(id_ed25519)が存在します"
+    fi
+    
+    if [ "$verification_failed" = "true" ]; then
+        log_error "Git環境の検証に失敗しました"
+        return 1
+    else
+        log_success "Git環境の検証が完了しました"
+        return 0
+    fi
 } 

@@ -91,4 +91,69 @@ setup_ruby_env() {
     bundler -v || echo "bundlerが見つかりません"
     
     log_success "Ruby環境のセットアップが完了しました"
+}
+
+# MARK: - Verify
+
+# Ruby環境を検証する関数
+verify_ruby_setup() {
+    log_start "Ruby環境を検証中..."
+    local verification_failed=false
+    
+    # rbenvコマンドの確認
+    if ! command_exists rbenv; then
+        log_error "rbenvコマンドが見つかりません"
+        return 1
+    fi
+    log_success "rbenvコマンドが使用可能です: $(rbenv --version)"
+    
+    # ruby-buildプラグインの確認
+    RUBY_BUILD_PATH="$(rbenv root)/plugins/ruby-build"
+    if [ ! -d "$RUBY_BUILD_PATH" ]; then
+        log_error "ruby-buildプラグインが見つかりません"
+        verification_failed=true
+    else
+        log_success "ruby-buildプラグインが存在します"
+    fi
+    
+    # rbenv初期化の確認
+    if ! rbenv versions >/dev/null 2>&1; then
+        log_error "rbenvの初期化に問題があります"
+        verification_failed=true
+    else
+        log_success "rbenvが正しく初期化されています"
+    fi
+    
+    # Ruby（システムまたはrbenv）確認
+    if ! command_exists ruby; then
+        log_error "rubyコマンドが見つかりません"
+        verification_failed=true
+    else
+        RUBY_VERSION=$(ruby -v)
+        log_success "Rubyが使用可能です: $RUBY_VERSION"
+    fi
+    
+    # Bundlerの確認
+    if ! command_exists bundle; then
+        log_warning "bundlerコマンドが見つかりません"
+    else
+        BUNDLER_VERSION=$(bundle -v)
+        log_success "Bundlerが使用可能です: $BUNDLER_VERSION"
+    fi
+    
+    # gemコマンドの確認
+    if ! command_exists gem; then
+        log_error "gemコマンドが見つかりません"
+        verification_failed=true
+    else
+        log_success "gemコマンドが使用可能です: $(gem -v)"
+    fi
+    
+    if [ "$verification_failed" = "true" ]; then
+        log_error "Ruby環境の検証に失敗しました"
+        return 1
+    else
+        log_success "Ruby環境の検証が完了しました"
+        return 0
+    fi
 } 
