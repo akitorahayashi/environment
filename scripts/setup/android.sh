@@ -121,10 +121,15 @@ install_android_sdk_components() {
     )
     
     # インストール済みパッケージの取得
-    log_info "インストール済みパッケージを確認中..."
-    INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list --sdk_root="$ANDROID_SDK_ROOT" 2>/dev/null | grep -E "^Installed packages:" -A100 | grep -v "^Available" | grep -v "^Installed")
-    if [ $? -ne 0 ]; then
-        log_warning "インストール済みパッケージの確認に失敗しましたが、続行します"
+    if [ "$IS_CI" = "true" ]; then
+        log_info "CI環境のため、パッケージ確認をスキップして直接インストールを行います"
+        INSTALLED_PACKAGES=""
+    else
+        log_info "インストール済みパッケージを確認中..."
+        INSTALLED_PACKAGES=$("$CMDLINE_TOOLS_PATH/bin/sdkmanager" --list --sdk_root="$ANDROID_SDK_ROOT" 2>/dev/null | grep -E "^Installed packages:" -A100 | grep -v "^Available" | grep -v "^Installed")
+        if [ $? -ne 0 ]; then
+            log_warning "インストール済みパッケージの確認に失敗しましたが、続行します"
+        fi
     fi
     
     # 各コンポーネントをチェックしてインストール
@@ -133,64 +138,40 @@ install_android_sdk_components() {
         # 全てのコンポーネントが開発に必須
         local is_critical=true
         
-        # インストール済みかチェック
-        if echo "$INSTALLED_PACKAGES" | grep -q "$component"; then
-            log_success "$component はすでにインストール済み"
-            continue
-        fi
-        
-        # インストールを試みる
-        log_start "$component をインストール中..."
-        install_success=false
-        
-        # 通常のインストール方法を試す
-        if echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" "$component" > /dev/null; then
-            log_success "$component のインストールが完了しました"
-            install_success=true
-        else
-            log_warning "$component のインストールが通常の方法では失敗しました"
+        # CI環境または確認でパッケージが見つからない場合、インストールを試みる
+        if [ "$IS_CI" = "true" ] || ! echo "$INSTALLED_PACKAGES" | grep -q "$component"; then
+            # CIの場合は常にインストール、それ以外は未インストールの場合のみ
+            if [ "$IS_CI" != "true" ]; then
+                log_info "$component をインストールします"
+            fi
             
-            # 代替のインストール方法を試す
-            if echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --install "$component" > /dev/null; then
-                log_success "$component の代替インストールが成功しました"
+            # インストールを試みる
+            log_start "$component をインストール中..."
+            install_success=false
+            
+            # 通常のインストール方法を試す
+            if echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" "$component" > /dev/null; then
+                log_success "$component のインストールが完了しました"
                 install_success=true
             else
-                log_error "$component のインストールに失敗しました"
-                ((install_errors++))
+                log_warning "$component のインストールが通常の方法では失敗しました"
                 
-                if [ "$IS_CI" != "true" ]; then
+                # 代替のインストール方法を試す
+                if echo "y" | "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --install "$component" > /dev/null; then
+                    log_success "$component の代替インストールが成功しました"
+                    install_success=true
+                else
+                    log_error "$component のインストールに失敗しました"
+                    # インストールが失敗したら全処理を中断
                     handle_error "コンポーネント '$component' のインストールに失敗しました。処理を中止します"
-                elif [ "$IS_CI" = "true" ] && [ "$allow_failure" != "true" ]; then
-                    log_error "CI環境でコンポーネント '$component' のインストールに失敗しました"
-                    # CI環境でも重要なコンポーネントに失敗した場合は停止（ただし許容設定がある場合を除く）
-                    handle_error "CI環境で必須のコンポーネントインストールに失敗したため、処理を中止します"
-                elif [ "$IS_CI" = "true" ] && [ "$allow_failure" = "true" ]; then
-                    log_warning "CI環境でコンポーネント '$component' のインストールに失敗しましたが、ALLOW_COMPONENT_FAILURE=true のため続行します"
                 fi
             fi
+        else
+            log_success "$component はすでにインストール済み"
         fi
     done
     
-    # インストール後の最終確認
-    log_info "インストール結果を確認中..."
-    if ! "$CMDLINE_TOOLS_PATH/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --list > /dev/null; then
-        log_error "インストール結果の確認に失敗しました"
-        if [ "$IS_CI" = "true" ]; then
-            handle_error "CI環境でのインストール結果確認に失敗したため、処理を中止します"
-        else
-            read -p "インストール結果の確認に失敗しました。続行しますか？ (y/N): " -n 1 -r
-            echo
-            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                handle_error "インストール結果の確認に失敗しました。ユーザーの要求により処理を中止します"
-            fi
-        fi
-    else
-        if [ $install_errors -gt 0 ]; then
-            log_warning "$install_errors 個のコンポーネントのインストールに問題がありました"
-        else
-            log_success "すべてのAndroid SDK コンポーネントのインストールが完了しました"
-        fi
-    fi
+    log_success "すべてのAndroid SDK コンポーネントのインストールが完了しました"
 }
 
 # MARK: - Verify
