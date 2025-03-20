@@ -86,34 +86,34 @@ The `install.sh` script implements the following features:
 ```
 environment/
 ├── .github/        # GitHub関連の設定
-│   └── workflows/  # GitHub Actionsワークフロー
+│   └── workflows/  # GitHub Actions
 │       ├── ci.yml           # CI設定ファイル
-│       └── ci_verify.sh     # CI検証スクリプト
-├── config/         # 各種設定ファイル
+│       └── ci_verify.sh     # CI検証のためのスクリプト
+├── config/         
 │   ├── Brewfile    # Homebrewパッケージリスト
-│   └── gemlist     # インストールするRuby gems（現在はbundlerのみ）
-├── cursor/         # Cursor IDE関連の設定
+│   └── gemlist     # グローバルにインストールするRuby gems（現在はbundlerのみ）
+├── cursor/         # Cursor IDEの設定
 ├── git/            # Git関連の設定
 │   ├── .gitconfig
 │   └── .gitignore_global
 ├── macos/          # macOS固有の設定
-├── scripts/        # リファクタリングされたスクリプト
-│   ├── setup/      # 機能別セットアップ関数
-│   │   ├── android.sh      # Android SDKセットアップ
-│   │   ├── cursor.sh       # Cursorセットアップ
-│   │   ├── flutter.sh      # Flutterセットアップ
-│   │   ├── git.sh          # Git関連セットアップ
-│   │   ├── homebrew.sh     # Homebrewセットアップ
-│   │   ├── mac.sh          # macOSセットアップ
-│   │   ├── ruby.sh         # Ruby環境セットアップ
-│   │   ├── shell.sh        # シェルセットアップ
-│   │   └── xcode.sh        # Xcodeセットアップ
-│   └── utils/      # ユーティリティ関数
-│       ├── helpers.sh      # ヘルパー関数
-│       └── logging.sh      # ロギング関連関数
+├── scripts/        
+│   ├── setup/      
+│   │   ├── android.sh      # Android SDKのセットアップ
+│   │   ├── cursor.sh       # Cursorのセットアップ
+│   │   ├── flutter.sh      # Flutterのセットアップ
+│   │   ├── git.sh          # Git関連のセットアップ
+│   │   ├── homebrew.sh     # Homebrewのセットアップ
+│   │   ├── mac.sh          # macOSのセットアップ
+│   │   ├── ruby.sh         # Ruby環境のセットアップ
+│   │   ├── shell.sh        # シェルのセットアップ
+│   │   └── xcode.sh        # Xcodeのセットアップ
+│   └── utils/      # ユーティリティ
+│       ├── helpers.sh      
+│       └── logging.sh      
 ├── shell/          # シェル関連の設定
 │   └── .zprofile
-└── install.sh      # メインインストールスクリプト
+└── install.sh      # インストールを実行するスクリプト
 ```
 
 ## Setup Instructions
