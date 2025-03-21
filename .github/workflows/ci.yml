@@ -29,7 +29,8 @@ jobs:
           chmod +x scripts/utils/*.sh
           echo "✅ 全スクリプトに実行権限を付与しました"
       
-      - name: インストールスクリプトの実行
+      - name: インストールスクリプトの実行（1回目）
+        id: first-install
         run: |
           # 環境変数の設定
           export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
@@ -39,8 +40,8 @@ jobs:
           export ALLOW_COMPONENT_FAILURE=true
           export ANDROID_LICENSES=true
           
-          # インストールスクリプトを実行
-          ./install.sh
+          # インストールスクリプトを実行し、出力を保存
+          ./install.sh | tee first_install_output.log
           
           # インストールスクリプトの終了コードを確認
           INSTALL_EXIT_CODE=$?
@@ -49,6 +50,57 @@ jobs:
           if [ $INSTALL_EXIT_CODE -ne 0 ]; then
             echo "❌ インストールスクリプトがエラーで終了しました"
             exit $INSTALL_EXIT_CODE
+          fi
+          
+          # 「インストール中」というメッセージが含まれているか確認
+          if grep -q "インストール中" first_install_output.log; then
+            echo "✅ 1回目の実行で「インストール中」のメッセージを確認しました"
+          else
+            echo "❌ 1回目の実行で「インストール中」のメッセージが見つかりませんでした"
+            exit 1
+          fi
+        env:
+          CI: true
+          GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: インストールスクリプトの再実行（完黙性テスト）
+        id: idempotent-test
+        run: |
+          # 環境変数の設定
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+          export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
+          export REPO_ROOT=$GITHUB_WORKSPACE
+          export IS_CI=true
+          export ALLOW_COMPONENT_FAILURE=true
+          export ANDROID_LICENSES=true
+          
+          echo "🔍 2回目のインストールを実行して完黙性をテストします..."
+          
+          # インストールスクリプトを再実行し、出力を保存
+          ./install.sh | tee second_install_output.log
+          
+          # インストールスクリプトの終了コードを確認
+          INSTALL_EXIT_CODE=$?
+          echo "2回目のインストールスクリプトの終了コード: $INSTALL_EXIT_CODE"
+          
+          if [ $INSTALL_EXIT_CODE -ne 0 ]; then
+            echo "❌ 2回目のインストールスクリプトがエラーで終了しました"
+            exit $INSTALL_EXIT_CODE
+          fi
+          
+          # 「インストール中」というメッセージが含まれていないか確認
+          if grep -q "インストール中" second_install_output.log; then
+            echo "❌ 完黙性テスト失敗：2回目の実行で「インストール中」のメッセージが見つかりました"
+            exit 1
+          else
+            echo "✅ 完黙性テスト成功：2回目の実行で「インストール中」のメッセージはありませんでした"
+          fi
+          
+          # スキップメッセージが含まれているか確認
+          if grep -q "すでにインストールされています" second_install_output.log || grep -q "スキップ" second_install_output.log; then
+            echo "✅ 2回目の実行で正しくスキップメッセージが表示されました"
+          else
+            echo "⚠️ 2回目の実行でスキップメッセージが見つかりませんでした（警告）"
           fi
         env:
           CI: true

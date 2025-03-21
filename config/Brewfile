@@ -9,12 +9,14 @@ brew "swiftgen"
 brew "rbenv"
 brew "ruby-build"
 brew "cocoapods"
+brew "node"      
+brew "watchman"
 
 # Cask
 cask "flutter"
 cask "android-commandlinetools"
 cask "android-studio"
-cask "temurin" # JavaのOpenJDK実装
+cask "temurin"
 cask "google-chrome"
 cask "slack"
 cask "spotify"

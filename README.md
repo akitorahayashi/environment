@@ -35,14 +35,14 @@ The `install.sh` script implements the following features:
    - Installs packages listed in `config/Brewfile` using `brew bundle`
    - **CLI Tools**: `git`, `gh`, `cocoapods`, `fastlane`, `act`, `swiftlint`, `fdupes`, `xcodes`
    - **Development Tools**: `flutter`, `android-studio`, `cursor`
+   - **React Native Tools**: `node`, `watchman`
    - **Ruby Environment**: `rbenv`, `ruby-build`
    - **Apps**: `google-chrome`, `slack`, `spotify`, `zoom`, `notion`, `figma`
 
 7. **Ruby Environment Setup (rbenv)**
    - Installs rbenv for Ruby version management
    - Sets up latest stable Ruby version
-   - Installs bundler gem for dependency management
-   - Configures shell integration for rbenv
+   - Installs gems via structured Gemfile (`config/global-gems.rb`)
    - Enables management of multiple Ruby versions for different projects
 
 8. **Xcode Installation and Setup**
@@ -59,7 +59,16 @@ The `install.sh` script implements the following features:
     - Flutter installation and PATH configuration
     - Note: Android development environment is configured during the first launch of Android Studio
 
-11. **GitHub CLI Configuration**
+11. **React Native Environment Setup**
+    - Automatically installs and configures React Native development tools
+    - Installs Node.js and Watchman via Homebrew
+    - Manages npm packages via structured JSON (`config/global-packages.json`):
+      - Core global tools (minimal set for development)
+      - React Native specific development tools
+    - Sets up development environment for both iOS and Android
+    - Verifies all required dependencies are properly installed
+
+12. **GitHub CLI Configuration**
     - Configures GitHub CLI (`gh`) for terminal-based GitHub operations
     - Supports authentication for both GitHub.com and GitHub Enterprise
     - Enables efficient workflow with repositories, issues, and pull requests
@@ -72,12 +81,12 @@ The `install.sh` script implements the following features:
       gh auth login --hostname your-enterprise-hostname.com
       ```
     
-12. **SSH Key Generation and Configuration**
+13. **SSH Key Generation and Configuration**
     - Generates an SSH key (`id_ed25519`) if it doesn't exist
     - Automatically sets up the SSH agent
     - Configures agent to avoid entering passphrases
 
-13. **Cursor Configuration**
+14. **Cursor Configuration**
     - Provides backup and restore functionality for settings
     - Configures Flutter SDK integration
 
@@ -90,8 +99,9 @@ environment/
 │       ├── ci.yml           # CI設定ファイル
 │       └── ci_verify.sh     # CI検証のためのスクリプト
 ├── config/         
-│   ├── Brewfile    # Homebrewパッケージリスト
-│   └── gemlist     # グローバルにインストールするRuby gems（現在はbundlerのみ）
+│   ├── Brewfile           # Homebrewパッケージリスト
+│   ├── global-packages.json # npmグローバルツール定義（JSON形式）
+│   └── global-gems.rb     # Rubyグローバルツール定義（Gemfile形式）
 ├── cursor/         # Cursor IDEの設定
 ├── git/            # Git関連の設定
 │   ├── .gitconfig
@@ -105,6 +115,7 @@ environment/
 │   │   ├── git.sh          # Git関連のセットアップ
 │   │   ├── homebrew.sh     # Homebrewのセットアップ
 │   │   ├── mac.sh          # macOSのセットアップ
+│   │   ├── reactnative.sh  # React Nativeのセットアップ
 │   │   ├── ruby.sh         # Ruby環境のセットアップ
 │   │   ├── shell.sh        # シェルのセットアップ
 │   │   └── xcode.sh        # Xcodeのセットアップ
@@ -161,10 +172,11 @@ This script will:
 - Apply Git and macOS system settings
 - Restore Cursor settings
 - Configure Xcode and Flutter
+- Set up React Native development environment
 
 ### 5. Android Development Environment Setup
 
-For Flutter app development, you need to launch Android Studio for the first time:
+For Flutter and React Native app development, you need to launch Android Studio for the first time:
 
 ```sh
 # Launch Android Studio
@@ -177,9 +189,27 @@ During first launch, the following will be automatically configured:
 - Emulator setup
 - License agreements
 
-This will resolve any Android-related warnings in Flutter doctor.
+This will resolve any Android-related warnings in Flutter doctor and React Native.
 
-### 6. Create and Register an SSH Key for GitHub
+### 6. React Native Development
+
+After installation, you can create and run React Native projects:
+
+```sh
+# Create a new React Native project
+npx react-native init MyApp
+
+# Navigate to your project
+cd MyApp
+
+# Run on iOS
+npx react-native run-ios
+
+# Run on Android
+npx react-native run-android
+```
+
+### 7. Create and Register an SSH Key for GitHub
 If no SSH key exists, the script will **automatically generate one**.
 After setup, you need to manually add the public key to GitHub:
 ```sh
@@ -195,7 +225,7 @@ If you see a message like this, SSH authentication was successful:
 Hi akitorahayashi! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-### 7. Configure GitHub CLI
+### 8. Configure GitHub CLI
 The script will install GitHub CLI and prompt you for authentication. You can choose between:
 
 - **GitHub.com**: For personal repositories and open-source contributions

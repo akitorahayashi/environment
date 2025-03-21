@@ -68,18 +68,43 @@ setup_ruby_env() {
         # rehashしてコマンドパスを更新
         rbenv rehash
         
-        # bundlerのみをインストール
-        log_info "bundler gemをインストールします..."
-        gem install bundler >/dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            log_success "bundler のインストールが完了しました"
+        # Gemfileからグローバルgemをインストール
+        global_gemfile="$ROOT_DIR/config/global-gems.rb"
+        if [ -f "$global_gemfile" ]; then
+            log_info "Gemfileを使用してグローバルgemをインストールします..."
+            
+            # bundlerを最初にインストール（Gemfileを使うために必要）
+            if ! command_exists bundle; then
+                log_info "bundler gemをインストールします..."
+                gem install bundler >/dev/null 2>&1
+                if [ $? -ne 0 ]; then
+                    log_warning "bundler のインストールに失敗しました"
+                fi
+                rbenv rehash
+            fi
+            
+            # Gemfileからインストール
+            log_info "Gemfileからgemをインストールします..."
+            BUNDLE_GEMFILE="$global_gemfile" bundle install
+            if [ $? -eq 0 ]; then
+                log_success "Gemfileからのgemインストールが完了しました"
+            else
+                log_warning "Gemfileからのgemインストールに問題がありました"
+            fi
         else
-            log_warning "bundler のインストールに失敗しました"
+            # Gemfileがない場合は基本的なbundlerのみをインストール
+            log_info "global-gems.rbが見つからないため、bundler gemのみをインストールします..."
+            gem install bundler >/dev/null 2>&1
+            if [ $? -eq 0 ]; then
+                log_success "bundler のインストールが完了しました"
+            else
+                log_warning "bundler のインストールに失敗しました"
+            fi
         fi
         
         # rehashして新しいgemのパスを更新
         rbenv rehash
-        log_success "bundler gemのインストールが完了しました"
+        log_success "Ruby gemのインストールが完了しました"
     else
         log_warning "Rubyがインストールされていないため、グローバルバージョンを設定できません"
     fi

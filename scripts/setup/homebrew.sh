@@ -186,4 +186,4 @@ verify_brewfile_installation() {
         log_success "Brewfileパッケージの検証が完了しました"
         return 0
     fi
-} 
+}

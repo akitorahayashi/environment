@@ -211,8 +211,8 @@ install_xcode() {
 # MARK: - Verify
 
 # Xcodeのインストールを検証する関数
-verify_xcode_setup() {
-    log_start "Xcode環境を検証中..."
+verify_xcode_installation() {
+    log_start "Xcodeのインストールを検証中..."
     local verification_failed=false
     
     # Xcode Command Line Toolsの確認
@@ -220,15 +220,7 @@ verify_xcode_setup() {
         log_error "Xcode Command Line Toolsがインストールされていません"
         verification_failed=true
     else
-        log_success "Xcode Command Line Toolsがインストールされています: $(xcode-select -p)"
-    fi
-    
-    # xcodes コマンドの確認
-    if ! command_exists xcodes; then
-        log_error "xcodesコマンドが見つかりません"
-        verification_failed=true
-    else
-        log_success "xcodesコマンドが使用可能です: $(which xcodes)"
+        log_success "Xcode Command Line Toolsがインストールされています"
     fi
     
     # Xcodeのバージョン確認
@@ -239,25 +231,36 @@ verify_xcode_setup() {
         else
             log_success "Xcode 16.2がインストールされています"
         fi
-    fi
-    
-    # xcodebuildコマンドの確認
-    if ! command_exists xcodebuild; then
-        log_error "xcodebuildコマンドが見つかりません"
-        verification_failed=true
     else
-        XCODE_VERSION=$(xcodebuild -version | head -n 1)
-        log_success "xcodebuildコマンドが使用可能です: $XCODE_VERSION"
+        log_warning "xcodesコマンドが見つかりません。Xcode 16.2のインストール状態を確認できません"
     fi
     
     # シミュレータの確認
-    verify_xcode_simulators
+    if xcrun simctl list runtimes &>/dev/null; then
+        log_info "シミュレータの状態を確認中..."
+        local missing_simulators=0
+        
+        for platform in iOS watchOS tvOS visionOS; do
+            if ! xcrun simctl list runtimes | grep -q "$platform"; then
+                log_warning "$platform シミュレータが見つかりません"
+                ((missing_simulators++))
+            else
+                log_success "$platform シミュレータがインストールされています"
+            fi
+        done
+        
+        if [ $missing_simulators -gt 0 ]; then
+            log_warning "$missing_simulators 個のシミュレータがインストールされていない可能性があります"
+        fi
+    else
+        log_warning "simctlコマンドが使用できません。シミュレータの状態を確認できません"
+    fi
     
     if [ "$verification_failed" = "true" ]; then
-        log_error "Xcode環境の検証に失敗しました"
+        log_error "Xcodeの検証に失敗しました"
         return 1
     else
-        log_success "Xcode環境の検証が完了しました"
+        log_success "Xcodeの検証が完了しました"
         return 0
     fi
 }

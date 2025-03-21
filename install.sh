@@ -41,6 +41,7 @@ source "$ROOT_DIR/scripts/setup/ruby.sh" || echo "警告: ruby.shをロードで
 source "$ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロードできませんでした"
 source "$ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
 source "$ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
+source "$ROOT_DIR/scripts/setup/reactnative.sh" || echo "警告: reactnative.shをロードできませんでした"
 
 # エラー発生時に即座に終了する設定
 set -e
@@ -80,6 +81,9 @@ main() {
 
     # Flutter関連のセットアップ
     setup_flutter
+    
+    # React Native環境のセットアップ
+    setup_reactnative
     
     # Cursorのセットアップ
     setup_cursor
