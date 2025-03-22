@@ -31,9 +31,9 @@ install_xcode() {
 
     # xcodes がインストールされているか確認
     if ! command_exists xcodes; then
-        log_error "xcodes がインストールされていません。インストールします..."
+        log_error "xcodes がインストールされていません。インストール中..."
         if brew install xcodes; then
-            log_success "xcodes をインストールしました"
+            log_success "xcodes のインストールが完了しました"
         else
             log_error "xcodes のインストールに失敗しました"
             xcode_install_success=false
@@ -64,14 +64,14 @@ install_xcode() {
             elif [ -n "$expected_xcode_path" ]; then
                 log_info "Xcodeが見つかりました: $expected_xcode_path"
                 # Xcodeのパスを設定
-                log_info "Xcodeのパスを設定します"
+                log_info "Xcodeのパスを設定中..."
                 if xcode-select --switch "$expected_xcode_path/Contents/Developer" 2>/dev/null; then
-                    log_success "Xcodeのパスを設定しました"
+                    log_success "Xcodeのパスの設定が完了しました"
                 else
                     # sudo権限が必要な場合のみプロンプト表示
                     prompt_for_sudo "Xcodeのパスを設定する"
                     if sudo xcode-select --switch "$expected_xcode_path/Contents/Developer" 2>/dev/null; then
-                        log_success "Xcodeのパスを設定しました"
+                        log_success "Xcodeのパスの設定が完了しました"
                     else
                         log_warning "Xcodeのパス設定に失敗しましたが、続行します"
                         log_info "必要に応じて次のコマンドを手動で実行してください: sudo xcode-select --switch \"$expected_xcode_path/Contents/Developer\""
@@ -138,7 +138,7 @@ install_xcode() {
                 if [ -n "$xcode_app_path" ]; then
                     prompt_for_sudo "シミュレータのインストールのためXcodeのパスを設定"
                     if sudo xcode-select --switch "$xcode_app_path/Contents/Developer" 2>/dev/null; then
-                        log_success "Xcodeのパスを設定しました: $xcode_app_path/Contents/Developer"
+                        log_success "Xcodeのパスの設定が完了しました: $xcode_app_path/Contents/Developer"
                     else
                         log_warning "sudo権限がないため、シミュレータのインストールをスキップします"
                         log_info "次のコマンドを手動で実行してください: sudo xcode-select --switch \"$xcode_app_path/Contents/Developer\""
@@ -170,7 +170,7 @@ install_xcode() {
                         log_warning "$platform シミュレータのインストールに失敗しました"
                         log_info "Xcodeを起動し、Settings -> Platforms から手動でインストールしてください"
                     else
-                        log_success "$platform シミュレータをインストールしました"
+                        log_success "$platform シミュレータのインストールが完了しました"
                     fi
                 fi
             done

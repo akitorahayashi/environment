@@ -91,12 +91,6 @@ run_all_verifications() {
     fi
 }
 
-# Homebrewのインストールを検証
-
-# Xcodeのインストールを検証
-
-# Brewfileに記載されたパッケージの検証
-
 
 # このスクリプトが直接実行された場合のみ実行
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

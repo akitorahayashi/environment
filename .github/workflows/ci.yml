@@ -63,7 +63,7 @@ jobs:
           CI: true
           GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: インストールスクリプトの再実行（完黙性テスト）
+      - name: インストールスクリプトの再実行（冪等性テスト）
         id: idempotent-test
         run: |
           # 環境変数の設定
@@ -74,7 +74,7 @@ jobs:
           export ALLOW_COMPONENT_FAILURE=true
           export ANDROID_LICENSES=true
           
-          echo "🔍 2回目のインストールを実行して完黙性をテストします..."
+          echo "🔍 2回目のインストールを実行して冪等性をテストします..."
           
           # インストールスクリプトを再実行し、出力を保存
           ./install.sh | tee second_install_output.log
@@ -90,10 +90,10 @@ jobs:
           
           # 「インストール中」というメッセージが含まれていないか確認
           if grep -q "インストール中" second_install_output.log; then
-            echo "❌ 完黙性テスト失敗：2回目の実行で「インストール中」のメッセージが見つかりました"
+            echo "❌ 冪等性テスト失敗：2回目の実行で「インストール中」のメッセージが見つかりました"
             exit 1
           else
-            echo "✅ 完黙性テスト成功：2回目の実行で「インストール中」のメッセージはありませんでした"
+            echo "✅ 冪等性テスト成功：2回目の実行で「インストール中」のメッセージはありませんでした"
           fi
           
           # スキップメッセージが含まれているか確認

@@ -29,7 +29,7 @@ install_npm_package() {
     fi
     
     # インストール実行
-    log_info "${version}版の$package をインストールしています..."
+    log_info "${version}版の$package をインストール中..."
     npm install -g $([[ "$IS_CI" = "true" ]] && echo "--force") $package${version:+@$version} || {
         if [ "${IS_CI:-false}" = "true" ]; then
             log_warning "$package のインストールに失敗しましたが、CI環境では続行します"

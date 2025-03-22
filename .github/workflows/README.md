@@ -11,6 +11,26 @@ The CI workflow (`ci.yml`) is designed to:
 3. Verify the idempotency of the installation script (can be run multiple times without side effects)
 4. Confirm all configuration files are properly set up
 
+## Idempotency Testing
+
+Idempotency is a critical property of our installation scripts, ensuring they can be run multiple times without causing unintended side effects or errors. Our CI workflow tests this by:
+
+1. **First Run Validation**: Installing all components from scratch and verifying successful installation
+2. **Repeated Execution**: Running the installation script a second time to ensure:
+   - No errors or failures occur
+   - No unnecessary reinstallations take place
+   - Existing configurations are not corrupted
+   - The system remains in a consistent state
+
+This ensures that developers can safely run the installation script multiple times for updates or repairs without worrying about breaking their environment. Each component's setup script includes checks to detect if installation is already complete, and skips redundant operations when appropriate.
+
+### Benefits of Idempotent Scripts
+
+- **Safety**: Prevents accidental corruption of working environments
+- **Consistency**: Ensures the same end state regardless of initial conditions
+- **Maintainability**: Allows incremental updates without full reinstallation
+- **Self-Healing**: Enables repairing partial installations or updates
+
 ## Workflow Details
 
 ### Triggers
