@@ -67,6 +67,17 @@ The `install.sh` script implements the following features:
       - React Native specific development tools
     - Sets up development environment for both iOS and Android
     - Verifies all required dependencies are properly installed
+    - Daily diagnostics with intelligent caching to avoid redundant checks
+    - Enhanced Xcode detection with support for `xcodes` tool installations
+    - Key components verified by the setup:
+      - Node.js and npm
+      - Watchman for efficient file monitoring
+      - Java Development Kit (JDK) for Android development
+      - CocoaPods for iOS dependency management
+      - Android SDK verification
+      - Xcode detection using multiple methods
+    - Includes idempotent verification to ensure reproducible setups
+    - Automatically cleans up temporary diagnostic files
 
 12. **GitHub CLI Configuration**
     - Configures GitHub CLI (`gh`) for terminal-based GitHub operations
@@ -208,6 +219,53 @@ npx react-native run-ios
 # Run on Android
 npx react-native run-android
 ```
+
+#### Environment Diagnostics
+
+The setup provides a comprehensive diagnostics system for React Native:
+
+```sh
+# Verify the React Native environment setup
+cd ~/environment
+./scripts/setup/reactnative.sh
+
+# Run diagnostics separately
+npx react-native doctor
+```
+
+#### Key Components Installed
+
+The React Native environment includes:
+
+- **Node.js**: JavaScript runtime
+- **npm**: Package manager for JavaScript
+- **Watchman**: File watching service for development
+- **CocoaPods**: Dependency manager for iOS
+- **JDK**: Java Development Kit for Android
+- **Android SDK**: Complete Android development kit
+- **Xcode**: iOS development environment (via `xcodes` tool)
+
+#### Development Workflow
+
+For an efficient React Native development workflow:
+
+1. Start the Metro bundler in a separate terminal:
+   ```sh
+   npx react-native start
+   ```
+
+2. Run your application on specific simulator:
+   ```sh
+   # For specific iOS simulator
+   npx react-native run-ios --simulator="iPhone 15 Pro"
+   
+   # For specific Android emulator
+   npx react-native run-android --deviceId="Pixel_6_API_33"
+   ```
+
+3. For physical devices, ensure:
+   - iOS: Device is registered in your Apple Developer account
+   - Android: USB debugging is enabled and device is authorized
 
 ### 7. Create and Register an SSH Key for GitHub
 If no SSH key exists, the script will **automatically generate one**.
