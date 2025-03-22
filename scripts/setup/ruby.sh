@@ -70,16 +70,49 @@ install_gems() {
         return 0
     fi
     
-    log_info "Gemfileからgemをインストール中..."
+    log_info "Gemfileからgemをチェック中..."
     
     # bundlerチェック
-    if ! command_exists bundle; then
-        log_info "bundlerをインストール中（Gemfile使用のため）..."
-        if ! gem install bundler --no-document; then
-            handle_error "bundlerのインストールに失敗しました"
-            return 1
+    if command_exists bundle; then
+        # 既にインストール済みのbundlerを使用
+        local current_bundler_version=$(bundle --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "unknown")
+        log_success "bundlerは既にインストール済みです (v$current_bundler_version)"
+        
+        # global-gems.rbからbundlerのバージョンを確認（参考情報として）
+        if grep -q "bundler" "$gem_file"; then
+            local expected_version=$(grep "bundler" "$gem_file" | grep -o '"~\? *[0-9][0-9.]*"' | tr -d '"' | tr -d '~' | tr -d ' ' || echo "")
+            if [ -n "$expected_version" ] && [ "$current_bundler_version" != "$expected_version" ]; then
+                log_warning "インストール済みのbundler ($current_bundler_version) と global-gems.rb で指定されたバージョン ($expected_version) が異なります"
+                log_info "既存のbundlerを使用して続行します"
+            fi
         fi
+    else
+        log_info "global-gems.rbからbundlerの設定を確認中..."
+        
+        # global-gems.rbからbundlerのバージョンを抽出
+        # 例: gem "bundler", "~> 2.4.10" など
+        local bundler_version=""
+        if grep -q "bundler" "$gem_file"; then
+            bundler_version=$(grep "bundler" "$gem_file" | grep -o '"~\? *[0-9][0-9.]*"' | tr -d '"' | tr -d '~' | tr -d ' ' || echo "")
+        fi
+        
+        # バージョン指定でbundlerをインストール
+        if [ -n "$bundler_version" ]; then
+            log_info "bundler $bundler_version をインストール中..."
+            if ! gem install bundler -v "$bundler_version" --no-document; then
+                handle_error "bundler $bundler_version のインストールに失敗しました"
+                return 1
+            fi
+        else
+            log_info "標準バージョンのbundlerをインストール中..."
+            if ! gem install bundler --no-document; then
+                handle_error "bundlerのインストールに失敗しました"
+                return 1
+            fi
+        fi
+        
         rbenv rehash
+        log_success "bundlerのインストールが完了しました"
     fi
     
     # すでにインストール済みかチェック
@@ -89,6 +122,7 @@ install_gems() {
     fi
     
     # gemをインストール
+    log_info "gemをインストール中..."
     cd "$(dirname "$gem_file")" || {
         handle_error "Gemfileのディレクトリに移動できませんでした"
         return 1
