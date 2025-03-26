@@ -1,7 +1,7 @@
 {
   "workbench.colorTheme": "Default Light+",
   "workbench.preferredDarkColorTheme": "Default Light+",
-  "dart.flutterSdkPath": "/opt/homebrew/Caskroom/flutter/3.29.0/flutter",
+  "dart.flutterSdkPath": "/opt/homebrew/Caskroom/flutter/3.29.2/flutter",
   "dart.openDevTools": "flutter",
   "editor.formatOnSave": true,
   "explorer.confirmDragAndDrop": false,
