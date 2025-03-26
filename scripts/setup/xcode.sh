@@ -186,19 +186,6 @@ install_xcode() {
         return 1
     fi
 
-    # Xcode インストール後に SwiftLint をインストール
-    if [ "$xcode_install_success" = true ] && ! command_exists swiftlint; then
-        log_start "SwiftLint をインストール中..."
-        if brew install swiftlint; then
-            log_success "SwiftLint のインストールが完了しました"
-        else
-            log_error "SwiftLint のインストールに失敗しました"
-            return 1
-        fi
-    elif command_exists swiftlint; then
-        log_success "SwiftLint はすでにインストールされています"
-    fi
-
     if [ "$xcode_install_success" = true ]; then
         log_success "Xcode とシミュレータのインストールが完了しました！"
         return 0

@@ -70,7 +70,7 @@ The `install.sh` script implements the following features:
 
 6. **Package Installation from Brewfile**
    - Installs packages listed in `config/Brewfile` using `brew bundle`
-   - **CLI Tools**: `git`, `gh`, `cocoapods`, `fastlane`, `act`, `swiftlint`, `fdupes`, `xcodes`
+   - **CLI Tools**: `git`, `gh`, `cocoapods`, `act`, `fdupes`, `xcodes`, `mint`, `swiftgen`
    - **Development Tools**: `flutter`, `android-studio`, `cursor`
    - **React Native Tools**: `node`, `watchman`
    - **Ruby Environment**: `rbenv`, `ruby-build`
@@ -88,8 +88,8 @@ The `install.sh` script implements the following features:
    - Verifies installation completion through synchronous execution
 
 9. **SwiftLint Installation**
-    - Automatically installs after Xcode installation
-    - Verifies functionality
+    - Uses Mint for per-project SwiftLint installation instead of global installation
+    - Allows managing SwiftLint versions per project
 
 10. **Flutter Configuration**
     - Basic Flutter environment configuration
