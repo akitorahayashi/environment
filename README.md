@@ -2,6 +2,43 @@
 
 This repository contains the `install.sh` script for automatically setting up a macOS environment.
 
+## Directory Structure
+
+```
+environment/
+├── .github/        # GitHub関連の設定
+│   └── workflows/  # GitHub Actions
+│       ├── ci.yml           # CIの設定ファイル
+│       └── ci_verify.sh     # CIでの検証のためのスクリプト
+├── config/         
+│   ├── Brewfile           # Homebrewパッケージリスト
+│   ├── global-packages.json # npmグローバルツール
+│   └── global-gems.rb     # Rubyグローバルツール
+├── cursor/         # Cursor IDEの設定
+├── git/            # Git関連の設定
+│   ├── .gitconfig
+│   └── .gitignore_global
+├── macos/          # macOS固有の設定
+├── scripts/        
+│   ├── setup/      
+│   │   ├── android.sh      # Android SDKのセットアップ
+│   │   ├── cursor.sh       # Cursorのセットアップ
+│   │   ├── flutter.sh      # Flutterのセットアップ
+│   │   ├── git.sh          # Git関連のセットアップ
+│   │   ├── homebrew.sh     # Homebrewのセットアップ
+│   │   ├── mac.sh          # macOSのセットアップ
+│   │   ├── reactnative.sh  # React Nativeのセットアップ
+│   │   ├── ruby.sh         # Ruby環境のセットアップ
+│   │   ├── shell.sh        # シェルのセットアップ
+│   │   └── xcode.sh        # Xcodeのセットアップ
+│   └── utils/      # スクリプトに対するユーティリティ
+│       ├── helpers.sh      
+│       └── logging.sh      
+├── shell/          # シェルの設定
+│   └── .zprofile
+└── install.sh      # インストールを実行するスクリプト
+```
+
 ## Implementation Features
 
 The `install.sh` script implements the following features:
@@ -100,43 +137,6 @@ The `install.sh` script implements the following features:
 14. **Cursor Configuration**
     - Provides backup and restore functionality for settings
     - Configures Flutter SDK integration
-
-## Directory Structure
-
-```
-environment/
-├── .github/        # GitHub関連の設定
-│   └── workflows/  # GitHub Actions
-│       ├── ci.yml           # CI設定ファイル
-│       └── ci_verify.sh     # CI検証のためのスクリプト
-├── config/         
-│   ├── Brewfile           # Homebrewパッケージリスト
-│   ├── global-packages.json # npmグローバルツール定義（JSON形式）
-│   └── global-gems.rb     # Rubyグローバルツール定義（Gemfile形式）
-├── cursor/         # Cursor IDEの設定
-├── git/            # Git関連の設定
-│   ├── .gitconfig
-│   └── .gitignore_global
-├── macos/          # macOS固有の設定
-├── scripts/        
-│   ├── setup/      
-│   │   ├── android.sh      # Android SDKのセットアップ
-│   │   ├── cursor.sh       # Cursorのセットアップ
-│   │   ├── flutter.sh      # Flutterのセットアップ
-│   │   ├── git.sh          # Git関連のセットアップ
-│   │   ├── homebrew.sh     # Homebrewのセットアップ
-│   │   ├── mac.sh          # macOSのセットアップ
-│   │   ├── reactnative.sh  # React Nativeのセットアップ
-│   │   ├── ruby.sh         # Ruby環境のセットアップ
-│   │   ├── shell.sh        # シェルのセットアップ
-│   │   └── xcode.sh        # Xcodeのセットアップ
-│   └── utils/      # ユーティリティ
-│       ├── helpers.sh      
-│       └── logging.sh      
-├── shell/          # シェル関連の設定
-│   └── .zprofile
-└── install.sh      # インストールを実行するスクリプト
-```
 
 ## Setup Instructions
 
