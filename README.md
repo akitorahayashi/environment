@@ -6,37 +6,37 @@ This repository contains the `install.sh` script for automatically setting up a 
 
 ```
 environment/
-├── .github/        # GitHub関連の設定
-│   └── workflows/  # GitHub Actions
-│       ├── ci.yml           # CIの設定ファイル
-│       └── ci_verify.sh     # CIでの検証のためのスクリプト
+├── .github/        
+│   └── workflows/  
+│       ├── ci.yml           
+│       └── ci_verify.sh     
 ├── config/         
-│   ├── Brewfile           # Homebrewパッケージリスト
-│   ├── global-packages.json # npmグローバルツール
-│   └── global-gems.rb     # Rubyグローバルツール
-├── cursor/         # Cursor IDEの設定
-├── git/            # Git関連の設定
+│   ├── Brewfile           
+│   ├── global-packages.json 
+│   └── global-gems.rb     
+├── cursor/         
+├── git/            
 │   ├── .gitconfig
 │   └── .gitignore_global
-├── macos/          # macOS固有の設定
+├── macos/          
 ├── scripts/        
 │   ├── setup/      
-│   │   ├── android.sh      # Android SDKのセットアップ
-│   │   ├── cursor.sh       # Cursorのセットアップ
-│   │   ├── flutter.sh      # Flutterのセットアップ
-│   │   ├── git.sh          # Git関連のセットアップ
-│   │   ├── homebrew.sh     # Homebrewのセットアップ
-│   │   ├── mac.sh          # macOSのセットアップ
-│   │   ├── reactnative.sh  # React Nativeのセットアップ
-│   │   ├── ruby.sh         # Ruby環境のセットアップ
-│   │   ├── shell.sh        # シェルのセットアップ
-│   │   └── xcode.sh        # Xcodeのセットアップ
-│   └── utils/      # スクリプトに対するユーティリティ
+│   │   ├── android.sh      
+│   │   ├── cursor.sh       
+│   │   ├── flutter.sh      
+│   │   ├── git.sh          
+│   │   ├── homebrew.sh     
+│   │   ├── mac.sh          
+│   │   ├── reactnative.sh  
+│   │   ├── ruby.sh         
+│   │   ├── shell.sh        
+│   │   └── xcode.sh        
+│   └── utils/      
 │       ├── helpers.sh      
 │       └── logging.sh      
-├── shell/          # シェルの設定
+├── shell/          
 │   └── .zprofile
-└── install.sh      # インストールを実行するスクリプト
+└── install.sh      
 ```
 
 ## Implementation Features
@@ -44,8 +44,8 @@ environment/
 The `install.sh` script implements the following features:
 
 1. **Rosetta 2 Installation (for Apple Silicon)**
-   - Automatically installs only on Apple M1/M2 chips
-   - Not required for newer Apple Silicon (M3 and later)
+   - Automatically installs only on Apple Silicon chips
+   - Required for running Intel-based applications on all Apple Silicon Macs (M1/M2/M3 and later)
 
 2. **Homebrew Setup**
    - Installs if not already installed

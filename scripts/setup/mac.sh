@@ -5,38 +5,33 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
 
-# Apple M1, M2 向け Rosetta 2 のインストール
+# Apple Silicon 向け Rosetta 2 のインストール
 install_rosetta() {
     if [[ "$(uname -m)" == "arm64" ]]; then
         # Mac のチップモデルを取得
         MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
         log_info " 🖥  Mac Model: $MAC_MODEL"
 
-        # M1 または M2 の場合のみ Rosetta 2 をインストール
-        if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* ]]; then
-            # すでに Rosetta 2 がインストールされているかチェック
-            if pgrep oahd >/dev/null 2>&1; then
-                log_success "Rosetta 2 はすでにインストール済み"
-                return
-            fi
+        # すでに Rosetta 2 がインストールされているかチェック
+        if pgrep oahd >/dev/null 2>&1; then
+            log_success "Rosetta 2 はすでにインストール済み"
+            return
+        fi
 
-            # Rosetta 2 をインストール
-            log_start "Rosetta 2 を $MAC_MODEL 向けにインストール中..."
-            if [ "$IS_CI" = "true" ]; then
-                # CI環境では非対話型でインストール
-                softwareupdate --install-rosetta --agree-to-license || true
-            else
-                softwareupdate --install-rosetta --agree-to-license
-            fi
-
-            # インストールの成否をチェック
-            if pgrep oahd >/dev/null 2>&1; then
-                log_success "Rosetta 2 のインストールが完了しました"
-            else
-                handle_error "Rosetta 2 のインストールに失敗しました"
-            fi
+        # Rosetta 2 をインストール
+        log_start "Rosetta 2 を Apple Silicon ($MAC_MODEL) 向けにインストール中..."
+        if [ "$IS_CI" = "true" ]; then
+            # CI環境では非対話型でインストール
+            softwareupdate --install-rosetta --agree-to-license || true
         else
-            log_success "この Mac ($MAC_MODEL) には Rosetta 2 は不要"
+            softwareupdate --install-rosetta --agree-to-license
+        fi
+
+        # インストールの成否をチェック
+        if pgrep oahd >/dev/null 2>&1; then
+            log_success "Rosetta 2 のインストールが完了しました"
+        else
+            handle_error "Rosetta 2 のインストールに失敗しました"
         fi
     else
         log_success "この Mac は Apple Silicon ではないため、Rosetta 2 は不要"
@@ -112,16 +107,13 @@ verify_mac_setup() {
         MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
         log_info "Macモデル: $MAC_MODEL"
         
-        if [[ "$MAC_MODEL" == *"M1"* || "$MAC_MODEL" == *"M2"* || "$MAC_MODEL" == *"M3"* ]]; then
-            # Rosetta 2の確認
-            if pgrep oahd >/dev/null 2>&1; then
-                log_success "Rosetta 2が正しく設定されています"
-            else
-                log_error "Rosetta 2が設定されていません"
-                verification_failed=true
-            fi
+        # Apple Siliconの場合、Rosetta 2の確認
+        # Rosetta 2の確認
+        if pgrep oahd >/dev/null 2>&1; then
+            log_success "Rosetta 2が正しく設定されています"
         else
-            log_success "このMac ($MAC_MODEL) ではRosetta 2は不要です"
+            log_error "Rosetta 2が設定されていません"
+            verification_failed=true
         fi
     else
         log_success "Intel Macではないため、Rosetta 2は不要です"
