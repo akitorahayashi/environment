@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# ================================================
+# backup_cursor_settings.sh
+# 現在の Cursor の設定を取得し、自動で setup_cursor_settings.sh を生成
+# ================================================
+#
+# 【使い方】
+# 1. 実行権限を付与
+#    chmod +x cursor/backup_cursor_settings.sh
+# 2. スクリプトを実行
+#    ./cursor/backup_cursor_settings.sh
+# 3. setup_cursor_settings.sh が作成される
+#
+# ================================================
+
 # Cursorの設定ディレクトリ
 CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
 ENVIRONMENT_CURSOR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
