@@ -2,6 +2,7 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_ROOT_DIR="$SCRIPT_DIR"  # スクリプトのルートディレクトリを保存
 
 # CI環境かどうかを確認
 export IS_CI=${CI:-false}
@@ -32,15 +33,15 @@ source "$SCRIPT_DIR/scripts/utils/helpers.sh" || echo "警告: helpers.shをロ�
 
 # セットアップ関数のロード
 echo "セットアップスクリプトをロード中..."
-source "$SCRIPT_DIR/scripts/setup/homebrew.sh" || echo "警告: homebrew.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/mac.sh" || echo "警告: mac.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/shell.sh" || echo "警告: shell.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/git.sh" || echo "警告: git.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/ruby.sh" || echo "警告: ruby.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
-source "$SCRIPT_DIR/scripts/setup/reactnative.sh" || echo "警告: reactnative.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/homebrew.sh" || echo "警告: homebrew.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/mac.sh" || echo "警告: mac.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/shell.sh" || echo "警告: shell.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/git.sh" || echo "警告: git.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh" || echo "警告: ruby.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/reactnative.sh" || echo "警告: reactnative.shをロードできませんでした"
 
 # エラー発生時に即座に終了する設定
 set -e
@@ -48,6 +49,11 @@ set -e
 # インストール開始時間を記録
 start_time=$(date +%s)
 echo "Macをセットアップ中..."
+
+# CI環境用のマーカーメッセージを出力
+if [ "$IS_CI" = "true" ]; then
+    log_ci_marker
+fi
 
 # インストール処理の本体
 main() {

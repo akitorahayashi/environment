@@ -8,7 +8,7 @@ source "$SCRIPT_DIR/../utils/helpers.sh"
 # Homebrew のインストール
 install_homebrew() {
     if ! command_exists brew; then
-        log_start "Homebrew をインストール中..."
+        log_installing "Homebrew"
         if [ "$IS_CI" = "true" ]; then
             log_info "CI環境では非対話型でインストールします"
             # CI環境では非対話型でインストール
@@ -31,7 +31,7 @@ install_homebrew() {
         
         log_success "Homebrew のインストール完了"
     else
-        log_success "Homebrew はすでにインストール済み"
+        log_installed "Homebrew"
     fi
 }
 

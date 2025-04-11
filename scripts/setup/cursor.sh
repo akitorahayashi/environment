@@ -13,6 +13,8 @@ setup_cursor() {
     if ! ls /Applications/Cursor.app &>/dev/null; then
         log_warning "Cursor がインストールされていません。スキップします。"
         return
+    else
+        log_installed "Cursor"
     fi
 
     # Cursor 設定ディレクトリの作成（存在しない場合）
@@ -87,7 +89,7 @@ verify_cursor_setup() {
         log_error "Cursor.appが見つかりません"
         verification_failed=true
     else
-        log_success "Cursor.appが正しくインストールされています"
+        log_installed "Cursor"
         
         # Cursor設定ディレクトリの確認
         CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"

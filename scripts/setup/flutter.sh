@@ -11,6 +11,8 @@ source "$SCRIPT_DIR/../utils/helpers.sh"
 setup_flutter() {
     if ! command_exists flutter; then
         handle_error "Flutter がインストールされていません"
+    else
+        log_installed "Flutter"
     fi
 
     # Flutterのパスを確認
@@ -51,7 +53,7 @@ verify_flutter_setup() {
         log_error "Flutterがインストールされていません"
         return 1
     fi
-    log_success "Flutterがインストールされています"
+    log_installed "Flutter"
     
     # Flutterのパスを確認
     FLUTTER_PATH=$(which flutter)

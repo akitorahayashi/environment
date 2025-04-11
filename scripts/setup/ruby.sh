@@ -8,11 +8,11 @@ source "$SCRIPT_DIR/../utils/helpers.sh"
 # rbenvをインストール
 install_rbenv() {
     if command_exists rbenv; then
-        log_success "rbenvは既にインストール済みです"
+        log_installed "rbenv"
         return 0
     fi
     
-    log_info "rbenvをインストール中..."
+    log_installing "rbenv"
     if brew install rbenv ruby-build; then
         log_success "rbenvのインストールが完了しました"
         eval "$(rbenv init -)"
@@ -29,9 +29,9 @@ install_ruby() {
     local latest_ruby=$(rbenv install -l | grep -v - | grep -v dev | tail -1 | tr -d ' ')
     
     if rbenv versions | grep -q "$latest_ruby"; then
-        log_success "Ruby $latest_ruby は既にインストール済みです"
+        log_installed "Ruby" "$latest_ruby"
     else
-        log_info "Ruby $latest_ruby をインストール中..."
+        log_installing "Ruby" "$latest_ruby"
         if ! rbenv install -s "$latest_ruby"; then
             if [ "${IS_CI:-false}" = "true" ]; then
                 log_warning "CI環境: Ruby $latest_ruby のインストールに失敗しました、代替を試みます"
@@ -76,7 +76,7 @@ install_gems() {
     if command_exists bundle; then
         # 既にインストール済みのbundlerを使用
         local current_bundler_version=$(bundle --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "unknown")
-        log_success "bundlerは既にインストール済みです (v$current_bundler_version)"
+        log_installed "bundler" "$current_bundler_version"
         
         # global-gems.rbからbundlerのバージョンを確認（参考情報として）
         if grep -q "bundler" "$gem_file"; then
@@ -98,13 +98,13 @@ install_gems() {
         
         # バージョン指定でbundlerをインストール
         if [ -n "$bundler_version" ]; then
-            log_info "bundler $bundler_version をインストール中..."
+            log_installing "bundler" "$bundler_version"
             if ! gem install bundler -v "$bundler_version" --no-document; then
                 handle_error "bundler $bundler_version のインストールに失敗しました"
                 return 1
             fi
         else
-            log_info "標準バージョンのbundlerをインストール中..."
+            log_installing "bundler" "標準バージョン"
             if ! gem install bundler --no-document; then
                 handle_error "bundlerのインストールに失敗しました"
                 return 1
@@ -117,12 +117,12 @@ install_gems() {
     
     # すでにインストール済みかチェック
     if BUNDLE_GEMFILE="$gem_file" bundle check >/dev/null 2>&1; then
-        log_success "すべてのgemは既にインストール済みです"
+        log_installed "gems"
         return 0
     fi
     
     # gemをインストール
-    log_info "gemをインストール中..."
+    log_installing "gems"
     cd "$(dirname "$gem_file")" || {
         handle_error "Gemfileのディレクトリに移動できませんでした"
         return 1

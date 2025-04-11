@@ -53,7 +53,7 @@ jobs:
           fi
           
           # 「インストール中」というメッセージが含まれているか確認
-          if grep -q "インストール中" first_install_output.log; then
+          if grep -q "インストール中" first_install_output.log || grep -q "をインストール中" first_install_output.log || grep -q "📦" first_install_output.log; then
             echo "✅ 1回目の実行で「インストール中」のメッセージを確認しました"
           else
             echo "❌ 1回目の実行で「インストール中」のメッセージが見つかりませんでした"
@@ -89,7 +89,7 @@ jobs:
           fi
           
           # 「インストール中」というメッセージが含まれていないか確認
-          if grep -q "インストール中" second_install_output.log; then
+          if grep -q "インストール中" second_install_output.log || grep -q "をインストール中" second_install_output.log || grep -q "📦" second_install_output.log; then
             echo "❌ 冪等性テスト失敗：2回目の実行で「インストール中」のメッセージが見つかりました"
             exit 1
           else
@@ -97,7 +97,7 @@ jobs:
           fi
           
           # スキップメッセージが含まれているか確認
-          if grep -q "すでにインストールされています" second_install_output.log || grep -q "スキップ" second_install_output.log; then
+          if grep -q "すでにインストールされています" second_install_output.log || grep -q "はすでにインストール済み" second_install_output.log || grep -q "スキップ" second_install_output.log || grep -q "✅.*はすでにインストール済みです" second_install_output.log; then
             echo "✅ 2回目の実行で正しくスキップメッセージが表示されました"
           else
             echo "⚠️ 2回目の実行でスキップメッセージが見つかりませんでした（警告）"

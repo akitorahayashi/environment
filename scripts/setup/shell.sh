@@ -20,6 +20,7 @@ setup_shell_config() {
     
     # .zprofileファイルのシンボリックリンクを作成
     create_symlink "$REPO_ROOT/shell/.zprofile" "$HOME/.zprofile"
+    log_installed ".zprofile"
     
     # 設定を反映（CI環境ではスキップ）
     if [ "$IS_CI" != "true" ] && [ -f "$HOME/.zprofile" ]; then

@@ -12,7 +12,7 @@ install_xcode() {
 
     # Xcode Command Line Tools のインストール
     if ! xcode-select -p &>/dev/null; then
-        log_start "Xcode Command Line Tools をインストール中..."
+        log_installing "Xcode Command Line Tools"
         if [ "$IS_CI" = "true" ]; then
             # CI環境ではすでにインストールされていることを前提とする
             log_info "CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
@@ -26,12 +26,12 @@ install_xcode() {
         fi
         log_success "Xcode Command Line Tools のインストール完了"
     else
-        log_success "Xcode Command Line Tools はすでにインストール済み"
+        log_installed "Xcode Command Line Tools"
     fi
 
     # xcodes がインストールされているか確認
     if ! command_exists xcodes; then
-        log_error "xcodes がインストールされていません。インストール中..."
+        log_installing "xcodes"
         if brew install xcodes; then
             log_success "xcodes のインストールが完了しました"
         else
@@ -44,14 +44,14 @@ install_xcode() {
     # Xcode 16.2 がインストールされているか確認
     if command_exists xcodes; then
         if ! xcodes installed | grep -q "16.2"; then
-            log_start "Xcode 16.2 をインストール中..."
+            log_installing "Xcode" "16.2"
             if ! xcodes install 16.2 --select; then
                 log_error "Xcode 16.2 のインストールに失敗しました"
                 xcode_install_success=false
                 return 1
             fi
         else
-            log_success "Xcode 16.2 はすでにインストールされています"
+            log_installed "Xcode" "16.2"
             
             # Xcodeがインストールされている場合、パス設定が必要か確認
             log_info "Xcodeのパス設定を確認中..."
@@ -126,7 +126,7 @@ install_xcode() {
 
         # シミュレータのインストールが必要な場合
         if [ "$need_install" = true ]; then
-            log_start "必要なシミュレータをインストール中..."
+            log_installing "シミュレータ"
             
             # Xcodeが正しく設定されているか確認
             local xcode_selected_path=$(xcode-select -p)
@@ -165,7 +165,7 @@ install_xcode() {
                 
                 # シミュレータが見つからない場合はインストールを試みる
                 if ! $simulator_found; then
-                    log_info "➕ $platform シミュレータをインストール中..."
+                    log_installing "$platform シミュレータ"
                     if ! xcodebuild -downloadPlatform "$platform"; then
                         log_warning "$platform シミュレータのインストールに失敗しました"
                         log_info "Xcodeを起動し、Settings -> Platforms から手動でインストールしてください"

@@ -14,12 +14,12 @@ install_rosetta() {
 
         # すでに Rosetta 2 がインストールされているかチェック
         if pgrep oahd >/dev/null 2>&1; then
-            log_success "Rosetta 2 はすでにインストール済み"
+            log_installed "Rosetta 2"
             return
         fi
 
         # Rosetta 2 をインストール
-        log_start "Rosetta 2 を Apple Silicon ($MAC_MODEL) 向けにインストール中..."
+        log_installing "Rosetta 2" "Apple Silicon ($MAC_MODEL)"
         if [ "$IS_CI" = "true" ]; then
             # CI環境では非対話型でインストール
             softwareupdate --install-rosetta --agree-to-license || true

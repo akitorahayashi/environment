@@ -57,7 +57,7 @@ setup_ssh_agent() {
 # GitHub CLI のインストールと認証
 setup_github_cli() {
     if ! command_exists gh; then
-        log_start "GitHub CLI をインストール中..."
+        log_installing "GitHub CLI"
         brew install gh
         log_success "GitHub CLI のインストール完了"
     else
