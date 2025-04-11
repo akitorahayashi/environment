@@ -1,126 +1,74 @@
 # CI Workflow
 
-This directory contains the Continuous Integration (CI) workflow configuration for automating the validation of the macOS environment setup process.
+このディレクトリには、macOS環境セットアッププロセスの検証を自動化するためのCIワークフローの設定が含まれています。
 
 ## Overview
 
-The CI workflow (`ci.yml`) is designed to:
-
-1. Validate that the installation script (`install.sh`) works correctly on macOS
-2. Ensure all tools and applications are properly installed and configured
-3. Verify the idempotency of the installation script (can be run multiple times without side effects)
-4. Confirm all configuration files are properly set up
-
-## Idempotency Testing
-
-Idempotency is a critical property of our installation scripts, ensuring they can be run multiple times without causing unintended side effects or errors. Our CI workflow tests this by:
-
-1. **First Run Validation**: Installing all components from scratch and verifying successful installation
-2. **Repeated Execution**: Running the installation script a second time to ensure:
-   - No errors or failures occur
-   - No unnecessary reinstallations take place
-   - Existing configurations are not corrupted
-   - The system remains in a consistent state
-
-This ensures that developers can safely run the installation script multiple times for updates or repairs without worrying about breaking their environment. Each component's setup script includes checks to detect if installation is already complete, and skips redundant operations when appropriate.
-
-### Benefits of Idempotent Scripts
-
-- **Safety**: Prevents accidental corruption of working environments
-- **Consistency**: Ensures the same end state regardless of initial conditions
-- **Maintainability**: Allows incremental updates without full reinstallation
-- **Self-Healing**: Enables repairing partial installations or updates
+1. プルリクエスト時にコードレビューを実施
+2. `install.sh`がmacOSで正しく動作することを検証
+3. すべてのツールとアプリケーションが適切にインストールされ設定されていることを確認
+4. インストールスクリプトの冪等性（副作用なく複数回実行可能）を検証
 
 ## Workflow Details
 
 ### Triggers
 
-The workflow runs on:
-- Push to the `main` branch
-- Pull requests to the `main` branch
-- Manual execution via workflow dispatch
-
-### Environment
-
-- **Runner**: Latest macOS version
-- **Timeout**: 120 minutes (extended to accommodate Xcode installation)
+ワークフローは以下のタイミングで実行されます：
+- `main`ブランチへのプッシュ
+- `main`ブランチへのプルリクエスト
+- ワークフローディスパッチによる手動実行
 
 ### Jobs
 
-The workflow consists of two main jobs:
+ワークフローは主に2つのジョブで構成されています：
 
-#### 1. `test-install`
+#### 1. `code-review`
 
-This job performs the actual installation and verification:
+このジョブはプルリクエスト時のみ実行されます
 
-- **Repository Checkout**: Clones the repository
-- **GitHub Authentication Setup**: Configures authentication for the CI environment
-- **Script Permissions**: Ensures all scripts have execution permissions
-- **Installation Script Execution**: Runs `install.sh` with CI environment variables
-- **Environment Verification**: Runs `ci_verify.sh` to validate the installed environment
+#### 2. `test-install`
 
-#### 2. `summary`
+このジョブは実際のインストールと検証を実行します
 
-This job provides a summary of the overall CI process after the test-install job completes.
+- **リポジトリのチェックアウト**：リポジトリをクローン
+- **GitHub認証のセットアップ**：CI環境用の認証を設定
+- **スクリプト権限の付与**：適当なスクリプトに実行権限を付与
+- **インストールスクリプトの実行**：初回インストールテスト、冪等性テスト、検証テストを実行
 
-### Environment Variables Used
+### Setup Test
 
-- `JAVA_HOME`: Java installation directory
-- `ANDROID_SDK_ROOT`: Android SDK location
-- `REPO_ROOT`: Repository root directory
-- `IS_CI`: Flag indicating CI environment
-- `ALLOW_COMPONENT_FAILURE`: Allows continuing even if non-critical components fail
-- `ANDROID_LICENSES`: Automatically accepts Android licenses
-- `GITHUB_TOKEN_CI`: Token for GitHub authentication
+1. **初回インストールテスト**
+   - `install.sh`スクリプトを実行し、インストールの成功を確認
+   - 出力内のインストールメッセージを確認
 
-## Verification Process
+2. **冪等性テスト**
+   - `install.sh`スクリプトを2回目に実行
+   - コンポーネントが再インストールされないことを確認
+   - 適切な「既にインストール済み」または「スキップ」メッセージを確認
 
-The `ci_verify.sh` script performs comprehensive validation of all installed components:
+3. **環境検証**
+   - インストールされたすべてのコンポーネントを検証するために`verify_environment.sh`を実行
 
-### Homebrew Validation
-- Verifies `brew` command availability
-- Checks Homebrew version information
+## Idempotency Testing
 
-### Brewfile Package Validation
-- Counts total packages listed in Brewfile
-- Verifies installation of all formulas and casks
-- Reports any missing packages
-
-### Xcode Validation
-- Verifies Xcode Command Line Tools installation
-- Confirms Xcode 16.2 installation
-- Checks iOS, watchOS, tvOS, and visionOS simulators
-
-### Android SDK Validation
-- Verifies Android SDK installation and configuration
-
-### Flutter Validation
-- Confirms Flutter installation and setup
-- Verifies Flutter environment configuration
-
-### Git Configuration Validation
-- Checks Git setup and configuration
-
-### Ruby Environment Validation
-- Verifies Ruby installation and setup
-
-### Cursor IDE Validation
-- Confirms Cursor installation and configuration
-
-### Shell Configuration Validation
-- Verifies shell environment setup
-
-### macOS Settings Validation
-- Checks macOS system configuration
-
-## Verification Results
-
-The verification process provides:
-- Individual results for each component
-- A summary of total verifications performed
-- Count of successful and failed verifications
-- Overall status of the environment setup
+冪等性は、意図しない副作用やエラーを引き起こすことなく複数回実行できることを保証します。これにより、開発者は環境を壊す心配なく、更新や修復のためにインストールスクリプトを複数回安全に実行できます。各コンポーネントのセットアップスクリプトには、インストールが既に完了しているかを検出するチェックが含まれており、必要に応じて冗長な操作をスキップします。
 
 ## Using the CI Workflow
 
-This workflow serves as both validation of the installation process and documentation of expected environment state after installation. Developers can refer to the verification scripts to understand what components should be properly installed and configured.
+このワークフローは、インストールプロセスの検証と、インストール後の期待される環境状態のドキュメントの両方として機能します。開発者は、適切にインストールおよび設定されるべきコンポーネントを理解するために検証スクリプトを参照できます。
+
+ローカルで実行：
+
+```bash
+# すべてのテストを実行
+.github/workflows/setup_test.sh all
+
+# 初回インストールテストのみ実行
+.github/workflows/setup_test.sh first
+
+# 冪等性テストのみ実行
+.github/workflows/setup_test.sh idempotent
+
+# 環境検証のみ実行
+.github/workflows/setup_test.sh verify
+```
