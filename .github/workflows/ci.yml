@@ -21,7 +21,7 @@ jobs:
 
   test-install:
     runs-on: macos-latest
-    timeout-minutes: 120  # Xcodeのインストールに時間がかかるため、タイムアウトを延長
+    timeout-minutes: 120
     
     steps:
       - name: リポジトリのチェックアウト

@@ -158,6 +158,13 @@ $ cat ~/.ssh/id_ed25519.pub
 $ ssh -T git@github.com
 ```
 
+成功時は以下のようなメッセージが表示されます：
+```
+Hi ${GITHUB_USERNAME}! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+このメッセージが表示されれば、GitHubへのSSH接続が正常に設定されたことが確認できます。
+
 ### 8. Configure GitHub CLI
 GitHub.comまたはGitHub Enterpriseで認証できます：
 ```sh
