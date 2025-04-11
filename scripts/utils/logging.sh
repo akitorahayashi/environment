@@ -1,26 +1,38 @@
 #!/bin/bash
 
-# ログ出力
+# 情報ログ
 log_info() {
     echo "ℹ️ $1"
 }
 
+# 成功ログ
 log_success() {
     echo "✅ $1"
 }
 
+# 警告ログ
 log_warning() {
     echo "⚠️ $1"
 }
 
+# 処理開始ログ
+log_start() {
+    echo "🚀 $1"
+}
+
+# エラーログ
 log_error() {
     echo "❌ $1"
 }
 
-log_start() {
-    echo "🔄 $1"
-}
+# エラー処理
+handle_error() {
+    log_error "$1"
+    log_error "スクリプトを終了します。"
+    exit 1
+} 
 
+# インストール中ログ
 log_installing() {
     local package="$1"
     local version="${2:-}"
@@ -34,7 +46,7 @@ log_installing() {
         echo "📦 $message"
     fi
     
-    # 冪等性チェック（該当関数が定義されている場合のみ実行）
+    # 冪等性チェック
     if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
         # ヘルパー関数がロードされている場合のみ実行
         if type check_idempotence >/dev/null 2>&1; then
@@ -43,6 +55,7 @@ log_installing() {
     fi
 }
 
+# インストール済みログ
 log_installed() {
     local package="$1"
     local version="${2:-}"
@@ -53,14 +66,3 @@ log_installed() {
         echo "✅ ${package} はすでにインストール済みです"
     fi
 }
-
-log_ci_marker() {
-    echo "インストール中"
-}
-
-# エラーを処理する
-handle_error() {
-    log_error "$1"
-    log_error "スクリプトを終了します。"
-    exit 1
-} 

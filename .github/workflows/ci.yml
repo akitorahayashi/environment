@@ -53,10 +53,10 @@ jobs:
           fi
           
           # 「インストール中」というメッセージが含まれているか確認
-          if grep -q "インストール中" first_install_output.log || grep -q "をインストール中" first_install_output.log || grep -q "📦" first_install_output.log; then
-            echo "✅ 1回目の実行で「インストール中」のメッセージを確認しました"
+          if grep -q "をインストール中" first_install_output.log || grep -q "📦" first_install_output.log; then
+            echo "✅ 1回目の実行でインストールメッセージを確認しました"
           else
-            echo "❌ 1回目の実行で「インストール中」のメッセージが見つかりませんでした"
+            echo "❌ 1回目の実行でインストールメッセージが見つかりませんでした"
             exit 1
           fi
         env:
@@ -90,19 +90,13 @@ jobs:
           fi
           
           # バックアップチェック: 「インストール中」というメッセージが含まれていないか確認
-          if grep -q "インストール中" second_install_output.log || grep -q "をインストール中" second_install_output.log || grep -q "📦" second_install_output.log; then
+          if grep -q "インストール中" second_install_output.log; then
             echo "❌ 冪等性テスト失敗：2回目の実行で「インストール中」のメッセージが見つかりました"
             echo "👇 失敗の詳細情報:"
             
             # インストール中メッセージの行と、前後の行を表示
             echo "=== 「インストール中」メッセージを含む行 ==="
             grep -A 3 -B 3 "インストール中" second_install_output.log || true
-            
-            echo "=== 「をインストール中」メッセージを含む行 ==="
-            grep -A 3 -B 3 "をインストール中" second_install_output.log || true
-            
-            echo "=== 「📦」メッセージを含む行 ==="
-            grep -A 3 -B 3 "📦" second_install_output.log || true
             
             # 冪等性検出ログの確認
             if grep -q "冪等性違反" second_install_output.log; then

@@ -50,11 +50,6 @@ set -e
 start_time=$(date +%s)
 echo "Macをセットアップ中..."
 
-# CI環境用のマーカーメッセージを出力
-if [ "$IS_CI" = "true" ]; then
-    log_ci_marker
-fi
-
 # インストール処理の本体
 main() {
     log_start "開発環境のセットアップを開始します"

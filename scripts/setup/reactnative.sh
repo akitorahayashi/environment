@@ -39,46 +39,66 @@ install_npm_package() {
     return 0
 }
 
-# ステップ1: React Nativeに必要なパッケージをインストール
+# React Nativeに必要なパッケージをインストール
 install_required_packages() {
     log_info "npm パッケージを確認しています..."
-    npm_packages_file="$REPO_ROOT/config/global-packages.json"
+    local npm_packages_file="$REPO_ROOT/config/global-packages.json"
     
-    if [ -f "$npm_packages_file" ]; then
-        log_info "JSON形式のnpmパッケージリストを使います"
-        
-        # グローバルツールのインストール
-        log_info "基本的なグローバルツールを確認中..."
-        global_packages=$(cat "$npm_packages_file" | grep -o '"globalPackages":{[^}]*}' | sed 's/"globalPackages"://')
-        
-        if [ -n "$global_packages" ]; then
-            # JSONからパッケージ名を取り出す
-            echo "$global_packages" | grep -o '"[^"]*":' | sed 's/[":]//g' | while read -r package; do
-                version=$(echo "$global_packages" | grep -o "\"$package\":\"[^\"]*\"" | sed "s/\"$package\":\"//" | sed 's/"//g')
-                install_npm_package "$package" "$version"
-            done
-        fi
-        
-        # React Native開発ツールのインストール
-        log_info "React Native開発ツールを確認中..."
-        rn_tools=$(cat "$npm_packages_file" | grep -o '"reactNativeDevTools":{[^}]*}' | sed 's/"reactNativeDevTools"://')
-        
-        if [ -n "$rn_tools" ]; then
-            # JSONからパッケージ名を取り出す
-            echo "$rn_tools" | grep -o '"[^"]*":' | sed 's/[":]//g' | while read -r package; do
-                version=$(echo "$rn_tools" | grep -o "\"$package\":\"[^\"]*\"" | sed "s/\"$package\":\"//" | sed 's/"//g')
-                install_npm_package "$package" "$version"
-            done
-        fi
-    else
+    if [ ! -f "$npm_packages_file" ]; then
         log_warning "npmパッケージ定義ファイルが見つかりません: $npm_packages_file"
-        # 最低限必要なツールだけインストール
-        install_npm_package "yarn" "latest"
-        install_npm_package "react-native-cli" "latest"
+        install_default_packages
+        return 0
+    fi
+    
+    log_info "JSON形式のnpmパッケージリストを使います"
+    
+    # グローバルツールのインストール
+    install_global_packages "$npm_packages_file"
+    
+    # React Native開発ツールのインストール
+    install_rn_dev_tools "$npm_packages_file"
+}
+
+# 最低限必要なパッケージのインストール
+install_default_packages() {
+    log_info "最低限必要なツールだけインストールします"
+    install_npm_package "yarn" "latest"
+    install_npm_package "react-native-cli" "latest"
+}
+
+# グローバルパッケージのインストール
+install_global_packages() {
+    local npm_packages_file="$1"
+    
+    log_info "基本的なグローバルツールを確認中..."
+    local global_packages=$(cat "$npm_packages_file" | grep -o '"globalPackages":{[^}]*}' | sed 's/"globalPackages"://')
+    
+    if [ -n "$global_packages" ]; then
+        # JSONからパッケージ名を取り出す
+        echo "$global_packages" | grep -o '"[^"]*":' | sed 's/[":]//g' | while read -r package; do
+            local version=$(echo "$global_packages" | grep -o "\"$package\":\"[^\"]*\"" | sed "s/\"$package\":\"//" | sed 's/"//g')
+            install_npm_package "$package" "$version"
+        done
     fi
 }
 
-# ステップ2: Xcodeを検出
+# React Native開発ツールのインストール
+install_rn_dev_tools() {
+    local npm_packages_file="$1"
+    
+    log_info "React Native開発ツールを確認中..."
+    local rn_tools=$(cat "$npm_packages_file" | grep -o '"reactNativeDevTools":{[^}]*}' | sed 's/"reactNativeDevTools"://')
+    
+    if [ -n "$rn_tools" ]; then
+        # JSONからパッケージ名を取り出す
+        echo "$rn_tools" | grep -o '"[^"]*":' | sed 's/[":]//g' | while read -r package; do
+            local version=$(echo "$rn_tools" | grep -o "\"$package\":\"[^\"]*\"" | sed "s/\"$package\":\"//" | sed 's/"//g')
+            install_npm_package "$package" "$version"
+        done
+    fi
+}
+
+# Xcodeを検出
 detect_xcode() {
     log_info "iOS開発環境を確認中..."
     
@@ -103,7 +123,7 @@ detect_xcode() {
     log_warning "Xcode が見つかりません。iOS開発にはXcodeが必要です。"
 }
 
-# ステップ3: React Native環境の診断
+# React Native環境の診断
 run_rn_doctor_check() {
     # CI環境では飛ばす
     if [ "${IS_CI:-false}" = "true" ]; then
@@ -126,18 +146,13 @@ run_rn_doctor_check() {
     log_info "React Native環境診断が終わりました"
 }
 
-# メイン関数: React Native環境のセットアップ
-setup_reactnative() {
-    log_start "React Native 環境のセットアップを始めます..."
-
+# 必要なコマンドがあるか確認
+verify_required_commands() {
     # Node.jsがあるか確認（必須）
     if ! command_exists "node"; then
         handle_error "Node.js がインストールされていません。Brewfileに入れておくべきです。"
     fi
     log_info "Node.js バージョン: $(node -v)"
-    
-    # 必要なパッケージのインストール
-    install_required_packages
     
     # 主要コンポーネントのチェック
     for cmd in "watchman" "java" "pod"; do
@@ -156,14 +171,30 @@ setup_reactnative() {
             esac
         fi
     done
-    
-    # Android SDK チェック
+}
+
+# Android SDKを確認
+check_android_sdk() {
     log_info "Android SDK を確認中..."
     if [ -d "$HOME/Library/Android/sdk" ]; then
         log_success "Android SDK が見つかりました ✓"
     else
         log_warning "Android SDK が見つかりません${IS_CI:+。CI環境では問題ありません}"
     fi
+}
+
+# メイン関数: React Native環境のセットアップ
+setup_reactnative() {
+    log_start "React Native 環境のセットアップを始めます..."
+
+    # 必要なコマンドの確認
+    verify_required_commands
+    
+    # 必要なパッケージのインストール
+    install_required_packages
+    
+    # Android SDKの確認
+    check_android_sdk
 
     # Xcodeの検出
     detect_xcode
@@ -185,6 +216,23 @@ verify_reactnative_setup() {
     local verification_failed=false
     
     # 主要コマンドがあるかチェック
+    verify_core_commands
+    
+    # 設定ファイルの確認
+    verify_config_files
+    
+    # 検証結果
+    if [ "$verification_failed" = "true" ] && [ "${IS_CI:-false}" != "true" ]; then
+        log_error "React Native環境の検証に失敗しました"
+        return 1
+    else
+        log_success "React Native環境の検証が完了しました"
+        return 0
+    fi
+}
+
+# 主要コマンドの検証
+verify_core_commands() {
     for cmd in "node" "npm" "watchman"; do
         if ! command_exists "$cmd"; then
             if [ "${IS_CI:-false}" = "true" ]; then
@@ -202,18 +250,11 @@ verify_reactnative_setup() {
     if command_exists "yarn"; then
         log_success "yarnがインストールされています: $(yarn -v)"
     fi
-    
-    # 設定ファイルの確認
+}
+
+# 設定ファイルの検証
+verify_config_files() {
     [ -f "$REPO_ROOT/config/global-packages.json" ] && log_success "global-packages.jsonが存在します" || log_warning "global-packages.jsonが見つかりません"
-    
-    # 検証結果
-    if [ "$verification_failed" = "true" ] && [ "${IS_CI:-false}" != "true" ]; then
-        log_error "React Native環境の検証に失敗しました"
-        return 1
-    else
-        log_success "React Native環境の検証が完了しました"
-        return 0
-    fi
 }
 
 # スクリプトの実行開始点

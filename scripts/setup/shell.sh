@@ -30,65 +30,81 @@ setup_shell_config() {
     log_success "シェルの設定を適用完了"
 }
 
-# MARK: - Verify
-
-# シェル環境を検証する関数
+# シェル環境を検証
 verify_shell_setup() {
     log_start "シェル環境を検証中..."
     local verification_failed=false
     
-    # シェルの確認（CI環境はbashを許容）
-    current_shell=$(echo $SHELL)
-    if [ "$IS_CI" = "true" ]; then
-        # CI環境ではbashも許容
-        if [[ "$current_shell" == */bash || "$current_shell" == */zsh ]]; then
-            log_success "CI環境: シェルがbashまたはzshです: $current_shell"
-        else
-            log_warning "CI環境: 未知のシェルが使用されています: $current_shell"
-        fi
-    else
-        # 通常環境ではzshのみ
-        if [ "$current_shell" != "/bin/zsh" ] && [ "$current_shell" != "/usr/bin/zsh" ] && [ "$current_shell" != "/usr/local/bin/zsh" ]; then
-            log_error "シェルがzshに設定されていません: $current_shell"
-            verification_failed=true
-        else
-            log_success "シェルがzshに設定されています: $current_shell"
-        fi
-    fi
-    
-    # .zprofileの確認
-    if [ ! -f "$HOME/.zprofile" ]; then
-        log_error ".zprofileが見つかりません"
-        verification_failed=true
-    else
-        if [ -L "$HOME/.zprofile" ]; then
-            ZPROFILE_TARGET=$(readlink "$HOME/.zprofile")
-            if [ "$ZPROFILE_TARGET" = "$REPO_ROOT/shell/.zprofile" ]; then
-                log_success ".zprofileが正しくシンボリックリンクされています"
-            else
-                log_error ".zprofileのシンボリックリンク先が異なります"
-                log_error "期待: $REPO_ROOT/shell/.zprofile"
-                log_error "実際: $ZPROFILE_TARGET"
-                verification_failed=true
-            fi
-        else
-            log_warning ".zprofileがシンボリックリンクではありません"
-        fi
-    fi
-    
-    # 環境変数の確認（基本的な環境変数が設定されているか）
-    if [ -z "$PATH" ]; then
-        log_error "PATH環境変数が設定されていません"
-        verification_failed=true
-    else
-        log_success "PATH環境変数が設定されています"
-    fi
+    verify_shell_type || verification_failed=true
+    verify_zprofile || verification_failed=true
+    verify_env_vars || verification_failed=true
     
     if [ "$verification_failed" = "true" ]; then
         log_error "シェル環境の検証に失敗しました"
         return 1
     else
         log_success "シェル環境の検証が完了しました"
+        return 0
+    fi
+}
+
+# シェルタイプの検証
+verify_shell_type() {
+    current_shell=$(echo $SHELL)
+    
+    # CI環境とそれ以外で検証条件を分岐
+    if [ "$IS_CI" = "true" ]; then
+        # CI環境ではbashも許容
+        if [[ "$current_shell" == */bash || "$current_shell" == */zsh ]]; then
+            log_success "CI環境: シェルがbashまたはzshです: $current_shell"
+            return 0
+        else
+            log_warning "CI環境: 未知のシェルが使用されています: $current_shell"
+            return 1
+        fi
+    else
+        # 通常環境ではzshのみ
+        if [[ "$current_shell" == */zsh ]]; then
+            log_success "シェルがzshに設定されています: $current_shell"
+            return 0
+        else
+            log_error "シェルがzshに設定されていません: $current_shell"
+            return 1
+        fi
+    fi
+}
+
+# .zprofileの検証
+verify_zprofile() {
+    if [ ! -f "$HOME/.zprofile" ]; then
+        log_error ".zprofileが見つかりません"
+        return 1
+    fi
+    
+    if [ -L "$HOME/.zprofile" ]; then
+        ZPROFILE_TARGET=$(readlink "$HOME/.zprofile")
+        if [ "$ZPROFILE_TARGET" = "$REPO_ROOT/shell/.zprofile" ]; then
+            log_success ".zprofileが正しくシンボリックリンクされています"
+            return 0
+        else
+            log_error ".zprofileのシンボリックリンク先が異なります"
+            log_error "期待: $REPO_ROOT/shell/.zprofile"
+            log_error "実際: $ZPROFILE_TARGET"
+            return 1
+        fi
+    else
+        log_warning ".zprofileがシンボリックリンクではありません"
+        return 1
+    fi
+}
+
+# 環境変数の検証
+verify_env_vars() {
+    if [ -z "$PATH" ]; then
+        log_error "PATH環境変数が設定されていません"
+        return 1
+    else
+        log_success "PATH環境変数が設定されています"
         return 0
     fi
 } 

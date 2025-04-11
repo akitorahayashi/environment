@@ -7,34 +7,40 @@ source "$SCRIPT_DIR/../utils/helpers.sh"
 
 # Apple Silicon 向け Rosetta 2 のインストール
 install_rosetta() {
-    if [[ "$(uname -m)" == "arm64" ]]; then
-        # Mac のチップモデルを取得
-        MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
-        log_info " 🖥  Mac Model: $MAC_MODEL"
+    # Intel Macの場合は不要
+    if [[ "$(uname -m)" != "arm64" ]]; then
+        log_success "この Mac は Apple Silicon ではないため、Rosetta 2 は不要"
+        return 0
+    fi
+    
+    # Mac のチップモデルを取得
+    MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
+    log_info "🖥  Mac Model: $MAC_MODEL"
 
-        # すでに Rosetta 2 がインストールされているかチェック
-        if pgrep oahd >/dev/null 2>&1; then
-            log_installed "Rosetta 2"
-            return
-        fi
+    # すでに Rosetta 2 がインストールされているかチェック
+    if pgrep oahd >/dev/null 2>&1; then
+        log_installed "Rosetta 2"
+        return 0
+    fi
 
-        # Rosetta 2 をインストール
-        log_installing "Rosetta 2" "Apple Silicon ($MAC_MODEL)"
+    # Rosetta 2 をインストール
+    log_installing "Rosetta 2" "Apple Silicon ($MAC_MODEL)"
+    
+    # CI環境では非対話型でインストール
+    softwareupdate --install-rosetta --agree-to-license || {
         if [ "$IS_CI" = "true" ]; then
-            # CI環境では非対話型でインストール
-            softwareupdate --install-rosetta --agree-to-license || true
-        else
-            softwareupdate --install-rosetta --agree-to-license
-        fi
-
-        # インストールの成否をチェック
-        if pgrep oahd >/dev/null 2>&1; then
-            log_success "Rosetta 2 のインストールが完了しました"
+            log_warning "Rosetta 2 のインストールに問題が発生しましたが、CI環境のため続行します"
+            return 0
         else
             handle_error "Rosetta 2 のインストールに失敗しました"
         fi
+    }
+
+    # インストールの成否をチェック
+    if pgrep oahd >/dev/null 2>&1; then
+        log_success "Rosetta 2 のインストールが完了しました"
     else
-        log_success "この Mac は Apple Silicon ではないため、Rosetta 2 は不要"
+        handle_error "Rosetta 2 のインストールに失敗しました"
     fi
 }
 
@@ -43,14 +49,15 @@ setup_mac_settings() {
     log_start "Mac のシステム設定を適用中..."
     
     # 設定ファイルの存在確認
-    if [[ ! -f "$REPO_ROOT/macos/setup_mac_settings.sh" ]]; then
+    local settings_file="$REPO_ROOT/macos/setup_mac_settings.sh"
+    if [[ ! -f "$settings_file" ]]; then
         log_warning "setup_mac_settings.sh が見つかりません"
         return 1
     fi
     
     # 設定ファイルの内容を確認
     log_info "📝 Mac 設定ファイルをチェック中..."
-    local setting_count=$(grep -v "^#" "$REPO_ROOT/macos/setup_mac_settings.sh" | grep -v "^$" | grep -E "defaults write" | wc -l | tr -d ' ')
+    local setting_count=$(grep -v "^#" "$settings_file" | grep -v "^$" | grep -E "defaults write" | wc -l | tr -d ' ')
     log_info "🔍 $setting_count 個の設定項目が検出されました"
     
     # CI環境では適用のみスキップ
@@ -59,7 +66,7 @@ setup_mac_settings() {
         
         # 主要な設定カテゴリを確認
         for category in "Dock" "Finder" "screenshots"; do
-            if grep -q "$category" "$REPO_ROOT/macos/setup_mac_settings.sh"; then
+            if grep -q "$category" "$settings_file"; then
                 log_success "$category に関する設定が含まれています"
             fi
         done
@@ -68,15 +75,20 @@ setup_mac_settings() {
     fi
     
     # 非CI環境では設定を適用
-    # エラーがあっても続行し、完全に失敗した場合のみエラー表示
-    if ! source "$REPO_ROOT/macos/setup_mac_settings.sh" 2>/dev/null; then
-        log_warning "Mac 設定の適用中に一部エラーが発生しました"
-        log_info "エラーを無視して続行します"
+    if ! source "$settings_file" 2>/dev/null; then
+        log_warning "Mac 設定の適用中に一部エラーが発生しましたが、続行します"
     else
         log_success "Mac のシステム設定が適用されました"
     fi
     
     # 設定が正常に適用されたか確認（一部の設定のみ）
+    check_settings_applied
+    
+    return 0
+}
+
+# 設定が適用されたかチェック
+check_settings_applied() {
     for setting in "com.apple.dock" "com.apple.finder"; do
         if defaults read "$setting" &>/dev/null; then
             log_success "${setting##*.} の設定が正常に適用されました"
@@ -84,8 +96,6 @@ setup_mac_settings() {
             log_warning "${setting##*.} の設定の適用に問題がある可能性があります"
         fi
     done
-    
-    return 0
 }
 
 # Mac環境を検証する関数
@@ -103,12 +113,29 @@ verify_mac_setup() {
     fi
     
     # Arm64アーキテクチャの場合はRosetta 2を確認
+    verify_rosetta_if_needed
+    
+    # macOS設定の確認
+    verify_macos_preferences
+    
+    # システム整合性の確認
+    verify_system_integrity
+    
+    if [ "$verification_failed" = "true" ]; then
+        log_error "Mac環境の検証に失敗しました"
+        return 1
+    else
+        log_success "Mac環境の検証が完了しました"
+        return 0
+    fi
+}
+
+# Rosettaの検証（Apple Siliconの場合のみ）
+verify_rosetta_if_needed() {
     if [[ "$(uname -m)" == "arm64" ]]; then
         MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
         log_info "Macモデル: $MAC_MODEL"
         
-        # Apple Siliconの場合、Rosetta 2の確認
-        # Rosetta 2の確認
         if pgrep oahd >/dev/null 2>&1; then
             log_success "Rosetta 2が正しく設定されています"
         else
@@ -118,8 +145,10 @@ verify_mac_setup() {
     else
         log_success "Intel Macではないため、Rosetta 2は不要です"
     fi
-    
-    # macOS設定の確認
+}
+
+# macOS設定ファイルの検証
+verify_macos_preferences() {
     if [ -f "$HOME/Library/Preferences/com.apple.finder.plist" ]; then
         log_success "Finder設定ファイルが存在します"
     else
@@ -131,19 +160,13 @@ verify_mac_setup() {
     else
         log_warning "Dock設定ファイルが見つかりません"
     fi
-    
-    # システム整合性の確認
+}
+
+# システム整合性保護の検証
+verify_system_integrity() {
     if csrutil status | grep -q "enabled"; then
         log_success "システム整合性保護が有効です"
     else
         log_warning "システム整合性保護が無効になっています"
-    fi
-    
-    if [ "$verification_failed" = "true" ]; then
-        log_error "Mac環境の検証に失敗しました"
-        return 1
-    else
-        log_success "Mac環境の検証が完了しました"
-        return 0
     fi
 } 

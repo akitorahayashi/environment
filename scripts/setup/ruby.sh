@@ -34,47 +34,74 @@ install_gems() {
     
     log_info "Gemfileからgemをチェック中..."
     
-    # bundlerチェック
+    # bundlerの確認とインストール
+    install_bundler_if_needed "$gem_file"
+    
+    # gemパッケージのインストール
+    install_gem_packages "$gem_file"
+    
+    return 0
+}
+
+# bundlerの確認とインストール
+install_bundler_if_needed() {
+    local gem_file="$1"
+    
     if command_exists bundle; then
-        # 既にインストール済みのbundlerを使用
-        local current_bundler_version=$(bundle --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "unknown")
-        log_installed "bundler" "$current_bundler_version"
+        # 既存のbundlerバージョンを確認
+        local current_version=$(bundle --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "unknown")
+        log_installed "bundler" "$current_version"
         
-        # global-gems.rbからbundlerのバージョンを確認（参考情報として）
+        # 期待されるバージョンと比較
         if grep -q "bundler" "$gem_file"; then
-            local expected_version=$(grep "bundler" "$gem_file" | grep -o '"~\? *[0-9][0-9.]*"' | tr -d '"' | tr -d '~' | tr -d ' ' || echo "")
-            if [ -n "$expected_version" ] && [ "$current_bundler_version" != "$expected_version" ]; then
-                log_warning "インストール済みのbundler ($current_bundler_version) と global-gems.rb で指定されたバージョン ($expected_version) が異なります"
+            local expected_version=$(grep "bundler" "$gem_file" | 
+                                    grep -o '"~\? *[0-9][0-9.]*"' | 
+                                    tr -d '"' | tr -d '~' | tr -d ' ' || 
+                                    echo "")
+            
+            if [ -n "$expected_version" ] && [ "$current_version" != "$expected_version" ]; then
+                log_warning "インストール済みのbundler ($current_version) と global-gems.rb で指定されたバージョン ($expected_version) が異なります"
                 log_info "既存のbundlerを使用して続行します"
             fi
         fi
-    else
-        log_info "global-gems.rbからbundlerの設定を確認中..."
-        
-        # global-gems.rbからbundlerのバージョンを抽出
-        local bundler_version=""
-        if grep -q "bundler" "$gem_file"; then
-            bundler_version=$(grep "bundler" "$gem_file" | grep -o '"~\? *[0-9][0-9.]*"' | tr -d '"' | tr -d '~' | tr -d ' ' || echo "")
-        fi
-        
-        # バージョン指定でbundlerをインストール
-        if [ -n "$bundler_version" ]; then
-            log_installing "bundler" "$bundler_version"
-            if ! gem install bundler -v "$bundler_version" --no-document; then
-                handle_error "bundler $bundler_version のインストールに失敗しました"
-                return 1
-            fi
-        else
-            log_installing "bundler" "標準バージョン"
-            if ! gem install bundler --no-document; then
-                handle_error "bundlerのインストールに失敗しました"
-                return 1
-            fi
-        fi
-        
-        rbenv rehash
-        log_success "bundlerのインストールが完了しました"
+        return 0
     fi
+    
+    # bundlerがない場合はインストール
+    log_info "global-gems.rbからbundlerの設定を確認中..."
+    
+    # バージョン情報の抽出
+    local bundler_version=""
+    if grep -q "bundler" "$gem_file"; then
+        bundler_version=$(grep "bundler" "$gem_file" | 
+                         grep -o '"~\? *[0-9][0-9.]*"' | 
+                         tr -d '"' | tr -d '~' | tr -d ' ' || 
+                         echo "")
+    fi
+    
+    # バージョン指定有無でインストール方法を分岐
+    if [ -n "$bundler_version" ]; then
+        log_installing "bundler" "$bundler_version"
+        if ! gem install bundler -v "$bundler_version" --no-document; then
+            handle_error "bundler $bundler_version のインストールに失敗しました"
+            return 1
+        fi
+    else
+        log_installing "bundler" "標準バージョン"
+        if ! gem install bundler --no-document; then
+            handle_error "bundlerのインストールに失敗しました"
+            return 1
+        fi
+    fi
+    
+    rbenv rehash
+    log_success "bundlerのインストールが完了しました"
+    return 0
+}
+
+# gemパッケージのインストール
+install_gem_packages() {
+    local gem_file="$1"
     
     # すでにインストール済みかチェック
     if BUNDLE_GEMFILE="$gem_file" bundle check >/dev/null 2>&1; then
@@ -92,18 +119,16 @@ install_gems() {
     if BUNDLE_GEMFILE="$gem_file" bundle install --quiet; then
         log_success "Gemfileからgemのインストールが完了しました"
         return 0
+    elif [ "${IS_CI:-false}" = "true" ]; then
+        log_warning "CI環境: gemインストールに問題がありますが続行します"
+        return 0
     else
-        if [ "${IS_CI:-false}" = "true" ]; then
-            log_warning "CI環境: gemインストールに問題がありますが続行します"
-            return 0
-        else
-            handle_error "gemインストールに失敗しました"
-            return 1
-        fi
+        handle_error "gemインストールに失敗しました"
+        return 1
     fi
 }
 
-# Ruby環境をセットアップする
+# Ruby環境をセットアップ
 setup_ruby_env() {
     log_start "Ruby環境のセットアップを開始します..."
     
@@ -128,43 +153,12 @@ verify_ruby_setup() {
     local errors=0
     
     # rbenvチェック
-    if ! command_exists rbenv; then
-        log_error "rbenvコマンドが見つかりません"
-        ((errors++))
-    else
-        log_success "rbenv: $(rbenv --version)"
-        
-        # ruby-buildの確認
-        if rbenv install --version >/dev/null 2>&1 || command_exists ruby-build || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
-            log_success "ruby-buildが使用可能です"
-        else
-            log_error "ruby-buildが見つかりません"
-            ((errors++))
-        fi
-    fi
+    verify_rbenv_installation || ((errors++))
     
     # Rubyチェック
-    if ! command_exists ruby; then
-        log_info "Rubyはインストールされていません"
-    else
-        log_success "Ruby: $(ruby -v)"
-        
-        # gemチェック
-        if ! command_exists gem; then
-            log_error "gemコマンドが見つかりません"
-            ((errors++))
-        else
-            log_success "gem: $(gem -v)"
-        fi
-        
-        # bundlerは任意
-        if command_exists bundle; then
-            log_success "bundler: $(bundle -v)"
-        else
-            log_warning "bundlerコマンドは利用できません（global-gems.rbがない場合は正常）"
-        fi
-    fi
+    verify_ruby_installation
     
+    # 検証結果
     if [ $errors -eq 0 ]; then
         log_success "Ruby環境の検証が完了しました"
         return 0
@@ -172,4 +166,52 @@ verify_ruby_setup() {
         log_error "Ruby環境の検証に失敗しました ($errors エラー)"
         return 1
     fi
+}
+
+# rbenvのインストールを検証
+verify_rbenv_installation() {
+    if ! command_exists rbenv; then
+        log_error "rbenvコマンドが見つかりません"
+        return 1
+    fi
+    
+    log_success "rbenv: $(rbenv --version)"
+    
+    # ruby-buildの確認
+    if rbenv install --version >/dev/null 2>&1 || 
+       command_exists ruby-build || 
+       [ -d "$(rbenv root)/plugins/ruby-build" ]; then
+        log_success "ruby-buildが使用可能です"
+        return 0
+    else
+        log_error "ruby-buildが見つかりません"
+        return 1
+    fi
+}
+
+# Rubyのインストールを検証
+verify_ruby_installation() {
+    if ! command_exists ruby; then
+        log_info "Rubyはインストールされていません"
+        return 0
+    fi
+    
+    log_success "Ruby: $(ruby -v)"
+    
+    # gemチェック
+    if ! command_exists gem; then
+        log_error "gemコマンドが見つかりません"
+        return 1
+    fi
+    
+    log_success "gem: $(gem -v)"
+    
+    # bundlerチェック（任意）
+    if command_exists bundle; then
+        log_success "bundler: $(bundle -v)"
+    else
+        log_warning "bundlerコマンドは利用できません（global-gems.rbがない場合は正常）"
+    fi
+    
+    return 0
 } 
