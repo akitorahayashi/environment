@@ -97,9 +97,11 @@ verify_flutter_path() {
 verify_flutter_environment() {
     # CI環境でのチェック方法分岐
     if [ "$IS_CI" = "true" ]; then
-        return verify_flutter_ci_environment
+        verify_flutter_ci_environment
+        return $?
     else
-        return verify_flutter_full_environment
+        verify_flutter_full_environment
+        return $?
     fi
 }
 

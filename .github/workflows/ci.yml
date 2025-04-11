@@ -8,6 +8,22 @@ on:
   workflow_dispatch:  # 手動実行も可能にする
 
 jobs:
+  code-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Suggest Code Improvements
+        uses: reviewdog/action-suggester@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
   test-install:
     runs-on: macos-latest
     timeout-minutes: 120  # Xcodeのインストールに時間がかかるため、タイムアウトを延長
@@ -24,133 +40,15 @@ jobs:
       
       - name: スクリプトに実行権限を付与
         run: |
-          chmod +x install.sh
-          chmod +x scripts/setup/*.sh
-          chmod +x scripts/utils/*.sh
-          echo "✅ 全スクリプトに実行権限を付与しました"
+          chmod +x .github/workflows/setup_test.sh
+          chmod +x .github/workflows/verify_environment.sh
+          echo "✅ テストスクリプトに実行権限を付与しました"
       
-      - name: インストールスクリプトの実行（1回目）
-        id: first-install
-        run: |
-          # 環境変数の設定
-          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-          export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
-          export REPO_ROOT=$GITHUB_WORKSPACE
-          export IS_CI=true
-          export ALLOW_COMPONENT_FAILURE=true
-          export ANDROID_LICENSES=true
-          
-          # インストールスクリプトを実行し、出力を保存
-          ./install.sh | tee first_install_output.log
-          
-          # インストールスクリプトの終了コードを確認
-          INSTALL_EXIT_CODE=$?
-          echo "インストールスクリプトの終了コード: $INSTALL_EXIT_CODE"
-          
-          if [ $INSTALL_EXIT_CODE -ne 0 ]; then
-            echo "❌ インストールスクリプトがエラーで終了しました"
-            exit $INSTALL_EXIT_CODE
-          fi
-          
-          # 「インストール中」というメッセージが含まれているか確認
-          if grep -q "をインストール中" first_install_output.log || grep -q "📦" first_install_output.log; then
-            echo "✅ 1回目の実行でインストールメッセージを確認しました"
-          else
-            echo "❌ 1回目の実行でインストールメッセージが見つかりませんでした"
-            exit 1
-          fi
+      - name: macOS環境セットアップテストの実行
+        run: .github/workflows/setup_test.sh all
         env:
           CI: true
           GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: インストールスクリプトの再実行（冪等性テスト）
-        id: idempotent-test
-        run: |
-          # 環境変数の設定
-          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-          export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
-          export REPO_ROOT=$GITHUB_WORKSPACE
-          export IS_CI=true
-          export ALLOW_COMPONENT_FAILURE=true
-          export ANDROID_LICENSES=true
-          export IDEMPOTENT_TEST=true
-          
-          echo "🔍 2回目のインストールを実行して冪等性をテストします..."
-          
-          # インストールスクリプトを再実行し、出力を保存
-          ./install.sh | tee second_install_output.log
-          
-          # インストールスクリプトの終了コードを確認
-          INSTALL_EXIT_CODE=$?
-          echo "2回目のインストールスクリプトの終了コード: $INSTALL_EXIT_CODE"
-          
-          if [ $INSTALL_EXIT_CODE -ne 0 ]; then
-            echo "❌ 2回目のインストールスクリプトがエラーで終了しました"
-            exit $INSTALL_EXIT_CODE
-          fi
-          
-          # バックアップチェック: 「インストール中」というメッセージが含まれていないか確認
-          if grep -q "インストール中" second_install_output.log; then
-            echo "❌ 冪等性テスト失敗：2回目の実行で「インストール中」のメッセージが見つかりました"
-            echo "👇 失敗の詳細情報:"
-            
-            # インストール中メッセージの行と、前後の行を表示
-            echo "=== 「インストール中」メッセージを含む行 ==="
-            grep -A 3 -B 3 "インストール中" second_install_output.log || true
-            
-            # 冪等性検出ログの確認
-            if grep -q "冪等性違反" second_install_output.log; then
-              echo "=== 詳細な冪等性レポート ==="
-              grep -A 10 -B 1 "冪等性テスト結果" second_install_output.log || true
-            fi
-            
-            exit 1
-          else
-            echo "✅ 冪等性テスト成功：2回目の実行で「インストール中」のメッセージはありませんでした"
-          fi
-          
-          # 冪等性レポートの結果を確認
-          if grep -q "冪等性テスト結果: 失敗" second_install_output.log; then
-            echo "❌ 冪等性テスト失敗：コンポーネントレベルのチェックで違反が検出されました"
-            grep -A 10 -B 1 "冪等性テスト結果: 失敗" second_install_output.log || true
-            exit 1
-          fi
-          
-          # スキップメッセージが含まれているか確認
-          if grep -q "すでにインストールされています" second_install_output.log || grep -q "はすでにインストール済み" second_install_output.log || grep -q "スキップ" second_install_output.log || grep -q "✅.*はすでにインストール済みです" second_install_output.log; then
-            echo "✅ 2回目の実行で正しくスキップメッセージが表示されました"
-          else
-            echo "⚠️ 2回目の実行でスキップメッセージが見つかりませんでした（警告）"
-          fi
-        env:
-          CI: true
-          GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: インストール後の環境検証
-        run: |
-          # 環境変数の設定
-          export REPO_ROOT=$GITHUB_WORKSPACE
-          export IS_CI=true
-          export ALLOW_COMPONENT_FAILURE=true
-          
-          # 検証スクリプトに実行権限を付与
-          chmod +x $GITHUB_WORKSPACE/.github/workflows/ci_verify.sh
-          
-          # 検証スクリプトを実行
-          $GITHUB_WORKSPACE/.github/workflows/ci_verify.sh
-          
-          # 検証スクリプトの終了コードを確認
-          VERIFY_EXIT_CODE=$?
-          echo "検証スクリプトの終了コード: $VERIFY_EXIT_CODE"
-          
-          if [ $VERIFY_EXIT_CODE -ne 0 ]; then
-            echo "❌ 環境検証に失敗しました"
-            exit $VERIFY_EXIT_CODE
-          else
-            echo "✅ 環境検証が正常に完了しました"
-          fi
-        env:
-          CI: true
           GITHUB_WORKSPACE: ${{ github.workspace }}
 
   # 全体の検証結果の表示
