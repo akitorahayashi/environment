@@ -73,6 +73,7 @@ jobs:
           export IS_CI=true
           export ALLOW_COMPONENT_FAILURE=true
           export ANDROID_LICENSES=true
+          export IDEMPOTENT_TEST=true
           
           echo "🔍 2回目のインストールを実行して冪等性をテストします..."
           
@@ -88,12 +89,37 @@ jobs:
             exit $INSTALL_EXIT_CODE
           fi
           
-          # 「インストール中」というメッセージが含まれていないか確認
+          # バックアップチェック: 「インストール中」というメッセージが含まれていないか確認
           if grep -q "インストール中" second_install_output.log || grep -q "をインストール中" second_install_output.log || grep -q "📦" second_install_output.log; then
             echo "❌ 冪等性テスト失敗：2回目の実行で「インストール中」のメッセージが見つかりました"
+            echo "👇 失敗の詳細情報:"
+            
+            # インストール中メッセージの行と、前後の行を表示
+            echo "=== 「インストール中」メッセージを含む行 ==="
+            grep -A 3 -B 3 "インストール中" second_install_output.log || true
+            
+            echo "=== 「をインストール中」メッセージを含む行 ==="
+            grep -A 3 -B 3 "をインストール中" second_install_output.log || true
+            
+            echo "=== 「📦」メッセージを含む行 ==="
+            grep -A 3 -B 3 "📦" second_install_output.log || true
+            
+            # 冪等性検出ログの確認
+            if grep -q "冪等性違反" second_install_output.log; then
+              echo "=== 詳細な冪等性レポート ==="
+              grep -A 10 -B 1 "冪等性テスト結果" second_install_output.log || true
+            fi
+            
             exit 1
           else
             echo "✅ 冪等性テスト成功：2回目の実行で「インストール中」のメッセージはありませんでした"
+          fi
+          
+          # 冪等性レポートの結果を確認
+          if grep -q "冪等性テスト結果: 失敗" second_install_output.log; then
+            echo "❌ 冪等性テスト失敗：コンポーネントレベルのチェックで違反が検出されました"
+            grep -A 10 -B 1 "冪等性テスト結果: 失敗" second_install_output.log || true
+            exit 1
           fi
           
           # スキップメッセージが含まれているか確認

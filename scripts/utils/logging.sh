@@ -24,11 +24,22 @@ log_start() {
 log_installing() {
     local package="$1"
     local version="${2:-}"
+    local message=""
     
     if [ -n "$version" ] && [ "$version" != "latest" ]; then
-        echo "📦 ${package}@${version} をインストール中..."
+        message="${package}@${version} をインストール中..."
+        echo "📦 $message"
     else
-        echo "📦 ${package} をインストール中..."
+        message="${package} をインストール中..."
+        echo "📦 $message"
+    fi
+    
+    # 冪等性チェック（該当関数が定義されている場合のみ実行）
+    if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
+        # ヘルパー関数がロードされている場合のみ実行
+        if type check_idempotence >/dev/null 2>&1; then
+            check_idempotence "$package" "$message"
+        fi
     fi
 }
 

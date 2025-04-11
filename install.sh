@@ -59,6 +59,12 @@ fi
 main() {
     log_start "開発環境のセットアップを開始します"
     
+    # 環境フラグのチェック
+    if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
+        mark_second_run
+        log_info "🔍 冪等性テストモード：2回目の実行でインストールされるコンポーネントを検出します"
+    fi
+    
     # Mac関連のセットアップ
     install_rosetta
     setup_mac_settings
@@ -121,6 +127,11 @@ main() {
     # 実行完了メッセージ
     log_success "すべてのインストールと設定が完了しました！"
     log_success "セットアップ完了 🎉（所要時間: ${elapsed_time}秒）"
+
+    # 冪等性レポートの表示（テストモードの場合）
+    if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
+        report_idempotence_violations
+    fi
 
     # 新しいシェルセッションの開始方法を案内
     if [ "$IS_CI" != "true" ]; then
