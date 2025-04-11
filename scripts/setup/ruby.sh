@@ -23,44 +23,6 @@ install_rbenv() {
     fi
 }
 
-# 最新のRubyをインストール
-install_ruby() {
-    # 最新の安定版バージョンを取得
-    local latest_ruby=$(rbenv install -l | grep -v - | grep -v dev | tail -1 | tr -d ' ')
-    
-    if rbenv versions | grep -q "$latest_ruby"; then
-        log_installed "Ruby" "$latest_ruby"
-    else
-        log_installing "Ruby" "$latest_ruby"
-        if ! rbenv install -s "$latest_ruby"; then
-            if [ "${IS_CI:-false}" = "true" ]; then
-                log_warning "CI環境: Ruby $latest_ruby のインストールに失敗しました、代替を試みます"
-                local previous_ruby=$(rbenv install -l | grep -v - | grep -v dev | tail -2 | head -1 | tr -d ' ')
-                if rbenv install -s "$previous_ruby"; then
-                    latest_ruby="$previous_ruby"
-                    log_success "Ruby $latest_ruby のインストールが完了しました"
-                else
-                    handle_error "RubyのCI代替インストールにも失敗しました"
-                    return 1
-                fi
-            else
-                handle_error "Ruby $latest_ruby のインストールに失敗しました"
-                return 1
-            fi
-        else
-            log_success "Ruby $latest_ruby のインストールが完了しました"
-        fi
-        
-        # 新しくインストールされた場合のみグローバルRubyバージョンを設定
-        log_info "Ruby $latest_ruby をグローバルバージョンに設定中..."
-        rbenv global "$latest_ruby"
-        rbenv rehash
-        log_success "Ruby $latest_ruby がグローバルバージョンに設定されました"
-    fi
-    
-    return 0
-}
-
 # Gemfileからgemをインストール
 install_gems() {
     local gem_file="${REPO_ROOT:-$ROOT_DIR}/config/global-gems.rb"
@@ -90,7 +52,6 @@ install_gems() {
         log_info "global-gems.rbからbundlerの設定を確認中..."
         
         # global-gems.rbからbundlerのバージョンを抽出
-        # 例: gem "bundler", "~> 2.4.10" など
         local bundler_version=""
         if grep -q "bundler" "$gem_file"; then
             bundler_version=$(grep "bundler" "$gem_file" | grep -o '"~\? *[0-9][0-9.]*"' | tr -d '"' | tr -d '~' | tr -d ' ' || echo "")
@@ -146,20 +107,18 @@ install_gems() {
 setup_ruby_env() {
     log_start "Ruby環境のセットアップを開始します..."
     
-    # 1. rbenvインストール
+    # rbenvインストール
     install_rbenv || return 1
     
     # rbenvの初期化
     eval "$(rbenv init -)"
     
-    # 2. Rubyインストール
-    install_ruby || return 1
+    # gemインストール（Rubyがある場合のみ実行）
+    if command_exists ruby; then
+        install_gems
+        log_info "Ruby環境: $(ruby -v) / $(gem -v) / $(bundle -v 2>/dev/null || echo 'bundler未インストール')"
+    fi
     
-    # 3. gemインストール
-    install_gems
-    
-    # 4. 最終確認
-    log_info "Ruby環境: $(ruby -v) / $(gem -v) / $(bundle -v 2>/dev/null || echo 'bundler未インストール')"
     log_success "Ruby環境のセットアップが完了しました"
 }
 
@@ -186,25 +145,24 @@ verify_ruby_setup() {
     
     # Rubyチェック
     if ! command_exists ruby; then
-        log_error "rubyコマンドが見つかりません"
-        ((errors++))
+        log_info "Rubyはインストールされていません"
     else
         log_success "Ruby: $(ruby -v)"
-    fi
-    
-    # gemチェック
-    if ! command_exists gem; then
-        log_error "gemコマンドが見つかりません"
-        ((errors++))
-    else
-        log_success "gem: $(gem -v)"
-    fi
-    
-    # bundlerは任意
-    if command_exists bundle; then
-        log_success "bundler: $(bundle -v)"
-    else
-        log_warning "bundlerコマンドは利用できません（global-gems.rbがない場合は正常）"
+        
+        # gemチェック
+        if ! command_exists gem; then
+            log_error "gemコマンドが見つかりません"
+            ((errors++))
+        else
+            log_success "gem: $(gem -v)"
+        fi
+        
+        # bundlerは任意
+        if command_exists bundle; then
+            log_success "bundler: $(bundle -v)"
+        else
+            log_warning "bundlerコマンドは利用できません（global-gems.rbがない場合は正常）"
+        fi
     fi
     
     if [ $errors -eq 0 ]; then

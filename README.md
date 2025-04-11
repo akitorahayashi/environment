@@ -78,9 +78,8 @@ The `install.sh` script implements the following features:
 
 7. **Ruby Environment Setup (rbenv)**
    - Installs rbenv for Ruby version management
-   - Sets up latest stable Ruby version
-   - Installs gems via structured Gemfile (`config/global-gems.rb`)
-   - Enables management of multiple Ruby versions for different projects
+   - Provides tools for managing multiple Ruby versions
+   - Ruby must be installed manually with `rbenv install <version>`
 
 8. **Xcode Installation and Setup**
    - Automatically installs Xcode using the `xcodes` CLI tool
@@ -165,8 +164,8 @@ Before running the installation script, update the Git configuration with your n
 Open `git/.gitconfig` with a text editor and change the following lines to your information:
 ```
 [user]
-	name = Your Name
-	email = your.email@example.com
+  name = Your Name
+  email = your.email@example.com
 ```
 
 ### 4. Run the Installation Script
@@ -336,15 +335,25 @@ For details, see `.github/workflows/README.md`.
 
 ## Ruby Development Environment
 
-The setup includes rbenv for Ruby version management, which enables using multiple Ruby versions on your system.
+The setup includes rbenv for Ruby version management.
 
 ### Key Components
 
 1. **rbenv**: Ruby version manager
    - Installed via Homebrew
-   - Integrated with shell via `.zprofile`
-   - Allows switching Ruby versions per project
+   - Integrated with shell
 
-2. **bundler**: Ruby dependency manager
-   - Automatically installed for the default Ruby version
-   - Manages project-specific gem dependencies
+2. **Ruby Installation**
+   ```bash
+   # List available versions
+   $ rbenv install -l
+   
+   # Install a version
+   $ rbenv install 3.2.2
+   
+   # Set as global default
+   $ rbenv global 3.2.2
+   ```
+
+3. **bundler**: Ruby dependency manager
+   - Manages project dependencies
