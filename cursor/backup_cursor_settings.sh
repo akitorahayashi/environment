@@ -8,7 +8,6 @@ ENVIRONMENT_CURSOR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILES_TO_BACKUP=(
     "settings.json"
     "keybindings.json"
-    "extensions.json"
 )
 
 # 設定ファイルのバックアップ
@@ -21,5 +20,34 @@ for file in "${FILES_TO_BACKUP[@]}"; do
         echo "Warning: $file not found"
     fi
 done
+
+# 拡張機能のバックアップ
+echo "Backing up installed extensions..."
+# 現在インストールされている拡張機能のリストを取得
+installed_extensions=$(cursor --list-extensions)
+
+if [ $? -eq 0 ]; then
+    # extensions.jsonを生成
+    echo "{" > "$ENVIRONMENT_CURSOR_DIR/extensions.json"
+    echo "    \"recommendations\": [" >> "$ENVIRONMENT_CURSOR_DIR/extensions.json"
+    
+    # 拡張機能IDを追加
+    first=true
+    while IFS= read -r extension; do
+        if [ "$first" = true ]; then
+            echo "        \"$extension\"" >> "$ENVIRONMENT_CURSOR_DIR/extensions.json"
+            first=false
+        else
+            echo "        ,\"$extension\"" >> "$ENVIRONMENT_CURSOR_DIR/extensions.json"
+        fi
+    done <<< "$installed_extensions"
+    
+    echo "    ]" >> "$ENVIRONMENT_CURSOR_DIR/extensions.json"
+    echo "}" >> "$ENVIRONMENT_CURSOR_DIR/extensions.json"
+    
+    echo "Successfully backed up $(echo "$installed_extensions" | wc -l | tr -d ' ') extensions to extensions.json"
+else
+    echo "Warning: Failed to get installed extensions list"
+fi
 
 echo "Cursor settings backup completed!" 

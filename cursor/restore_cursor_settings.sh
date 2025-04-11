@@ -9,7 +9,7 @@ if [[ -n "$GITHUB_WORKSPACE" ]]; then
     ENVIRONMENT_DIR="$GITHUB_WORKSPACE"
 fi
 
-# Cursorの設定ディレクトリ
+# Cursorの設定ディレクトリのパス
 CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
 ENVIRONMENT_CURSOR_DIR="$ENVIRONMENT_DIR/cursor"
 
