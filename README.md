@@ -1,6 +1,6 @@
 # MacOS Environment Setup
 
-これは開発環境を自動で構築するためのツールです。自分の開発に必要なツールを一括インストールします。複数マシン間での環境の統一や、現在の環境も確認できます。
+これは開発環境を自動で構築するためのツールです。自分の開発に必要なツールを一括インストールします。複数マシン間での環境の統一や、ベースの環境の状態も確認できます。
 
 ## Directory Structure
 
@@ -45,11 +45,10 @@ environment/
 `install.sh`スクリプトは以下の機能を実装しています：
 
 1. **Rosetta 2 Installation**
-   - Apple Siliconマック向けにIntelベースアプリケーション実行用
+   - Apple Silicon 向け Intel ベースのアプリケーションの実行用
 
 2. **Homebrew Setup**
    - 未インストールの場合にインストール
-   - PATHを適切に設定
 
 3. **Shell Configuration**
    - `.zprofile`のシンボリックリンクを作成
@@ -100,7 +99,7 @@ $ chmod +x install.sh
 ```
 
 ### 3. Update Git Configuration
-インストールスクリプトを実行する前に、`git/.gitconfig`であなたの名前とメールアドレスを更新してください。
+インストールスクリプトを実行する前に、`git/.gitconfig`で名前とメールアドレスを更新してください。
 
 ### 4. Run the Installation Script
 ```sh
@@ -191,3 +190,4 @@ $ rbenv install 3.2.2
 # グローバルデフォルトとして設定
 $ rbenv global 3.2.2
 ```
+

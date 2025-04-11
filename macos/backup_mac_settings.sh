@@ -1,18 +1,15 @@
 #!/bin/bash
 
-# ================================================
-# generate_mac_settings.sh
+# ================================================d
 # 現在の macOS の設定を取得し、自動で setup_mac_settings.sh を生成
 # ================================================
 #
 # 【使い方】
 # 1. 実行権限を付与
-#    chmod +x generate_mac_settings.sh
+#    chmod +x macos/backup_mac_settings.sh
 # 2. スクリプトを実行
-#    ./generate_mac_settings.sh
+#    ./macos/backup_mac_settings.sh
 # 3. setup_mac_settings.sh が作成される
-# 4. setup_mac_settings.sh を適用するには:
-#    source ./setup_mac_settings.sh
 #
 # ================================================
 
@@ -21,14 +18,13 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ENVIRONMENT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 OUTPUT_FILE="$ENVIRONMENT_DIR/setup_mac_settings.sh"
-BACKUP_FILE="$ENVIRONMENT_DIR/setup_mac_settings.bak"
 
 echo "現在の macOS の設定を取得し、$OUTPUT_FILE を生成します..."
 
-# 既存の設定ファイルをバックアップ
+# 既存の設定ファイルを削除
 if [ -f "$OUTPUT_FILE" ]; then
-    mv "$OUTPUT_FILE" "$BACKUP_FILE"
-    echo "既存の設定ファイルをバックアップしました: $BACKUP_FILE"
+    rm "$OUTPUT_FILE"
+    echo "既存の設定ファイルを削除しました: $OUTPUT_FILE"
 fi
 
 # 設定スクリプトのヘッダーを作成
