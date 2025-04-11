@@ -50,13 +50,3 @@ jobs:
           CI: true
           GITHUB_TOKEN_CI: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_WORKSPACE: ${{ github.workspace }}
-
-  # 全体の検証結果の表示
-  summary:
-    needs: test-install
-    runs-on: ubuntu-latest
-    steps:
-      - name: 結果のサマリー
-        run: |
-          echo "✅ macOS環境構築のCIが正常に完了しました"
-          echo "🎉 全てのテストに合格しました！"

@@ -25,13 +25,13 @@ export ALLOW_COMPONENT_FAILURE=true
 
 # 検証項目の定義
 VERIFICATION_COMPONENTS=(
-  "シェル環境,verify_shell_setup"
-  "Mac環境,verify_mac_setup"
+  "シェル,verify_shell_setup"
+  "Mac,verify_mac_setup"
   "Homebrew,verify_homebrew_setup"
   "Xcode,verify_xcode_installation"
-  "Git環境,verify_git_setup"
-  "Flutter環境,verify_flutter_setup"
-  "React Native環境,verify_reactnative_setup"
+  "Git,verify_git_setup"
+  "Flutter,verify_flutter_setup"
+  "React Native,verify_reactnative_setup"
 )
 
 # 検証を実行
