@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# 環境変数の設定
-ENVIRONMENT_DIR="$HOME/environment"
+# 現在のスクリプトディレクトリを取得
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ENVIRONMENT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+# CI環境の場合はGITHUB_WORKSPACEを使用
 if [[ -n "$GITHUB_WORKSPACE" ]]; then
     ENVIRONMENT_DIR="$GITHUB_WORKSPACE"
 fi

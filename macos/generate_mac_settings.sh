@@ -12,12 +12,16 @@
 #    ./generate_mac_settings.sh
 # 3. setup_mac_settings.sh が作成される
 # 4. setup_mac_settings.sh を適用するには:
-#    source ~/environment/setup_mac_settings.sh
+#    source ./setup_mac_settings.sh
 #
 # ================================================
 
-OUTPUT_FILE="$HOME/environment/setup_mac_settings.sh"
-BACKUP_FILE="$HOME/environment/setup_mac_settings.bak"
+# 現在のスクリプトディレクトリを取得
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ENVIRONMENT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+OUTPUT_FILE="$ENVIRONMENT_DIR/setup_mac_settings.sh"
+BACKUP_FILE="$ENVIRONMENT_DIR/setup_mac_settings.bak"
 
 echo "現在の macOS の設定を取得し、$OUTPUT_FILE を生成します..."
 

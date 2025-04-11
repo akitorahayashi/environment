@@ -2,24 +2,24 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ROOT_DIR="$( cd "$SCRIPT_DIR/../.." && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
 
 # ユーティリティのロード
-source "$ROOT_DIR/scripts/utils/helpers.sh"
+source "$REPO_ROOT/scripts/utils/helpers.sh"
 
 # セットアップスクリプトをロード
-source "$ROOT_DIR/scripts/setup/flutter.sh"
-source "$ROOT_DIR/scripts/setup/homebrew.sh"
-source "$ROOT_DIR/scripts/setup/xcode.sh"
-source "$ROOT_DIR/scripts/setup/git.sh"
-source "$ROOT_DIR/scripts/setup/ruby.sh"
-source "$ROOT_DIR/scripts/setup/cursor.sh"
-source "$ROOT_DIR/scripts/setup/shell.sh"
-source "$ROOT_DIR/scripts/setup/mac.sh"
-source "$ROOT_DIR/scripts/setup/reactnative.sh"
+source "$REPO_ROOT/scripts/setup/flutter.sh"
+source "$REPO_ROOT/scripts/setup/homebrew.sh"
+source "$REPO_ROOT/scripts/setup/xcode.sh"
+source "$REPO_ROOT/scripts/setup/git.sh"
+source "$REPO_ROOT/scripts/setup/ruby.sh"
+source "$REPO_ROOT/scripts/setup/cursor.sh"
+source "$REPO_ROOT/scripts/setup/shell.sh"
+source "$REPO_ROOT/scripts/setup/mac.sh"
+source "$REPO_ROOT/scripts/setup/reactnative.sh"
 
 # CI環境でBREWFILEのパスを設定
-BREWFILE_PATH="$ROOT_DIR/config/Brewfile"
+BREWFILE_PATH="$REPO_ROOT/config/Brewfile"
 
 # 検証機能の実行
 run_all_verifications() {

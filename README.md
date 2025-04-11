@@ -144,19 +144,15 @@ The `install.sh` script implements the following features:
 
 If you have `git` installed, clone the repository:
 ```sh
-$ git clone git@github.com:akitorahayashi/environment.git ~/environment
-$ cd ~/environment
+$ git clone git@github.com:akitorahayashi/environment.git
+$ cd environment
 ```
 
-If you don't have `git`, download the repository as a ZIP file and extract it:
+If you don't have `git`, download the repository as a ZIP file and extract it to any location you prefer.
 
 1. Access the GitHub repository
 2. Click "Download ZIP"
-3. Extract the downloaded ZIP file to `~/`
-4. Rename the extracted folder to `environment`:
-```sh
-$ mv ~/environment-main ~/environment
-```
+3. Extract the downloaded ZIP file to any location you prefer
 
 ### 2. Grant Execution Permission
 ```sh
@@ -177,6 +173,8 @@ Open `git/.gitconfig` with a text editor and change the following lines to your 
 ```sh
 $ ./install.sh
 ```
+
+スクリプトはどこからでも実行できるようになりました（リポジトリのルートディレクトリに配置する必要はありません）。スクリプトは自身の場所を自動的に検出し、その場所を基準に必要なファイルを見つけます。
 
 This script will:
 - Install Homebrew and essential packages
@@ -226,7 +224,6 @@ The setup provides a comprehensive diagnostics system for React Native:
 
 ```sh
 # Verify the React Native environment setup
-$ cd ~/environment
 $ ./scripts/setup/reactnative.sh
 
 # Run diagnostics separately
