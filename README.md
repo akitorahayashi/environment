@@ -129,7 +129,7 @@ $ npx react-native run-android
 ```
 
 ### 7. SSH Key for GitHub
-スクリプトは必要に応じてSSH鍵を生成します。GitHubアカウントに追加してください：
+スクリプトは必要に応じてSSH鍵を生成します。GitHubアカウントに追加してください
 ```sh
 $ cat ~/.ssh/id_ed25519.pub
 ```
@@ -139,7 +139,7 @@ $ cat ~/.ssh/id_ed25519.pub
 $ ssh -T git@github.com
 ```
 
-成功時は以下のようなメッセージが表示されます：
+成功時は以下のようなメッセージが表示されます
 ```
 Hi ${GITHUB_USERNAME}! You've successfully authenticated, but GitHub does not provide shell access.
 ```
