@@ -48,7 +48,6 @@ environment/
    - Apple Silicon 向け Intel ベースのアプリケーションの実行用
 
 2. **Homebrew Setup**
-   - 未インストールの場合にインストール
 
 3. **Shell Configuration**
    - `.zprofile`のシンボリックリンクを作成
@@ -57,11 +56,11 @@ environment/
    - `git/.gitconfig`と`git/.gitignore_global`のシンボリックリンクを作成
 
 5. **macOS Settings**
-   - トラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットの設定を適用
+   - トラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用
 
 6. **Package Installation from Brewfile**
    - `config/Brewfile`に記載されたパッケージを`brew bundle`でインストール
-   - CLIツール、開発ツール、アプリケーションを含む
+   - CLIツール、開発ツール、デスクトップアプリケーションを含む
 
 7. **Ruby Environment Setup**
 
@@ -73,7 +72,6 @@ environment/
 
 11. **React Native Environment Setup**
     - Node.js、Watchman、その他の必要な依存関係をインストール
-    - iOSとAndroidの開発環境を設定
 
 12. **GitHub CLI Configuration**
 
@@ -106,22 +104,15 @@ $ chmod +x install.sh
 $ ./install.sh
 ```
 
-スクリプトは場所に依存せず、必要なファイルを見つけるために自動的にパスを検出します。
+スクリプトは場所に依存せず、必要なファイルを見つけるために自動的にパスを検出します
 
 ### 5. Android Development Environment Setup
 
-FlutterとReact Nativeアプリ開発のため：
-
-```sh
-# Android Studioを起動
-$ open -a "Android Studio"
-```
-
-これによりAndroid SDK、プラットフォーム、ビルドツール、エミュレータのセットアップが構成されます。
+FlutterとReact Nativeアプリ開発のため、Android Studioを起動して表示される指示に従って設定をしてください
 
 ### 6. React Native Development
 
-インストール後：
+インストール後には以下の操作が可能になります
 
 ```sh
 # 新しいReact Nativeプロジェクトを作成
@@ -137,23 +128,13 @@ $ npx react-native run-ios
 $ npx react-native run-android
 ```
 
-#### Environment Diagnostics
-
-```sh
-# React Native環境のセットアップを検証
-$ ./scripts/setup/reactnative.sh
-
-# 診断を個別に実行
-$ npx react-native doctor
-```
-
 ### 7. SSH Key for GitHub
 スクリプトは必要に応じてSSH鍵を生成します。GitHubアカウントに追加してください：
 ```sh
 $ cat ~/.ssh/id_ed25519.pub
 ```
 
-接続を確認：
+接続を確認
 ```sh
 $ ssh -T git@github.com
 ```
@@ -163,10 +144,7 @@ $ ssh -T git@github.com
 Hi ${GITHUB_USERNAME}! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-このメッセージが表示されれば、GitHubへのSSH接続が正常に設定されたことが確認できます。
-
 ### 8. Configure GitHub CLI
-GitHub.comまたはGitHub Enterpriseで認証できます：
 ```sh
 # GitHub.com認証を追加
 $ gh auth login
