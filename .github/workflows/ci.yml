@@ -20,6 +20,7 @@ jobs:
           fetch-depth: 0
 
   test-install:
+    name: Install and Test
     runs-on: macos-latest
     timeout-minutes: 120
     
