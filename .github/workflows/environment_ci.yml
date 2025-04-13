@@ -8,41 +8,8 @@ on:
   workflow_dispatch: 
 
 jobs:
-  code-review:
-    name: Code Review
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: AI Code Review
-        uses: coderabbitai/ai-pr-reviewer@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          
-      - name: ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          severity: warning
-          
-      - name: Super-Linter
-        uses: github/super-linter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
-          FILTER_REGEX_INCLUDE: ".*\\.sh$"
-          VALIDATE_BASH: true
-          VALIDATE_MARKDOWN: true
-          VALIDATE_YAML: true
-
   copilot-review:
+    name: Copilot Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     permissions:
