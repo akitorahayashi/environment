@@ -9,14 +9,15 @@ on:
 
 jobs:
   review:
-    name: Request Copilot Review
     if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      contents: read
     uses: ./.github/workflows/copilot-pr-review.yml
     with:
       pr_number: ${{ github.event.pull_request.number }}
 
   test:
-    name: Run macOS Setup Test
     uses: ./.github/workflows/run-setup-test.yml
     secrets:
       repo_token: ${{ secrets.GITHUB_TOKEN }}
