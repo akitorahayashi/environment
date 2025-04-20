@@ -32,7 +32,7 @@ jobs:
         id: construct_comment
         run: |
           overall_status="✅ Success"
-          summary="### CI/CD パイプライン実行結果\n\n"
+          summary="### CI パイプライン実行結果\n\n"
           
           # Copilotレビューのステータス
           if [[ "${{ inputs.copilot_review_result }}" == "success" ]]; then
