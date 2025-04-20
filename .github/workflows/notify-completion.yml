@@ -1,3 +1,5 @@
+name: Notify Completion
+
 on:
   workflow_call:
     inputs:

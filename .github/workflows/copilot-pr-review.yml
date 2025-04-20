@@ -1,3 +1,5 @@
+name: Copilot PR Review
+
 on:
   workflow_call:
     inputs:
