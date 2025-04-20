@@ -20,7 +20,6 @@ on:
 
 jobs:
   notify:
-    name: Notify PR about Workflow Completion
     runs-on: ubuntu-latest
     permissions:
       # PRへのコメント投稿/更新に必要
