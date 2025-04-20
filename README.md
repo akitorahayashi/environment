@@ -1,42 +1,23 @@
 # MacOS Environment Setup
 
-これは開発環境を自動で構築するためのツールです。自分の開発に必要なツールを一括インストールします。複数マシン間での環境の統一や、ベースの環境の状態も確認できます。
+これは自分の開発環境を自動で構築するためのツールで、開発に必要なツールを一括インストールできます。複数の Mac 間での環境の統一や、ベースの環境の状態を確認することも可能です。
 
 ## Directory Structure
 
 ```
 environment/
 ├── .github/        
-│   └── workflows/  
-│       ├── ci.yml         
-│       ├── ci.yml    
-│       └── setup_test.sh  
+│   ├── workflows/
+│   ├── scripts/ 
+│   └── CI_WORKFLOWS.md
 ├── config/         
-│   ├── Brewfile           
-│   ├── global-packages.json 
-│   └── global-gems.rb     
 ├── cursor/         
 ├── git/            
-│   ├── .gitconfig
-│   └── .gitignore_global
 ├── macos/          
 ├── scripts/        
-│   ├── setup/      
-│   │   ├── android.sh      
-│   │   ├── cursor.sh       
-│   │   ├── flutter.sh      
-│   │   ├── git.sh          
-│   │   ├── homebrew.sh     
-│   │   ├── mac.sh          
-│   │   ├── reactnative.sh  
-│   │   ├── ruby.sh         
-│   │   ├── shell.sh        
-│   │   └── xcode.sh        
+│   ├── setup/        
 │   └── utils/      
-│       ├── helpers.sh      
-│       └── logging.sh      
 ├── shell/          
-│   └── .zprofile
 └── install.sh      
 ```
 
@@ -60,27 +41,23 @@ environment/
 
 6. **Package Installation from Brewfile**
    - `config/Brewfile`に記載されたパッケージを`brew bundle`でインストール
-   - CLIツール、開発ツール、デスクトップアプリケーションを含む
 
 7. **Ruby Environment Setup**
 
 8. **Xcode Installation and Setup**
 
-9. **SwiftLint Installation**
+9. **Cursor Configuration**
+   - 設定のバックアップと復元機能を提供
+    
+10. **Flutter Setup**
 
-10. **Flutter Configuration**
-
-11. **React Native Environment Setup**
-    - Node.js、Watchman、その他の必要な依存関係をインストール
+11. **React Native Setup**
 
 12. **GitHub CLI Configuration**
 
 13. **SSH Key Generation**
     - SSH鍵が存在しない場合は生成
     - SSHエージェントを設定
-
-14. **Cursor Configuration**
-    - 設定のバックアップと復元機能を提供
 
 ## Setup Instructions
 

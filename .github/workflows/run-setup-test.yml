@@ -1,0 +1,37 @@
+name: Run Setup Testss
+
+on:
+  workflow_call:
+    secrets:
+      repo_token:
+        description: 'GitHub Token for authentication'
+        required: true
+
+jobs:
+  setup-test:
+    runs-on: macos-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v4 # v4を使用
+      
+      - name: GitHub認証の設定
+        run: |
+          # GitHubの認証を設定 (CI環境用)
+          git config --global url."https://github-actions:${{ secrets.repo_token }}@github.com/".insteadOf "https://github.com/"
+          echo "✅ CI環境用のGitHub認証を設定しました"
+      
+      - name: スクリプトに実行権限を付与
+        run: |
+          chmod +x .github/scripts/setup_test.sh
+          chmod +x .github/scripts/verify_environment.sh
+          echo "✅ テストスクリプトに実行権限を付与しました"
+      
+      - name: macOS環境セットアップテストの実行
+        run: .github/scripts/setup_test.sh all
+        env:
+          CI: true
+          # スクリプトが直接トークンを必要とする場合は、環境変数経由で渡す
+          GITHUB_TOKEN_CI: ${{ secrets.repo_token }}
+          GITHUB_WORKSPACE: ${{ github.workspace }} 
