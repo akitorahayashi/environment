@@ -3,7 +3,7 @@ name: Run macOS Setup Test (Reusable)
 on:
   workflow_call:
     secrets:
-      github_token:
+      repo_token:
         description: 'GitHub Token for authentication'
         required: true
 
@@ -20,7 +20,7 @@ jobs:
       - name: GitHub認証の設定
         run: |
           # GitHubの認証を設定 (CI環境用)
-          git config --global url."https://github-actions:${{ secrets.github_token }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://github-actions:${{ secrets.repo_token }}@github.com/".insteadOf "https://github.com/"
           echo "✅ CI環境用のGitHub認証を設定しました"
       
       - name: スクリプトに実行権限を付与
@@ -34,5 +34,5 @@ jobs:
         env:
           CI: true
           # スクリプトが直接トークンを必要とする場合は、環境変数経由で渡す
-          GITHUB_TOKEN_CI: ${{ secrets.github_token }}
+          GITHUB_TOKEN_CI: ${{ secrets.repo_token }}
           GITHUB_WORKSPACE: ${{ github.workspace }} 

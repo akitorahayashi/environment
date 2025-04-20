@@ -19,7 +19,7 @@ jobs:
     name: Run macOS Setup Test
     uses: ./.github/workflows/run-setup-test.yml
     secrets:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      repo_token: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
     if: github.event_name == 'pull_request' && always()
@@ -32,4 +32,4 @@ jobs:
       copilot_review_result: ${{ needs.review.result || 'skipped' }}
       macos_test_result: ${{ needs.test.result }}
     secrets:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      repo_token: ${{ secrets.GITHUB_TOKEN }}
