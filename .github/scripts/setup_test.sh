@@ -20,6 +20,7 @@ chmod +x "$REPO_ROOT/install.sh"
 chmod +x "$REPO_ROOT/scripts/setup/"*.sh
 chmod +x "$REPO_ROOT/scripts/utils/"*.sh
 chmod +x "$REPO_ROOT/.github/workflows/"*.sh
+chmod +x "$REPO_ROOT/.github/scripts/"*.sh
 
 # コマンドライン引数を処理
 ACTION=${1:-all}
@@ -70,7 +71,7 @@ case "$ACTION" in
     setup_ci_environment
     echo "🔍 環境検証を実行中..."
     
-    "$REPO_ROOT/.github/workflows/verify_environment.sh"
+    "$REPO_ROOT/.github/scripts/verify_environment.sh"
     exit $?
     ;;
     
