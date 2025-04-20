@@ -45,7 +45,7 @@
    - コンポーネントが再インストールされないことを確認
 
 3. **検証**
-   - インストールされたすべてのコンポーネントを検証するために`verify_environment.sh`を実行
+   - インストールされたコンポーネントを検証するために`verify_environment.sh`を実行
 
 ## Idempotency Testing
 

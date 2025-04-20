@@ -1,0 +1,35 @@
+name: MacOS Environment Setup CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: 
+
+jobs:
+  review:
+    name: Request Copilot Review
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/copilot-pr-review.yml
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+
+  test:
+    name: Run macOS Setup Test
+    uses: ./.github/workflows/run-setup-test.yml
+    secrets:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    if: github.event_name == 'pull_request' && always()
+    needs: [review, test]
+    permissions:
+      pull-requests: write 
+    uses: ./.github/workflows/notify-completion.yml
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      copilot_review_result: ${{ needs.review.result || 'skipped' }}
+      macos_test_result: ${{ needs.test.result }}
+    secrets:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
