@@ -9,6 +9,7 @@ on:
 
 jobs:
   review:
+    name: Copilot PR Review
     if: github.event_name == 'pull_request'
     permissions:
       pull-requests: write
@@ -18,11 +19,13 @@ jobs:
       pr_number: ${{ github.event.pull_request.number }}
 
   test:
+    name: Run Setup Testss
     uses: ./.github/workflows/run-setup-test.yml
     secrets:
       repo_token: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
+    name: Notify Completion
     if: github.event_name == 'pull_request' && always()
     needs: [review, test]
     permissions:

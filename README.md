@@ -7,36 +7,17 @@
 ```
 environment/
 ├── .github/        
-│   └── workflows/  
-│       ├── ci.yml         
-│       ├── ci.yml    
-│       └── setup_test.sh  
+│   ├── workflows/
+│   ├── scripts/ 
+│   └── CI_WORKFLOWS.md
 ├── config/         
-│   ├── Brewfile           
-│   ├── global-packages.json 
-│   └── global-gems.rb     
 ├── cursor/         
 ├── git/            
-│   ├── .gitconfig
-│   └── .gitignore_global
 ├── macos/          
 ├── scripts/        
-│   ├── setup/      
-│   │   ├── android.sh      
-│   │   ├── cursor.sh       
-│   │   ├── flutter.sh      
-│   │   ├── git.sh          
-│   │   ├── homebrew.sh     
-│   │   ├── mac.sh          
-│   │   ├── reactnative.sh  
-│   │   ├── ruby.sh         
-│   │   ├── shell.sh        
-│   │   └── xcode.sh        
+│   ├── setup/        
 │   └── utils/      
-│       ├── helpers.sh      
-│       └── logging.sh      
 ├── shell/          
-│   └── .zprofile
 └── install.sh      
 ```
 

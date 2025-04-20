@@ -1,4 +1,4 @@
-name: Install and Test on macOS
+name: Run Setup Testss
 
 on:
   workflow_call:
@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  test:
+  setup-test:
     runs-on: macos-latest
     timeout-minutes: 120
     
