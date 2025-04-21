@@ -5,11 +5,17 @@
 [alias]
     co = checkout
     br = branch
-    cm = commit
+    mr = merge
+
+    ad = add
+    df = diff
     ts = status
     sh = stash
-    mr = merge
 	rs = reset
+
+    cm = commit
+    ps = push
+
     lg = log --oneline --graph --decorate --all
 
 [github]
