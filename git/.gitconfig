@@ -6,7 +6,10 @@
     co = checkout
     br = branch
     cm = commit
-    st = status
+    ts = status
+    sh = stash
+    mr = merge
+	rs = reset
     lg = log --oneline --graph --decorate --all
 
 [github]
