@@ -10,7 +10,7 @@ brew "mint"
 brew "rbenv"
 brew "ruby-build"
 brew "cocoapods"
-brew "node"      
+brew "node"
 brew "watchman"
 
 # Cask

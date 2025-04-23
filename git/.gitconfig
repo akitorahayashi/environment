@@ -3,6 +3,7 @@
     email = atora.has75@gmail.com
 
 [alias]
+    cl = clone
     co = checkout
     br = branch
     mr = merge
@@ -11,10 +12,11 @@
     df = diff
     ts = status
     sh = stash
-	rs = reset
+    rs = reset
 
     cm = commit
     ps = push
+    pl = pull
 
     lg = log --oneline --graph --decorate --all
 
@@ -22,4 +24,4 @@
     user = akitorahayashi
     
 [core]
-	excludesfile = /Users/akitorahayashi/.gitignore_global
+    excludesfile = /Users/akitorahayashi/.gitignore_global
