@@ -2,6 +2,7 @@
 brew "git"
 brew "gh"
 brew "act"
+brew "pipx"
 brew "fdupes"
 brew "xcodes"
 brew "xcbeautify"
