@@ -31,3 +31,6 @@ fi
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
+
+# Created by `pipx` on 2025-04-23 15:22:05
+export PATH="$PATH:/Users/akitora.hayashi/.local/bin"

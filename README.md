@@ -1,6 +1,6 @@
 # MacOS Environment Setup
 
-これは自分の開発環境を自動で構築するためのツールで、開発に必要なツールを一括インストールできます。複数の Mac 間での環境の統一や、ベースの環境の状態を確認することも可能です。
+This tool automates the setup of your development environment by batch installing necessary tools. It's primarily used for setting up after a clean install, unifying environments across multiple Macs, and checking the state of the base environment.
 
 ## Directory Structure
 
@@ -23,32 +23,30 @@ environment/
 
 ## Implementation Features
 
-`install.sh`スクリプトは以下の機能を実装しています：
+1.  **Rosetta 2 Installation**
+    -   For running Intel-based applications on Apple Silicon.
 
-1. **Rosetta 2 Installation**
-   - Apple Silicon 向け Intel ベースのアプリケーションの実行用
+2.  **Homebrew Setup**
 
-2. **Homebrew Setup**
+3.  **Shell Configuration**
+    -   Creates a symbolic link for `.zprofile`.
 
-3. **Shell Configuration**
-   - `.zprofile`のシンボリックリンクを作成
+4.  **Git Configuration**
+    -   Creates symbolic links for `git/.gitconfig` and `git/.gitignore_global`.
 
-4. **Git Configuration**
-   - `git/.gitconfig`と`git/.gitignore_global`のシンボリックリンクを作成
+5.  **macOS Settings**
+    -   Applies settings for trackpad, mouse, keyboard, Dock, Finder, screenshots, etc.
 
-5. **macOS Settings**
-   - トラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用
+6.  **Package Installation from Brewfile**
+    -   Installs packages listed in `config/Brewfile` using `brew bundle`.
 
-6. **Package Installation from Brewfile**
-   - `config/Brewfile`に記載されたパッケージを`brew bundle`でインストール
+7.  **Ruby Environment Setup**
 
-7. **Ruby Environment Setup**
+8.  **Xcode Installation and Setup**
 
-8. **Xcode Installation and Setup**
+9.  **Cursor Configuration**
+    -   Provides backup and restore functionality for settings.
 
-9. **Cursor Configuration**
-   - 設定のバックアップと復元機能を提供
-    
 10. **Flutter Setup**
 
 11. **React Native Setup**
@@ -56,8 +54,8 @@ environment/
 12. **GitHub CLI Configuration**
 
 13. **SSH Key Generation**
-    - SSH鍵が存在しない場合は生成
-    - SSHエージェントを設定
+    -   Generates an SSH key if one does not exist.
+    -   Sets up the SSH agent.
 
 ## Setup Instructions
 
@@ -69,87 +67,94 @@ $ cd environment
 ```
 
 ### 2. Grant Execution Permission
+
 ```sh
 $ chmod +x install.sh
 ```
 
 ### 3. Update Git Configuration
-インストールスクリプトを実行する前に、`git/.gitconfig`で名前とメールアドレスを更新してください。
+
+Before running the installation script, please update your name and email address in `git/.gitconfig`.
 
 ### 4. Run the Installation Script
+
 ```sh
 $ ./install.sh
 ```
 
-スクリプトは場所に依存せず、必要なファイルを見つけるために自動的にパスを検出します
+The script is location-independent and automatically detects paths to find necessary files.
 
 ### 5. Android Development Environment Setup
 
-FlutterとReact Nativeアプリ開発のため、Android Studioを起動して表示される指示に従って設定をしてください
+For Flutter and React Native app development, launch Android Studio and follow the on-screen instructions to complete the setup.
 
 ### 6. React Native Development
 
-インストール後には以下の操作が可能になります
+After installation, the following operations are possible:
 
 ```sh
-# 新しいReact Nativeプロジェクトを作成
+# Create a new React Native project
 $ npx react-native init MyApp
 
-# プロジェクトに移動
+# Navigate to the project directory
 $ cd MyApp
 
-# iOSで実行
+# Run on iOS
 $ npx react-native run-ios
 
-# Androidで実行
+# Run on Android
 $ npx react-native run-android
 ```
 
 ### 7. SSH Key for GitHub
-スクリプトは必要に応じてSSH鍵を生成します。GitHubアカウントに追加してください
+
+The script generates an SSH key if needed. Add it to your GitHub account.
+
 ```sh
 $ cat ~/.ssh/id_ed25519.pub
 ```
 
-接続を確認
+Verify the connection:
+
 ```sh
 $ ssh -T git@github.com
 ```
 
-成功時は以下のようなメッセージが表示されます
+On success, a message similar to the following will be displayed:
+
 ```
 Hi ${GITHUB_USERNAME}! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
 ### 8. Configure GitHub CLI
+
 ```sh
-# GitHub.com認証を追加
+# Add authentication for GitHub.com
 $ gh auth login
 
-# GitHub Enterprise認証を追加
+# Add authentication for GitHub Enterprise
 $ gh auth login --hostname your-enterprise-hostname.com
 ```
 
 ## Cursor Settings Backup and Restore
 
 ```bash
-# バックアップ
+# Backup
 $ ./cursor/backup_cursor_settings.sh
 
-# 復元
+# Restore
 $ ./cursor/restore_cursor_settings.sh
 ```
 
 ## Ruby Development Environment
 
 ```bash
-# 利用可能なRubyバージョンを一覧表示
+# List available Ruby versions
 $ rbenv install -l
 
-# バージョンをインストール
+# Install a version
 $ rbenv install 3.2.2
 
-# グローバルデフォルトとして設定
+# Set as global default
 $ rbenv global 3.2.2
-```
-
+``` 
