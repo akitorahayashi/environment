@@ -12,6 +12,7 @@ brew "rbenv"
 brew "ruby-build"
 brew "cocoapods"
 brew "node"
+brew "yamllint"
 brew "watchman"
 
 # Cask
