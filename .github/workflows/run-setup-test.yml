@@ -187,18 +187,23 @@ jobs:
         run: |
           echo "🔍 swstyleコマンドの検証を開始..."
           # Use command -v to check if the command exists in PATH or is an absolute path
-          if command -v /Users/akitora.hayashi/environment/cli-tools/swstyle &> /dev/null; then
+          SWSTYLE_PATH="${GITHUB_WORKSPACE}/cli-tools/swstyle" # Use relative path
+          if command -v "$SWSTYLE_PATH" &> /dev/null; then
             # Additionally check if it's executable (though command -v often implies this)
-            if [ -x "/Users/akitora.hayashi/environment/cli-tools/swstyle" ]; then
+            if [ -x "$SWSTYLE_PATH" ]; then
               echo "✅ swstyle コマンドが見つかり、実行可能です。"
               # Optional: Run a simple command like --version or help if it exists
-              # /Users/akitora.hayashi/environment/cli-tools/swstyle --version || echo "Note: swstyle --version command failed or does not exist."
+              # "$SWSTYLE_PATH" --version || echo "Note: swstyle --version command failed or does not exist."
             else
               echo "❌ swstyle コマンドは見つかりましたが、実行権限がありません。"
               exit 1
             fi
           else
             echo "❌ swstyle コマンドが見つかりませんでした。"
+            # Add debug output to see the contents of the directory
+            echo "--- Debug: Listing contents of ${GITHUB_WORKSPACE}/cli-tools ---"
+            ls -la "${GITHUB_WORKSPACE}/cli-tools"
+            echo "--------------------------------------------------------------"
             exit 1
           fi
         shell: bash
