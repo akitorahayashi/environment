@@ -169,20 +169,6 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.7 Verify React Native Setup
-        run: |
-          echo "🔍 React Nativeの検証を開始..."
-          source scripts/utils/helpers.sh
-          source scripts/utils/logging.sh
-          source scripts/setup/reactnative.sh
-          if verify_reactnative_setup; then
-            log_success "React Nativeの検証に成功しました"
-          else
-            log_error "React Nativeの検証に失敗しました"
-            exit 1
-          fi
-        shell: bash
-        
       - name: 3.8 Verification Summary
         run: |
           echo "======================"

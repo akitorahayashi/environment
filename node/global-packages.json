@@ -1,9 +1,5 @@
 {
     "globalPackages": {
-        "yarn": "latest",
-        "npx": "latest"
-    },
-    "reactNativeDevTools": {
-        "react-native-cli": "latest"
+        "yarn": "latest"
     }
 }

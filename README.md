@@ -90,27 +90,9 @@ The script is location-independent and automatically detects paths to find neces
 
 ### 5. Android Development Environment Setup
 
-For Flutter and React Native app development, launch Android Studio and follow the on-screen instructions to complete the setup.
+For Flutter app development, launch Android Studio and follow the on-screen instructions to complete the setup.
 
-### 6. React Native Development
-
-After installation, the following operations are possible:
-
-```sh
-# Create a new React Native project
-$ npx react-native init MyApp
-
-# Navigate to the project directory
-$ cd MyApp
-
-# Run on iOS
-$ npx react-native run-ios
-
-# Run on Android
-$ npx react-native run-android
-```
-
-### 7. SSH Key for GitHub
+### 6. SSH Key for GitHub
 
 The script generates an SSH key if needed. Add it to your GitHub account.
 
@@ -130,7 +112,7 @@ On success, a message similar to the following will be displayed:
 Hi ${GITHUB_USERNAME}! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-### 8. Configure GitHub CLI
+### 7. Configure GitHub CLI
 
 ```sh
 # Add authentication for GitHub.com
@@ -139,10 +121,6 @@ $ gh auth login
 # Add authentication for GitHub Enterprise
 $ gh auth login --hostname your-enterprise-hostname.com
 ```
-
-## Custom CLI Tools
-
-This repository provides custom command-line tools to streamline development tasks. These tools are automatically set up (symlinked to `~/bin`) when you run the main `./install.sh` script.
 
 ## Cursor Settings Backup and Restore
 
