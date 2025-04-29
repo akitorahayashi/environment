@@ -21,14 +21,6 @@ jobs:
           # GitHubの認証を設定 (CI環境用)
           git config --global url."https://github-actions:${{ secrets.repo_token }}@github.com/".insteadOf "https://github.com/"
           echo "✅ CI環境用のGitHub認証を設定しました"
-      
-      - name: スクリプトに実行権限を付与
-        run: |
-          # install.sh と verify_environment.sh に実行権限を付与 (setup_test.sh は不要になった)
-          # (setup_test.sh 内の他の chmod は install.sh 内や verify_environment.sh 内で行われる前提)
-          chmod +x install.sh
-          chmod +x .github/scripts/verify_environment.sh
-          echo "✅ 必要なスクリプトに実行権限を付与しました"
 
       - name: CI環境変数の設定
         run: |
