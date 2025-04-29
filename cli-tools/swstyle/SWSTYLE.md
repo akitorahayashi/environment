@@ -4,11 +4,9 @@
 
 `swstyle` コマンドは、標準的な SwiftLint と SwiftFormat の設定ファイルを現在のディレクトリにコピーするためのツールです。
 
-これにより、プロジェクトや Playground ごとに一貫したコーディングスタイル設定を簡単に適用できます。
-
 ## セットアップ
 
-このコマンドは、`environment` リポジトリの `./install.sh` を実行する過程で自動的にセットアップされ、`~/bin/swstyle` として利用可能になります。
+`environment` リポジトリの `./install.sh` を実行する過程で、`install.sh` が `~/bin` ディレクトリ内に `environment/cli-tools/swstyle/swstyle` スクリプトへのシンボリックリンクを作成し、実行権限を付与します。これにより、`~/bin/swstyle` としてコマンドが利用可能になります。
 
 ## 使い方
 
@@ -32,12 +30,4 @@ swstyle playground
 
 1.  指定されたタイプ (`project` または `playground`) に応じて、`environment/cli-tools/swstyle/template/` 内の対応するサブディレクトリを参照します。
 2.  そのサブディレクトリ内にある `.swiftlint.yml` および `.swiftformat` ファイルを、コマンドを実行したカレントディレクトリにコピーします。
-3.  もしカレントディレクトリに同名のファイルが既に存在する場合、テンプレートファイルで**上書き**されます。
-
-### テンプレートファイルの場所
-
-コピー元となるテンプレートファイルは以下の場所にあります。
-必要に応じてこれらのファイルを編集することで、プロジェクト全体で適用される標準スタイルを変更できます。
-
-*   **プロジェクト用:** `environment/cli-tools/swstyle/template/project/`
-*   **Playground用:** `environment/cli-tools/swstyle/template/playground/` 
+3.  もしカレントディレクトリに同名のファイルが既に存在する場合、テンプレートファイルで **上書き** されます。
