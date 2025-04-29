@@ -42,7 +42,6 @@ source "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロ
 source "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
 source "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
 source "$SCRIPT_ROOT_DIR/scripts/setup/reactnative.sh" || echo "警告: reactnative.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/cli_tools.sh" || echo "警告: cli_tools.shをロードできませんでした"
 
 # エラー発生時に即座に終了する設定
 set -e
@@ -74,7 +73,6 @@ main() {
     # 基本環境のセットアップ
     install_homebrew
     setup_shell_config
-    setup_cli_tools
     
     # Gitと認証関連のセットアップ
     setup_git_config

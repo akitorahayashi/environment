@@ -1,10 +1,9 @@
 # Apple Silicon 向けの Homebrew の設定
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# プロジェクトのCLIツールディレクトリを PATH に追加 (存在する場合)
-PROJECT_CLI_TOOLS_DIR="$HOME/environment/cli-tools"
-if [ -d "$PROJECT_CLI_TOOLS_DIR" ] && [[ ":$PATH:" != *":$PROJECT_CLI_TOOLS_DIR:"* ]]; then
-    export PATH="$PROJECT_CLI_TOOLS_DIR:$PATH"
+# ユーザーローカルの bin ディレクトリ (~/bin) を PATH に追加 (存在する場合)
+if [ -d "$HOME/bin" ] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+    export PATH="$HOME/bin:$PATH"
 fi
 
 # Android SDK の環境変数

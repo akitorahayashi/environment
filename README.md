@@ -144,9 +144,6 @@ $ gh auth login --hostname your-enterprise-hostname.com
 
 This repository provides custom command-line tools to streamline development tasks. These tools are automatically set up (symlinked to `~/bin`) when you run the main `./install.sh` script.
 
-*   **`swstyle`**: Copies standard SwiftLint and SwiftFormat configuration files into your Swift project or Playground.
-    *   Details: [`cli-tools/swstyle/SWSTYLE.md`](./cli-tools/swstyle/SWSTYLE.md)
-
 ## Cursor Settings Backup and Restore
 
 Scripts are provided to backup and restore your Cursor settings (`settings.json`, `keybindings.json`, etc.).
