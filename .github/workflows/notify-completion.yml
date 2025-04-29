@@ -7,10 +7,6 @@ on:
         description: 'The number of the pull request'
         required: true
         type: number
-      copilot_review_result:
-        description: 'Result of the Copilot review job'
-        required: true
-        type: string # success, failure, skipped, cancelled
       macos_test_result:
         description: 'Result of the macOS setup test job'
         required: true

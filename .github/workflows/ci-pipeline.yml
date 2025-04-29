@@ -8,16 +8,6 @@ on:
   workflow_dispatch: 
 
 jobs:
-  review:
-    name: Copilot PR Review
-    if: github.event_name == 'pull_request'
-    permissions:
-      pull-requests: write
-      contents: read
-    uses: ./.github/workflows/copilot-pr-review.yml
-    with:
-      pr_number: ${{ github.event.pull_request.number }}
-
   test:
     name: Run Setup Testss
     uses: ./.github/workflows/run-setup-test.yml
@@ -27,13 +17,12 @@ jobs:
   notify:
     name: Notify Completion
     if: github.event_name == 'pull_request' && always()
-    needs: [review, test]
+    needs: [test]
     permissions:
       pull-requests: write 
     uses: ./.github/workflows/notify-completion.yml
     with:
       pr_number: ${{ github.event.pull_request.number }}
-      copilot_review_result: ${{ needs.review.result || 'skipped' }}
       macos_test_result: ${{ needs.test.result }}
     secrets:
       repo_token: ${{ secrets.GITHUB_TOKEN }}
