@@ -45,7 +45,7 @@ setup_homebrew_path() {
 
 # Brewfile パッケージのインストール
 install_brewfile() {
-    local brewfile_path="$REPO_ROOT/config/Brewfile"
+    local brewfile_path="$REPO_ROOT/brew/Brewfile"
     
     if [[ ! -f "$brewfile_path" ]]; then
         handle_error "$brewfile_path が見つかりません"
@@ -162,7 +162,7 @@ verify_brew_path() {
 # Brewfileパッケージの検証
 verify_brewfile_installation() {
     log_start "Brewfileのパッケージを検証中..."
-    local brewfile_path="${1:-$REPO_ROOT/config/Brewfile}"
+    local brewfile_path="${1:-$REPO_ROOT/brew/Brewfile}"
     local verification_failed=false
     
     # Brewfileの存在確認

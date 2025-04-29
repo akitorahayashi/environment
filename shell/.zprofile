@@ -1,6 +1,11 @@
 # Apple Silicon 向けの Homebrew の設定
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# ユーザーローカルの bin ディレクトリ (~/bin) を PATH に追加 (存在する場合)
+if [ -d "$HOME/bin" ] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+    export PATH="$HOME/bin:$PATH"
+fi
+
 # Android SDK の環境変数
 if [[ -z "$ANDROID_HOME" ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"

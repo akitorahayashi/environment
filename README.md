@@ -6,19 +6,23 @@ This tool automates the setup of your development environment by batch installin
 
 ```
 environment/
-├── .github/        
-│   ├── workflows/
-│   ├── scripts/ 
-│   └── CI_WORKFLOWS.md
-├── config/         
-├── cursor/         
-├── git/            
-├── macos/          
-├── scripts/        
-│   ├── setup/        
-│   └── utils/      
-├── shell/          
-└── install.sh      
+├── .github/
+│   ├── scripts/
+│   └── workflows/
+├── git/
+├── cli-tools/
+├── cursor/
+├── macos/
+├── node/
+├── brew/
+├── gems/
+├── shell/
+├── scripts/
+│   ├── setup/
+│   └── utils/
+├── .gitignore
+├── README.md
+└── install.sh
 ```
 
 ## Implementation Features
@@ -136,7 +140,16 @@ $ gh auth login
 $ gh auth login --hostname your-enterprise-hostname.com
 ```
 
+## Custom CLI Tools
+
+This repository provides custom command-line tools to streamline development tasks. These tools are automatically set up (symlinked to `~/bin`) when you run the main `./install.sh` script.
+
+*   **`swstyle`**: Copies standard SwiftLint and SwiftFormat configuration files into your Swift project or Playground.
+    *   Details: [`cli-tools/swstyle/SWSTYLE.md`](./cli-tools/swstyle/SWSTYLE.md)
+
 ## Cursor Settings Backup and Restore
+
+Scripts are provided to backup and restore your Cursor settings (`settings.json`, `keybindings.json`, etc.).
 
 ```bash
 # Backup

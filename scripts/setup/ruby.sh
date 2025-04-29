@@ -25,7 +25,7 @@ install_rbenv() {
 
 # Gemfileからgemをインストール
 install_gems() {
-    local gem_file="${REPO_ROOT:-$ROOT_DIR}/config/global-gems.rb"
+    local gem_file="${REPO_ROOT:-$ROOT_DIR}/gems/global-gems.rb"
     
     if [ ! -f "$gem_file" ]; then
         log_info "global-gems.rbが見つかりません。gemのインストールをスキップします"

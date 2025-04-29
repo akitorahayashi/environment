@@ -42,7 +42,7 @@ install_npm_package() {
 # React Nativeに必要なパッケージをインストール
 install_required_packages() {
     log_info "npm パッケージを確認しています..."
-    local npm_packages_file="$REPO_ROOT/config/global-packages.json"
+    local npm_packages_file="$REPO_ROOT/node/global-packages.json"
     
     if [ ! -f "$npm_packages_file" ]; then
         log_warning "npmパッケージ定義ファイルが見つかりません: $npm_packages_file"
@@ -254,7 +254,7 @@ verify_core_commands() {
 
 # 設定ファイルの検証
 verify_config_files() {
-    [ -f "$REPO_ROOT/config/global-packages.json" ] && log_success "global-packages.jsonが存在します" || log_warning "global-packages.jsonが見つかりません"
+    [ -f "$REPO_ROOT/node/global-packages.json" ] && log_success "global-packages.jsonが存在します" || log_warning "global-packages.jsonが見つかりません"
 }
 
 # スクリプトの実行開始点

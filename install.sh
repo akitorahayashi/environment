@@ -42,6 +42,7 @@ source "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロ
 source "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
 source "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
 source "$SCRIPT_ROOT_DIR/scripts/setup/reactnative.sh" || echo "警告: reactnative.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/cli_tools.sh" || echo "警告: cli_tools.shをロードできませんでした"
 
 # エラー発生時に即座に終了する設定
 set -e
@@ -54,10 +55,16 @@ echo "Macをセットアップ中..."
 main() {
     log_start "開発環境のセットアップを開始します"
     
-    # 環境フラグのチェック
-    if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
-        mark_second_run
-        log_info "🔍 冪等性テストモード：2回目の実行でインストールされるコンポーネントを検出します"
+    # 環境フラグのチェックと関連ユーティリティのロード
+    if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then # IDEMPOTENT_TEST が有効な場合のみ
+        if [ -f "$SCRIPT_ROOT_DIR/scripts/utils/idempotency_utils.sh" ]; then
+            source "$SCRIPT_ROOT_DIR/scripts/utils/idempotency_utils.sh"
+            mark_second_run # source した後に呼び出す
+            log_info "🔍 冪等性テストモード：2回目の実行でインストールされるコンポーネントを検出します"
+        else
+            log_warning "冪等性テストユーティリティが見つかりません: $SCRIPT_ROOT_DIR/scripts/utils/idempotency_utils.sh"
+            export IDEMPOTENT_TEST="false" # 見つからない場合はテストを無効化
+        fi
     fi
     
     # Mac関連のセットアップ
@@ -67,6 +74,7 @@ main() {
     # 基本環境のセットアップ
     install_homebrew
     setup_shell_config
+    setup_cli_tools
     
     # Gitと認証関連のセットアップ
     setup_git_config
@@ -125,6 +133,7 @@ main() {
 
     # 冪等性レポートの表示（テストモードの場合）
     if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
+        # report_idempotence_violations は idempotency_utils.sh で定義されている
         report_idempotence_violations
     fi
 
