@@ -191,7 +191,27 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.8 Verification Summary
+      - name: 3.8 Verify swstyle Command
+        run: |
+          echo "🔍 swstyleコマンドの検証を開始..."
+          # Use command -v to check if the command exists in PATH or is an absolute path
+          if command -v /Users/akitora.hayashi/environment/cli-tools/swstyle &> /dev/null; then
+            # Additionally check if it's executable (though command -v often implies this)
+            if [ -x "/Users/akitora.hayashi/environment/cli-tools/swstyle" ]; then
+              echo "✅ swstyle コマンドが見つかり、実行可能です。"
+              # Optional: Run a simple command like --version or help if it exists
+              # /Users/akitora.hayashi/environment/cli-tools/swstyle --version || echo "Note: swstyle --version command failed or does not exist."
+            else
+              echo "❌ swstyle コマンドは見つかりましたが、実行権限がありません。"
+              exit 1
+            fi
+          else
+            echo "❌ swstyle コマンドが見つかりませんでした。"
+            exit 1
+          fi
+        shell: bash
+
+      - name: 3.9 Verification Summary
         run: |
           echo "======================"
           echo "✅ All verification steps passed successfully!"

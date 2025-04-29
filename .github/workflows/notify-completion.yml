@@ -30,16 +30,6 @@ jobs:
           overall_status="✅ Success"
           summary="### CI パイプライン実行結果\n\n"
           
-          # Copilotレビューのステータス
-          if [[ "${{ inputs.copilot_review_result }}" == "success" ]]; then
-            summary+="- ✅ Copilot レビューリクエスト: 成功\n"
-          elif [[ "${{ inputs.copilot_review_result }}" == "skipped" ]]; then
-            summary+="- ⏭️ Copilot レビューリクエスト: スキップ\n"
-          else
-            summary+="- ❌ Copilot レビューリクエスト: 失敗\n"
-            overall_status="❌ Failure"
-          fi
-          
           # macOSテストのステータス
           if [[ "${{ inputs.macos_test_result }}" == "success" ]]; then
             summary+="- ✅ macOS セットアップテスト: 成功\n"
