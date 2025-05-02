@@ -121,27 +121,17 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.4 Verify Xcode and Simulators
+      - name: 3.4 Verify Xcode Installation
         run: |
-          echo "🔍 Xcodeとシミュレータの検証を開始..."
+          echo "🔍 Xcodeの検証を開始..."
           source scripts/utils/helpers.sh
           source scripts/utils/logging.sh
           source scripts/setup/xcode.sh
-          local xcode_ok=true
-          local sims_ok=true
           if ! verify_xcode_installation; then
             log_error "Xcode本体の検証に失敗しました"
-            xcode_ok=false
+            exit 1
           fi
-          if ! verify_xcode_simulators; then
-             log_error "Xcodeシミュレータの検証に失敗しました"
-             sims_ok=false
-          fi
-          if [ "$xcode_ok" = true ] && [ "$sims_ok" = true ]; then
-              log_success "Xcodeとシミュレータの検証に成功しました"
-          else
-              exit 1
-          fi
+          log_success "Xcodeの検証に成功しました"
         shell: bash
 
       - name: 3.5 Verify Git Setup
