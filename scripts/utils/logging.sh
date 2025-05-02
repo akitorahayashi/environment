@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# ログレベル (デバッグ用)
-# LOG_LEVEL=DEBUG # INFO, DEBUG
-
 # 情報ログ
 log_info() {
     echo "[INFO] $1"
@@ -64,7 +61,3 @@ log_installed() {
     echo "[OK] ${package} ... already installed"
 }
 
-# デバッグログ (もし使うなら)
-# log_debug() {
-#     echo "[DEBUG] $1"
-# }
