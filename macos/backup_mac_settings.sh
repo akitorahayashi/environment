@@ -6,9 +6,9 @@
 #
 # 【使い方】
 # 1. 実行権限を付与
-#    chmod +x macos/backup_mac_settings.sh
+#    $ chmod +x macos/backup_mac_settings.sh
 # 2. スクリプトを実行
-#    ./macos/backup_mac_settings.sh
+#    $ ./macos/backup_mac_settings.sh
 # 3. setup_mac_settings.sh が作成される
 #
 # ================================================
