@@ -93,12 +93,31 @@ verify_neovim_setup() {
     local nvim_config_target_dir="$HOME/.config/nvim"
 
     if [ -d "$stow_config_dir/$stow_package" ]; then
+        # 3a. シンボリックリンク自体の確認
         if [ ! -L "$nvim_config_target_dir" ]; then
             log_error "Neovim 設定ディレクトリがシンボリックリンクではありません: $nvim_config_target_dir"
             log_info "stowによるリンクが正しく作成されているか確認してください。"
             verification_failed=true
         else
             log_success "Neovim 設定ディレクトリはシンボリックリンクです: $nvim_config_target_dir"
+            # 3b. 主要な設定ファイルの存在確認 (リポジトリ内)
+            local nvim_config_source_dir="$stow_config_dir/$stow_package"
+            local init_lua_path="$nvim_config_source_dir/init.lua"
+            local telescope_lua_path="$nvim_config_source_dir/lua/plugins/telescope.lua"
+
+            if [ ! -f "$init_lua_path" ]; then
+                log_error "Neovim 設定ファイルが見つかりません: $init_lua_path"
+                verification_failed=true
+            else
+                log_success "Neovim 設定ファイルが見つかりました: $init_lua_path"
+            fi
+
+            if [ ! -f "$telescope_lua_path" ]; then
+                log_warning "Telescope プラグイン設定ファイルが見つかりません: $telescope_lua_path"
+                # verification_failed=true # オプション扱いの場合は警告のみ
+            else
+                log_success "Telescope プラグイン設定ファイルが見つかりました: $telescope_lua_path"
+            fi
         fi
     else
         log_info "リポジトリにNeovim設定 ($stow_config_dir/$stow_package) が見つからないため、設定の検証はスキップします。"
