@@ -10,7 +10,6 @@ on:
 jobs:
   setup-test:
     runs-on: macos-latest
-    timeout-minutes: 120
     
     steps:
       - name: Checkout repository
@@ -65,7 +64,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: 1. Run initial installation test
+      - name: Run initial installation test
         run: |
           echo "🚀 Running initial installation..."
           ./install.sh | tee install_output.log
@@ -81,7 +80,7 @@ jobs:
           fi
         shell: bash
 
-      - name: 2. Run idempotency test
+      - name: Run idempotency test
         run: |
           echo "🔍 Running idempotency test..."
           export IDEMPOTENT_TEST=true # Enable idempotent mode for install script
@@ -108,7 +107,7 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.1 Verify Shell Setup
+      - name: Verify Shell Setup
         run: |
           echo "🔍 Starting shell verification..."
           source scripts/utils/helpers.sh
@@ -122,7 +121,7 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.2 Verify Mac Setup
+      - name: Verify Mac Setup
         run: |
           echo "🔍 Starting Mac verification..."
           source scripts/utils/helpers.sh
@@ -136,7 +135,7 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.3 Verify Homebrew Setup
+      - name: Verify Homebrew Setup
         run: |
           echo "🔍 Starting Homebrew verification..."
           source scripts/utils/helpers.sh
@@ -150,7 +149,7 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.4 Verify Xcode Installation
+      - name: Verify Xcode Installation
         run: |
           echo "🔍 Starting Xcode verification..."
           source scripts/utils/helpers.sh
@@ -163,7 +162,7 @@ jobs:
           log_success "Xcode verification passed"
         shell: bash
 
-      - name: 3.5 Verify Git Setup
+      - name: Verify Git Setup
         run: |
           echo "🔍 Starting Git verification..."
           source scripts/utils/helpers.sh
@@ -177,7 +176,7 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.6 Verify Flutter Setup
+      - name: Verify Flutter Setup
         run: |
           echo "🔍 Starting Flutter verification..."
           export PATH="$HOME/fvm/default/bin:$PATH"
@@ -193,7 +192,7 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.8 Verification Summary
+      - name: Verification Summary
         run: |
           echo "======================"
           echo "✅ All verification steps passed successfully!"
