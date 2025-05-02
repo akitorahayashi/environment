@@ -28,6 +28,7 @@ brew "yamllint"
 
 ## Utility
 brew "fdupes"
+brew "stow"
 
 ## Editor
 brew "neovim"

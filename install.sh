@@ -41,6 +41,7 @@ source "$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh" || echo "警告: ruby.shをロ�
 source "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロードできませんでした"
 source "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
 source "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
+source "$SCRIPT_ROOT_DIR/scripts/setup/neovim.sh" || echo "警告: neovim.shをロードできませんでした"
 
 # エラー発生時に即座に終了する設定
 set -e
@@ -96,6 +97,9 @@ main() {
     # Cursorのセットアップ
     setup_cursor
 
+    # Neovim環境のセットアップ
+    setup_neovim_env
+
     # CI環境の場合、検証を実行
     if [ "$IS_CI" = "true" ]; then
         log_start "CI環境での検証を開始します..."
@@ -133,7 +137,7 @@ main() {
 
     # 新しいシェルセッションの開始方法を案内
     if [ "$IS_CI" != "true" ]; then
-        log_info "新しい環境設定を適用するには、ターミナルを一度閉じて再度開いてください"
+        log_info "新しい環境設定を適用するには、ターミナルを再起動するか、'source ~/.zprofile' を実行してください。"
     fi
 }
 

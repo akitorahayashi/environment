@@ -3,115 +3,105 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$SCRIPT_DIR/../utils/helpers.sh"
 
-# Cursor のセットアップ
+# Cursor のセットアップ (stowを使用)
 setup_cursor() {
-    log_start "Cursor のセットアップを開始します..."
-    
-    # インストール確認
+    log_start "Cursor のセットアップを開始します (stow)..."
+    local stow_config_dir="$REPO_ROOT/config"
+    local stow_package="cursor"
+    # stow のターゲットディレクトリ ($HOME/Library/...) を定義
+    local target_base_dir="$HOME/Library/Application Support/Cursor"
+    local target_user_dir="$target_base_dir/User"
+
+    # Cursor アプリケーションの存在確認
     if ! ls /Applications/Cursor.app &>/dev/null; then
         log_warning "Cursor がインストールされていません。スキップします。"
-        return
+        return 0 # インストールされていなければエラーではない
     fi
     log_installed "Cursor"
-    
-    # 設定ディレクトリを作成
-    CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
-    if [[ ! -d "$CURSOR_CONFIG_DIR" ]]; then
-        mkdir -p "$CURSOR_CONFIG_DIR"
-        log_success "Cursor 設定ディレクトリを作成しました"
+
+    # リポジトリに設定ファイルがあるか確認
+    if [ ! -d "$stow_config_dir/$stow_package" ]; then
+        log_warning "設定ディレクトリが見つかりません: $stow_config_dir/$stow_package"
+        log_info "Cursor設定のセットアップをスキップします。"
+        return 0
     fi
-    
-    # 設定を復元
-    restore_settings_script="$REPO_ROOT/cursor/restore_cursor_settings.sh"
-    if [[ -f "$restore_settings_script" ]]; then
-        log_start "Cursor 設定を復元しています..."
-        bash "$restore_settings_script"
-        
-        # 復元を確認
-        SETTINGS_FILES=("settings.json" "keybindings.json" "extensions.json")
-        for file in "${SETTINGS_FILES[@]}"; do
-            if [[ -f "$CURSOR_CONFIG_DIR/$file" ]]; then
-                log_success "$file が正常に復元されました"
-            else
-                log_warning "$file の復元に失敗しました"
-            fi
-        done
+
+    # stow のターゲットディレクトリの親が存在することを確認
+    log_info "Cursor設定ディレクトリを作成します (存在しない場合): $target_user_dir"
+    mkdir -p "$target_user_dir"
+
+    # stow コマンドでシンボリックリンクを作成/更新
+    # ターゲットは設定ファイルが置かれるべき User ディレクトリ
+    log_info "'$stow_package' パッケージを '$stow_config_dir' から '$target_user_dir' にstowします..."
+    # 注意: stow は通常ターゲットディレクトリ直下にリンクを作成する。
+    # $REPO_ROOT/config/cursor/settings.json -> $target_user_dir/settings.json となる。
+    if stow --dir="$stow_config_dir" --target="$target_user_dir" --restow "$stow_package"; then
+        log_success "Cursor設定ファイルのシンボリックリンクを作成/更新しました。"
     else
-        log_warning "Cursor の復元スクリプトが見つかりません。設定の復元をスキップします。"
+        log_error "Cursor設定ファイルのシンボリックリンク作成/更新に失敗しました。"
+        # ログに競合の可能性などを追記しても良い
+        return 1
     fi
-    
-    # Flutter SDK のパスを設定
-    if command_exists flutter; then
-        FLUTTER_PATH=$(which flutter)
-        FLUTTER_SDK_PATH=$(dirname $(dirname $(readlink -f "$FLUTTER_PATH")))
-        
-        if [[ -d "$FLUTTER_SDK_PATH" ]]; then
-            CURSOR_SETTINGS="$CURSOR_CONFIG_DIR/settings.json"
-            
-            log_start "Flutter SDK のパスを Cursor に適用中..."
-            if [[ -f "$CURSOR_SETTINGS" ]]; then
-                # 現在の設定を確認
-                CURRENT_PATH=$(cat "$CURSOR_SETTINGS" | grep -o '"dart.flutterSdkPath": "[^"]*"' | cut -d'"' -f4 || echo "")
-                
-                if [[ "$CURRENT_PATH" != "$FLUTTER_SDK_PATH" ]]; then
-                    # settings.jsonを更新
-                    if ! command_exists jq; then
-                        log_warning "jqコマンドが見つかりません。手動でsettings.jsonを更新してください。"
-                    else
-                        jq --arg path "$FLUTTER_SDK_PATH" \
-                           '.["dart.flutterSdkPath"] = $path' \
-                           "$CURSOR_SETTINGS" > "${CURSOR_SETTINGS}.tmp" && \
-                        mv "${CURSOR_SETTINGS}.tmp" "$CURSOR_SETTINGS"
-                        
-                        log_success "Flutter SDK のパスを $FLUTTER_SDK_PATH に更新しました！"
-                    fi
-                else
-                    log_success "Flutter SDK のパスはすでに正しく設定されています"
-                fi
-            else
-                log_warning "Cursor の設定ファイルが見つかりません"
-            fi
-        else
-            log_warning "Flutter SDK のパスを特定できませんでした"
-        fi
-    fi
-    
+
     log_success "Cursor のセットアップ完了"
+    return 0
 }
 
 # Cursor環境を検証
 verify_cursor_setup() {
     log_start "Cursor環境を検証中..."
     local verification_failed=false
-    
+    local config_dir="$REPO_ROOT/config/cursor"
+    local target_dir="$HOME/Library/Application Support/Cursor/User"
+
     # アプリケーションを確認
     if ! ls /Applications/Cursor.app &>/dev/null; then
         log_error "Cursor.appが見つかりません"
-        verification_failed=true
+        return 1 # アプリがないと検証できない
     else
         log_installed "Cursor"
-        
-        # 設定ディレクトリを確認
-        CURSOR_CONFIG_DIR="$HOME/Library/Application Support/Cursor/User"
-        if [ ! -d "$CURSOR_CONFIG_DIR" ]; then
-            log_error "Cursor設定ディレクトリが見つかりません"
-            verification_failed=true
-        else
-            log_success "Cursor設定ディレクトリが存在します"
-            
-            # 設定ファイルを確認
-            SETTINGS_FILES=("settings.json" "keybindings.json" "extensions.json")
-            for file in "${SETTINGS_FILES[@]}"; do
-                if [ ! -f "$CURSOR_CONFIG_DIR/$file" ]; then
-                    log_error "Cursor設定ファイル $file が見つかりません"
-                    verification_failed=true
-                else
-                    log_success "Cursor設定ファイル $file が存在します"
-                fi
-            done
-        fi
     fi
-    
+
+    # リポジトリに設定ファイルが存在する場合のみ検証
+    if [ ! -d "$config_dir" ]; then
+        log_info "リポジトリにCursor設定が見つからないため、設定の検証はスキップします。"
+        return 0
+    fi
+
+    # 設定ディレクトリの存在確認
+    if [ ! -d "$target_dir" ]; then
+        log_error "Cursor設定ディレクトリが見つかりません: $target_dir"
+        verification_failed=true
+    else
+        log_success "Cursor設定ディレクトリが存在します: $target_dir"
+
+        # 設定ファイルのシンボリックリンクを確認
+        # config/cursor 内の想定されるファイルを確認
+        # (ここでは代表的なもののみ。必要に応じて増やす)
+        SETTINGS_FILES=("settings.json" "keybindings.json" "extensions.json")
+        for file in "${SETTINGS_FILES[@]}"; do
+             # リポジトリ側にファイルが存在するか
+            if [ -f "$config_dir/$file" ]; then
+                 # ターゲット側にシンボリックリンクが存在するか
+                if [ -L "$target_dir/$file" ]; then
+                     # リンク先が正しいか (簡易チェック)
+                    local link_target=$(readlink "$target_dir/$file")
+                    if [[ "$link_target" == *"$config_dir/$file"* ]]; then
+                         log_success "設定ファイル $file が正しくリンクされています。"
+                    else
+                         log_error "設定ファイル $file のリンク先が不正です: $link_target"
+                         verification_failed=true
+                    fi
+                else
+                    log_error "設定ファイル $file がシンボリックリンクとして存在しません。"
+                    verification_failed=true
+                fi
+            else
+                 log_info "リポジトリに $file が見つからないため、検証をスキップします。"
+            fi
+        done
+    fi
+
     if [ "$verification_failed" = "true" ]; then
         log_error "Cursor環境の検証に失敗しました"
         return 1

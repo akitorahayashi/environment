@@ -169,6 +169,22 @@ jobs:
           fi
         shell: bash
 
+      - name: 3.7 Verify Neovim Setup
+        run: |
+          echo "🔍 Neovimの検証を開始..."
+          source scripts/utils/helpers.sh
+          source scripts/utils/logging.sh
+          source scripts/setup/neovim.sh
+          # Ensure REPO_ROOT is available for verify_neovim_setup
+          export REPO_ROOT="${{ github.workspace }}"
+          if verify_neovim_setup; then
+            log_success "Neovimの検証に成功しました"
+          else
+            log_error "Neovimの検証に失敗しました"
+            exit 1
+          fi
+        shell: bash
+
       - name: 3.8 Verification Summary
         run: |
           echo "======================"

@@ -43,12 +43,14 @@ setup_homebrew_path() {
     fi
 }
 
-# Brewfile パッケージのインストール
+# Brewfileの内容をインストール/更新する関数
 install_brewfile() {
-    local brewfile_path="$REPO_ROOT/brew/Brewfile"
+    log_start "Brewfileのインストール/更新を開始します..."
+    local brewfile_path="$REPO_ROOT/config/brew/Brewfile"
     
-    if [[ ! -f "$brewfile_path" ]]; then
-        handle_error "$brewfile_path が見つかりません"
+    if [ ! -f "$brewfile_path" ]; then
+        log_error "Brewfileが見つかりません: $brewfile_path"
+        return 1
     fi
 
     log_start "Homebrew パッケージのインストールを開始します..."
@@ -159,44 +161,9 @@ verify_brew_path() {
     fi
 }
 
-# Brewfileパッケージの検証
-verify_brewfile_installation() {
-    log_start "Brewfileのパッケージを検証中..."
-    local brewfile_path="${1:-$REPO_ROOT/brew/Brewfile}"
-    local verification_failed=false
-    
-    # Brewfileの存在確認
-    if ! verify_brewfile_exists "$brewfile_path"; then
-        return 1
-    fi
-    
-    # パッケージ数確認
-    verify_package_counts "$brewfile_path"
-    
-    # 個別パッケージの確認
-    local missing_packages=0
-    missing_packages=$(verify_individual_packages "$brewfile_path")
-    
-    if [ $missing_packages -gt 0 ]; then
-        log_error "$missing_packages 個のパッケージがインストールされていません"
-        verification_failed=true
-    else
-        log_success "すべてのパッケージが正しくインストールされています"
-    fi
-    
-    if [ "$verification_failed" = "true" ]; then
-        log_error "Brewfileパッケージの検証に失敗しました"
-        return 1
-    else
-        log_success "Brewfileパッケージの検証が完了しました"
-        return 0
-    fi
-}
-
-# Brewfileの存在確認
-verify_brewfile_exists() {
-    local brewfile_path="$1"
-    
+# Brewfileの検証
+verify_brewfile() {
+    local brewfile_path="${1:-$REPO_ROOT/config/brew/Brewfile}"
     if [ ! -f "$brewfile_path" ]; then
         log_error "Brewfileが見つかりません: $brewfile_path"
         return 1

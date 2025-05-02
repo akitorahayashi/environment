@@ -15,3 +15,6 @@ xcode/xcode_defaults.plist
 *.swp
 *.swo
 *~
+
+# Cursor
+.cursor/
