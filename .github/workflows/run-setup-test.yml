@@ -52,12 +52,6 @@ jobs:
           fi
         shell: bash
 
-      - name: GitHub認証の設定
-        run: |
-          # GitHubの認証を設定 (CI環境用)
-          git config --global url."https://github-actions:${{ secrets.repo_token }}@github.com/".insteadOf "https://github.com/"
-          echo "✅ CI環境用のGitHub認証を設定しました"
-
       - name: 2. 冪等性テストの実行
         run: |
           echo "🔍 冪等性テストを実行しています..."
@@ -127,17 +121,26 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.4 Verify Xcode Installation
+      - name: 3.4 Verify Xcode and Simulators
         run: |
-          echo "🔍 Xcodeの検証を開始..."
+          echo "🔍 Xcodeとシミュレータの検証を開始..."
           source scripts/utils/helpers.sh
           source scripts/utils/logging.sh
           source scripts/setup/xcode.sh
-          if verify_xcode_installation; then
-            log_success "Xcodeの検証に成功しました"
+          local xcode_ok=true
+          local sims_ok=true
+          if ! verify_xcode_installation; then
+            log_error "Xcode本体の検証に失敗しました"
+            xcode_ok=false
+          fi
+          if ! verify_xcode_simulators; then
+             log_error "Xcodeシミュレータの検証に失敗しました"
+             sims_ok=false
+          fi
+          if [ "$xcode_ok" = true ] && [ "$sims_ok" = true ]; then
+              log_success "Xcodeとシミュレータの検証に成功しました"
           else
-            log_error "Xcodeの検証に失敗しました"
-            exit 1
+              exit 1
           fi
         shell: bash
 

@@ -17,7 +17,7 @@ install_xcode() {
     
     # シミュレータのインストール
     if [ "$xcode_install_success" = true ]; then
-        install_xcode_simulators
+        install_xcode_simulators || xcode_install_success=false
     else
         log_error "Xcode のインストールに失敗したため、シミュレータのインストールをスキップします"
         return 1
@@ -234,5 +234,36 @@ verify_xcode_simulators() {
     else
         log_success "すべてのプラットフォームシミュレータがインストールされています"
         return 0
+    fi
+}
+
+# Xcode シミュレータのインストール関数
+install_xcode_simulators() {
+    log_start "Xcode シミュレータのインストールを開始します..."
+    local all_sims_installed=true
+    local platforms_to_install=("iOS" "watchOS" "tvOS" "visionOS") # インストール対象
+
+    if ! command_exists xcodes; then
+        log_error "xcodes コマンドが見つからないため、シミュレータをインストールできません。"
+        return 1
+    fi
+
+    for platform in "${platforms_to_install[@]}"; do
+        log_info "最新の $platform シミュレータランタイムをインストール/確認します..."
+        # xcodes runtimes install は冪等性を期待
+        if xcodes runtimes install "$platform"; then
+            log_success "$platform シミュレータランタイムのインストール/確認が完了しました。"
+        else
+            log_warning "$platform シミュレータランタイムのインストールに失敗しました。"
+            all_sims_installed=false # 一つでも失敗したら全体としては失敗扱い（ただし処理は続行）
+        fi
+    done
+
+    if [ "$all_sims_installed" = true ]; then
+        log_success "すべての対象シミュレータランタイムのインストール/確認が完了しました。"
+        return 0
+    else
+        log_warning "一部のシミュレータランタイムのインストールに失敗しました。詳細はログを確認してください。"
+        return 1 # 失敗を示すコードを返す
     fi
 } 
