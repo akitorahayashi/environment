@@ -9,24 +9,70 @@ source "$SCRIPT_DIR/../utils/helpers.sh"
 
 # Flutter のセットアップ
 setup_flutter() {
-    if ! command_exists flutter; then
-        handle_error "Flutter がインストールされていません"
-    else
-        log_installed "Flutter"
+    log_start "Flutter SDK のセットアップを開始します (fvm)..."
+
+    # fvm コマンドの存在確認
+    if ! command_exists fvm; then
+        handle_error "fvm コマンドが見つかりません。Brewfileを確認してください。"
+        return 1
     fi
 
-    # Flutterのパスを確認
-    FLUTTER_PATH=$(which flutter)
-    log_info "Flutter PATH: $FLUTTER_PATH"
-    
-    # パスが正しいか確認（ARM Macの場合）
-    if [[ "$(uname -m)" == "arm64" ]] && [[ "$FLUTTER_PATH" != "/opt/homebrew/bin/flutter" ]]; then
-        log_error "Flutterが期待するパスにインストールされていません"
-        log_info "現在のパス: $FLUTTER_PATH"
-        log_info "期待するパス: /opt/homebrew/bin/flutter"
-        handle_error "Flutter のパスが正しくありません"
+    # 安定版 Flutter SDK のインストール (fvm install は冪等)
+    log_info "fvm を使用して安定版 Flutter SDK をインストールします..."
+    if fvm install stable; then
+        log_success "Flutter SDK (stable) のインストール/確認が完了しました。"
+    else
+        handle_error "fvm install stable に失敗しました。"
+        return 1
     fi
-    
+
+    # 現在のグローバル設定が stable か確認
+    local fvm_default_link="$HOME/fvm/default"
+    local fvm_stable_path="$HOME/fvm/versions/stable"
+    local is_global_already_stable=false
+    if [ -L "$fvm_default_link" ] && [ "$(readlink "$fvm_default_link")" == "$fvm_stable_path" ]; then
+        is_global_already_stable=true
+    fi
+
+    # グローバル設定がまだ stable でなければ設定
+    if [ "$is_global_already_stable" = true ]; then
+        log_success "fvm global は既に stable に設定されています。スキップします。"
+    else
+        log_info "fvm global stable を設定します..."
+        if fvm global stable; then
+            log_success "fvm global stable の設定が完了しました。"
+        else
+            handle_error "fvm global stable の設定に失敗しました。"
+            return 1
+        fi
+    fi
+
+    # FVM管理下のFlutterを使うため、PATHを更新
+    export PATH="$HOME/fvm/default/bin:$PATH"
+    log_info "現在のシェルセッションのPATHにfvmのパスを追加しました。"
+
+    # flutter コマンド存在確認 (fvm管理下のパスで)
+    if ! command_exists flutter; then
+        handle_error "Flutter コマンド (fvm管理下) が見つかりません"
+        return 1
+    fi
+
+    # Flutterのパスを確認 (fvm管理下のパス)
+    FLUTTER_PATH=$(which flutter)
+    log_info "Flutter PATH (fvm): $FLUTTER_PATH"
+
+    # パスが正しいか確認（FVM管理下のパスを確認）
+    local expected_fvm_path="$HOME/fvm/default/bin/flutter"
+    if [[ "$FLUTTER_PATH" != "$expected_fvm_path" ]]; then
+        log_error "Flutter (fvm) が期待するパスにありません"
+        log_info "現在のパス: $FLUTTER_PATH"
+        log_info "期待するパス: $expected_fvm_path"
+        handle_error "Flutter (fvm) のパスが正しくありません"
+        return 1
+    else
+        log_success "Flutter (fvm) のパスが正しく設定されています"
+    fi
+
     # Flutter doctorの実行（CI環境では簡易出力のみ）
     log_start "Flutter環境を確認中..."
     if [ "$IS_CI" = "true" ]; then
