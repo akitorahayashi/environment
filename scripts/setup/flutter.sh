@@ -73,18 +73,18 @@ setup_flutter() {
         log_success "Flutter (fvm) のパスが正しく設定されています"
     fi
 
-    # Flutter doctorの実行（CI環境では簡易出力のみ）
+    # Flutter環境の簡易確認 (バージョン表示)
     log_start "Flutter環境を確認中..."
-    if [ "$IS_CI" = "true" ]; then
-        # CI環境では簡易バージョンのみ実行（パイプエラー回避）
-        flutter --version > /dev/null 2>&1 || true
-        log_info "CI環境: Flutter のバージョン確認のみ実行しました"
+    # IS_CI チェックを削除し、常に flutter --version を実行
+    if flutter --version > /dev/null 2>&1; then
+        log_info "Flutter のバージョン確認を実行しました"
     else
-        # 通常環境では完全なdoctor実行
-        flutter doctor || true
+        # 失敗した場合はエラーとして処理し、終了する
+        handle_error "flutter --version の実行に失敗しました。Flutter環境を確認してください。"
+        return 1
     fi
 
-    log_success "Flutter の環境設定が完了しました"
+    log_success "Flutter SDK のセットアップ処理が完了しました" # メッセージを修正
 }
 
 # Flutter環境を検証
@@ -100,7 +100,7 @@ verify_flutter_setup() {
     # パス確認
     verify_flutter_path || verification_failed=true
     
-    # 環境チェック
+    # 環境チェック (常に verify_flutter_environment を実行)
     verify_flutter_environment || verification_failed=true
     
     if [ "$verification_failed" = "true" ]; then
@@ -142,32 +142,14 @@ verify_flutter_path() {
 
 # Flutter環境の検証
 verify_flutter_environment() {
-    # CI環境でのチェック方法分岐
-    if [ "$IS_CI" = "true" ]; then
-        verify_flutter_ci_environment
-        return $?
-    else
-        verify_flutter_full_environment
-        return $?
-    fi
+    # IS_CI チェックを削除し、常に verify_flutter_full_environment を呼び出す
+    verify_flutter_full_environment # 引数なしに変更
+    return $?
 }
 
-# CI環境でのFlutter検証（簡易版）
-verify_flutter_ci_environment() {
-    log_info "CI環境: flutter doctor のチェックを実行中..."
-    
-    if ! flutter --version > /dev/null 2>&1; then
-        log_error "flutter --version の実行に失敗しました"
-        return 1
-    fi
-    log_success "Flutterコマンドが正常に動作しています"
-    
-    return 0 
-}
-
-# 通常環境でのFlutter検証
+# Flutter環境の検証 (常に flutter --version を使用)
 verify_flutter_full_environment() {
-    log_info "通常環境: flutter --version のチェックを実行中..."
+    log_info "Flutter環境チェック (flutter --version) を実行中..." # メッセージを修正
     if ! flutter --version > /dev/null 2>&1; then
         log_error "flutter --version の実行に失敗しました"
         return 1

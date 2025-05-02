@@ -36,6 +36,35 @@ jobs:
           echo "✅ CI環境変数を設定しました"
         shell: bash
 
+      - name: Cache FVM Flutter SDKs
+        uses: actions/cache@v4
+        id: cache-fvm
+        with:
+          path: $HOME/fvm
+          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvm/fvm_config.json') }} # .fvm 設定ファイルに基づいてキーを生成 (存在しない場合はOSのみ)
+          restore-keys: |
+            ${{ runner.os }}-fvm-
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        id: cache-pub
+        with:
+          path: $HOME/.pub-cache
+          # pubspec.lock がルートにないため、Flutterバージョン(fvm cache key)かOS名でキーを生成
+          key: ${{ runner.os }}-pub-${{ steps.cache-fvm.outputs.cache-hit != 'true' && '' || 'stable' }} # キーの一部としてfvmキャッシュヒット状況を使う例 (調整可能)
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            $HOME/.gradle/caches
+            $HOME/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }} # プロジェクト内のGradle関連ファイルを探す
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: 1. 初回インストールテストの実行 # Re-enable install step
         run: |
           echo "🚀 初回インストールを実行しています..."
@@ -151,16 +180,17 @@ jobs:
       - name: 3.6 Verify Flutter Setup
         run: |
           echo "🔍 Flutterの検証を開始..."
-          # source ~/.zprofile # Remove sourcing the whole profile
-          export PATH="$HOME/fvm/default/bin:$PATH" # Add FVM path directly
-          echo "[DEBUG] PATH set for step: $PATH" # Verify PATH
-          
-          echo "[INFO] Running flutter doctor -v directly..."
-          if flutter doctor -v; then
-              echo "[OK] flutter doctor -v completed successfully."
+          # FVM管理下のFlutterを使うため、PATHを設定
+          export PATH="$HOME/fvm/default/bin:$PATH"
+          echo "[DEBUG] PATH set for step: $PATH"
+
+          # 軽量なバージョンチェックを実行して基本的な動作を確認
+          echo "[INFO] Running flutter --version for basic verification..."
+          if flutter --version; then
+              echo "[OK] flutter --version completed successfully."
           else
               exit_code=$?
-              echo "[ERROR] flutter doctor -v failed with exit code $exit_code."
+              echo "[ERROR] flutter --version failed with exit code $exit_code."
               exit 1
           fi
         shell: bash

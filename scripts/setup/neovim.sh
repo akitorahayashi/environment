@@ -6,8 +6,7 @@
 install_lazy_nvim() {
     log_start "lazy.nvimのインストールを開始します..."
     local lazy_repo="https://github.com/folke/lazy.nvim.git"
-    # ~/.local/share/nvim/site/pack/packer/start/lazy.nvim にインストール
-    local target_path="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/packer/start/lazy.nvim"
+    local target_path="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/lazy/lazy.nvim"
 
     if [ ! -d "$target_path" ]; then
         log_info "lazy.nvimをクローンします: $lazy_repo -> $target_path"
@@ -79,7 +78,8 @@ verify_neovim_setup() {
     fi
 
     # 2. lazy.nvim のインストール確認
-    local target_path="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/packer/start/lazy.nvim"
+    # init.lua 及び lazy.nvim 推奨のパスに変更
+    local target_path="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/lazy/lazy.nvim"
     if [ ! -d "$target_path" ]; then
         log_error "lazy.nvim がインストールされていません: $target_path"
         verification_failed=true
