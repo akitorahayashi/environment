@@ -54,7 +54,7 @@ setup_nvim_config() {
 
 # メインのセットアップ関数
 setup_neovim_env() {
-    log_section "Neovim環境のセットアップ"
+    log_start "Neovim環境のセットアップを開始します..."
     # Neovim本体はBrewfileでインストールされる想定
     command -v nvim &> /dev/null || {
         log_error "Neovimコマンドが見つかりません。Brewfileでのインストールが成功したか確認してください。"
