@@ -156,24 +156,16 @@ verify_flutter_environment() {
 verify_flutter_ci_environment() {
     log_info "CI環境: flutter doctor のチェックを実行中..."
     
-    # バージョン確認のみ
     if ! flutter --version > /dev/null 2>&1; then
         log_error "flutter --version の実行に失敗しました"
         return 1
     fi
     log_success "Flutterコマンドが正常に動作しています"
     
-    # Xcodeとの連携確認（出力パイプを使わない方法）
-    if flutter doctor 2>&1 | grep -q "Xcode"; then
-        log_success "XcodeがFlutterから認識されています" 
-    else
-        log_warning "Xcode検出確認に問題がある可能性があります"
-    fi
-    
-    return 0
+    return 0 
 }
 
-# 通常環境でのFlutter検証（完全版）
+# 通常環境でのFlutter検証
 verify_flutter_full_environment() {
     log_info "flutter doctor を実行中..."
     if ! flutter doctor -v; then
