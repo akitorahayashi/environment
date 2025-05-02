@@ -151,8 +151,9 @@ jobs:
       - name: 3.6 Verify Flutter Setup
         run: |
           echo "🔍 Flutterの検証を開始..."
-          source ~/.zprofile # Load shell profile to get FVM path
-          echo "[DEBUG] PATH after source: $PATH" # Add debug echo
+          # source ~/.zprofile # Remove sourcing the whole profile
+          export PATH="$HOME/fvm/default/bin:$PATH" # Add FVM path directly
+          echo "[DEBUG] PATH set for step: $PATH" # Verify PATH
           source scripts/utils/helpers.sh
           source scripts/utils/logging.sh
           source scripts/setup/flutter.sh

@@ -127,14 +127,15 @@ verify_flutter_path() {
     FLUTTER_PATH=$(which flutter)
     log_info "Flutter PATH: $FLUTTER_PATH"
     
-    # ARMデバイスでのパス検証
-    if [[ "$(uname -m)" == "arm64" ]] && [[ "$FLUTTER_PATH" != "/opt/homebrew/bin/flutter" ]]; then
-        log_error "Flutterのパスが想定と異なります"
-        log_error "期待: /opt/homebrew/bin/flutter"
+    # FVM管理下のパスを期待する
+    local expected_fvm_path="$HOME/fvm/default/bin/flutter"
+    if [[ "$FLUTTER_PATH" != "$expected_fvm_path" ]]; then
+        log_error "Flutterのパスが想定 (FVM) と異なります"
+        log_error "期待: $expected_fvm_path"
         log_error "実際: $FLUTTER_PATH"
         return 1
     else
-        log_success "Flutterのパスが正しく設定されています"
+        log_success "Flutterのパスが正しく設定されています (FVM)"
         return 0
     fi
 }
