@@ -16,12 +16,6 @@ jobs:
       - name: リポジトリのチェックアウト
         uses: actions/checkout@v4 # v4を使用
       
-      - name: GitHub認証の設定
-        run: |
-          # GitHubの認証を設定 (CI環境用)
-          git config --global url."https://github-actions:${{ secrets.repo_token }}@github.com/".insteadOf "https://github.com/"
-          echo "✅ CI環境用のGitHub認証を設定しました"
-
       - name: CI環境変数の設定
         run: |
           echo "Setting up CI environment variables..."
@@ -42,9 +36,6 @@ jobs:
           echo "✅ CI環境変数を設定しました"
         shell: bash
 
-      - name: Install stow
-        run: brew install stow
-
       - name: 1. 初回インストールテストの実行
         run: |
           echo "🚀 初回インストールを実行しています..."
@@ -60,6 +51,12 @@ jobs:
             exit 1
           fi
         shell: bash
+
+      - name: GitHub認証の設定
+        run: |
+          # GitHubの認証を設定 (CI環境用)
+          git config --global url."https://github-actions:${{ secrets.repo_token }}@github.com/".insteadOf "https://github.com/"
+          echo "✅ CI環境用のGitHub認証を設定しました"
 
       - name: 2. 冪等性テストの実行
         run: |
