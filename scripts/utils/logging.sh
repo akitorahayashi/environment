@@ -2,27 +2,28 @@
 
 # 情報ログ
 log_info() {
-    echo "ℹ️ $1"
+    echo "[INFO] $1"
 }
 
 # 成功ログ
 log_success() {
-    echo "✅ $1"
+    echo "[OK] $1"
 }
 
 # 警告ログ
 log_warning() {
-    echo "⚠️ $1"
+    echo "[WARN] $1"
 }
 
 # 処理開始ログ
 log_start() {
-    echo "🚀 $1"
+    echo "" # 改行
+    echo "==== Start: $1 ===="
 }
 
 # エラーログ
 log_error() {
-    echo "❌ $1"
+    echo "[ERROR] $1"
 }
 
 # エラー処理
@@ -39,12 +40,11 @@ log_installing() {
     local message=""
     
     if [ -n "$version" ] && [ "$version" != "latest" ]; then
-        message="${package}@${version} をインストール中..."
-        echo "📦 $message"
+        message="${package}@${version}"
     else
-        message="${package} をインストール中..."
-        echo "📦 $message"
+        message="${package}"
     fi
+    echo "[INSTALL] $message ..."
     
     # 冪等性チェック
     if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
@@ -58,11 +58,6 @@ log_installing() {
 # インストール済みログ
 log_installed() {
     local package="$1"
-    local version="${2:-}"
-    
-    if [ -n "$version" ] && [ "$version" != "latest" ]; then
-        echo "✅ ${package}@${version} はすでにインストール済みです"
-    else
-        echo "✅ ${package} はすでにインストール済みです"
-    fi
+    echo "[OK] ${package} ... already installed"
 }
+

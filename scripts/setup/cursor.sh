@@ -35,7 +35,7 @@ setup_cursor() {
     log_info "'$stow_package' パッケージを '$stow_config_dir' から '$target_user_dir' にstowします..."
     # 注意: stow は通常ターゲットディレクトリ直下にリンクを作成する。
     # $REPO_ROOT/config/cursor/settings.json -> $target_user_dir/settings.json となる。
-    if stow --dir="$stow_config_dir" --target="$target_user_dir" --restow "$stow_package"; then
+    if stow --dir="$stow_config_dir" --target="$target_user_dir" --restow --adopt "$stow_package"; then
         log_success "Cursor設定ファイルのシンボリックリンクを作成/更新しました。"
     else
         log_error "Cursor設定ファイルのシンボリックリンク作成/更新に失敗しました。"

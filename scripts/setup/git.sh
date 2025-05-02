@@ -8,6 +8,18 @@ source "$SCRIPT_DIR/../utils/helpers.sh"
 # Git の設定を適用
 setup_git_config() {
     log_start "Git設定ファイルのセットアップを開始します (stow)..."
+
+    # CI環境でもstowを実行する前に既存ファイルを削除
+    if [ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]; then
+        log_warning "既存の .gitconfig ファイルを削除します: $HOME/.gitconfig"
+        rm -f "$HOME/.gitconfig"
+    fi
+    # .gitignore_globalも同様に削除
+    if [ -f "$HOME/.gitignore_global" ] && [ ! -L "$HOME/.gitignore_global" ]; then
+        log_warning "既存の .gitignore_global ファイルを削除します: $HOME/.gitignore_global"
+        rm -f "$HOME/.gitignore_global"
+    fi
+
     local stow_config_dir="$REPO_ROOT/config"
     local stow_package="git"
 

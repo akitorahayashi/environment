@@ -18,12 +18,12 @@ environment/
 ├── config/             
 │   ├── brew/           
 │   ├── cursor/        
-│   ├── git/           
+│   ├── git/               
+│   ├── gems/           
+│   ├── node/    
 │   ├── nvim/           
 │   └── shell/          
 ├── macos/
-├── node/
-├── gems/
 ├── scripts/
 │   ├── setup/
 │   └── utils/

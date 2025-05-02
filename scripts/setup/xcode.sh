@@ -15,19 +15,19 @@ install_xcode() {
     install_xcodes_cli || xcode_install_success=false
     install_xcode_app || xcode_install_success=false
     
-    # シミュレータのインストール
-    if [ "$xcode_install_success" = true ]; then
-        install_xcode_simulators
-    else
-        log_error "Xcode のインストールに失敗したため、シミュレータのインストールをスキップします"
-        return 1
-    fi
+    # シミュレータのインストールは削除
+    # if [ "$xcode_install_success" = true ]; then
+    #     install_xcode_simulators || xcode_install_success=false # Remove call
+    # else
+    #     log_error "Xcode のインストールに失敗したため、シミュレータのインストールをスキップします"
+    #     return 1
+    # fi
     
     if [ "$xcode_install_success" = true ]; then
-        log_success "Xcode とシミュレータのインストールが完了しました！"
+        log_success "Xcode のインストールが完了しました！" # メッセージからシミュレータを削除
         return 0
     else
-        log_error "Xcode またはシミュレータのインストールに失敗しました"
+        log_error "Xcode のインストールに失敗しました" # メッセージからシミュレータを削除
         return 1
     fi
 }
@@ -168,26 +168,10 @@ verify_xcode_installation() {
         log_warning "xcodesコマンドが見つかりません。Xcode 16.2のインストール状態を確認できません"
     fi
     
-    # シミュレータの確認
-    if xcrun simctl list runtimes &>/dev/null; then
-        log_info "シミュレータの状態を確認中..."
-        local missing_simulators=0
-        
-        for platform in iOS watchOS tvOS visionOS; do
-            if ! xcrun simctl list runtimes | grep -q "$platform"; then
-                log_warning "$platform シミュレータが見つかりません"
-                ((missing_simulators++))
-            else
-                log_success "$platform シミュレータがインストールされています"
-            fi
-        done
-        
-        if [ $missing_simulators -gt 0 ]; then
-            log_warning "$missing_simulators 個のシミュレータがインストールされていない可能性があります"
-        fi
-    else
-        log_warning "simctlコマンドが使用できません。シミュレータの状態を確認できません"
-    fi
+    # シミュレータの確認は削除
+    # if xcrun simctl list runtimes &>/dev/null; then
+    #    ...
+    # fi
     
     if [ "$verification_failed" = "true" ]; then
         log_error "Xcodeの検証に失敗しました"
@@ -198,41 +182,7 @@ verify_xcode_installation() {
     fi
 }
 
-# Xcodeシミュレータのインストールを検証する関数
-verify_xcode_simulators() {
-    log_info "Xcodeシミュレータを検証中..."
-    local simulators_missing=false
-    local missing_simulators=0
-    
-    # simctlコマンドの確認
-    if ! xcrun simctl list runtimes &>/dev/null; then
-        log_error "simctlコマンドが正常に動作していません"
-        return 1
-    fi
-    
-    # 各プラットフォームのシミュレータを確認
-    for platform in iOS watchOS tvOS visionOS; do
-        if ! xcrun simctl list runtimes | grep -q "$platform"; then
-            log_warning "$platform シミュレータが見つかりません"
-            ((missing_simulators++))
-            simulators_missing=true
-        else
-            log_success "$platform シミュレータがインストールされています"
-            
-            # そのプラットフォームの最新バージョンを取得してデバイスを確認
-            LATEST_RUNTIME=$(xcrun simctl list runtimes | grep "$platform" | tail -n 1 | awk '{print $2}')
-            if [ -n "$LATEST_RUNTIME" ]; then
-                DEVICE_COUNT=$(xcrun simctl list devices | grep -A 100 "$LATEST_RUNTIME" | grep -m 1 -B 100 "==" | grep -v "==" | grep -v "^--" | grep -c "([0-9A-F-]\+) (")
-                log_info "$platform の利用可能なデバイス数: $DEVICE_COUNT"
-            fi
-        fi
-    done
-    
-    if [ "$simulators_missing" = "true" ]; then
-        log_warning "$missing_simulators 個のプラットフォームシミュレータがインストールされていません"
-        return 1
-    else
-        log_success "すべてのプラットフォームシミュレータがインストールされています"
-        return 0
-    fi
-} 
+# Xcodeシミュレータのインストールを検証する関数 (削除)
+# verify_xcode_simulators() {
+#     ...
+# } 

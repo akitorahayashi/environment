@@ -1,3 +1,6 @@
+# Tap
+tap "leoafarias/fvm"
+
 # Formula
 
 ## Version Control
@@ -11,11 +14,11 @@ brew "act"
 brew "pipx"
 brew "node"
 brew "watchman"
+brew "fvm"
 
 ## Xcode & Swift Development
 brew "xcodes"
 brew "xcbeautify"
-brew "swiftgen"
 brew "mint"
 brew "cocoapods"
 
@@ -30,16 +33,13 @@ brew "yamllint"
 brew "fdupes"
 brew "stow"
 
-## Editor
-brew "neovim"
-
 # Cask
-cask "flutter"
 cask "android-commandlinetools"
 cask "android-studio"
 cask "temurin"
 cask "figma"
 cask "cursor"
+cask "chatgpt"
 cask "discord"
 cask "slack"
 cask "zoom"

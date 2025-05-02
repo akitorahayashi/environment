@@ -77,16 +77,37 @@ verify_zprofile() {
     fi
 
     if [ -L "$HOME/.zprofile" ]; then
-        # stow で作成された場合、リンク先がリポジトリ内のファイルかを簡易的に確認
-        # (stowの実装依存になる可能性があるので注意)
         local link_target=$(readlink "$HOME/.zprofile")
-        if [[ "$link_target" == *"$REPO_ROOT/config/shell/.zprofile"* ]]; then
+        local expected_target_abs="$REPO_ROOT/config/shell/.zprofile"
+        # 相対パスの場合に備えて、リンク元のディレクトリを基準に絶対パスに解決してみる
+        local resolved_target_abs
+        if [[ "$link_target" != /* ]]; then # リンク先が相対パスの場合
+            # readlink -f が使えればそれが一番簡単だが、macOSのデフォルトにはない
+            # GNU readlink (brew install coreutils) があれば greadlink -f を使う
+            if command -v greadlink &> /dev/null; then
+                 resolved_target_abs=$(greadlink -f "$HOME/$link_target")
+            else
+                 # 自前で解決を試みる (ディレクトリ変更とpwd)
+                 # 注意: 複雑な相対パス (`../..` など) ではうまく動かない可能性あり
+                 resolved_target_abs="$(cd "$(dirname "$HOME/.zprofile")" && cd "$(dirname "$link_target")" && pwd)/$(basename "$link_target")"
+            fi
+        else # リンク先が絶対パスの場合
+            resolved_target_abs="$link_target"
+        fi
+
+        # # デバッグ用ログ
+        # log_info "Debug: Link Target Raw: $link_target"
+        # log_info "Debug: Expected Target Abs: $expected_target_abs"
+        # log_info "Debug: Resolved Target Abs: $resolved_target_abs"
+
+        if [ "$resolved_target_abs" == "$expected_target_abs" ]; then
              log_success ".zprofile がシンボリックリンクとして存在し、期待される場所を指しています"
              return 0
         else
-             log_warning ".zprofile はシンボリックリンクですが、期待しない場所を指しています: $link_target"
-             # stowの挙動によってはエラーとしない方が良い場合も
-             return 1 # 厳密にするならエラー
+             log_warning ".zprofile はシンボリックリンクですが、期待しない場所を指しています:"
+             log_warning "  期待: $expected_target_abs"
+             log_warning "  実際 (解決後): $resolved_target_abs (元: $link_target)"
+             return 1
         fi
     else
         log_warning ".zprofile がシンボリックリンクではありません。stowによる管理が期待されます。"
