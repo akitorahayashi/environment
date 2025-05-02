@@ -13,10 +13,10 @@ jobs:
     timeout-minutes: 120
     
     steps:
-      - name: リポジトリのチェックアウト
-        uses: actions/checkout@v4 # v4を使用
+      - name: Checkout repository
+        uses: actions/checkout@v4
       
-      - name: CI環境変数の設定
+      - name: Set CI environment variables
         run: |
           echo "Setting up CI environment variables..."
           # Detect JAVA_HOME based on 'java' executable location if available
@@ -33,7 +33,7 @@ jobs:
           echo "IS_CI=true" >> $GITHUB_ENV
           echo "ALLOW_COMPONENT_FAILURE=true" >> $GITHUB_ENV
           echo "GITHUB_TOKEN_CI=${{ secrets.repo_token }}" >> $GITHUB_ENV # Ensure token is available if needed by scripts
-          echo "✅ CI環境変数を設定しました"
+          echo "✅ CI environment variables set up"
         shell: bash
 
       - name: Cache FVM Flutter SDKs
@@ -65,126 +65,124 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: 1. 初回インストールテストの実行 # Re-enable install step
+      - name: 1. Run initial installation test
         run: |
-          echo "🚀 初回インストールを実行しています..."
+          echo "🚀 Running initial installation..."
           ./install.sh | tee install_output.log
           
-          echo "🔍 インストールログを検証中..."
+          echo "🔍 Validating installation log..."
           if grep -q -E '(\[INSTALL\]|\[OK\].*setup|Start:)' install_output.log; then # Adjust grep pattern for new log format
-            echo "✅ インストールメッセージを確認しました"
+            echo "✅ Installation messages found"
           else
-            echo "❌ インストールメッセージが見つかりませんでした"
-            echo "=== インストール出力サンプル (最初の20行) ==="
+            echo "❌ Installation messages not found"
+            echo "=== Installation output sample (first 20 lines) ==="
             head -n 20 install_output.log
             exit 1
           fi
         shell: bash
 
-      # - name: 2. 冪等性テストの実行 # Temporarily disable for faster debugging
-      #   run: |
-      #     echo "🔍 冪等性テストを実行しています..."
-      #     export IDEMPOTENT_TEST=true # Enable idempotent mode for install script
-      #     ./install.sh | tee idempotent_output.log
-      #     
-      #     echo "🔍 冪等性ログを検証中..."
-      #     # Check that installation messages are NOT present
-      #     if grep -q 'インストール中' idempotent_output.log; then
-      #       echo "❌ 冪等性テスト失敗：2回目の実行でインストールメッセージが見つかりました"
-      #       echo "--- Context ---"
-      #       grep -A 3 -B 3 'インストール中' idempotent_output.log
-      #       echo "---------------"
-      #       exit 1
-      #     else
-      #       echo "✅ インストールメッセージがないことを確認しました (冪等性)"
-      #     fi
-      #     
-      #     # Check that skip messages ARE present
-      #     if grep -q -E '(すでにインストール済み|スキップ)' idempotent_output.log; then
-      #       echo "✅ 適切なスキップメッセージが確認できました"
-      #     else
-      #       # This might be acceptable depending on the components, treat as warning for now
-      #       echo "⚠️ 警告：スキップメッセージが見つかりませんでした。冪等性の確認は継続します。"
-      #     fi
-      #   shell: bash
+      - name: 2. Run idempotency test
+        run: |
+          echo "🔍 Running idempotency test..."
+          export IDEMPOTENT_TEST=true # Enable idempotent mode for install script
+          ./install.sh | tee idempotent_output.log
+          
+          echo "🔍 Validating idempotency log..."
+          # Check that installation messages are NOT present
+          if grep -q 'Installing' idempotent_output.log; then
+            echo "❌ Idempotency test failed: Installation messages found on second run"
+            echo "--- Context ---"
+            grep -A 3 -B 3 'Installing' idempotent_output.log
+            echo "---------------"
+            exit 1
+          else
+            echo "✅ Confirmed no installation messages (idempotency)"
+          fi
+          
+          # Check that skip messages ARE present
+          if grep -q -E '(already installed|Skipping)' idempotent_output.log; then
+            echo "✅ Appropriate skip messages found"
+          else
+            # This might be acceptable depending on the components, treat as warning for now
+            echo "⚠️ Warning: Skip messages not found. Continuing idempotency verification."
+          fi
+        shell: bash
 
-      # - name: 3.1 Verify Shell Setup # Temporarily disable for faster debugging
-      #   run: |
-      #     echo "🔍 シェルの検証を開始..."
-      #     source scripts/utils/helpers.sh
-      #     source scripts/utils/logging.sh
-      #     source scripts/setup/shell.sh
-      #     if verify_shell_setup; then
-      #       log_success "シェルの検証に成功しました"
-      #     else
-      #       log_error "シェルの検証に失敗しました"
-      #       exit 1
-      #     fi
-      #   shell: bash
+      - name: 3.1 Verify Shell Setup
+        run: |
+          echo "🔍 Starting shell verification..."
+          source scripts/utils/helpers.sh
+          source scripts/utils/logging.sh
+          source scripts/setup/shell.sh
+          if verify_shell_setup; then
+            log_success "Shell verification passed"
+          else
+            log_error "Shell verification failed"
+            exit 1
+          fi
+        shell: bash
 
-      # - name: 3.2 Verify Mac Setup # Temporarily disable for faster debugging
-      #   run: |
-      #     echo "🔍 Macの検証を開始..."
-      #     source scripts/utils/helpers.sh
-      #     source scripts/utils/logging.sh
-      #     source scripts/setup/mac.sh
-      #     if verify_mac_setup; then
-      #       log_success "Macの検証に成功しました"
-      #     else
-      #       log_error "Macの検証に失敗しました"
-      #       exit 1
-      #     fi
-      #   shell: bash
+      - name: 3.2 Verify Mac Setup
+        run: |
+          echo "🔍 Starting Mac verification..."
+          source scripts/utils/helpers.sh
+          source scripts/utils/logging.sh
+          source scripts/setup/mac.sh
+          if verify_mac_setup; then
+            log_success "Mac verification passed"
+          else
+            log_error "Mac verification failed"
+            exit 1
+          fi
+        shell: bash
 
-      # - name: 3.3 Verify Homebrew Setup # Temporarily disable for faster debugging
-      #   run: |
-      #     echo "🔍 Homebrewの検証を開始..."
-      #     source scripts/utils/helpers.sh
-      #     source scripts/utils/logging.sh
-      #     source scripts/setup/homebrew.sh
-      #     if verify_homebrew_setup; then
-      #       log_success "Homebrewの検証に成功しました"
-      #     else
-      #       log_error "Homebrewの検証に失敗しました"
-      #       exit 1
-      #     fi
-      #   shell: bash
+      - name: 3.3 Verify Homebrew Setup
+        run: |
+          echo "🔍 Starting Homebrew verification..."
+          source scripts/utils/helpers.sh
+          source scripts/utils/logging.sh
+          source scripts/setup/homebrew.sh
+          if verify_homebrew_setup; then
+            log_success "Homebrew verification passed"
+          else
+            log_error "Homebrew verification failed"
+            exit 1
+          fi
+        shell: bash
 
-      # - name: 3.4 Verify Xcode Installation # Temporarily disable for faster debugging
-      #   run: |
-      #     echo "🔍 Xcodeの検証を開始..."
-      #     source scripts/utils/helpers.sh
-      #     source scripts/utils/logging.sh
-      #     source scripts/setup/xcode.sh
-      #     if ! verify_xcode_installation; then
-      #       log_error "Xcode本体の検証に失敗しました"
-      #       exit 1
-      #     fi
-      #     log_success "Xcodeの検証に成功しました"
-      #   shell: bash
+      - name: 3.4 Verify Xcode Installation
+        run: |
+          echo "🔍 Starting Xcode verification..."
+          source scripts/utils/helpers.sh
+          source scripts/utils/logging.sh
+          source scripts/setup/xcode.sh
+          if ! verify_xcode_installation; then
+            log_error "Xcode body verification failed"
+            exit 1
+          fi
+          log_success "Xcode verification passed"
+        shell: bash
 
-      # - name: 3.5 Verify Git Setup # Temporarily disable for faster debugging
-      #   run: |
-      #     echo "🔍 Gitの検証を開始..."
-      #     source scripts/utils/helpers.sh
-      #     source scripts/utils/logging.sh
-      #     source scripts/setup/git.sh
-      #     if verify_git_setup; then
-      #       log_success "Gitの検証に成功しました"
-      #     else
-      #       log_error "Gitの検証に失敗しました"
-      #       exit 1
-      #     fi
-      #   shell: bash
+      - name: 3.5 Verify Git Setup
+        run: |
+          echo "🔍 Starting Git verification..."
+          source scripts/utils/helpers.sh
+          source scripts/utils/logging.sh
+          source scripts/setup/git.sh
+          if verify_git_setup; then
+            log_success "Git verification passed"
+          else
+            log_error "Git verification failed"
+            exit 1
+          fi
+        shell: bash
 
       - name: 3.6 Verify Flutter Setup
         run: |
-          echo "🔍 Flutterの検証を開始..."
-          # FVM管理下のFlutterを使うため、PATHを設定
+          echo "🔍 Starting Flutter verification..."
           export PATH="$HOME/fvm/default/bin:$PATH"
           echo "[DEBUG] PATH set for step: $PATH"
 
-          # 軽量なバージョンチェックを実行して基本的な動作を確認
           echo "[INFO] Running flutter --version for basic verification..."
           if flutter --version; then
               echo "[OK] flutter --version completed successfully."
@@ -195,25 +193,9 @@ jobs:
           fi
         shell: bash
 
-      - name: 3.7 Verify Neovim Setup
-        run: |
-          echo "🔍 Neovimの検証を開始..."
-          source scripts/utils/helpers.sh
-          source scripts/utils/logging.sh
-          source scripts/setup/neovim.sh
-          # Ensure REPO_ROOT is available for verify_neovim_setup
-          export REPO_ROOT="${{ github.workspace }}"
-          if verify_neovim_setup; then
-            log_success "Neovimの検証に成功しました"
-          else
-            log_error "Neovimの検証に失敗しました"
-            exit 1
-          fi
-        shell: bash
-
       - name: 3.8 Verification Summary
         run: |
           echo "======================"
           echo "✅ All verification steps passed successfully!"
-          echo "🎉 すべてのテストが正常に完了しました！"
+          echo "🎉 All tests passed successfully!"
         shell: bash 

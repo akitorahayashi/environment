@@ -10,7 +10,6 @@
         "ms-python.vscode-pylance",
         "ms-vscode.makefile-tools",
         "openai.chatgpt",
-        "redhat.vscode-yaml",
-        "vscodevim.vim"
+        "redhat.vscode-yaml"
     ]
 }
