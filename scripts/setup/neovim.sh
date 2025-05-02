@@ -40,6 +40,16 @@ setup_nvim_config() {
     log_info "Neovim設定ディレクトリを作成します (存在しない場合): $HOME/.config"
     mkdir -p "$HOME/.config"
 
+    # stow実行前に、ターゲットが通常のディレクトリ/ファイルであれば削除する
+    if [ -e "$nvim_config_target_dir" ] && [ ! -L "$nvim_config_target_dir" ]; then
+        log_warning "既存のNeovim設定ディレクトリ (非シンボリックリンク) を削除します: $nvim_config_target_dir"
+        rm -rf "$nvim_config_target_dir"
+        if [ $? -ne 0 ]; then
+            log_error "既存のNeovim設定ディレクトリの削除に失敗しました。"
+            return 1
+        fi
+    fi
+
     log_info "'$stow_package' パッケージを '$stow_config_dir' から '$HOME/.config' にstowします..."
     if stow --dir="$stow_config_dir" --target="$HOME/.config" --restow "$stow_package"; then
         log_success "Neovim設定ファイルのシンボリックリンクを作成/更新しました。"

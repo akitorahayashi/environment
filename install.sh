@@ -117,7 +117,7 @@ main() {
     elapsed_time=$((end_time - start_time))
 
     # 実行完了メッセージ
-    log_success "セットアップ処理 (デバッグモード) が完了しました！"
+    log_success "セットアップ処理が完了しました！"
     log_success "所要時間: ${elapsed_time}秒"
 
     # 冪等性レポートの表示（テストモードの場合）
