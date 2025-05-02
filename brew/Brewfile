@@ -1,19 +1,35 @@
 # Formula
+
+## Version Control
 brew "git"
 brew "gh"
+
+## CI/CD
 brew "act"
+
+## Development Tools
 brew "pipx"
-brew "fdupes"
+brew "node"
+brew "watchman"
+
+## Xcode & Swift Development
 brew "xcodes"
 brew "xcbeautify"
 brew "swiftgen"
 brew "mint"
+brew "cocoapods"
+
+## Ruby Development
 brew "rbenv"
 brew "ruby-build"
-brew "cocoapods"
-brew "node"
+
+## Linter
 brew "yamllint"
-brew "watchman"
+
+## Utility
+brew "fdupes"
+
+## Editor
 brew "neovim"
 
 # Cask
@@ -21,10 +37,10 @@ cask "flutter"
 cask "android-commandlinetools"
 cask "android-studio"
 cask "temurin"
-cask "discord"
-cask "slack"
-cask "spotify"
-cask "zoom"
-cask "notion"
 cask "figma"
 cask "cursor"
+cask "discord"
+cask "slack"
+cask "zoom"
+cask "notion"
+cask "spotify"
