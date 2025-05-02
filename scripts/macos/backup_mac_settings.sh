@@ -4,12 +4,13 @@
 # 現在の macOS の設定を取得し、自動で setup_mac_settings.sh を生成
 # ================================================
 #
-# 【使い方】
-# 1. 実行権限を付与
-#    $ chmod +x macos/backup_mac_settings.sh
-# 2. スクリプトを実行
-#    $ ./macos/backup_mac_settings.sh
-# 3. setup_mac_settings.sh が作成される
+# Usage:
+# 1. Grant execution permission:
+#    $ chmod +x scripts/macos/backup_mac_settings.sh
+# 2. Run the script:
+#    $ ./scripts/macos/backup_mac_settings.sh
+#
+# The script will create a backup file named macos_settings_backup_YYYYMMDD_HHMMSS.sh in the current directory.
 #
 # ================================================
 
