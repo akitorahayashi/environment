@@ -154,23 +154,14 @@ jobs:
           # source ~/.zprofile # Remove sourcing the whole profile
           export PATH="$HOME/fvm/default/bin:$PATH" # Add FVM path directly
           echo "[DEBUG] PATH set for step: $PATH" # Verify PATH
-          # source scripts/utils/helpers.sh # Not needed if not calling verify_flutter_setup
-          # source scripts/utils/logging.sh # Not needed if not calling verify_flutter_setup
-          # source scripts/setup/flutter.sh # Not needed if not calling verify_flutter_setup
           
-          echo "[INFO] Running flutter doctor -v directly (timeout 5m)..."
-          if timeout 300 flutter doctor -v; then
+          echo "[INFO] Running flutter doctor -v directly..."
+          if flutter doctor -v; then
               echo "[OK] flutter doctor -v completed successfully."
           else
               exit_code=$?
-              if [ $exit_code -eq 124 ]; then
-                  echo "[WARN] flutter doctor -v timed out after 5 minutes."
-                  # Consider if timeout should be an error or warning
-                  # exit 1 # Uncomment to make timeout an error
-              else
-                  echo "[ERROR] flutter doctor -v failed with exit code $exit_code."
-                  exit 1
-              fi
+              echo "[ERROR] flutter doctor -v failed with exit code $exit_code."
+              exit 1
           fi
         shell: bash
 
