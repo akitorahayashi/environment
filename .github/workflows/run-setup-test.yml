@@ -42,6 +42,9 @@ jobs:
           echo "✅ CI環境変数を設定しました"
         shell: bash
 
+      - name: Install stow
+        run: brew install stow
+
       - name: 1. 初回インストールテストの実行
         run: |
           echo "🚀 初回インストールを実行しています..."
