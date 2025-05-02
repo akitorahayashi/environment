@@ -151,6 +151,7 @@ jobs:
       - name: 3.6 Verify Flutter Setup
         run: |
           echo "🔍 Flutterの検証を開始..."
+          source ~/.zprofile 
           source scripts/utils/helpers.sh
           source scripts/utils/logging.sh
           source scripts/setup/flutter.sh
