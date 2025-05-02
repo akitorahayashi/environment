@@ -1,12 +1,12 @@
-# Apple Silicon 向けの Homebrew の設定
+# Apple Silicon 用 Homebrew の初期化
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# ユーザーローカルの bin ディレクトリ (~/bin) を PATH に追加 (存在する場合)
+# ユーザーローカルの bin ディレクトリを PATH に追加
 if [ -d "$HOME/bin" ] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
     export PATH="$HOME/bin:$PATH"
 fi
 
-# Android SDK の環境変数
+# Android SDK 環境変数
 if [[ -z "$ANDROID_HOME" ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
@@ -16,26 +16,23 @@ if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 fi
 
-# FlutterはHomebrewによって/opt/homebrew/binに直接インストールされる
-# 追加のPATH設定は不要
-
-# SSH Agent Configuration
+# SSH Agent 設定
 if [ -z "$SSH_AUTH_SOCK" ]; then
-   # Check if ssh-agent is already running
+   # ssh-agent が実行されていない場合に起動
    if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-       # Start ssh-agent
        eval "$(ssh-agent -s)"
    fi
 fi
 
-# Add SSH key if not already added
+# SSH キーを ssh-agent に追加 (まだ追加されていない場合)
 if ! ssh-add -l > /dev/null 2>&1; then
     ssh-add ~/.ssh/id_ed25519 2>/dev/null
 fi
-# rbenv設定
+
+# rbenv 初期化
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
-# Created by `pipx` on 2025-04-23 15:22:05
-export PATH="$PATH:/Users/akitora.hayashi/.local/bin"
+# pipx 用 PATH 設定
+export PATH="$PATH:$HOME/.local/bin"

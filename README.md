@@ -13,23 +13,21 @@ This tool automates the setup of your development environment by batch installin
 ```
 environment/
 ├── .github/
-│   ├── scripts/
 │   └── workflows/
-├── config/             
-│   ├── brew/           
-│   ├── cursor/        
-│   ├── git/               
-│   ├── gems/           
-│   ├── node/    
-│   ├── nvim/           
-│   └── shell/          
+├── config/
+│   ├── brew/
+│   ├── cursor/
+│   ├── gems/
+│   ├── git/
+│   ├── node/
+│   └── shell/
 ├── macos/
 ├── scripts/
 │   ├── setup/
 │   └── utils/
 ├── .gitignore
-├── README.md
-└── install.sh
+├── install.sh
+└── README.md
 ```
 
 ## Implementation Features
