@@ -85,9 +85,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Install stow
-        run: brew install stow
-
       - name: 3.1 Verify Shell Setup
         run: |
           echo "🔍 シェルの検証を開始..."

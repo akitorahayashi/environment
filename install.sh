@@ -66,12 +66,15 @@ main() {
         fi
     fi
     
+    # Homebrew自体のインストールとBrewfileの適用を先に行う
+    install_homebrew
+    install_brewfile
+
     # Mac関連のセットアップ
     install_rosetta
     setup_mac_settings
     
     # 基本環境のセットアップ
-    install_homebrew
     setup_shell_config
     
     # Gitと認証関連のセットアップ
@@ -80,7 +83,6 @@ main() {
     setup_github_cli
     
     # パッケージとプログラミング言語環境のインストール
-    install_brewfile
     setup_ruby_env
     
     # Xcodeのインストール
