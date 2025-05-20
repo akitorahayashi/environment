@@ -8,45 +8,6 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 source "$SCRIPT_DIR/../utils/helpers.sh"
 source "$SCRIPT_DIR/../utils/logging.sh"
 
-# Apple Silicon 向け Rosetta 2 のインストール
-install_rosetta() {
-    # Intel Macの場合は不要
-    if [[ "$(uname -m)" != "arm64" ]]; then
-        log_success "この Mac は Apple Silicon ではないため、Rosetta 2 は不要"
-        return 0
-    fi
-    
-    # Mac のチップモデルを取得
-    MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
-    log_info "🖥  Mac Model: $MAC_MODEL"
-
-    # すでに Rosetta 2 がインストールされているかチェック
-    if pgrep oahd >/dev/null 2>&1; then
-        log_installed "Rosetta 2"
-        return 0
-    fi
-
-    # Rosetta 2 をインストール
-    log_installing "Rosetta 2" "Apple Silicon ($MAC_MODEL)"
-    
-    # CI環境では非対話型でインストール
-    softwareupdate --install-rosetta --agree-to-license || {
-        if [ "$IS_CI" = "true" ]; then
-            log_warning "Rosetta 2 のインストールに問題が発生しましたが、CI環境のため続行します"
-            return 0
-        else
-            handle_error "Rosetta 2 のインストールに失敗しました"
-        fi
-    }
-
-    # インストールの成否をチェック
-    if pgrep oahd >/dev/null 2>&1; then
-        log_success "Rosetta 2 のインストールが完了しました"
-    else
-        handle_error "Rosetta 2 のインストールに失敗しました"
-    fi
-}
-
 # Mac のシステム設定を適用
 setup_mac_settings() {
     log_start "Mac のシステム設定を適用中..."
@@ -115,9 +76,6 @@ verify_mac_setup() {
         log_success "macOSバージョン: $OS_VERSION"
     fi
     
-    # Arm64アーキテクチャの場合はRosetta 2を確認
-    verify_rosetta_if_needed
-    
     # macOS設定の確認
     verify_macos_preferences
     
@@ -130,23 +88,6 @@ verify_mac_setup() {
     else
         log_success "Mac環境の検証が完了しました"
         return 0
-    fi
-}
-
-# Rosettaの検証（Apple Siliconの場合のみ）
-verify_rosetta_if_needed() {
-    if [[ "$(uname -m)" == "arm64" ]]; then
-        MAC_MODEL=$(sysctl -n machdep.cpu.brand_string)
-        log_info "Macモデル: $MAC_MODEL"
-        
-        if pgrep oahd >/dev/null 2>&1; then
-            log_success "Rosetta 2が正しく設定されています"
-        else
-            log_error "Rosetta 2が設定されていません"
-            verification_failed=true
-        fi
-    else
-        log_success "Intel Macではないため、Rosetta 2は不要です"
     fi
 }
 
@@ -178,7 +119,6 @@ verify_system_integrity() {
 main() {
     log_start "macOS環境のセットアップを開始します"
     
-    install_rosetta
     setup_mac_settings
     
     log_success "macOS環境のセットアップが完了しました"
