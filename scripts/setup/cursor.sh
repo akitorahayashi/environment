@@ -1,7 +1,12 @@
 #!/bin/bash
 
+# 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
+# ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
 
 # Cursor のセットアップ (stowを使用)
 setup_cursor() {
@@ -109,4 +114,18 @@ verify_cursor_setup() {
         log_success "Cursor環境の検証が完了しました"
         return 0
     fi
-} 
+}
+
+# メイン関数
+main() {
+    log_start "Cursor環境のセットアップを開始します"
+    
+    setup_cursor
+    
+    log_success "Cursor環境のセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi 

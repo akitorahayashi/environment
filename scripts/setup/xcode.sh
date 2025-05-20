@@ -2,8 +2,11 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
 
 # Xcode とシミュレータのインストール
 install_xcode() {
@@ -185,4 +188,22 @@ verify_xcode_installation() {
 # Xcodeシミュレータのインストールを検証する関数 (削除)
 # verify_xcode_simulators() {
 #     ...
-# } 
+# }
+
+# メイン関数
+main() {
+    log_start "Xcodeのセットアップを開始します"
+    
+    if ! install_xcode; then
+        handle_error "Xcodeのインストールに問題がありました"
+    else
+        log_success "Xcodeのインストールが完了しました"
+    fi
+    
+    log_success "Xcodeのセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi 

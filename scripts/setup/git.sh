@@ -2,8 +2,11 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
 
 # Git の設定を適用
 setup_git_config() {
@@ -98,7 +101,7 @@ setup_ssh_keys() {
     log_success "SSH キーの生成が完了しました"
 }
 
-# GitHub CLI のインストールと認証
+# GitHub CLI のインストール
 setup_github_cli() {
     # インストール確認
     if ! command_exists gh; then
@@ -107,70 +110,6 @@ setup_github_cli() {
         log_success "GitHub CLI のインストール完了"
     else
         log_success "GitHub CLI はすでにインストールされています"
-    fi
-
-    # 認証設定
-    setup_github_auth
-}
-
-# GitHub認証設定
-setup_github_auth() {
-    echo "⏳ GitHub CLIの認証確認中..."
-
-    # 認証済みの場合はスキップ
-    if gh auth status &>/dev/null; then
-        log_success "GitHub CLI はすでに認証済みです"
-        return 0
-    fi
-    
-    log_info "GitHub CLI の認証が必要です"
-    
-    # CI環境での処理
-    if [ "$IS_CI" = "true" ]; then
-        setup_github_auth_ci
-        return $?
-    fi
-    
-    # 通常環境での処理
-    setup_github_auth_interactive
-}
-
-# CI環境でのGitHub認証
-setup_github_auth_ci() {
-    if [ -n "$GITHUB_TOKEN_CI" ]; then
-        log_info "CI環境用のGitHubトークンを使用して認証を行います"
-        if echo "$GITHUB_TOKEN_CI" | gh auth login --with-token; then
-            log_success "CI環境でのGitHub認証が完了しました"
-            return 0
-        else
-            log_warning "CI環境でのGitHub認証に失敗しました"
-            return 1
-        fi
-    else
-        log_info "CI環境ではトークンがないため、認証はスキップします"
-        return 0
-    fi
-}
-
-# 対話的なGitHub認証
-setup_github_auth_interactive() {
-    # ユーザーに認証をスキップするか尋ねる
-    local skip_auth=""
-    read -p "GitHub CLI の認証をスキップしますか？ (y/N): " skip_auth
-    
-    if [[ "$skip_auth" =~ ^[Yy]$ ]]; then
-        log_info "GitHub CLI の認証をスキップします"
-        log_warning "後で必要に応じて 'gh auth login' を実行してください（README参照）"
-        return 0
-    else
-        log_info "GitHub CLI の認証を行います..."
-        if gh auth login; then
-            log_success "GitHub認証が完了しました"
-            return 0
-        else
-            log_warning "GitHub認証に失敗しました。後で手動で認証してください。"
-            return 1
-        fi
     fi
 }
 
@@ -262,4 +201,20 @@ verify_ssh_keys() {
              return 1
         fi
     fi
-} 
+}
+
+# メイン関数
+main() {
+    log_start "Git環境のセットアップを開始します"
+    
+    setup_git_config
+    setup_ssh_agent
+    setup_github_cli
+    
+    log_success "Git環境のセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi 

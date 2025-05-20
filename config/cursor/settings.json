@@ -7,5 +7,11 @@
   "explorer.confirmDragAndDrop": false,
   "explorer.confirmDelete": false,
   "git.openRepositoryInParentFolders": "never",
-  "github.copilot.selectedCompletionModel": "claude-3-7-sonnet"
+  "github.copilot.selectedCompletionModel": "claude-3-7-sonnet",
+  "explorer.confirmPasteNative": false,
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.mlmodel": "default"
+  },
+  "diffEditor.ignoreTrimWhitespace": false
 }

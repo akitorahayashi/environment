@@ -1,5 +1,5 @@
 [user]
-    name = terrio32
+    name = akitorahayashi
     email = atora.has75@gmail.com
 
 [alias]
@@ -24,4 +24,4 @@
     user = terrio32
     
 [core]
-	excludesfile = /Users/akitora.hayashi/.gitignore_global
+	excludesfile = ~/.gitignore_global

@@ -2,8 +2,11 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
 
 # rbenvをインストール
 install_rbenv() {
@@ -214,4 +217,18 @@ verify_ruby_installation() {
     fi
     
     return 0
-} 
+}
+
+# メイン関数
+main() {
+    log_start "Ruby環境のセットアップを開始します"
+    
+    setup_ruby_env
+    
+    log_success "Ruby環境のセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi 

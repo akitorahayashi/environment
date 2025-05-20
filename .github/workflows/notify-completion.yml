@@ -1,85 +1,87 @@
-name: Notify Completion
+name: Notify Setup Completion
 
 on:
   workflow_call:
     inputs:
-      pr_number:
-        description: 'The number of the pull request'
+      job_status:
         required: true
-        type: number
-      macos_test_result:
-        description: 'Result of the macOS setup test job'
+        type: string
+      job_name:
         required: true
-        type: string # success, failure, skipped, cancelled
+        type: string
     secrets:
       repo_token:
-        description: 'GitHub Token for API calls'
         required: true
+
+permissions:
+  pull-requests: write
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-    permissions:
-      # PRへのコメント投稿/更新に必要
-      pull-requests: write
-      
     steps:
-      - name: Construct Comment Body
-        id: construct_comment
-        run: |
-          overall_status="✅ Success"
-          summary="### CI パイプライン実行結果\n\n"
-          
-          # macOSテストのステータス
-          if [[ "${{ inputs.macos_test_result }}" == "success" ]]; then
-            summary+="- ✅ macOS セットアップテスト: 成功\n"
-          elif [[ "${{ inputs.macos_test_result }}" == "skipped" ]]; then
-            summary+="- ⏭️ macOS セットアップテスト: スキップ\n"
-          else
-            summary+="- ❌ macOS セットアップテスト: 失敗\n"
-            overall_status="❌ Failure"
-          fi
-          
-          # 全体的なステータスメッセージを設定
-          summary+="\n**Overall Status: ${overall_status}**"
-          
-          # GITHUB_OUTPUTの準備 (複数行)
-          echo "summary_body<<EOF" >> $GITHUB_OUTPUT
-          echo "$summary" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          
-      - name: Post or Update Completion Comment
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Post comment
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.repo_token }}
           script: |
-            const issue_number = ${{ inputs.pr_number }};
-            const body = `${{ steps.construct_comment.outputs.summary_body }}`;
-            const marker = "<!-- ci-status-summary -->"; // コメントを見つけるための隠しマーカー
-            const comment_body = marker + '\n\n' + body;
-
+            const prNumber = ${{ github.event.pull_request.number }};
+            const jobStatus = '${{ inputs.job_status }}';
+            const jobName = '${{ inputs.job_name }}';
+            
+            // コメント本文の構築
+            let commentBody = `## macOS Setup Test Results\n\n`;
+            commentBody += `**Status**: ${jobStatus === 'success' ? '✅ Success' : '❌ Failed'}\n\n`;
+            commentBody += `**Job**: ${jobName}\n\n`;
+            
+            // 成功時のメッセージ
+            if (jobStatus === 'success') {
+              commentBody += `### ✅ All Setup Tests Passed\n\n`;
+              commentBody += `The following components were successfully verified:\n`;
+              commentBody += `- Shell setup\n`;
+              commentBody += `- Mac setup\n`;
+              commentBody += `- Homebrew setup\n`;
+              commentBody += `- Xcode installation\n`;
+              commentBody += `- Git setup\n`;
+              commentBody += `- Flutter setup\n\n`;
+              commentBody += `All components are properly configured and ready to use.`;
+            } else {
+              // 失敗時のメッセージ
+              commentBody += `### ❌ Setup Tests Failed\n\n`;
+              commentBody += `One or more setup tests failed. Please check the workflow logs for details.\n\n`;
+              commentBody += `**Next Steps**:\n`;
+              commentBody += `1. Review the workflow logs for specific failure details\n`;
+              commentBody += `2. Fix any identified issues\n`;
+              commentBody += `3. Push changes to trigger a new test run`;
+            }
+            
+            // 既存のコメントを検索
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: issue_number,
+              issue_number: prNumber
             });
-
-            const existing_comment = comments.data.find(comment => comment.body.includes(marker));
-
-            if (existing_comment) {
-              console.log(`Updating existing comment (ID: ${existing_comment.id})`);
+            
+            // 既存のコメントを更新または新規作成
+            const existingComment = comments.data.find(comment => 
+              comment.body.includes('## macOS Setup Test Results')
+            );
+            
+            if (existingComment) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                comment_id: existing_comment.id,
-                body: comment_body
+                comment_id: existingComment.id,
+                body: commentBody
               });
             } else {
-              console.log("Posting new comment");
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issue_number,
-                body: comment_body
+                issue_number: prNumber,
+                body: commentBody
               });
             } 

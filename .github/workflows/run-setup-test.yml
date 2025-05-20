@@ -31,7 +31,6 @@ jobs:
           echo "REPO_ROOT=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "IS_CI=true" >> $GITHUB_ENV
           echo "ALLOW_COMPONENT_FAILURE=true" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN_CI=${{ secrets.repo_token }}" >> $GITHUB_ENV # Ensure token is available if needed by scripts
           echo "✅ CI environment variables set up"
         shell: bash
 
@@ -40,7 +39,7 @@ jobs:
         id: cache-fvm
         with:
           path: $HOME/fvm
-          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvm/fvm_config.json') }} # .fvm 設定ファイルに基づいてキーを生成 (存在しない場合はOSのみ)
+          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvm/fvm_config.json') }}
           restore-keys: |
             ${{ runner.os }}-fvm-
 
@@ -49,8 +48,7 @@ jobs:
         id: cache-pub
         with:
           path: $HOME/.pub-cache
-          # pubspec.lock がルートにないため、Flutterバージョン(fvm cache key)かOS名でキーを生成
-          key: ${{ runner.os }}-pub-${{ steps.cache-fvm.outputs.cache-hit != 'true' && '' || 'stable' }} # キーの一部としてfvmキャッシュヒット状況を使う例 (調整可能)
+          key: ${{ runner.os }}-pub-${{ steps.cache-fvm.outputs.cache-hit != 'true' && '' || 'stable' }}
           restore-keys: |
             ${{ runner.os }}-pub-
 
@@ -60,9 +58,16 @@ jobs:
           path: |
             $HOME/.gradle/caches
             $HOME/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }} # プロジェクト内のGradle関連ファイルを探す
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
+      - name: Make scripts executable
+        run: |
+          echo "Making setup scripts executable..."
+          chmod +x scripts/setup/*.sh
+          chmod +x install.sh
+          echo "✅ Scripts are now executable"
 
       - name: Run initial installation test
         run: |
@@ -70,7 +75,7 @@ jobs:
           ./install.sh | tee install_output.log
           
           echo "🔍 Validating installation log..."
-          if grep -q -E '(\[INSTALL\]|\[OK\].*setup|Start:)' install_output.log; then # Adjust grep pattern for new log format
+          if grep -q -E '(\[INSTALL\]|\[OK\].*setup|Start:)' install_output.log; then
             echo "✅ Installation messages found"
           else
             echo "❌ Installation messages not found"
@@ -83,11 +88,10 @@ jobs:
       - name: Run idempotency test
         run: |
           echo "🔍 Running idempotency test..."
-          export IDEMPOTENT_TEST=true # Enable idempotent mode for install script
+          export IDEMPOTENT_TEST=true
           ./install.sh | tee idempotent_output.log
           
           echo "🔍 Validating idempotency log..."
-          # Check that installation messages are NOT present
           if grep -q 'Installing' idempotent_output.log; then
             echo "❌ Idempotency test failed: Installation messages found on second run"
             echo "--- Context ---"
@@ -98,11 +102,9 @@ jobs:
             echo "✅ Confirmed no installation messages (idempotency)"
           fi
           
-          # Check that skip messages ARE present
           if grep -q -E '(already installed|Skipping)' idempotent_output.log; then
             echo "✅ Appropriate skip messages found"
           else
-            # This might be acceptable depending on the components, treat as warning for now
             echo "⚠️ Warning: Skip messages not found. Continuing idempotency verification."
           fi
         shell: bash
@@ -110,13 +112,11 @@ jobs:
       - name: Verify Shell Setup
         run: |
           echo "🔍 Starting shell verification..."
-          source scripts/utils/helpers.sh
-          source scripts/utils/logging.sh
-          source scripts/setup/shell.sh
-          if verify_shell_setup; then
-            log_success "Shell verification passed"
+          ./scripts/setup/shell.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Shell verification passed"
           else
-            log_error "Shell verification failed"
+            echo "❌ Shell verification failed"
             exit 1
           fi
         shell: bash
@@ -124,13 +124,11 @@ jobs:
       - name: Verify Mac Setup
         run: |
           echo "🔍 Starting Mac verification..."
-          source scripts/utils/helpers.sh
-          source scripts/utils/logging.sh
-          source scripts/setup/mac.sh
-          if verify_mac_setup; then
-            log_success "Mac verification passed"
+          ./scripts/setup/mac.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Mac verification passed"
           else
-            log_error "Mac verification failed"
+            echo "❌ Mac verification failed"
             exit 1
           fi
         shell: bash
@@ -138,13 +136,11 @@ jobs:
       - name: Verify Homebrew Setup
         run: |
           echo "🔍 Starting Homebrew verification..."
-          source scripts/utils/helpers.sh
-          source scripts/utils/logging.sh
-          source scripts/setup/homebrew.sh
-          if verify_homebrew_setup; then
-            log_success "Homebrew verification passed"
+          ./scripts/setup/homebrew.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Homebrew verification passed"
           else
-            log_error "Homebrew verification failed"
+            echo "❌ Homebrew verification failed"
             exit 1
           fi
         shell: bash
@@ -152,26 +148,23 @@ jobs:
       - name: Verify Xcode Installation
         run: |
           echo "🔍 Starting Xcode verification..."
-          source scripts/utils/helpers.sh
-          source scripts/utils/logging.sh
-          source scripts/setup/xcode.sh
-          if ! verify_xcode_installation; then
-            log_error "Xcode body verification failed"
+          ./scripts/setup/xcode.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Xcode verification passed"
+          else
+            echo "❌ Xcode verification failed"
             exit 1
           fi
-          log_success "Xcode verification passed"
         shell: bash
 
       - name: Verify Git Setup
         run: |
           echo "🔍 Starting Git verification..."
-          source scripts/utils/helpers.sh
-          source scripts/utils/logging.sh
-          source scripts/setup/git.sh
-          if verify_git_setup; then
-            log_success "Git verification passed"
+          ./scripts/setup/git.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Git verification passed"
           else
-            log_error "Git verification failed"
+            echo "❌ Git verification failed"
             exit 1
           fi
         shell: bash
@@ -180,15 +173,12 @@ jobs:
         run: |
           echo "🔍 Starting Flutter verification..."
           export PATH="$HOME/fvm/default/bin:$PATH"
-          echo "[DEBUG] PATH set for step: $PATH"
-
-          echo "[INFO] Running flutter --version for basic verification..."
-          if flutter --version; then
-              echo "[OK] flutter --version completed successfully."
+          ./scripts/setup/flutter.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Flutter verification passed"
           else
-              exit_code=$?
-              echo "[ERROR] flutter --version failed with exit code $exit_code."
-              exit 1
+            echo "❌ Flutter verification failed"
+            exit 1
           fi
         shell: bash
 
