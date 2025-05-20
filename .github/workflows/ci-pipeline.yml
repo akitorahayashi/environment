@@ -16,6 +16,8 @@ jobs:
   notify:
     name: Notify Completion
     needs: setup-test
+    permissions:
+      pull-requests: write
     uses: ./.github/workflows/notify-completion.yml
     with:
       job_status: ${{ needs.setup-test.result }}

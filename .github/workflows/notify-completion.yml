@@ -13,6 +13,9 @@ on:
       repo_token:
         required: true
 
+permissions:
+  pull-requests: write
+
 jobs:
   notify:
     runs-on: ubuntu-latest
