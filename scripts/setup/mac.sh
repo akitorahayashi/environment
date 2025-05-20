@@ -2,8 +2,11 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
 
 # Apple Silicon 向け Rosetta 2 のインストール
 install_rosetta() {
@@ -169,4 +172,19 @@ verify_system_integrity() {
     else
         log_warning "システム整合性保護が無効になっています"
     fi
-} 
+}
+
+# メイン関数
+main() {
+    log_start "macOS環境のセットアップを開始します"
+    
+    install_rosetta
+    setup_mac_settings
+    
+    log_success "macOS環境のセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi 

@@ -2,8 +2,11 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
 
 # シェル設定ファイルを適用する
 setup_shell_config() {
@@ -124,4 +127,18 @@ verify_env_vars() {
         log_success "PATH環境変数が設定されています"
         return 0
     fi
-} 
+}
+
+# メイン関数
+main() {
+    log_start "シェル環境のセットアップを開始します"
+    
+    setup_shell_config
+    
+    log_success "シェル環境のセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi 

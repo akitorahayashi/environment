@@ -2,8 +2,11 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
 
 # Git の設定を適用
 setup_git_config() {
@@ -262,4 +265,20 @@ verify_ssh_keys() {
              return 1
         fi
     fi
-} 
+}
+
+# メイン関数
+main() {
+    log_start "Git環境のセットアップを開始します"
+    
+    setup_git_config
+    setup_ssh_agent
+    setup_github_cli
+    
+    log_success "Git環境のセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi 

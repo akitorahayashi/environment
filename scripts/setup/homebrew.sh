@@ -2,8 +2,14 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+
 # ユーティリティのロード
 source "$SCRIPT_DIR/../utils/helpers.sh"
+source "$SCRIPT_DIR/../utils/logging.sh"
+
+# CI環境かどうかを確認
+export IS_CI=${CI:-false}
 
 # Homebrew のインストール
 install_homebrew() {
@@ -235,3 +241,26 @@ verify_brew_package() {
         fi
     fi
 }
+
+# メイン関数
+main() {
+    log_start "Homebrewのセットアップを開始します"
+    
+    # Homebrewのインストール
+    install_homebrew
+    
+    # Brewfileのインストール
+    install_brewfile
+    
+    # 検証
+    verify_homebrew_setup
+    verify_brewfile
+    verify_package_counts "$REPO_ROOT/config/brew/Brewfile"
+    
+    log_success "Homebrewのセットアップが完了しました"
+}
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

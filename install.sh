@@ -30,17 +30,6 @@ source "$SCRIPT_DIR/scripts/utils/logging.sh" || {
 }
 source "$SCRIPT_DIR/scripts/utils/helpers.sh" || echo "警告: helpers.shをロードできませんでした"
 
-# セットアップ関数のロード
-echo "セットアップスクリプトをロード中..."
-source "$SCRIPT_ROOT_DIR/scripts/setup/homebrew.sh" || echo "警告: homebrew.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/mac.sh" || echo "警告: mac.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/shell.sh" || echo "警告: shell.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/git.sh" || echo "警告: git.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh" || echo "警告: ruby.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh" || echo "警告: xcode.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh" || echo "警告: flutter.shをロードできませんでした"
-source "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh" || echo "警告: cursor.shをロードできませんでした"
-
 # エラー発生時に即座に終了する設定
 set -e
 
@@ -63,24 +52,15 @@ main() {
         fi
     fi
     
-    # セットアップ実行
-    install_homebrew
-    install_brewfile
-    setup_shell_config
-    setup_flutter
-    install_rosetta
-    setup_mac_settings
-    setup_git_config
-    setup_ssh_agent
-    setup_github_cli
-    setup_ruby_env
-    log_start "Xcodeのインストールを開始します..."
-    if ! install_xcode; then
-        handle_error "Xcodeのインストールに問題がありました"
-    else
-        log_success "Xcodeのインストールが完了しました"
-    fi
-    setup_cursor
+    # セットアップスクリプトの実行
+    "$SCRIPT_ROOT_DIR/scripts/setup/homebrew.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/shell.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/mac.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/git.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh"
 
     # インストール結果の表示
     end_time=$(date +%s)
