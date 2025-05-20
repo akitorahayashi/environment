@@ -14,13 +14,11 @@ else
     export REPO_ROOT="$SCRIPT_DIR"
 fi
 
-# CI環境ではスクリプトに実行権限を付与
-if [ "$IS_CI" = "true" ]; then
-    echo "CI環境のためスクリプトに実行権限を付与します..."
-    find "$SCRIPT_DIR/scripts" -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
-    echo "スクリプトディレクトリの内容:"
-    find "$SCRIPT_DIR/scripts" -type f -name "*.sh" | sort
-fi
+# セットアップスクリプトに実行権限を付与
+echo "セットアップスクリプトに実行権限を付与します..."
+find "$SCRIPT_DIR/scripts" -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
+echo "スクリプトディレクトリの内容:"
+find "$SCRIPT_DIR/scripts" -type f -name "*.sh" | sort
 
 # ユーティリティのロード
 echo "ユーティリティスクリプトをロード中..."

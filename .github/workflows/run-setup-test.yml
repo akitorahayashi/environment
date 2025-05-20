@@ -31,7 +31,6 @@ jobs:
           echo "REPO_ROOT=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "IS_CI=true" >> $GITHUB_ENV
           echo "ALLOW_COMPONENT_FAILURE=true" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN_CI=${{ secrets.repo_token }}" >> $GITHUB_ENV
           echo "✅ CI environment variables set up"
         shell: bash
 
