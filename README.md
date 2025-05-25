@@ -15,8 +15,8 @@ environment/
 │   ├── git/
 │   ├── node/
 │   └── shell/
-├── macos/
 ├── scripts/
+│   ├── macos/
 │   ├── setup/
 │   └── utils/
 ├── .gitignore
