@@ -56,9 +56,6 @@ environment/
     -   SSHキー（`id_ed25519`）が存在しない場合に生成
     -   SSHエージェントの設定
 
-13. **Neovim Configuration**
-    -   `stow`を使用して`config/nvim/`から`$HOME/.config/nvim`へのNeovim設定のシンボリックリンクを作成
-
 ## Setup Instructions
 
 ### 1. Clone or Download the Repository
@@ -111,18 +108,10 @@ $ ./scripts/setup/cursor.sh
 $ ./scripts/setup/mac.sh
 ```
 
-各スクリプトには以下が含まれています
-- 依存関係のチェック
-- インストール/設定手順
-- セットアップの検証
-- ログ出力
-- エラーハンドリング
-
-スクリプトは以下のように動作します
+各スクリプトは以下のように動作します
 1. コンポーネントが既にインストール/設定されているかチェック
 2. 必要な場合のみインストールまたは設定を実行
 3. セットアップを検証
-4. プロセスに関する詳細なフィードバックを提供
 
 ### 5. Apply Shell Configuration
 
