@@ -28,7 +28,8 @@ environment/
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
-    -   `stow`を使用して`config/shell/`から`$HOME`への`.zprofile`のシンボリックリンクを作成
+    -   `config/shell/`から`$HOME`への`.zprofile`と`.zshrc`のシンボリックリンクを作成
+    -   既存の`.zshrc`は上書きされます
 
 3.  **Git Configuration**
     -   `config/git/.gitconfig`から`~/.config/git/config`へのシンボリックリンクを作成
@@ -45,7 +46,7 @@ environment/
 7.  **Xcode Installation and Setup**
 
 8.  **Cursor Configuration**
-    -   `stow`を使用して`config/cursor/`から`$HOME/Library/Application Support/Cursor/User`への設定ファイル（`settings.json`、`keybindings.json`など）のシンボリックリンクを作成
+    -   `config/cursor/`から`$HOME/Library/Application Support/Cursor/User`への設定ファイルのシンボリックリンクを作成
 
 9.  **Flutter Setup**
 

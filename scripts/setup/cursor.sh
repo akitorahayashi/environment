@@ -8,12 +8,10 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 source "$SCRIPT_DIR/../utils/helpers.sh"
 source "$SCRIPT_DIR/../utils/logging.sh"
 
-# Cursor のセットアップ (stowを使用)
+# Cursor のセットアップ
 setup_cursor() {
-    log_start "Cursor のセットアップを開始します (stow)..."
-    local stow_config_dir="$REPO_ROOT/config"
-    local stow_package="cursor"
-    # stow のターゲットディレクトリ ($HOME/Library/...) を定義
+    log_start "Cursor のセットアップを開始します..."
+    local config_dir="$REPO_ROOT/config/cursor"
     local target_base_dir="$HOME/Library/Application Support/Cursor"
     local target_user_dir="$target_base_dir/User"
 
@@ -25,28 +23,38 @@ setup_cursor() {
     log_installed "Cursor"
 
     # リポジトリに設定ファイルがあるか確認
-    if [ ! -d "$stow_config_dir/$stow_package" ]; then
-        log_warning "設定ディレクトリが見つかりません: $stow_config_dir/$stow_package"
+    if [ ! -d "$config_dir" ]; then
+        log_warning "設定ディレクトリが見つかりません: $config_dir"
         log_info "Cursor設定のセットアップをスキップします。"
         return 0
     fi
 
-    # stow のターゲットディレクトリの親が存在することを確認
+    # ターゲットディレクトリの作成
     log_info "Cursor設定ディレクトリを作成します (存在しない場合): $target_user_dir"
     mkdir -p "$target_user_dir"
 
-    # stow コマンドでシンボリックリンクを作成/更新
-    # ターゲットは設定ファイルが置かれるべき User ディレクトリ
-    log_info "'$stow_package' パッケージを '$stow_config_dir' から '$target_user_dir' にstowします..."
-    # 注意: stow は通常ターゲットディレクトリ直下にリンクを作成する。
-    # $REPO_ROOT/config/cursor/settings.json -> $target_user_dir/settings.json となる。
-    if stow --dir="$stow_config_dir" --target="$target_user_dir" --restow --adopt "$stow_package"; then
-        log_success "Cursor設定ファイルのシンボリックリンクを作成/更新しました。"
-    else
-        log_error "Cursor設定ファイルのシンボリックリンク作成/更新に失敗しました。"
-        # ログに競合の可能性などを追記しても良い
-        return 1
-    fi
+    # 設定ファイルのシンボリックリンクを作成
+    for file in "$config_dir"/*; do
+        if [ -f "$file" ]; then
+            local filename=$(basename "$file")
+            local target_file="$target_user_dir/$filename"
+            
+            # 既存のファイルのバックアップ
+            if [ -f "$target_file" ] || [ -L "$target_file" ]; then
+                log_info "既存の設定ファイルをバックアップします: $target_file"
+                mv "$target_file" "$target_file.backup"
+            fi
+            
+            # シンボリックリンクの作成
+            log_info "設定ファイルのシンボリックリンクを作成します: $filename"
+            if ln -s "$file" "$target_file"; then
+                log_success "設定ファイル $filename のシンボリックリンクを作成しました。"
+            else
+                log_error "設定ファイル $filename のシンボリックリンク作成に失敗しました。"
+                return 1
+            fi
+        fi
+    done
 
     log_success "Cursor のセットアップ完了"
     return 0
@@ -81,28 +89,23 @@ verify_cursor_setup() {
         log_success "Cursor設定ディレクトリが存在します: $target_dir"
 
         # 設定ファイルのシンボリックリンクを確認
-        # config/cursor 内の想定されるファイルを確認
-        # (ここでは代表的なもののみ。必要に応じて増やす)
-        SETTINGS_FILES=("settings.json" "keybindings.json" "extensions.json")
-        for file in "${SETTINGS_FILES[@]}"; do
-             # リポジトリ側にファイルが存在するか
-            if [ -f "$config_dir/$file" ]; then
-                 # ターゲット側にシンボリックリンクが存在するか
-                if [ -L "$target_dir/$file" ]; then
-                     # リンク先が正しいか (簡易チェック)
-                    local link_target=$(readlink "$target_dir/$file")
-                    if [[ "$link_target" == *"$config_dir/$file"* ]]; then
-                         log_success "設定ファイル $file が正しくリンクされています。"
+        for file in "$config_dir"/*; do
+            if [ -f "$file" ]; then
+                local filename=$(basename "$file")
+                local target_file="$target_dir/$filename"
+                
+                if [ -L "$target_file" ]; then
+                    local link_target=$(readlink "$target_file")
+                    if [ "$link_target" = "$file" ]; then
+                        log_success "設定ファイル $filename が正しくリンクされています。"
                     else
-                         log_error "設定ファイル $file のリンク先が不正です: $link_target"
-                         verification_failed=true
+                        log_error "設定ファイル $filename のリンク先が不正です: $link_target"
+                        verification_failed=true
                     fi
                 else
-                    log_error "設定ファイル $file がシンボリックリンクとして存在しません。"
+                    log_error "設定ファイル $filename がシンボリックリンクとして存在しません。"
                     verification_failed=true
                 fi
-            else
-                 log_info "リポジトリに $file が見つからないため、検証をスキップします。"
             fi
         done
     fi
