@@ -31,7 +31,6 @@ brew "yamllint"
 
 ## Utility
 brew "fdupes"
-brew "stow"
 
 # Cask
 cask "android-commandlinetools"
