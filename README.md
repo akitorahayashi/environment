@@ -31,7 +31,8 @@ environment/
     -   `stow`を使用して`config/shell/`から`$HOME`への`.zprofile`のシンボリックリンクを作成
 
 3.  **Git Configuration**
-    -   `stow`を使用して`config/git/`から`$HOME`への`.gitconfig`と`.gitignore_global`のシンボリックリンクを作成
+    -   `config/git/.gitconfig`から`~/.config/git/config`へのシンボリックリンクを作成
+    -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
     -   トラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用

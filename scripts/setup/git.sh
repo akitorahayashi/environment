@@ -10,45 +10,27 @@ source "$SCRIPT_DIR/../utils/logging.sh"
 
 # Git の設定を適用
 setup_git_config() {
-    log_start "Git設定ファイルのセットアップを開始します (stow)..."
+    log_start "Git設定ファイルのセットアップを開始します..."
 
-    # CI環境でもstowを実行する前に既存ファイルを削除
-    if [ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]; then
-        log_warning "既存の .gitconfig ファイルを削除します: $HOME/.gitconfig"
-        rm -f "$HOME/.gitconfig"
-    fi
-    # .gitignore_globalも同様に削除
-    if [ -f "$HOME/.gitignore_global" ] && [ ! -L "$HOME/.gitignore_global" ]; then
-        log_warning "既存の .gitignore_global ファイルを削除します: $HOME/.gitignore_global"
-        rm -f "$HOME/.gitignore_global"
+    # ~/.config/gitディレクトリの作成
+    mkdir -p "$HOME/.config/git"
+
+    # 既存の設定ファイルのバックアップ
+    if [ -f "$HOME/.config/git/config" ]; then
+        log_warning "既存の設定ファイルをバックアップします: $HOME/.config/git/config"
+        mv "$HOME/.config/git/config" "$HOME/.config/git/config.backup"
     fi
 
-    local stow_config_dir="$REPO_ROOT/config"
-    local stow_package="git"
-
-    # stow コマンドでシンボリックリンクを作成/更新
-    log_info "'$stow_package' パッケージを '$stow_config_dir' から '$HOME' にstowします..."
-    if stow --dir="$stow_config_dir" --target="$HOME" --restow "$stow_package"; then
-        log_success "Git設定ファイルのシンボリックリンクを作成/更新しました。"
+    # シンボリックリンクの作成
+    log_info "Git設定ファイルのシンボリックリンクを作成します..."
+    if ln -s "$REPO_ROOT/config/git/.gitconfig" "$HOME/.config/git/config"; then
+        log_success "Git設定ファイルのシンボリックリンクを作成しました。"
     else
-        log_error "Git設定ファイルのシンボリックリンク作成/更新に失敗しました。"
-        # stowがない場合のエラーはここで捕捉される
+        log_error "Git設定ファイルのシンボリックリンク作成に失敗しました。"
         return 1
     fi
 
-    # .gitconfig内の core.excludesfile のパスを設定 (stowの後で実行)
-    log_info "Gitのexcludesfileを設定します..."
-    if [ -f "$HOME/.gitconfig" ]; then
-        if git config --global core.excludesfile "$HOME/.gitignore_global"; then
-             log_success "Gitのexcludesfileを設定しました: $HOME/.gitignore_global"
-        else
-             log_error "Gitのexcludesfileの設定に失敗しました。"
-             # 必要に応じて return 1 するか検討
-        fi
-    else
-        log_warning ".gitconfigが見つからないため、excludesfileの設定をスキップします。"
-    fi
-    log_success "Git の設定適用完了" # stow成功とexcludesfile設定後に完了
+    log_success "Git の設定適用完了"
     return 0
 }
 
@@ -121,25 +103,16 @@ verify_git_setup() {
     # 各要素の検証
     verify_git_command || return 1 # Gitコマンド自体の検証は必要
 
-    # 設定ファイルの存在確認 (stowが成功したかの簡易チェック)
-    if [ ! -L "$HOME/.gitconfig" ]; then
-        log_error "$HOME/.gitconfig がシンボリックリンクではありません。"
+    # 設定ファイルの存在確認
+    if [ ! -L "$HOME/.config/git/config" ]; then
+        log_error "$HOME/.config/git/config がシンボリックリンクではありません。"
         verification_failed=true
     else
-        log_success "$HOME/.gitconfig がシンボリックリンクとして存在します。"
+        log_success "$HOME/.config/git/config がシンボリックリンクとして存在します。"
     fi
-    if [ ! -L "$HOME/.gitignore_global" ]; then
-        log_error "$HOME/.gitignore_global がシンボリックリンクではありません。"
-        verification_failed=true
-    else
-        log_success "$HOME/.gitignore_global がシンボリックリンクとして存在します。"
-    fi
-
-    # excludesfileの設定検証は引き続き重要
-    verify_git_excludes_config || verification_failed=true
 
     # SSHキーの検証
-    verify_ssh_keys || verification_failed=true # SSHキー検証もそのまま
+    verify_ssh_keys || verification_failed=true
 
     if [ "$verification_failed" = "true" ]; then
         log_error "Git環境の検証に失敗しました"
@@ -158,32 +131,6 @@ verify_git_command() {
     fi
     log_success "gitコマンドが使用可能です: $(git --version)"
     return 0
-}
-
-# excludesfileの設定検証
-verify_git_excludes_config() {
-    local exclude_file=$(git config --global core.excludesfile)
-    local expected_file="$HOME/.gitignore_global"
-
-    if [ -z "$exclude_file" ]; then
-        # stow直後だと .gitconfig が反映されていない可能性があるので少し待つ
-        sleep 1
-        exclude_file=$(git config --global core.excludesfile)
-        if [ -z "$exclude_file" ]; then
-            log_error "gitのexcludesfileが設定されていません"
-            return 1
-        fi
-    fi
-
-    if [ "$exclude_file" != "$expected_file" ]; then
-        log_error "gitのexcludesfileの設定が異なります"
-        log_error "期待: $expected_file"
-        log_error "実際: $exclude_file"
-        return 1
-    else
-        log_success "gitのexcludesfileが正しく設定されています"
-        return 0
-    fi
 }
 
 # SSHキーの検証
