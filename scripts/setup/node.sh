@@ -44,24 +44,29 @@ install_global_packages() {
     
     log_info "グローバルパッケージをチェック中..."
     
-    # JSONファイルからパッケージリストを読み込む
-    local packages=($(jq -r '.packages[]' "$packages_file" 2>/dev/null))
+    # JSONファイルからキー（パッケージ名）とバージョンを読み込み "name@version" の配列を作成
+    local entries=($(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null))
     
-    if [ ${#packages[@]} -eq 0 ]; then
+    if [ ${#entries[@]} -eq 0 ]; then
         log_warning "global-packages.json にパッケージが定義されていません"
         return 0
     fi
     
-    # 各パッケージをインストール
-    for package in "${packages[@]}"; do
-        if npm list -g "$package" &>/dev/null; then
-            log_installed "$package"
+    # 各 "name@version" を分割してインストール
+    for entry in "${entries[@]}"; do
+        # pkg_full: "name@version" 例: "@anthropic-ai/claude-code@latest"
+        pkg_full="$entry"
+        # pkg_name: entry から最終の "@バージョン" を取り除く
+        pkg_name="${entry%@*}"
+        
+        if npm list -g "$pkg_name" &>/dev/null; then
+            log_installed "$pkg_name"
         else
-            log_installing "$package"
-            if npm install -g "$package"; then
-                log_success "$package のインストールが完了しました"
+            log_installing "$pkg_full"
+            if npm install -g "$pkg_full"; then
+                log_success "$pkg_name のインストールが完了しました"
             else
-                log_error "$package のインストールに失敗しました"
+                log_error "$pkg_name のインストールに失敗しました"
                 return 1
             fi
         fi
@@ -112,7 +117,7 @@ verify_global_packages() {
         return 0
     fi
     
-    local packages=($(jq -r '.packages[]' "$packages_file" 2>/dev/null))
+    local packages=($(jq -r '.globalPackages | to_entries[] | "\(.key)"' "$packages_file" 2>/dev/null))
     local missing=0
     
     for package in "${packages[@]}"; do
