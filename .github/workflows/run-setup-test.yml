@@ -182,6 +182,18 @@ jobs:
           fi
         shell: bash
 
+      - name: Verify Node.js Setup
+        run: |
+          echo "🔍 Starting Node.js verification..."
+          ./scripts/setup/node.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Node.js verification passed"
+          else
+            echo "❌ Node.js verification failed"
+            exit 1
+          fi
+        shell: bash
+
       - name: Verification Summary
         run: |
           echo "======================"

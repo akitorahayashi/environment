@@ -59,6 +59,7 @@ main() {
     "$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh"
     "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh"
     "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh"
+    "$SCRIPT_ROOT_DIR/scripts/setup/node.sh"
 
     # インストール結果の表示
     end_time=$(date +%s)

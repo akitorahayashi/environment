@@ -12,15 +12,3 @@ jobs:
     uses: ./.github/workflows/run-setup-test.yml
     secrets:
       repo_token: ${{ secrets.GITHUB_TOKEN }}
-
-  notify:
-    name: Notify Completion
-    needs: setup-test
-    permissions:
-      pull-requests: write
-    uses: ./.github/workflows/notify-completion.yml
-    with:
-      job_status: ${{ needs.setup-test.result }}
-      job_name: setup-test
-    secrets:
-      repo_token: ${{ secrets.GITHUB_TOKEN }}

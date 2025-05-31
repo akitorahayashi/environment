@@ -85,7 +85,8 @@ verify_zprofile() {
         return 1
     fi
 
-    local link_target=$(readlink "$HOME/.zprofile")
+    local link_target
+    link_target=$(readlink "$HOME/.zprofile")
     local expected_target="$REPO_ROOT/config/shell/.zprofile"
 
     if [ "$link_target" = "$expected_target" ]; then
