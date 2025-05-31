@@ -9,6 +9,6 @@ export PATH="$HOME/fvm/default/bin:$PATH"
 
 ## [Completion]
 ## Completion scripts setup. Remove the following line to uninstall
-[[ -f /Users/akitorahayashi/.dart-cli-completion/zsh-config.zsh ]] && . /Users/akitorahayashi/.dart-cli-completion/zsh-config.zsh || true
+[[ -f "$HOME/.dart-cli-completion/zsh-config.zsh" ]] && . "$HOME/.dart-cli-completion/zsh-config.zsh" || true
 ## [/Completion]
 

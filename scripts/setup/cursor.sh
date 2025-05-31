@@ -91,11 +91,13 @@ verify_cursor_setup() {
         # 設定ファイルのシンボリックリンクを確認
         for file in "$config_dir"/*; do
             if [ -f "$file" ]; then
-                local filename=$(basename "$file")
+                local filename
+                filename=$(basename "$file")
                 local target_file="$target_dir/$filename"
                 
                 if [ -L "$target_file" ]; then
-                    local link_target=$(readlink "$target_file")
+                    local link_target
+                    link_target=$(readlink "$target_file")
                     if [ "$link_target" = "$file" ]; then
                         log_success "設定ファイル $filename が正しくリンクされています。"
                     else
