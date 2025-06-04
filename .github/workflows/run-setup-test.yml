@@ -161,7 +161,8 @@ jobs:
         run: |
           echo "🔍 Starting Git verification..."
           ./scripts/setup/git.sh
-          if [ $? -eq 0 ]; then
+          source ./scripts/setup/git.sh
+          if verify_git_setup; then
             echo "✅ Git verification passed"
           else
             echo "❌ Git verification failed"
