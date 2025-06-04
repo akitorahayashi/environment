@@ -55,8 +55,10 @@ setup_gitignore_global() {
         return 1
     fi
 
-    # Git設定に適用
+    # Git に global gitignore を設定
+    log_info "Git の core.excludesfile を更新しています..."
     git config --global core.excludesfile "$ignore_file"
+    log_success "Git の core.excludesfile に global gitignore を設定しました。"
 
     log_success "グローバルgitignoreの設定完了"
     return 0
@@ -166,9 +168,18 @@ verify_gitignore_global() {
 
     if [ "$link_target" = "$expected_target" ]; then
         log_success "$ignore_file が期待される場所を指しています"
-        return 0
     else
         log_warning "$ignore_file は期待されない場所を指しています: $link_target"
+        return 1
+    fi
+
+    local config_value
+    config_value=$(git config --global core.excludesfile 2>/dev/null)
+    if [ "$config_value" = "$ignore_file" ]; then
+        log_success "Git の core.excludesfile が正しく設定されています"
+        return 0
+    else
+        log_error "Git の core.excludesfile が $config_value になっています"
         return 1
     fi
 }
