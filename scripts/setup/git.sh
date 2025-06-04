@@ -34,6 +34,31 @@ setup_git_config() {
     return 0
 }
 
+# グローバルGitignoreを設定
+setup_gitignore_global() {
+    log_start "グローバルgitignoreのセットアップを開始します..."
+
+    local ignore_file="$HOME/.gitignore_global"
+
+    # 既存ファイルのバックアップ
+    if [ -f "$ignore_file" ] && [ ! -L "$ignore_file" ]; then
+        log_warning "既存のグローバルgitignoreをバックアップします: $ignore_file"
+        mv "$ignore_file" "$ignore_file.backup"
+    fi
+
+    # シンボリックリンクの作成
+    log_info "グローバルgitignoreのシンボリックリンクを作成します..."
+    if ln -s "$REPO_ROOT/config/git/.gitignore_global" "$ignore_file"; then
+        log_success "グローバルgitignoreのシンボリックリンクを作成しました。"
+    else
+        log_error "グローバルgitignoreのシンボリックリンク作成に失敗しました。"
+        return 1
+    fi
+
+    log_success "グローバルgitignoreの設定完了"
+    return 0
+}
+
 # SSH エージェントのセットアップ
 setup_ssh_agent() {
     log_start "SSH エージェントをセットアップ中..."
@@ -113,6 +138,7 @@ verify_git_setup() {
 
     # SSHキーの検証
     verify_ssh_keys || verification_failed=true
+    verify_gitignore_global || verification_failed=true
 
     if [ "$verification_failed" = "true" ]; then
         log_error "Git環境の検証に失敗しました"
@@ -120,6 +146,27 @@ verify_git_setup() {
     else
         log_success "Git環境の検証が完了しました"
         return 0
+    fi
+}
+
+# グローバルGitignoreの検証
+verify_gitignore_global() {
+    local ignore_file="$HOME/.gitignore_global"
+    if [ ! -L "$ignore_file" ]; then
+        log_error "$ignore_file がシンボリックリンクではありません。"
+        return 1
+    fi
+
+    local link_target
+    link_target=$(readlink "$ignore_file")
+    local expected_target="$REPO_ROOT/config/git/.gitignore_global"
+
+    if [ "$link_target" = "$expected_target" ]; then
+        log_success "$ignore_file が期待される場所を指しています"
+        return 0
+    else
+        log_warning "$ignore_file は期待されない場所を指しています: $link_target"
+        return 1
     fi
 }
 
@@ -155,6 +202,7 @@ main() {
     log_start "Git環境のセットアップを開始します"
     
     setup_git_config
+    setup_gitignore_global
     setup_ssh_agent
     setup_github_cli
     
