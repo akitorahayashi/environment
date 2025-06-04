@@ -40,10 +40,10 @@ setup_gitignore_global() {
 
     local ignore_file="$HOME/.gitignore_global"
 
-    # 既存ファイルのバックアップ
-    if [ -f "$ignore_file" ] && [ ! -L "$ignore_file" ]; then
-        log_warning "既存のグローバルgitignoreをバックアップします: $ignore_file"
-        mv "$ignore_file" "$ignore_file.backup"
+    # 既存ファイルがあれば削除
+    if [ -e "$ignore_file" ]; then
+        log_info "既存のグローバルgitignoreを削除します: $ignore_file"
+        rm -f "$ignore_file"
     fi
 
     # シンボリックリンクの作成
@@ -54,6 +54,9 @@ setup_gitignore_global() {
         log_error "グローバルgitignoreのシンボリックリンク作成に失敗しました。"
         return 1
     fi
+
+    # Git設定に適用
+    git config --global core.excludesfile "$ignore_file"
 
     log_success "グローバルgitignoreの設定完了"
     return 0
