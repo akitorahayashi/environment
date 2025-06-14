@@ -1,8 +1,3 @@
-# Tap
-tap "leoafarias/fvm"
-
-# Formula
-
 ## Version Control
 brew "git"
 brew "gh"
@@ -14,6 +9,8 @@ brew "act"
 brew "pipx"
 brew "node"
 brew "watchman"
+
+tap "leoafarias/fvm"
 brew "fvm"
 
 ## Xcode & Swift Development
@@ -22,17 +19,15 @@ brew "xcbeautify"
 brew "mint"
 brew "cocoapods"
 
-## Ruby Development
+## Ruby
 brew "rbenv"
 brew "ruby-build"
 
-## Linter
-brew "yamllint"
-
 ## Utility
-brew "fdupes"
+brew "yamllint"
+brew "marp-cli"
 
-# Cask
+## Cask
 cask "android-commandlinetools"
 cask "android-studio"
 cask "temurin"
