@@ -5,8 +5,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh"
-source "$SCRIPT_DIR/../utils/logging.sh"
+source "$SCRIPT_DIR/../utils/helpers.sh" || { echo "❌ helpers.shをロードできませんでした。処理を終了します。" && exit 1; }
+source "$SCRIPT_DIR/../utils/logging.sh" || { echo "❌ logging.shをロードできませんでした。処理を終了します。" && exit 1; }
+
 
 # CI環境かどうかを確認
 export IS_CI=${CI:-false}
@@ -15,8 +16,7 @@ export IS_CI=${CI:-false}
 install_homebrew() {
     if ! command_exists brew; then
         log_installing "Homebrew"
-        install_homebrew_binary
-        setup_homebrew_path
+        install_homebrew_binary # バイナリインストール後、この関数内でPATH設定も行う
         log_success "Homebrew のインストール完了"
     else
         log_installed "Homebrew"
@@ -27,6 +27,7 @@ install_homebrew() {
 install_homebrew_binary() {
     local install_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
     
+    log_info "Homebrewインストールスクリプトを実行します..."
     if [ "$IS_CI" = "true" ]; then
         log_info "CI環境では非対話型でインストールします"
         NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL $install_url)"
@@ -34,18 +35,39 @@ install_homebrew_binary() {
         /bin/bash -c "$(curl -fsSL $install_url)"
     fi
     
-    # インストール結果確認
+    # インストールスクリプト実行後、直ちに現在のシェルセッションにPATHを設定
+    # これにより、次のcommand_exists brewが正しく機能するようになる
+    setup_homebrew_path # <-- ここに移動し、現在のセッションと永続的なPATH設定を行う
+    
+    # インストール結果確認 (この時点でbrewコマンドが利用可能になっているはず)
     if ! command_exists brew; then
         handle_error "Homebrewのインストールに失敗しました"
     fi
+    log_success "Homebrewバイナリのインストールが完了しました。"
 }
 
 # Homebrew PATH設定
 setup_homebrew_path() {
+    local brew_shellenv_cmd
+    local shell_config_file="$HOME/.zprofile" # zshユーザー向け。bashなら~/.bash_profileや~/.bashrc
+
     if [[ "$(uname -m)" == "arm64" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
+        brew_shellenv_cmd="/opt/homebrew/bin/brew shellenv"
     else
-        eval "$(/usr/local/bin/brew shellenv)"
+        brew_shellenv_cmd="/usr/local/bin/brew shellenv"
+    fi
+
+    # 現在のセッションにPATHを設定（スクリプト実行中にbrewが使えるようにするため）
+    eval "$($brew_shellenv_cmd)"
+    log_info "現在のシェルセッションにHomebrewのPATHを設定しました。"
+    
+    # .zprofile (または適切なシェル設定ファイル) に永続的に追加
+    # 既に設定があるかチェックし、なければ追加する
+    if ! grep -q "eval \"\$($brew_shellenv_cmd)\"" "$shell_config_file" 2>/dev/null; then
+        log_info "HomebrewのPATHを $shell_config_file に永続的に追加します。"
+        echo 'eval "$('$brew_shellenv_cmd')"' >> "$shell_config_file"
+    else
+        log_info "HomebrewのPATHは既に $shell_config_file に設定済みです。"
     fi
 }
 
@@ -183,10 +205,10 @@ verify_package_counts() {
     local brewfile_path="$1"
     
     # Brewfile内のパッケージ数
-    local total_defined=$(grep -v "^#" "$brewfile_path" | 
-                         grep -v "^$" | 
-                         grep -c "brew\|cask" || 
-                         echo "0")
+    local total_defined=$(grep -v "^#" "$brewfile_path" | \
+                          grep -v "^$" | \
+                          grep -c "brew\|cask" || \
+                          echo "0")
     log_info "Brewfileに記載されたパッケージ数: $total_defined"
     
     # インストール済みパッケージ数
