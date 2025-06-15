@@ -26,6 +26,7 @@ brew "ruby-build"
 ## Utility
 brew "yamllint"
 brew "marp-cli"
+brew "displayplacer"
 
 ## Cask
 cask "android-commandlinetools"
