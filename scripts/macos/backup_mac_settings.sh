@@ -102,6 +102,12 @@ FINDER_PATHBAR=$(get_default_value com.apple.finder ShowPathbar false)      # �
 FINDER_STATUSBAR=$(get_default_value com.apple.finder ShowStatusBar false)  # ステータスバー表示 (true:表示, false:非表示)
 FINDER_SHOW_HIDDEN=$(get_default_value com.apple.finder AppleShowAllFiles false) # 隠しファイル表示 (true:表示, false:非表示)
 
+# ホットコーナーの設定値を取得
+HOT_CORNER_TL=$(get_default_value com.apple.dock wvous-tl-corner 1)   # 左上のホットコーナー (1:何もしない, 2:Mission Control, 3:アプリケーションウィンドウ, 4:デスクトップ, 5:スクリーンセーバー開始, 6:スクリーンセーバー無効, 7:Dashboard, 10:ディスプレイをスリープさせる, 11:Launchpad, 12:通知センター)
+HOT_CORNER_TR=$(get_default_value com.apple.dock wvous-tr-corner 1)   # 右上のホットコーナー
+HOT_CORNER_BL=$(get_default_value com.apple.dock wvous-bl-corner 1)   # 左下のホットコーナー
+HOT_CORNER_BR=$(get_default_value com.apple.dock wvous-br-corner 1)   # 右下のホットコーナー
+
 # その他の設定値を取得
 MENU_BAR_HIDDEN=$(get_default_value NSGlobalDomain _HIHideMenuBar false)    # メニューバー自動非表示 (true:有効, false:無効)
 ACCENT_COLOR=$(get_default_value -g AppleAccentColor 0)                     # アクセントカラー (0:マルチカラー, 1:青, 2:紫, 3:ピンク, 4:赤, 5:オレンジ, 6:黄)
@@ -125,17 +131,17 @@ TRACKPAD_COMMANDS=$(cat << EOF
 defaults write -g com.apple.trackpad.scaling -float $TRACKPAD_SPEED
 defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int $FIRST_CLICK_THRESHOLD
 defaults write com.apple.AppleMultitouchTrackpad SecondClickThreshold -int $SECOND_CLICK_THRESHOLD
-defaults write com.apple.AppleMultitouchTrackpad Clicking -bool \$(format_bool_value $TAP_TO_CLICK)
-defaults write com.apple.AppleMultitouchTrackpad Dragging -bool \$(format_bool_value $DRAGGING)
-defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool \$(format_bool_value $THREE_FINGER_DRAG)
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool $(format_bool_value $TAP_TO_CLICK)
+defaults write com.apple.AppleMultitouchTrackpad Dragging -bool $(format_bool_value $DRAGGING)
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool $(format_bool_value $THREE_FINGER_DRAG)
 EOF
 )
 
 # システムサウンドの設定コマンド
 SOUND_COMMANDS=$(cat << EOF
-defaults write com.apple.systemsound com.apple.sound.beep.flash -bool \$(format_bool_value $STARTUP_SOUND)
-defaults write com.apple.systemsound com.apple.sound.uiaudio.enabled -bool \$(format_bool_value $UI_SOUND)
-defaults write -g com.apple.sound.beep.feedback -bool \$(format_bool_value $VOLUME_FEEDBACK)
+defaults write com.apple.systemsound com.apple.sound.beep.flash -bool $(format_bool_value $STARTUP_SOUND)
+defaults write com.apple.systemsound com.apple.sound.uiaudio.enabled -bool $(format_bool_value $UI_SOUND)
+defaults write -g com.apple.sound.beep.feedback -bool $(format_bool_value $VOLUME_FEEDBACK)
 defaults write -g com.apple.sound.beep.sound -string "$ALERT_SOUND"
 EOF
 )
@@ -143,22 +149,31 @@ EOF
 # Dockの設定コマンド
 DOCK_COMMANDS=$(cat << EOF
 defaults write com.apple.dock tilesize -int $DOCK_SIZE
-defaults write com.apple.dock autohide -bool \$(format_bool_value $DOCK_AUTOHIDE)
-defaults write com.apple.dock show-recents -bool \$(format_bool_value $DOCK_RECENTS)
+defaults write com.apple.dock autohide -bool $(format_bool_value $DOCK_AUTOHIDE)
+defaults write com.apple.dock show-recents -bool $(format_bool_value $DOCK_RECENTS)
 EOF
 )
 
 # Finderの設定コマンド
 FINDER_COMMANDS=$(cat << EOF
-defaults write com.apple.finder ShowPathbar -bool \$(format_bool_value $FINDER_PATHBAR)
-defaults write com.apple.finder ShowStatusBar -bool \$(format_bool_value $FINDER_STATUSBAR)
-defaults write com.apple.finder AppleShowAllFiles -bool \$(format_bool_value $FINDER_SHOW_HIDDEN)
+defaults write com.apple.finder ShowPathbar -bool $(format_bool_value $FINDER_PATHBAR)
+defaults write com.apple.finder ShowStatusBar -bool $(format_bool_value $FINDER_STATUSBAR)
+defaults write com.apple.finder AppleShowAllFiles -bool $(format_bool_value $FINDER_SHOW_HIDDEN)
+EOF
+)
+
+# ホットコーナーの設定コマンド
+HOT_CORNER_COMMANDS=$(cat << EOF
+defaults write com.apple.dock wvous-tl-corner -int $HOT_CORNER_TL
+defaults write com.apple.dock wvous-tr-corner -int $HOT_CORNER_TR
+defaults write com.apple.dock wvous-bl-corner -int $HOT_CORNER_BL
+defaults write com.apple.dock wvous-br-corner -int $HOT_CORNER_BR
 EOF
 )
 
 # その他の設定コマンド
 OTHER_COMMANDS=$(cat << EOF
-defaults write NSGlobalDomain _HIHideMenuBar -bool \$(format_bool_value $MENU_BAR_HIDDEN)
+defaults write NSGlobalDomain _HIHideMenuBar -bool $(format_bool_value $MENU_BAR_HIDDEN)
 defaults write -g AppleAccentColor -int $ACCENT_COLOR
 defaults write com.apple.screencapture location "\$HOME/Desktop"
 EOF
@@ -172,6 +187,7 @@ add_setting_command "トラックパッド" "$TRACKPAD_COMMANDS"
 add_setting_command "サウンド" "$SOUND_COMMANDS"
 add_setting_command "Dock" "$DOCK_COMMANDS"
 add_setting_command "Finder" "$FINDER_COMMANDS"
+add_setting_command "ホットコーナー" "$HOT_CORNER_COMMANDS"
 add_setting_command "その他" "$OTHER_COMMANDS"
 
 # 設定の反映用コマンド
