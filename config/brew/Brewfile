@@ -2,13 +2,9 @@
 brew "git"
 brew "gh"
 
-## CI/CD
-brew "act"
-
 ## Development Tools
 brew "pipx"
 brew "node"
-brew "watchman"
 
 tap "leoafarias/fvm"
 brew "fvm"
@@ -34,7 +30,6 @@ cask "android-studio"
 cask "temurin"
 cask "figma"
 cask "google-chrome"
-cask "obsidian"
 cask "cursor"
 cask "chatgpt"
 cask "discord"
