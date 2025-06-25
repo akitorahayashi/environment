@@ -12,8 +12,35 @@ source "$SCRIPT_DIR/../utils/logging.sh" || { echo "❌ logging.shをロード�
 # CI環境かどうかを確認
 export IS_CI=${CI:-false}
 
+# Xcode Command Line Toolsのインストール
+install_xcode_command_line_tools() {
+    # Xcode Command Line Tools のインストール
+    if ! xcode-select -p &>/dev/null; then
+        log_installing "Xcode Command Line Tools"
+        if [ "$IS_CI" = "true" ]; then
+            # CI環境ではすでにインストールされていることを前提とする
+            log_info "CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
+        else
+            xcode-select --install
+            # インストールが完了するまで待機
+            log_info "インストールが完了するまで待機..."
+            until xcode-select -p &>/dev/null; do
+                sleep 5
+            done
+        fi
+        log_success "Xcode Command Line Tools のインストール完了"
+    else
+        log_installed "Xcode Command Line Tools"
+    fi
+    
+    return 0
+}
+
 # Homebrew のインストール
 install_homebrew() {
+    # まずXcode Command Line Toolsをインストール
+    install_xcode_command_line_tools
+    
     if ! command_exists brew; then
         log_installing "Homebrew"
         install_homebrew_binary # バイナリインストール後、この関数内でPATH設定も行う
@@ -112,6 +139,9 @@ install_packages_from_brewfile() {
 verify_homebrew_setup() {
     log_start "Homebrewの環境を検証中..."
     local verification_failed=false
+    
+    # Xcode Command Line Toolsの確認
+    verify_xcode_command_line_tools || verification_failed=true
     
     # brewコマンドの確認
     if ! verify_brew_command; then
@@ -261,6 +291,17 @@ verify_brew_package() {
             log_success "cask $package がインストールされています"
             return 0
         fi
+    fi
+}
+
+# Xcode Command Line Toolsの検証
+verify_xcode_command_line_tools() {
+    if ! xcode-select -p &>/dev/null; then
+        log_error "Xcode Command Line Toolsがインストールされていません"
+        return 1
+    else
+        log_success "Xcode Command Line Toolsがインストールされています"
+        return 0
     fi
 }
 

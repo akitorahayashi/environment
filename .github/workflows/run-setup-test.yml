@@ -145,18 +145,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Verify Xcode Installation
-        run: |
-          echo "🔍 Starting Xcode verification..."
-          ./scripts/setup/xcode.sh
-          if [ $? -eq 0 ]; then
-            echo "✅ Xcode verification passed"
-          else
-            echo "❌ Xcode verification failed"
-            exit 1
-          fi
-        shell: bash
-
       - name: Verify Git Setup
         run: |
           echo "🔍 Starting Git verification..."

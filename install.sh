@@ -57,7 +57,6 @@ main() {
     "$SCRIPT_ROOT_DIR/scripts/setup/git.sh"
     "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh"
     "$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/xcode.sh"
     "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh"
     "$SCRIPT_ROOT_DIR/scripts/setup/node.sh"
 
