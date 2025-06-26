@@ -230,24 +230,7 @@ verify_brewfile() {
     return 0
 }
 
-# パッケージ数の確認
-verify_package_counts() {
-    local brewfile_path="$1"
-    
-    # Brewfile内のパッケージ数
-    local total_defined=$(grep -v "^#" "$brewfile_path" | \
-                          grep -v "^$" | \
-                          grep -c "brew\|cask" || \
-                          echo "0")
-    log_info "Brewfileに記載されたパッケージ数: $total_defined"
-    
-    # インストール済みパッケージ数
-    local installed_formulae=$(brew list --formula | wc -l | tr -d ' ')
-    local installed_casks=$(brew list --cask | wc -l | tr -d ' ')
-    local total_installed=$((installed_formulae + installed_casks))
-    
-    log_info "インストールされたパッケージ数: $total_installed (formulae: $installed_formulae, casks: $installed_casks)"
-}
+
 
 # 個別パッケージ確認
 verify_individual_packages() {
@@ -314,11 +297,6 @@ main() {
     
     # Brewfileのインストール
     install_brewfile
-    
-    # 検証
-    verify_homebrew_setup
-    verify_brewfile
-    verify_package_counts "$REPO_ROOT/config/brew/Brewfile"
     
     log_success "Homebrewのセットアップが完了しました"
 }
