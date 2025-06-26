@@ -41,6 +41,7 @@ verify_shell_setup() {
 
     verify_shell_type || verification_failed=true
     verify_zprofile || verification_failed=true
+    verify_zshrc || verification_failed=true
     verify_env_vars || verification_failed=true
 
     if [ "$verification_failed" = "true" ]; then
@@ -94,6 +95,28 @@ verify_zprofile() {
         return 0
     else
         log_warning ".zprofile はシンボリックリンクですが、期待しない場所を指しています:"
+        log_warning "  期待: $expected_target"
+        log_warning "  実際: $link_target"
+        return 1
+    fi
+}
+
+# .zshrcの検証
+verify_zshrc() {
+    if [ ! -L "$HOME/.zshrc" ]; then
+        log_error ".zshrc がシンボリックリンクではありません"
+        return 1
+    fi
+
+    local link_target
+    link_target=$(readlink "$HOME/.zshrc")
+    local expected_target="$REPO_ROOT/config/shell/.zshrc"
+
+    if [ "$link_target" = "$expected_target" ]; then
+        log_success ".zshrc がシンボリックリンクとして存在し、期待される場所を指しています"
+        return 0
+    else
+        log_warning ".zshrc はシンボリックリンクですが、期待しない場所を指しています:"
         log_warning "  期待: $expected_target"
         log_warning "  実際: $link_target"
         return 1

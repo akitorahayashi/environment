@@ -110,9 +110,9 @@ jobs:
 
       - name: Verify Shell Setup
         run: |
-          echo "🔍 Starting shell verification..."
-          ./scripts/setup/shell.sh
-          if [ $? -eq 0 ]; then
+          echo "🔍 Verifying shell configuration..."
+          source ./scripts/setup/shell.sh
+          if verify_shell_setup; then
             echo "✅ Shell verification passed"
           else
             echo "❌ Shell verification failed"
@@ -123,8 +123,8 @@ jobs:
       - name: Verify Mac Setup
         run: |
           echo "🔍 Starting Mac verification..."
-          ./scripts/setup/mac.sh
-          if [ $? -eq 0 ]; then
+          source ./scripts/setup/mac.sh
+          if verify_mac_setup; then
             echo "✅ Mac verification passed"
           else
             echo "❌ Mac verification failed"
@@ -134,9 +134,9 @@ jobs:
 
       - name: Verify Homebrew Setup
         run: |
-          echo "🔍 Starting Homebrew verification..."
-          ./scripts/setup/homebrew.sh
-          if [ $? -eq 0 ]; then
+          echo "🔍 Verifying Homebrew setup and packages..."
+          source ./scripts/setup/homebrew.sh
+          if verify_homebrew_setup && verify_brewfile "$REPO_ROOT/config/brew/Brewfile"; then
             echo "✅ Homebrew verification passed"
           else
             echo "❌ Homebrew verification failed"
@@ -146,8 +146,7 @@ jobs:
 
       - name: Verify Git Setup
         run: |
-          echo "🔍 Starting Git verification..."
-          ./scripts/setup/git.sh
+          echo "🔍 Verifying Git configuration..."
           source ./scripts/setup/git.sh
           if verify_git_setup; then
             echo "✅ Git verification passed"
@@ -161,8 +160,8 @@ jobs:
         run: |
           echo "🔍 Starting Flutter verification..."
           export PATH="$HOME/fvm/default/bin:$PATH"
-          ./scripts/setup/flutter.sh
-          if [ $? -eq 0 ]; then
+          source ./scripts/setup/flutter.sh
+          if verify_flutter_setup; then
             echo "✅ Flutter verification passed"
           else
             echo "❌ Flutter verification failed"
@@ -173,11 +172,23 @@ jobs:
       - name: Verify Node.js Setup
         run: |
           echo "🔍 Starting Node.js verification..."
-          ./scripts/setup/node.sh
-          if [ $? -eq 0 ]; then
+          source ./scripts/setup/node.sh
+          if verify_node_setup; then
             echo "✅ Node.js verification passed"
           else
             echo "❌ Node.js verification failed"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Verify Ruby Setup
+        run: |
+          echo "🔍 Verifying Ruby configuration..."
+          source ./scripts/setup/ruby.sh
+          if verify_ruby_setup; then
+            echo "✅ Ruby verification passed"
+          else
+            echo "❌ Ruby verification failed"
             exit 1
           fi
         shell: bash
