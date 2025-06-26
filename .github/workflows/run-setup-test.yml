@@ -193,6 +193,30 @@ jobs:
           fi
         shell: bash
 
+      - name: Verify VS Code Setup
+        run: |
+          echo "🔍 Verifying VS Code configuration..."
+          source ./scripts/setup/vscode.sh
+          if verify_vscode_setup; then
+            echo "✅ VS Code verification passed"
+          else
+            echo "❌ VS Code verification failed"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Verify Cursor Setup
+        run: |
+          echo "🔍 Verifying Cursor configuration..."
+          source ./scripts/setup/cursor.sh
+          if verify_cursor_setup; then
+            echo "✅ Cursor verification passed"
+          else
+            echo "❌ Cursor verification failed"
+            exit 1
+          fi
+        shell: bash
+
       - name: Verification Summary
         run: |
           echo "======================"
