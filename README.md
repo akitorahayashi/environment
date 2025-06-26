@@ -12,7 +12,8 @@ environment/
 │   ├── gems/
 │   ├── git/
 │   ├── node/
-│   └── shell/
+│   ├── shell/
+│   └── vscode/
 ├── scripts/
 │   ├── macos/
 │   ├── setup/
@@ -47,11 +48,14 @@ environment/
 7.  **Cursor Configuration**
     -   `config/cursor/`から`$HOME/Library/Application Support/Cursor/User`への設定ファイルのシンボリックリンクを作成
 
-8.  **Flutter Setup**
+8.  **VS Code Configuration**
+    -   `config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
-9.  **GitHub CLI Configuration**
+9.  **Flutter Setup**
 
-10. **SSH Key Management**
+10. **GitHub CLI Configuration**
+
+11. **SSH Key Management**
     -   SSHキーの存在確認
     -   SSHエージェントの設定
 
@@ -113,6 +117,9 @@ $ ./scripts/setup/flutter.sh
 
 # Cursorの設定
 $ ./scripts/setup/cursor.sh
+
+# VSCodeの設定
+$ ./scripts/setup/vscode.sh
 
 # macOSの設定
 $ ./scripts/setup/mac.sh
