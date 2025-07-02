@@ -37,4 +37,4 @@ defaults write com.apple.screencapture location "$HOME/Desktop"
 # 設定の反映
 killall Dock
 killall Finder
-killall SystemUIServer
+killall SystemUIServer 

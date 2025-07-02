@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # ================================================
-# 現在の macOS の設定を取得し、自動で setup_mac_settings.sh を生成
+# 現在の macOS の設定を取得し、settings.sh を生成
 # ================================================
 #
 # Usage:
 # 1. Grant execution permission:
-#    $ chmod +x scripts/macos/backup_mac_settings.sh
+#    $ chmod +x config/macos/backup_settings.sh
 # 2. Run the script:
-#    $ ./scripts/macos/backup_mac_settings.sh
+#    $ ./config/macos/backup_settings.sh
 #
-# The script will create a backup file named macos_settings_backup_YYYYMMDD_HHMMSS.sh in the current directory.
+# The script will create/update config/macos/settings.sh with current macOS settings.
 #
 # ================================================
 
@@ -22,7 +22,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ENVIRONMENT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-OUTPUT_FILE="$SCRIPT_DIR/setup_mac_settings.sh"
+OUTPUT_FILE="$SCRIPT_DIR/settings.sh"
 
 echo "現在の macOS の設定を取得し、$OUTPUT_FILE を生成します..."
 
@@ -199,4 +199,4 @@ echo "killall SystemUIServer" >> "$OUTPUT_FILE"
 # 実行権限を付与
 chmod +x "$OUTPUT_FILE"
 
-echo "設定スクリプトを生成しました: $OUTPUT_FILE"
+echo "設定スクリプトを生成しました: $OUTPUT_FILE" 

@@ -13,9 +13,9 @@ setup_mac_settings() {
     log_start "Mac のシステム設定を適用中..."
     
     # 設定ファイルの存在確認
-    local settings_file="$REPO_ROOT/scripts/macos/setup_mac_settings.sh"
+    local settings_file="$REPO_ROOT/config/macos/settings.sh"
     if [[ ! -f "$settings_file" ]]; then
-        log_warning "setup_mac_settings.sh が見つかりません"
+        log_warning "config/macos/settings.sh が見つかりません"
         return 1
     fi
     

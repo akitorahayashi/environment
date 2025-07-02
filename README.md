@@ -11,11 +11,11 @@ environment/
 │   ├── cursor/
 │   ├── gems/
 │   ├── git/
+│   ├── macos/
 │   ├── node/
 │   ├── shell/
 │   └── vscode/
 ├── scripts/
-│   ├── macos/
 │   ├── setup/
 │   └── utils/
 ├── .gitignore
@@ -38,7 +38,8 @@ environment/
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   トラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用
+    -   `config/macos/settings.sh`からトラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用
+    -   `config/macos/backup_settings.sh`で現在の設定をバックアップして設定ファイルを生成可能
 
 5.  **Package Installation from Brewfile**
     -   `config/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
