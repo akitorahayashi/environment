@@ -61,8 +61,8 @@ format_bool_value() {
     esac
 }
 
-# 設定コマンドをファイルに追加する関数
-add_setting_command() {
+# 設定をファイルに追加する関数
+add_setting() {
     local section_name="$1"
     local commands="$2"
     
@@ -126,7 +126,7 @@ fi
 # リストアスクリプトの生成
 # ================================================
 
-# トラックパッドの設定コマンド
+# トラックパッドの設定
 TRACKPAD_COMMANDS=$(cat << EOF
 defaults write -g com.apple.trackpad.scaling -float $TRACKPAD_SPEED
 defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int $FIRST_CLICK_THRESHOLD
@@ -137,7 +137,7 @@ defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool $
 EOF
 )
 
-# システムサウンドの設定コマンド
+# システムサウンドの設定
 SOUND_COMMANDS=$(cat << EOF
 defaults write com.apple.systemsound com.apple.sound.beep.flash -bool $(format_bool_value $STARTUP_SOUND)
 defaults write com.apple.systemsound com.apple.sound.uiaudio.enabled -bool $(format_bool_value $UI_SOUND)
@@ -146,7 +146,7 @@ defaults write -g com.apple.sound.beep.sound -string "$ALERT_SOUND"
 EOF
 )
 
-# Dockの設定コマンド
+# Dockの設定
 DOCK_COMMANDS=$(cat << EOF
 defaults write com.apple.dock tilesize -int $DOCK_SIZE
 defaults write com.apple.dock autohide -bool $(format_bool_value $DOCK_AUTOHIDE)
@@ -154,7 +154,7 @@ defaults write com.apple.dock show-recents -bool $(format_bool_value $DOCK_RECEN
 EOF
 )
 
-# Finderの設定コマンド
+# Finderの設定
 FINDER_COMMANDS=$(cat << EOF
 defaults write com.apple.finder ShowPathbar -bool $(format_bool_value $FINDER_PATHBAR)
 defaults write com.apple.finder ShowStatusBar -bool $(format_bool_value $FINDER_STATUSBAR)
@@ -162,7 +162,7 @@ defaults write com.apple.finder AppleShowAllFiles -bool $(format_bool_value $FIN
 EOF
 )
 
-# ホットコーナーの設定コマンド
+# ホットコーナーの設定
 HOT_CORNER_COMMANDS=$(cat << EOF
 defaults write com.apple.dock wvous-tl-corner -int $HOT_CORNER_TL
 defaults write com.apple.dock wvous-tr-corner -int $HOT_CORNER_TR
@@ -171,7 +171,7 @@ defaults write com.apple.dock wvous-br-corner -int $HOT_CORNER_BR
 EOF
 )
 
-# その他の設定コマンド
+# その他の設定
 OTHER_COMMANDS=$(cat << EOF
 defaults write NSGlobalDomain _HIHideMenuBar -bool $(format_bool_value $MENU_BAR_HIDDEN)
 defaults write -g AppleAccentColor -int $ACCENT_COLOR
@@ -182,13 +182,13 @@ EOF
 # ヘッダーの作成
 echo "#!/bin/bash" > "$OUTPUT_FILE"
 
-# 設定コマンドの追加
-add_setting_command "トラックパッド" "$TRACKPAD_COMMANDS"
-add_setting_command "サウンド" "$SOUND_COMMANDS"
-add_setting_command "Dock" "$DOCK_COMMANDS"
-add_setting_command "Finder" "$FINDER_COMMANDS"
-add_setting_command "ホットコーナー" "$HOT_CORNER_COMMANDS"
-add_setting_command "その他" "$OTHER_COMMANDS"
+# 設定の追加
+add_setting "トラックパッド" "$TRACKPAD_COMMANDS"
+add_setting "サウンド" "$SOUND_COMMANDS"
+add_setting "Dock" "$DOCK_COMMANDS"
+add_setting "Finder" "$FINDER_COMMANDS"
+add_setting "ホットコーナー" "$HOT_CORNER_COMMANDS"
+add_setting "その他" "$OTHER_COMMANDS"
 
 # 設定の反映用コマンド
 echo "# 設定の反映" >> "$OUTPUT_FILE"
