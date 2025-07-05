@@ -5,6 +5,7 @@ brew "gh"
 ## Development Tools
 brew "pipx"
 brew "node"
+brew "go"
 
 tap "leoafarias/fvm"
 brew "fvm"
