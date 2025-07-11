@@ -32,6 +32,20 @@ setup_git_config() {
     local src="$REPO_ROOT/config/git/.gitconfig"
     local dest="$HOME/.config/git/config"
 
+    # 既存のユーザー設定を保持
+    local existing_user_name=""
+    local existing_user_email=""
+    
+    if git config --global user.name >/dev/null 2>&1; then
+        existing_user_name=$(git config --global user.name)
+        echo "[INFO] 既存のユーザー名を保持します: $existing_user_name"
+    fi
+    
+    if git config --global user.email >/dev/null 2>&1; then
+        existing_user_email=$(git config --global user.email)
+        echo "[INFO] 既存のメールアドレスを保持します: $existing_user_email"
+    fi
+
     # Only apply if missing or different
     if [ ! -f "$dest" ] || ! cmp -s "$src" "$dest" ]; then
         if [ -f "$dest" ] || [ -L "$dest" ]; then
@@ -41,6 +55,7 @@ setup_git_config() {
         echo "[INFO] Gitの設定ファイルをコピーします..."
         if cp "$src" "$dest"; then
             echo "[SUCCESS] Gitの設定ファイルをコピーしました。"
+            installation_performed=true
         else
             echo "[ERROR] Gitの設定ファイルのコピーに失敗しました。"
             exit 2
@@ -48,6 +63,18 @@ setup_git_config() {
     else
         echo "[INFO] Gitの設定ファイルは最新です。スキップします。"
     fi
+
+    # 保持していたユーザー設定を復元
+    if [ -n "$existing_user_name" ]; then
+        echo "[INFO] ユーザー名を復元します: $existing_user_name"
+        git config --global user.name "$existing_user_name"
+    fi
+    
+    if [ -n "$existing_user_email" ]; then
+        echo "[INFO] メールアドレスを復元します: $existing_user_email"
+        git config --global user.email "$existing_user_email"
+    fi
+    
     echo "[SUCCESS] Git の設定適用完了"
     return 0
 }
@@ -68,6 +95,7 @@ setup_gitignore_global() {
     echo "[INFO] gitignore_global のシンボリックリンクを作成します..."
     if ln -s "$REPO_ROOT/config/git/.gitignore_global" "$ignore_file"; then
         echo "[SUCCESS] gitignore_global のシンボリックリンクを作成しました。"
+        installation_performed=true
     else
         echo "[ERROR] gitignore_global のシンボリックリンク作成に失敗しました。"
         exit 2

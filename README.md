@@ -67,7 +67,25 @@ $ git clone git@github.com:akitorahayashi/environment.git
 $ cd environment
 ```
 
-### 2. SSH Key Generation
+### 2. Pre-setup Script
+
+事前準備を行うスクリプトを実行します：
+
+```sh
+$ chmod +x initial-setup.sh
+$ ./initial-setup.sh
+```
+
+このスクリプトは以下を行います
+- 依存関係のチェック
+- 必要に応じたSSH鍵の生成
+- GitHubへのSSH鍵追加のガイド
+- SSH接続のテスト
+- 実行権限の付与
+
+### 3. Manual Setup
+
+#### SSH Key Generation
 
 GitHubでSSH接続を使用するため、SSHキーを生成します：
 
@@ -81,7 +99,7 @@ $ cat ~/.ssh/id_ed25519.pub
 
 公開キー（`~/.ssh/id_ed25519.pub`）をGitHubアカウントに追加してください。
 
-### 3. Grant Execution Permission
+#### Grant Execution Permission
 
 ```sh
 $ chmod +x install.sh
