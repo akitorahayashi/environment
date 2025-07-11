@@ -81,7 +81,7 @@ jobs:
             echo "❌ インストールが失敗しました (終了コード: $INSTALL_EXIT_CODE)"
             echo "=== インストール出力サンプル (最初の20行) ==="
             head -n 20 install_output.log
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -93,7 +93,7 @@ jobs:
             echo "✅ シェルの検証が成功しました"
           else
             echo "❌ シェルの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -105,7 +105,7 @@ jobs:
             echo "✅ Macの検証が成功しました"
           else
             echo "❌ Macの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -117,7 +117,7 @@ jobs:
             echo "✅ Homebrewの検証が成功しました"
           else
             echo "❌ Homebrewの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -129,7 +129,7 @@ jobs:
             echo "✅ Gitの検証が成功しました"
           else
             echo "❌ Gitの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -142,7 +142,7 @@ jobs:
             echo "✅ Flutterの検証が成功しました"
           else
             echo "❌ Flutterの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -154,7 +154,7 @@ jobs:
             echo "✅ Node.jsの検証が成功しました"
           else
             echo "❌ Node.jsの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -166,7 +166,7 @@ jobs:
             echo "✅ Rubyの検証が成功しました"
           else
             echo "❌ Rubyの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -178,7 +178,7 @@ jobs:
             echo "✅ VS Codeの検証が成功しました"
           else
             echo "❌ VS Codeの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -190,7 +190,7 @@ jobs:
             echo "✅ Cursorの検証が成功しました"
           else
             echo "❌ Cursorの検証が失敗しました"
-            exit 1
+            exit 2
           fi
         shell: bash
 
@@ -205,16 +205,18 @@ jobs:
         run: |
           echo "🔍 冪等性テストを実行しています..."
           export IDEMPOTENT_TEST=true
+          set +e  # 一時的にエラーで終了しないようにする
           ./install.sh | tee idempotent_output.log
           IDEMPOTENT_EXIT_CODE=$?
+          set -e  # エラーで終了する設定を再度有効化
           
           echo "🔍 冪等性の終了コードを検証しています..."
           if [ $IDEMPOTENT_EXIT_CODE -eq 1 ]; then
             echo "✅ 冪等性を確認しました (終了コード: 1 - インストール不要)"
+            echo "✅ 冪等性テストが正常に完了しました"
           else
             echo "❌ 冪等性テストが失敗しました (終了コード: $IDEMPOTENT_EXIT_CODE)"
             echo "期待される終了コード: 1 (冪等性), 実際の終了コード: $IDEMPOTENT_EXIT_CODE"
-            exit 1
+            exit 2
           fi
-          
         shell: bash
