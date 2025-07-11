@@ -1,2 +1,2 @@
-# bundle exec のエイリアス
 alias be="bundle exec"
+alias nr="npm run"
