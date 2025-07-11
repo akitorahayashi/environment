@@ -77,42 +77,18 @@ $ ./initial-setup.sh
 ```
 
 このスクリプトは以下を行います
-- 依存関係のチェック
-- 必要に応じたSSH鍵の生成
+- SSH鍵の生成（存在しない場合）
 - GitHubへのSSH鍵追加のガイド
 - SSH接続のテスト
 - 実行権限の付与
 
-### 3. Manual Setup
-
-#### SSH Key Generation
-
-GitHubでSSH接続を使用するため、SSHキーを生成します：
-
-```sh
-# SSHキーを生成
-$ ssh-keygen -t ed25519 -C "your_email@example.com"
-
-# 公開キーをクリップボードにコピー
-$ cat ~/.ssh/id_ed25519.pub
-```
-
-公開キー（`~/.ssh/id_ed25519.pub`）をGitHubアカウントに追加してください。
-
-#### Grant Execution Permission
-
-```sh
-$ chmod +x install.sh
-$ chmod +x scripts/*.sh
-```
-
-### 4. Run the Installation Script
+### 3. Run the Installation Script
 
 ```sh
 $ ./install.sh
 ```
 
-### 5. Individual Setup Scripts
+### 4. Individual Setup Scripts
 
 `scripts/`内の各セットアップスクリプトは個別に実行でき、冪等性を持ち、複数回安全に実行できます
 
@@ -147,15 +123,15 @@ $ ./scripts/mac.sh
 2. 必要な場合のみインストールまたは設定を実行
 3. セットアップを検証
 
-### 6. Apply Shell Configuration
+### 5. Apply Shell Configuration
 
 スクリプトが完了したら、ターミナルを再起動するか、`source ~/.zprofile`を実行してシェル設定を適用してください
 
-### 7. Android Development Environment Setup
+### 6. Android Development Environment Setup
 
 Flutterアプリ開発の場合は、Android Studioを起動し、画面の指示に従ってセットアップを完了してください
 
-### 8. Verify SSH Connection
+### 7. Verify SSH Connection
 
 SSH接続が正しく設定されているか確認します：
 
@@ -169,7 +145,7 @@ $ ssh -T git@github.com
 Hi ${GITHUB_USERNAME}! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-### 9. Configure GitHub CLI
+### 8. Configure GitHub CLI
 
 スクリプト実行中にプロンプトが表示された場合、またはスキップした場合は、GitHub CLIを認証してください
 

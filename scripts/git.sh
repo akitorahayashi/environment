@@ -118,8 +118,13 @@ setup_ssh_agent() {
     if [[ -f "$HOME/.ssh/id_ed25519" ]]; then
         echo "[SUCCESS] SSH キー (id_ed25519) が存在します"
         
-        # SSH エージェントを起動
-        eval "$(ssh-agent -s)"
+        # SSH エージェントが既に動いているかチェック
+        if ! ssh-add -l >/dev/null 2>&1; then
+            echo "[INFO] SSH エージェントを起動中..."
+            eval "$(ssh-agent -s)"
+        else
+            echo "[INFO] SSH エージェントは既に動作中です"
+        fi
         
         # SSH キーをエージェントに追加
         echo "[INFO] SSH キーを SSH エージェントに追加中..."
@@ -198,14 +203,8 @@ verify_ssh_keys() {
         echo "[SUCCESS] SSH鍵ファイル(id_ed25519)が存在します"
         return 0
     else
-        # CI環境ではキーが存在しない場合もあるため警告に留める
-        if [ "$IS_CI" = "true" ]; then
-             echo "[WARN] [CI] SSH鍵ファイル(id_ed25519)が見つかりません"
-             return 0 # CIではエラーにしない
-        else
-             echo "[ERROR] SSH鍵ファイル(id_ed25519)が見つかりません"
-             return 1
-        fi
+        echo "[WARN] SSH鍵ファイル(id_ed25519)が見つかりません"
+        return 0 # 警告のみでエラーにしない
     fi
 }
 

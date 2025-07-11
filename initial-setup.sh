@@ -7,18 +7,23 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 
 main() {
-    echo -e "==== Start: macOS環境セットアップ - 事前準備 ====\n"
-    echo -e "[INFO] このスクリプトは以下の作業を行います：\n  1. 依存関係のチェック\n  2. SSH鍵の生成（必要に応じて）\n  3. GitHubへのSSH鍵追加のガイド\n  4. SSH接続のテスト\n  5. 実行権限の付与\n"
+    echo "==== Start: macOS環境セットアップ - 事前準備 ===="
+    echo ""
+    echo "[INFO] このスクリプトは以下の作業を行います："
+    echo "  1. 必要に応じたSSH鍵の生成"
+    echo "  2. GitHubへのSSH鍵追加のガイド"
+    echo "  3. SSH接続のテスト"
+    echo "  4. 実行権限の付与"
+    echo ""
     
     if ! ask_yes_no "続行しますか？"; then
         echo "[INFO] セットアップを中止します。"
         exit 0
     fi
     
-    confirm_user_info
-    check_dependencies
     generate_ssh_key
-    show_public_key
+    setup_public_key
+    
     test_ssh_connection
     set_permissions
     
@@ -29,26 +34,16 @@ main() {
 
 ask_yes_no() {
     local question=$1
-    local default=${2:-"y"}
     
     while true; do
-        if [ "$default" = "y" ]; then
-            echo -n "$question [Y/n]: "
-        else
-            echo -n "$question [y/N]: "
-        fi
-        
+        echo -n "$question [y/N]: "
         read -r answer
-        
-        if [ -z "$answer" ]; then
-            answer=$default
-        fi
         
         case $answer in
             [Yy]|[Yy][Ee][Ss])
                 return 0
                 ;;
-            [Nn]|[Nn][Oo])
+            [Nn]|[Nn][Oo]|"")
                 return 1
                 ;;
             *)
@@ -77,58 +72,15 @@ get_email() {
     done
 }
 
-confirm_user_info() {
-    echo -e "\n==== Start: ユーザー情報の確認 ===="
-    
-    local current_user=$(whoami)
-    local current_dir=$(pwd)
-    
-    echo -e "[INFO] 現在のユーザー: $current_user\n[INFO] 現在のディレクトリ: $current_dir\n[INFO] スクリプトディレクトリ: $SCRIPT_DIR"
-    
-    if ! ask_yes_no "この情報で続行しますか？"; then
-        echo "[INFO] セットアップを中止します。"
-        exit 0
-    fi
-    
-    echo "[SUCCESS] ユーザー情報の確認完了"
-}
-
-check_dependencies() {
-    echo -e "\n==== Start: 依存関係のチェック ===="
-    
-    local missing_deps=()
-    
-    if ! command -v git &> /dev/null; then
-        missing_deps+=("git")
-    fi
-    
-    if ! command -v ssh &> /dev/null; then
-        missing_deps+=("ssh")
-    fi
-    
-    if [ ${#missing_deps[@]} -gt 0 ]; then
-        echo "[ERROR] 以下のコマンドが見つかりません："
-        for dep in "${missing_deps[@]}"; do
-            echo "  - $dep"
-        done
-        echo -e "[INFO] Xcode Command Line Toolsをインストールしてください：\n  xcode-select --install"
-        exit 2
-    fi
-    
-    echo "[SUCCESS] 必要な依存関係が揃っています"
-}
-
 generate_ssh_key() {
     echo -e "\n==== Start: SSH鍵の生成 ===="
     
     if [ -f ~/.ssh/id_ed25519 ]; then
         echo "[INFO] SSH鍵が既に存在します"
-        if ask_yes_no "既存のSSH鍵を使用しますか？"; then
-            echo "[SUCCESS] 既存のSSH鍵を使用します"
-            return 0
-        fi
+        echo "[SUCCESS] 既存のSSH鍵を使用します"
+        return 0
     else
-        echo "[INFO] SSH鍵が見つかりません"
+        echo "[WARN] SSH キー (id_ed25519) が見つかりません"
     fi
     
     local email
@@ -143,20 +95,18 @@ generate_ssh_key() {
     echo "[SUCCESS] SSH鍵が生成されました"
 }
 
-show_public_key() {
+setup_public_key() {
     echo -e "\n==== Start: GitHub SSH鍵の設定 ===="
     
     if [ ! -f ~/.ssh/id_ed25519.pub ]; then
         echo "[ERROR] 公開鍵ファイルが見つかりません"
         exit 2
-    }
+    fi
     
     echo -e "[INFO] 以下の公開鍵をGitHubアカウントに追加してください：\n"
     echo "=== 公開鍵の内容 ==="
     cat ~/.ssh/id_ed25519.pub
     echo -e "=====================\n"
-    
-    echo -e "[INFO] GitHubでの設定手順：\n  1. GitHub.comにログインして、右上のプロフィール画像をクリック\n  2. 'Settings' を選択\n  3. 左側のメニューから 'SSH and GPG keys' を選択\n  4. 'New SSH key' をクリック\n  5. Title に適当な名前を入力（例：MacBook Pro）\n  6. 上記の公開鍵をKey欄に貼り付け\n  7. 'Add SSH key' をクリック\n"
     
     if command -v pbcopy &> /dev/null; then
         cat ~/.ssh/id_ed25519.pub | pbcopy
@@ -181,7 +131,7 @@ test_ssh_connection() {
         echo -e "[ERROR] GitHubへのSSH接続に失敗しました\n[INFO] 以下の点を確認してください：\n  1. GitHubアカウントに公開鍵が正しく追加されているか\n  2. インターネット接続が正常か\n  3. ファイアウォール設定に問題がないか"
         
         if ask_yes_no "手動で再度テストしますか？"; then
-            echo -e "[INFO] 以下のコマンドを実行してください：\n  ssh -T git@github.com\n\n[INFO] 成功すると以下のようなメッセージが表示されます：\n  Hi [ユーザー名]! You\'ve successfully authenticated, but GitHub does not provide shell access."
+            echo -e "[INFO] 以下のコマンドを実行してください：\n  ssh -T git@github.com\n\n[INFO] 成功すると以下のようなメッセージが表示されます：\n  Hi [ユーザー名]! You've successfully authenticated, but GitHub does not provide shell access."
         fi
         
         return 1
@@ -194,7 +144,7 @@ set_permissions() {
     echo "[INFO] セットアップスクリプトに実行権限を付与しています..."
     
     chmod +x "$SCRIPT_DIR/install.sh"
-    find "$SCRIPT_DIR/scripts" -name "*.sh" -exec chmod +x {} \;"
+    find "$SCRIPT_DIR/scripts" -name "*.sh" -exec chmod +x {} \;
     
     echo "[SUCCESS] 実行権限が付与されました"
 }
