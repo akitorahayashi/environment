@@ -4,24 +4,24 @@ brew "gh"
 
 ## Development Tools
 brew "node"
-# brew "go"
+brew "go"
 
 tap "leoafarias/fvm"
 brew "leoafarias/fvm/fvm"
 
 ## Xcode & Swift Development
-# brew "xcodes"
-# brew "xcbeautify"
-# brew "mint"
-# brew "cocoapods"
+brew "xcodes"
+brew "xcbeautify"
+brew "mint"
+brew "cocoapods"
 
 ## Ruby
 brew "rbenv"
 brew "ruby-build"
 
 ## Utility
-# brew "yamllint"
-# brew "marp-cli"
+brew "yamllint"
+brew "marp-cli"
 brew "displayplacer"
 
 ## Cask
@@ -30,11 +30,11 @@ cask "cursor"
 cask "android-studio"
 cask "android-commandlinetools"
 cask "temurin"
-# cask "figma"
-# cask "google-chrome"
-# cask "chatgpt"
-# cask "discord"
-# cask "slack"
-# cask "zoom"
-# cask "notion"
-# cask "spotify"
+cask "figma"
+cask "google-chrome"
+cask "chatgpt"
+cask "discord"
+cask "slack"
+cask "zoom"
+cask "notion"
+cask "spotify"

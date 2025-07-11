@@ -33,34 +33,6 @@ jobs:
           echo "✅ CI環境変数の設定が完了しました"
         shell: bash
 
-      - name: Cache FVM Flutter SDKs
-        uses: actions/cache@v4
-        id: cache-fvm
-        with:
-          path: $HOME/fvm
-          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvm/fvm_config.json') }}
-          restore-keys: |
-            ${{ runner.os }}-fvm-
-
-      - name: Cache Pub dependencies
-        uses: actions/cache@v4
-        id: cache-pub
-        with:
-          path: $HOME/.pub-cache
-          key: ${{ runner.os }}-pub-${{ steps.cache-fvm.outputs.cache-hit != 'true' && '' || 'stable' }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            $HOME/.gradle/caches
-            $HOME/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Make scripts executable
         run: |
           echo "セットアップスクリプトを実行可能にしています..."
@@ -212,7 +184,6 @@ jobs:
           
           echo "🔍 冪等性の終了コードを検証しています..."
           if [ $IDEMPOTENT_EXIT_CODE -eq 1 ]; then
-            echo "✅ 冪等性を確認しました (終了コード: 1 - インストール不要)"
             echo "✅ 冪等性テストが正常に完了しました"
           else
             echo "❌ 冪等性テストが失敗しました (終了コード: $IDEMPOTENT_EXIT_CODE)"
