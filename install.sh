@@ -56,8 +56,12 @@ main() {
         local script_path="${script_entry#*:}"
         
         echo "[INFO] 実行中: $script_name"
+        # 一時的に errexit を無効にし、スクリプトの戻り値を取得する
+        set +e
         "${script_path}"
         local exit_code=$?
+        # errexit を再度有効化
+        set -e
         
         case $exit_code in
             0)
