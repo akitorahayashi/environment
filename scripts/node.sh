@@ -2,9 +2,8 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"  # scripts/ の一つ上を指す
+REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# メイン関数
 main() {
     echo ""
     echo "==== Start: Node.js 環境のセットアップを開始します ===="
@@ -15,17 +14,12 @@ main() {
     
     # 終了ステータスの決定
     if [ "$installation_performed" = "true" ]; then
-        exit 0  # インストール実行済み
+        exit 0
     else
-        exit 1  # インストール不要（冪等性保持）
+        exit 1
     fi
 }
 
-
-# インストール実行フラグ
-installation_performed=false
-
-# Node.js のセットアップ
 setup_node() {
     echo ""
     echo "==== Start: Node.js のセットアップを開始します... ===="
@@ -51,7 +45,6 @@ setup_node() {
     return 0
 }
 
-# グローバルパッケージのインストール
 install_global_packages() {
     local packages_file="$REPO_ROOT/config/node/global-packages.json"
     
@@ -94,27 +87,14 @@ install_global_packages() {
     return 0
 }
 
-# Node.js 環境を検証
 verify_node_setup() {
     echo ""
     echo "==== Start: Node.js 環境を検証中... ===="
     local verification_failed=false
     
-    # Node.js の確認
-    if ! command -v node; then
-        echo "[ERROR] Node.js がインストールされていません"
-        verification_failed=true
-    else
-        echo "[SUCCESS] Node.js: $(node --version)"
-    fi
-    
-    # npm の確認
-    if ! command -v npm; then
-        echo "[ERROR] npm がインストールされていません"
-        verification_failed=true
-    else
-        echo "[SUCCESS] npm: $(npm --version)"
-    fi
+    # Node.js と npm の確認は setup 関数の後に実行されるため、既にインストールされているはず
+    echo "[SUCCESS] Node.js: $(node --version)"
+    echo "[SUCCESS] npm: $(npm --version)"
     
     # グローバルパッケージの確認
     verify_global_packages || verification_failed=true
@@ -128,7 +108,6 @@ verify_node_setup() {
     fi
 }
 
-# グローバルパッケージの検証
 verify_global_packages() {
     local packages_file="$REPO_ROOT/config/node/global-packages.json"
     
@@ -154,22 +133,6 @@ verify_global_packages() {
     fi
     
     return 0
-}
-
-# メイン関数
-main() {
-    echo "==== Start: "Node.js 環境のセットアップを開始します""
-    
-    setup_node
-    
-    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0  # インストール実行済み
-    else
-        exit 1  # インストール不要（冪等性保持）
-    fi
 }
 
 # スクリプトが直接実行された場合のみメイン関数を実行

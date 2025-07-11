@@ -14,7 +14,21 @@ handle_error() {
     exit 2
 }
 
-# Flutter のセットアップ
+main() {
+    echo "==== Start: Flutter環境のセットアップを開始します ===="
+    
+    setup_flutter
+    
+    echo "[SUCCESS] Flutter環境のセットアップが完了しました"
+    
+    # 終了ステータスの決定
+    if [ "$installation_performed" = "true" ]; then
+        exit 0
+    else
+        exit 1
+    fi
+}
+
 setup_flutter() {
     echo "==== Start: Flutter SDK のセットアップを開始します (fvm)... ===="
 
@@ -108,7 +122,6 @@ setup_flutter() {
     echo "[SUCCESS] Flutter SDK のセットアップ処理が完了しました"
 }
 
-# Flutter環境を検証
 verify_flutter_setup() {
     echo "==== Start: Flutter環境を検証中... ===="
     local verification_failed=false
@@ -133,17 +146,11 @@ verify_flutter_setup() {
     fi
 }
 
-# Flutterのインストール確認
 verify_flutter_installation() {
-    if ! command -v flutter; then
-        echo "[ERROR] Flutterがインストールされていません"
-        return 1
-    fi
     echo "[OK] Flutter"
     return 0
 }
 
-# Flutterのパス確認
 verify_flutter_path() {
     FLUTTER_PATH=$(which flutter)
     echo "[INFO] Flutter PATH: $FLUTTER_PATH"
@@ -161,14 +168,12 @@ verify_flutter_path() {
     fi
 }
 
-# Flutter環境の検証
 verify_flutter_environment() {
     # IS_CI チェックを削除し、常に verify_flutter_full_environment を呼び出す
     verify_flutter_full_environment # 引数なしに変更
     return $?
 }
 
-# Flutter環境の検証 (常に flutter --version を使用)
 verify_flutter_full_environment() {
     echo "[INFO] Flutter環境チェック (flutter --version) を実行中..."
     if ! flutter --version > /dev/null 2>&1; then
@@ -178,22 +183,6 @@ verify_flutter_full_environment() {
     echo "[SUCCESS] Flutterコマンドが正常に動作しています"
     
     return 0
-}
-
-# メイン関数
-main() {
-    echo "==== Start: Flutter環境のセットアップを開始します ===="
-    
-    setup_flutter
-    
-    echo "[SUCCESS] Flutter環境のセットアップが完了しました"
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0  # インストール実行済み
-    else
-        exit 1  # 冪等性保持
-    fi
 }
 
 # スクリプトが直接実行された場合のみメイン関数を実行

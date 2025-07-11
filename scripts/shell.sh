@@ -7,7 +7,21 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # インストール実行フラグ
 installation_performed=false
 
-# シェル設定ファイルを適用する
+main() {
+    echo "==== Start: "シェル環境のセットアップを開始します""
+    
+    setup_shell_config
+    
+    echo "[SUCCESS] "シェル環境のセットアップが完了しました""
+    
+    # 終了ステータスの決定
+    if [ "$installation_performed" = "true" ]; then
+        exit 0
+    else
+        exit 1
+    fi
+}
+
 setup_shell_config() {
     echo "==== Start: "シェル設定ファイルのセットアップを開始します...""
 
@@ -33,7 +47,6 @@ setup_shell_config() {
     return 0
 }
 
-# シェル環境を検証
 verify_shell_setup() {
     echo "==== Start: "シェル設定を検証中...""
     local verification_failed=false
@@ -52,7 +65,6 @@ verify_shell_setup() {
     fi
 }
 
-# シェルタイプの検証
 verify_shell_type() {
     current_shell=$(echo $SHELL)
 
@@ -78,7 +90,6 @@ verify_shell_type() {
     fi
 }
 
-# .zprofileの検証
 verify_zprofile() {
     if [ ! -L "$HOME/.zprofile" ]; then
         echo "[ERROR] ".zprofile がシンボリックリンクではありません""
@@ -100,7 +111,6 @@ verify_zprofile() {
     fi
 }
 
-# .zshrcの検証
 verify_zshrc() {
     if [ ! -L "$HOME/.zshrc" ]; then
         echo "[ERROR] ".zshrc がシンボリックリンクではありません""
@@ -122,7 +132,6 @@ verify_zshrc() {
     fi
 }
 
-# 環境変数の検証
 verify_env_vars() {
     if [ -z "$PATH" ]; then
         echo "[ERROR] "PATH環境変数が設定されていません""
@@ -130,22 +139,6 @@ verify_env_vars() {
     else
         echo "[SUCCESS] "PATH環境変数が設定されています""
         return 0
-    fi
-}
-
-# メイン関数
-main() {
-    echo "==== Start: "シェル環境のセットアップを開始します""
-    
-    setup_shell_config
-    
-    echo "[SUCCESS] "シェル環境のセットアップが完了しました""
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0  # インストール実行済み
-    else
-        exit 1  # インストール不要（冪等性保持）
     fi
 }
 

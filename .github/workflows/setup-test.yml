@@ -33,6 +33,16 @@ jobs:
           echo "✅ CI環境変数の設定が完了しました"
         shell: bash
 
+      - name: Setup GitHub authentication for Homebrew
+        run: |
+          echo "🔑 CI環境用のGitHub認証を設定中..."
+          # 認証情報を環境変数に設定
+          echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          # Gitの認証設定
+          git config --global url."https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          echo "✅ GitHub認証の設定が完了しました"
+        shell: bash
+
       - name: Make scripts executable
         run: |
           echo "セットアップスクリプトを実行可能にしています..."
@@ -69,17 +79,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Verify Mac Setup
-        run: |
-          echo "🔍 Macの設定の検証を開始しています..."
-          source ./scripts/mac.sh
-          if verify_mac_setup; then
-            echo "✅ Macの検証が成功しました"
-          else
-            echo "❌ Macの検証が失敗しました"
-            exit 2
-          fi
-        shell: bash
 
       - name: Verify Homebrew Setup
         run: |

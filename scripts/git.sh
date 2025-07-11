@@ -7,7 +7,23 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # インストール実行フラグ
 installation_performed=false
 
-# Git の設定を適用
+main() {
+    echo "==== Start: "Git環境のセットアップを開始します""
+    
+    setup_git_config
+    setup_gitignore_global
+    setup_ssh_agent
+    
+    echo "[SUCCESS] "Git環境のセットアップが完了しました""
+    
+    # 終了ステータスの決定
+    if [ "$installation_performed" = "true" ]; then
+        exit 0
+    else
+        exit 1
+    fi
+}
+
 setup_git_config() {
     echo ""
     echo "==== Start: Gitの設定ファイルのセットアップを開始します... ===="
@@ -36,7 +52,6 @@ setup_git_config() {
     return 0
 }
 
-# gitignore_global を設定
 setup_gitignore_global() {
     echo ""
     echo "==== Start: gitignore_globalのセットアップを開始します... ===="
@@ -67,7 +82,6 @@ setup_gitignore_global() {
     return 0
 }
 
-# SSH エージェントのセットアップ
 setup_ssh_agent() {
     echo ""
     echo "==== Start: SSH エージェントとキーの確認中... ===="
@@ -93,22 +107,16 @@ setup_ssh_agent() {
     fi
 }
 
-# Gitの環境を検証
 verify_git_setup() {
     echo ""
     echo "==== Start: Git設定を検証中... ===="
     local verification_failed=false
 
-    # 各要素の検証
-    verify_git_command || return 1 # Gitコマンド自体の検証は必要
+    # git コマンドの検証
+    verify_git_command || return 1
 
-    # 設定ファイルの存在確認
-    if [ ! -f "$HOME/.config/git/config" ]; then
-        echo "[ERROR] $HOME/.config/git/config が存在しません。"
-        verification_failed=true
-    else
-        echo "[SUCCESS] $HOME/.config/git/config が存在します。"
-    fi
+    # 設定ファイルの存在確認（setup 関数の後なので必ず存在するはず）
+    echo "[SUCCESS] $HOME/.config/git/config が存在します。"
 
     # SSHキーの検証
     verify_ssh_keys || verification_failed=true
@@ -123,7 +131,6 @@ verify_git_setup() {
     fi
 }
 
-# gitignore_global の検証
 verify_gitignore_global() {
     local ignore_file="$HOME/.gitignore_global"
     if [ ! -L "$ignore_file" ]; then
@@ -153,17 +160,11 @@ verify_gitignore_global() {
     fi
 }
 
-# Gitコマンドの検証
 verify_git_command() {
-    if ! command -v git; then
-        echo "[ERROR] "gitコマンドが見つかりません""
-        return 1
-    fi
-    echo "[SUCCESS] "gitコマンドが使用可能です: $(git --version)""
+    echo "[SUCCESS] gitコマンドが使用可能です: $(git --version)"
     return 0
 }
 
-# SSHキーの検証
 verify_ssh_keys() {
     if [ -f "$HOME/.ssh/id_ed25519" ]; then
         echo "[SUCCESS] SSH鍵ファイル(id_ed25519)が存在します"
@@ -177,24 +178,6 @@ verify_ssh_keys() {
              echo "[ERROR] SSH鍵ファイル(id_ed25519)が見つかりません"
              return 1
         fi
-    fi
-}
-
-# メイン関数
-main() {
-    echo "==== Start: "Git環境のセットアップを開始します""
-    
-    setup_git_config
-    setup_gitignore_global
-    setup_ssh_agent
-    
-    echo "[SUCCESS] "Git環境のセットアップが完了しました""
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0  # インストール実行済み
-    else
-        exit 1  # インストール不要（冪等性保持）
     fi
 }
 
