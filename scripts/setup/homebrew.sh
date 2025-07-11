@@ -5,9 +5,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh" || { echo "❌ helpers.shをロードできませんでした。処理を終了します。" && exit 1; }
-source "$SCRIPT_DIR/../utils/logging.sh" || { echo "❌ logging.shをロードできませんでした。処理を終了します。" && exit 1; }
+source "$SCRIPT_DIR/../utils/helpers.sh" || { echo "[ERROR] helpers.shをロードできませんでした。処理を終了します。" && exit 2; }
 
+# インストール実行フラグ
+installation_performed=false
 
 # CI環境かどうかを確認
 export IS_CI=${CI:-false}
@@ -16,21 +17,22 @@ export IS_CI=${CI:-false}
 install_xcode_command_line_tools() {
     # Xcode Command Line Tools のインストール
     if ! xcode-select -p &>/dev/null; then
-        log_installing "Xcode Command Line Tools"
+        echo "[INSTALL] Xcode Command Line Tools ..."
+        installation_performed=true
         if [ "$IS_CI" = "true" ]; then
             # CI環境ではすでにインストールされていることを前提とする
-            log_info "CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
+            echo "[INFO] CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
         else
             xcode-select --install
             # インストールが完了するまで待機
-            log_info "インストールが完了するまで待機..."
+            echo "[INFO] インストールが完了するまで待機..."
             until xcode-select -p &>/dev/null; do
                 sleep 5
             done
         fi
-        log_success "Xcode Command Line Tools のインストール完了"
+        echo "[OK] Xcode Command Line Tools のインストール完了"
     else
-        log_installed "Xcode Command Line Tools"
+        echo "[OK] Xcode Command Line Tools ... already installed"
     fi
     
     return 0
@@ -42,11 +44,12 @@ install_homebrew() {
     install_xcode_command_line_tools
     
     if ! command_exists brew; then
-        log_installing "Homebrew"
+        echo "[INSTALL] Homebrew ..."
+        installation_performed=true
         install_homebrew_binary # バイナリインストール後、この関数内でPATH設定も行う
-        log_success "Homebrew のインストール完了"
+        echo "[OK] Homebrew のインストール完了"
     else
-        log_installed "Homebrew"
+        echo "[OK] Homebrew ... already installed"
     fi
 }
 
@@ -54,9 +57,9 @@ install_homebrew() {
 install_homebrew_binary() {
     local install_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
     
-    log_info "Homebrewインストールスクリプトを実行します..."
+    echo "[INFO] Homebrewインストールスクリプトを実行します..."
     if [ "$IS_CI" = "true" ]; then
-        log_info "CI環境では非対話型でインストールします"
+        echo "[INFO] CI環境では非対話型でインストールします"
         NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL $install_url)"
     else
         /bin/bash -c "$(curl -fsSL $install_url)"
@@ -68,9 +71,10 @@ install_homebrew_binary() {
     
     # インストール結果確認 (この時点でbrewコマンドが利用可能になっているはず)
     if ! command_exists brew; then
-        handle_error "Homebrewのインストールに失敗しました"
+        echo "[ERROR] Homebrewのインストールに失敗しました"
+        exit 2
     fi
-    log_success "Homebrewバイナリのインストールが完了しました。"
+    echo "[OK] Homebrewバイナリのインストールが完了しました。"
 }
 
 # Homebrew PATH設定
@@ -86,29 +90,31 @@ setup_homebrew_path() {
 
     # 現在のセッションにPATHを設定（スクリプト実行中にbrewが使えるようにするため）
     eval "$($brew_shellenv_cmd)"
-    log_info "現在のシェルセッションにHomebrewのPATHを設定しました。"
+    echo "[INFO] 現在のシェルセッションにHomebrewのPATHを設定しました。"
     
     # .zprofile (または適切なシェル設定ファイル) に永続的に追加
     # 既に設定があるかチェックし、なければ追加する
     if ! grep -q "eval \"\$($brew_shellenv_cmd)\"" "$shell_config_file" 2>/dev/null; then
-        log_info "HomebrewのPATHを $shell_config_file に永続的に追加します。"
+        echo "[INFO] HomebrewのPATHを $shell_config_file に永続的に追加します。"
         echo 'eval "$('$brew_shellenv_cmd')"' >> "$shell_config_file"
     else
-        log_info "HomebrewのPATHは既に $shell_config_file に設定済みです。"
+        echo "[INFO] HomebrewのPATHは既に $shell_config_file に設定済みです。"
     fi
 }
 
 # Brewfileの内容をインストール/更新する関数
 install_brewfile() {
-    log_start "Brewfileのインストール/更新を開始します..."
+    echo ""
+    echo "==== Start: Brewfileのインストール/更新を開始します... ===="
     local brewfile_path="$REPO_ROOT/config/brew/Brewfile"
     
     if [ ! -f "$brewfile_path" ]; then
-        log_error "Brewfileが見つかりません: $brewfile_path"
-        return 1
+        echo "[ERROR] Brewfileが見つかりません: $brewfile_path"
+        exit 2
     fi
 
-    log_start "Homebrew パッケージのインストールを開始します..."
+    echo ""
+    echo "==== Start: Homebrew パッケージのインストールを開始します... ===="
     setup_github_auth_for_brew
     install_packages_from_brewfile "$brewfile_path"
 }
@@ -116,7 +122,7 @@ install_brewfile() {
 # GitHub認証設定（CI環境用）
 setup_github_auth_for_brew() {
     if [ -n "$GITHUB_TOKEN_CI" ]; then
-        log_info "🔑 CI環境用のGitHub認証を設定中..."
+        echo "[INFO] 🔑 CI環境用のGitHub認証を設定中..."
         # 認証情報を環境変数に設定
         export HOMEBREW_GITHUB_API_TOKEN="$GITHUB_TOKEN_CI"
         # Gitの認証設定
@@ -128,16 +134,29 @@ setup_github_auth_for_brew() {
 install_packages_from_brewfile() {
     local brewfile_path="$1"
     
-    if ! brew bundle --file "$brewfile_path"; then
-        handle_error "Brewfileからのパッケージインストールに失敗しました"
-    else
-        log_success "Homebrew パッケージのインストールが完了しました"
+    # brew bundleの出力を一時ファイルに保存
+    local temp_output=$(mktemp)
+    
+    if ! brew bundle --file "$brewfile_path" 2>&1 | tee "$temp_output"; then
+        rm -f "$temp_output"
+        echo "[ERROR] Brewfileからのパッケージインストールに失敗しました"
+        exit 2
     fi
+    
+    # 出力を解析して実際にインストールやアップグレードが発生したかチェック
+    if grep -E "(Installing|Upgrading|Downloading)" "$temp_output" > /dev/null; then
+        installation_performed=true
+        echo "[OK] Homebrew パッケージのインストール/アップグレードが完了しました"
+    else
+        echo "[OK] Homebrew パッケージは既に最新の状態です"
+    fi
+    
+    rm -f "$temp_output"
 }
 
 # Homebrewのインストールを検証
 verify_homebrew_setup() {
-    log_start "Homebrewの環境を検証中..."
+    echo "==== Start: "Homebrewの環境を検証中...""
     local verification_failed=false
     
     # Xcode Command Line Toolsの確認
@@ -155,10 +174,10 @@ verify_homebrew_setup() {
     verify_brew_path || verification_failed=true
     
     if [ "$verification_failed" = "true" ]; then
-        log_error "Homebrewの検証に失敗しました"
+        echo "[ERROR] "Homebrewの検証に失敗しました""
         return 1
     else
-        log_success "Homebrewの検証が完了しました"
+        echo "[SUCCESS] "Homebrewの検証が完了しました""
         return 0
     fi
 }
@@ -166,10 +185,10 @@ verify_homebrew_setup() {
 # brewコマンドの検証
 verify_brew_command() {
     if ! command_exists brew; then
-        log_error "brewコマンドが見つかりません"
+        echo "[ERROR] "brewコマンドが見つかりません""
         return 1
     fi
-    log_success "brewコマンドが正常に使用可能です"
+    echo "[SUCCESS] "brewコマンドが正常に使用可能です""
     return 0
 }
 
@@ -179,19 +198,19 @@ verify_brew_version() {
         # CI環境では最小限の出力
         BREW_VERSION=$(brew --version | head -n 1 2>/dev/null || echo "不明")
         if [ "$BREW_VERSION" = "不明" ]; then
-            log_warning "Homebrewのバージョン取得に問題が発生しましたが続行します"
+            echo "[WARN] "Homebrewのバージョン取得に問題が発生しましたが続行します""
             return 0
         else
-            log_success "Homebrewのバージョン: $BREW_VERSION"
+            echo "[SUCCESS] "Homebrewのバージョン: $BREW_VERSION""
             return 0
         fi
     else
         # 通常環境での確認
         if ! brew --version > /dev/null; then
-            log_error "Homebrewのバージョン確認に失敗しました"
+            echo "[ERROR] "Homebrewのバージョン確認に失敗しました""
             return 1
         fi
-        log_success "Homebrewのバージョン: $(brew --version | head -n 1)"
+        echo "[SUCCESS] "Homebrewのバージョン: $(brew --version | head -n 1)""
         return 0
     fi
 }
@@ -209,12 +228,12 @@ verify_brew_path() {
     fi
     
     if [[ "$BREW_PATH" != "$expected_path" ]]; then
-        log_error "Homebrewのパスが想定と異なります"
-        log_error "期待: $expected_path"
-        log_error "実際: $BREW_PATH"
+        echo "[ERROR] "Homebrewのパスが想定と異なります""
+        echo "[ERROR] "期待: $expected_path""
+        echo "[ERROR] "実際: $BREW_PATH""
         return 1
     else
-        log_success "Homebrewのパスが正しく設定されています: $BREW_PATH"
+        echo "[SUCCESS] "Homebrewのパスが正しく設定されています: $BREW_PATH""
         return 0
     fi
 }
@@ -223,10 +242,10 @@ verify_brew_path() {
 verify_brewfile() {
     local brewfile_path="${1:-$REPO_ROOT/config/brew/Brewfile}"
     if [ ! -f "$brewfile_path" ]; then
-        log_error "Brewfileが見つかりません: $brewfile_path"
+        echo "[ERROR] "Brewfileが見つかりません: $brewfile_path""
         return 1
     fi
-    log_success "Brewfileが存在します: $brewfile_path"
+    echo "[SUCCESS] "Brewfileが存在します: $brewfile_path""
     return 0
 }
 
@@ -260,18 +279,18 @@ verify_brew_package() {
     
     if [ "$type" = "formula" ]; then
         if ! brew list --formula "$package" &>/dev/null; then
-            log_error "formula $package がインストールされていません"
+            echo "[ERROR] "formula $package がインストールされていません""
             return 1
         else
-            log_success "formula $package がインストールされています"
+            echo "[SUCCESS] "formula $package がインストールされています""
             return 0
         fi
     elif [ "$type" = "cask" ]; then
         if ! brew list --cask "$package" &>/dev/null; then
-            log_error "cask $package がインストールされていません"
+            echo "[ERROR] "cask $package がインストールされていません""
             return 1
         else
-            log_success "cask $package がインストールされています"
+            echo "[SUCCESS] "cask $package がインストールされています""
             return 0
         fi
     fi
@@ -280,17 +299,18 @@ verify_brew_package() {
 # Xcode Command Line Toolsの検証
 verify_xcode_command_line_tools() {
     if ! xcode-select -p &>/dev/null; then
-        log_error "Xcode Command Line Toolsがインストールされていません"
+        echo "[ERROR] "Xcode Command Line Toolsがインストールされていません""
         return 1
     else
-        log_success "Xcode Command Line Toolsがインストールされています"
+        echo "[SUCCESS] "Xcode Command Line Toolsがインストールされています""
         return 0
     fi
 }
 
 # メイン関数
 main() {
-    log_start "Homebrewのセットアップを開始します"
+    echo ""
+    echo "==== Start: Homebrewのセットアップを開始します ===="
     
     # Homebrewのインストール
     install_homebrew
@@ -298,7 +318,14 @@ main() {
     # Brewfileのインストール
     install_brewfile
     
-    log_success "Homebrewのセットアップが完了しました"
+    echo "[OK] Homebrewのセットアップが完了しました"
+    
+    # 終了ステータスの決定
+    if [ "$installation_performed" = "true" ]; then
+        exit 0  # インストール実行済み
+    else
+        exit 1  # インストール不要（冪等性保持）
+    fi
 }
 
 # スクリプトが直接実行された場合のみメイン関数を実行

@@ -2,34 +2,50 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"# メイン関数
+main() {
+    echo ""
+    echo "==== Start: Node.js 環境のセットアップを開始します ===="
+    
+    setup_node
+    
+    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
+    
+    # 終了ステータスの決定
+    if [ "$installation_performed" = "true" ]; then
+        exit 0  # インストール実行済み
+    else
+        exit 1  # インストール不要（冪等性保持）
+    fi
+}
+source "$SCRIPT_DIR/../utils/helpers.sh" || exit 2
 
-# ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh"
-source "$SCRIPT_DIR/../utils/logging.sh"
+# インストール実行フラグ
+installation_performed=false
 
 # Node.js のセットアップ
 setup_node() {
-    log_start "Node.js のセットアップを開始します..."
+    echo ""
+    echo "==== Start: Node.js のセットアップを開始します... ===="
 
     # Node.js のインストール確認
     if ! command_exists node; then
-        log_warning "Node.js がインストールされていません。Brewfileを確認してください。"
-        return 1
+        echo "[WARN] Node.js がインストールされていません。Brewfileを確認してください。"
+        exit 2
     fi
-    log_installed "Node.js"
+    echo "[OK] Node.js ... already installed"
 
     # npm のインストール確認
     if ! command_exists npm; then
-        log_warning "npm がインストールされていません。Node.js のインストールを確認してください。"
-        return 1
+        echo "[WARN] npm がインストールされていません。Node.js のインストールを確認してください。"
+        exit 2
     fi
-    log_installed "npm"
+    echo "[OK] npm ... already installed"
 
     # グローバルパッケージのインストール
     install_global_packages
 
-    log_success "Node.js のセットアップが完了しました"
+    echo "[SUCCESS] Node.js のセットアップが完了しました"
     return 0
 }
 
@@ -38,17 +54,17 @@ install_global_packages() {
     local packages_file="$REPO_ROOT/config/node/global-packages.json"
     
     if [ ! -f "$packages_file" ]; then
-        log_warning "global-packages.json が見つかりません。グローバルパッケージのインストールをスキップします"
+        echo "[WARN] global-packages.json が見つかりません。グローバルパッケージのインストールをスキップします"
         return 0
     fi
     
-    log_info "グローバルパッケージをチェック中..."
+    echo "[INFO] グローバルパッケージをチェック中..."
     
     # JSONファイルからキー（パッケージ名）とバージョンを読み込み "name@version" の配列を作成
     local entries=($(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null))
     
     if [ ${#entries[@]} -eq 0 ]; then
-        log_warning "global-packages.json にパッケージが定義されていません"
+        echo "[WARN] global-packages.json にパッケージが定義されていません"
         return 0
     fi
     
@@ -60,14 +76,15 @@ install_global_packages() {
         pkg_name="${entry%@*}"
         
         if npm list -g "$pkg_name" &>/dev/null; then
-            log_installed "$pkg_name"
+            echo "[INSTALLED] $pkg_name"
         else
-            log_installing "$pkg_full"
+            echo "[INSTALLING] $pkg_full"
+            installation_performed=true
             if npm install -g "$pkg_full"; then
-                log_success "$pkg_name のインストールが完了しました"
+                echo "[SUCCESS] $pkg_name のインストールが完了しました"
             else
-                log_error "$pkg_name のインストールに失敗しました"
-                return 1
+                echo "[ERROR] $pkg_name のインストールに失敗しました"
+                exit 2
             fi
         fi
     done
@@ -77,33 +94,34 @@ install_global_packages() {
 
 # Node.js 環境を検証
 verify_node_setup() {
-    log_start "Node.js 環境を検証中..."
+    echo ""
+    echo "==== Start: Node.js 環境を検証中... ===="
     local verification_failed=false
     
     # Node.js の確認
     if ! command_exists node; then
-        log_error "Node.js がインストールされていません"
+        echo "[ERROR] Node.js がインストールされていません"
         verification_failed=true
     else
-        log_success "Node.js: $(node --version)"
+        echo "[SUCCESS] Node.js: $(node --version)"
     fi
     
     # npm の確認
     if ! command_exists npm; then
-        log_error "npm がインストールされていません"
+        echo "[ERROR] npm がインストールされていません"
         verification_failed=true
     else
-        log_success "npm: $(npm --version)"
+        echo "[SUCCESS] npm: $(npm --version)"
     fi
     
     # グローバルパッケージの確認
     verify_global_packages || verification_failed=true
     
     if [ "$verification_failed" = "true" ]; then
-        log_error "Node.js 環境の検証に失敗しました"
+        echo "[ERROR] Node.js 環境の検証に失敗しました"
         return 1
     else
-        log_success "Node.js 環境の検証が完了しました"
+        echo "[SUCCESS] Node.js 環境の検証が完了しました"
         return 0
     fi
 }
@@ -113,7 +131,7 @@ verify_global_packages() {
     local packages_file="$REPO_ROOT/config/node/global-packages.json"
     
     if [ ! -f "$packages_file" ]; then
-        log_warning "global-packages.json が見つかりません"
+        echo "[WARN] global-packages.json が見つかりません"
         return 0
     fi
     
@@ -122,10 +140,10 @@ verify_global_packages() {
     
     for package in "${packages[@]}"; do
         if ! npm list -g "$package" &>/dev/null; then
-            log_error "グローバルパッケージ $package がインストールされていません"
+            echo "[ERROR] グローバルパッケージ $package がインストールされていません"
             ((missing++))
         else
-            log_success "グローバルパッケージ $package がインストールされています"
+            echo "[SUCCESS] グローバルパッケージ $package がインストールされています"
         fi
     done
     
@@ -138,11 +156,18 @@ verify_global_packages() {
 
 # メイン関数
 main() {
-    log_start "Node.js 環境のセットアップを開始します"
+    echo "==== Start: "Node.js 環境のセットアップを開始します""
     
     setup_node
     
-    log_success "Node.js 環境のセットアップが完了しました"
+    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
+    
+    # 終了ステータスの決定
+    if [ "$installation_performed" = "true" ]; then
+        exit 0  # インストール実行済み
+    else
+        exit 1  # インストール不要（冪等性保持）
+    fi
 }
 
 # スクリプトが直接実行された場合のみメイン関数を実行

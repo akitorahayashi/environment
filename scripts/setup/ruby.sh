@@ -5,24 +5,27 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh"
-source "$SCRIPT_DIR/../utils/logging.sh"
+source "$SCRIPT_DIR/../utils/helpers.sh" || exit 2
+
+# インストール実行フラグ
+installation_performed=false
 
 # rbenvをインストール
 install_rbenv() {
     if command_exists rbenv; then
-        log_installed "rbenv"
+        echo "[OK] "rbenv""
         return 0
     fi
     
-    log_installing "rbenv"
+    echo "[INSTALL] "rbenv""
+    installation_performed=true
     if brew install rbenv ruby-build; then
-        log_success "rbenvのインストールが完了しました"
+        echo "[SUCCESS] "rbenvのインストールが完了しました""
         eval "$(rbenv init -)"
         return 0
     else
-        handle_error "rbenvのインストールに失敗しました"
-        return 1
+        echo "[ERROR] "rbenvのインストールに失敗しました""
+        exit 2
     fi
 }
 
@@ -31,11 +34,11 @@ install_gems() {
     local gem_file="${REPO_ROOT:-$ROOT_DIR}/config/gems/global-gems.rb"
     
     if [ ! -f "$gem_file" ]; then
-        log_info "global-gems.rbが見つかりません。gemのインストールをスキップします"
+        echo "[INFO] "global-gems.rbが見つかりません。gemのインストールをスキップします""
         return 0
     fi
     
-    log_info "Gemfileからgemをチェック中..."
+    echo "[INFO] "Gemfileからgemをチェック中...""
     
     # bundlerの確認とインストール
     install_bundler_if_needed "$gem_file"
@@ -53,7 +56,7 @@ install_bundler_if_needed() {
     if command_exists bundle; then
         # 既存のbundlerバージョンを確認
         local current_version=$(bundle --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "unknown")
-        log_installed "bundler" "$current_version"
+        echo "[OK] "bundler" "$current_version""
         
         # 期待されるバージョンと比較
         if grep -q "bundler" "$gem_file"; then
@@ -63,15 +66,15 @@ install_bundler_if_needed() {
                                     echo "")
             
             if [ -n "$expected_version" ] && [ "$current_version" != "$expected_version" ]; then
-                log_warning "インストール済みのbundler ($current_version) と global-gems.rb で指定されたバージョン ($expected_version) が異なります"
-                log_info "既存のbundlerを使用して続行します"
+                echo "[WARN] "インストール済みのbundler ($current_version) と global-gems.rb で指定されたバージョン ($expected_version) が異なります""
+                echo "[INFO] "既存のbundlerを使用して続行します""
             fi
         fi
         return 0
     fi
     
     # bundlerがない場合はインストール
-    log_info "global-gems.rbからbundlerの設定を確認中..."
+    echo "[INFO] "global-gems.rbからbundlerの設定を確認中...""
     
     # バージョン情報の抽出
     local bundler_version=""
@@ -84,21 +87,23 @@ install_bundler_if_needed() {
     
     # バージョン指定有無でインストール方法を分岐
     if [ -n "$bundler_version" ]; then
-        log_installing "bundler" "$bundler_version"
+        echo "[INSTALL] "bundler" "$bundler_version""
+        installation_performed=true
         if ! gem install bundler -v "$bundler_version" --no-document; then
-            handle_error "bundler $bundler_version のインストールに失敗しました"
-            return 1
+            echo "[ERROR] "bundler $bundler_version のインストールに失敗しました""
+            exit 2
         fi
     else
-        log_installing "bundler" "標準バージョン"
+        echo "[INSTALL] "bundler" "標準バージョン""
+        installation_performed=true
         if ! gem install bundler --no-document; then
-            handle_error "bundlerのインストールに失敗しました"
-            return 1
+            echo "[ERROR] "bundlerのインストールに失敗しました""
+            exit 2
         fi
     fi
     
     rbenv rehash
-    log_success "bundlerのインストールが完了しました"
+    echo "[SUCCESS] "bundlerのインストールが完了しました""
     return 0
 }
 
@@ -108,22 +113,22 @@ install_gem_packages() {
     
     # すでにインストール済みかチェック
     if BUNDLE_GEMFILE="$gem_file" bundle check >/dev/null 2>&1; then
-        log_installed "gems"
+        echo "[OK] "gems""
         return 0
     fi
     
     # gemをインストール
-    log_installing "gems"
+    echo "[INSTALL] "gems""
     cd "$(dirname "$gem_file")" || {
         handle_error "Gemfileのディレクトリに移動できませんでした"
         return 1
     }
     
     if BUNDLE_GEMFILE="$gem_file" bundle install --quiet; then
-        log_success "Gemfileからgemのインストールが完了しました"
+        echo "[SUCCESS] "Gemfileからgemのインストールが完了しました""
         return 0
     elif [ "${IS_CI:-false}" = "true" ]; then
-        log_warning "CI環境: gemインストールに問題がありますが続行します"
+        echo "[WARN] "CI環境: gemインストールに問題がありますが続行します""
         return 0
     else
         handle_error "gemインストールに失敗しました"
@@ -133,7 +138,7 @@ install_gem_packages() {
 
 # Ruby環境をセットアップ
 setup_ruby_env() {
-    log_start "Ruby環境のセットアップを開始します..."
+    echo "==== Start: "Ruby環境のセットアップを開始します...""
     
     # rbenvインストール
     install_rbenv || return 1
@@ -144,15 +149,15 @@ setup_ruby_env() {
     # gemインストール（Rubyがある場合のみ実行）
     if command_exists ruby; then
         install_gems
-        log_info "Ruby環境: $(ruby -v) / $(gem -v) / $(bundle -v 2>/dev/null || echo 'bundler未インストール')"
+        echo "[INFO] "Ruby環境: $(ruby -v) / $(gem -v) / $(bundle -v 2>/dev/null || echo 'bundler未インストール')""
     fi
     
-    log_success "Ruby環境のセットアップが完了しました"
+    echo "[SUCCESS] "Ruby環境のセットアップが完了しました""
 }
 
 # Ruby環境を検証
 verify_ruby_setup() {
-    log_start "Ruby環境を検証中..."
+    echo "==== Start: "Ruby環境を検証中...""
     local errors=0
     
     # rbenvチェック
@@ -163,10 +168,10 @@ verify_ruby_setup() {
     
     # 検証結果
     if [ $errors -eq 0 ]; then
-        log_success "Ruby環境の検証が完了しました"
+        echo "[SUCCESS] "Ruby環境の検証が完了しました""
         return 0
     else
-        log_error "Ruby環境の検証に失敗しました ($errors エラー)"
+        echo "[ERROR] "Ruby環境の検証に失敗しました ($errors エラー)""
         return 1
     fi
 }
@@ -174,20 +179,20 @@ verify_ruby_setup() {
 # rbenvのインストールを検証
 verify_rbenv_installation() {
     if ! command_exists rbenv; then
-        log_error "rbenvコマンドが見つかりません"
+        echo "[ERROR] "rbenvコマンドが見つかりません""
         return 1
     fi
     
-    log_success "rbenv: $(rbenv --version)"
+    echo "[SUCCESS] "rbenv: $(rbenv --version)""
     
     # ruby-buildの確認
     if rbenv install --version >/dev/null 2>&1 || 
        command_exists ruby-build || 
        [ -d "$(rbenv root)/plugins/ruby-build" ]; then
-        log_success "ruby-buildが使用可能です"
+        echo "[SUCCESS] "ruby-buildが使用可能です""
         return 0
     else
-        log_error "ruby-buildが見つかりません"
+        echo "[ERROR] "ruby-buildが見つかりません""
         return 1
     fi
 }
@@ -195,25 +200,25 @@ verify_rbenv_installation() {
 # Rubyのインストールを検証
 verify_ruby_installation() {
     if ! command_exists ruby; then
-        log_info "Rubyはインストールされていません"
+        echo "[INFO] "Rubyはインストールされていません""
         return 0
     fi
     
-    log_success "Ruby: $(ruby -v)"
+    echo "[SUCCESS] "Ruby: $(ruby -v)""
     
     # gemチェック
     if ! command_exists gem; then
-        log_error "gemコマンドが見つかりません"
+        echo "[ERROR] "gemコマンドが見つかりません""
         return 1
     fi
     
-    log_success "gem: $(gem -v)"
+    echo "[SUCCESS] "gem: $(gem -v)""
     
     # bundlerチェック（任意）
     if command_exists bundle; then
-        log_success "bundler: $(bundle -v)"
+        echo "[SUCCESS] "bundler: $(bundle -v)""
     else
-        log_warning "bundlerコマンドは利用できません（global-gems.rbがない場合は正常）"
+        echo "[WARN] "bundlerコマンドは利用できません（global-gems.rbがない場合は正常）""
     fi
     
     return 0
@@ -221,12 +226,24 @@ verify_ruby_installation() {
 
 # メイン関数
 main() {
-    log_start "Ruby環境のセットアップを開始します"
+    echo "==== Start: "Ruby環境のセットアップを開始します""
     
     setup_ruby_env
     
-    log_success "Ruby環境のセットアップが完了しました"
+    echo "[SUCCESS] "Ruby環境のセットアップが完了しました""
+    
+    # 終了ステータスの決定
+    if [ "$installation_performed" = "true" ]; then
+        exit 0  # インストール実行済み
+    else
+        exit 1  # インストール不要（冪等性保持）
+    fi
 }
+
+# スクリプトが直接実行された場合のみメイン関数を実行
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
 
 # スクリプトが直接実行された場合のみメイン関数を実行
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

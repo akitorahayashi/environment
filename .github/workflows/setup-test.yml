@@ -16,21 +16,21 @@ jobs:
       
       - name: Set CI environment variables
         run: |
-          echo "Setting up CI environment variables..."
+          echo "CI環境変数を設定しています..."
           # Detect JAVA_HOME based on 'java' executable location if available
           if command -v java &> /dev/null; then
             JAVA_PATH=$(readlink -f $(which java))
             JAVA_HOME_DETECTED=$(dirname $(dirname "$JAVA_PATH"))
             echo "JAVA_HOME=${JAVA_HOME_DETECTED}" >> $GITHUB_ENV
-            echo "Detected JAVA_HOME: ${JAVA_HOME_DETECTED}"
+            echo "JAVA_HOMEを検出しました: ${JAVA_HOME_DETECTED}"
           else
-            echo "Warning: 'java' command not found, skipping JAVA_HOME detection."
+            echo "警告: 'java' コマンドが見つかりません。JAVA_HOMEの検出をスキップします。"
           fi
           echo "ANDROID_SDK_ROOT=${HOME}/Library/Android/sdk" >> $GITHUB_ENV
           echo "REPO_ROOT=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "IS_CI=true" >> $GITHUB_ENV
           echo "ALLOW_COMPONENT_FAILURE=true" >> $GITHUB_ENV
-          echo "✅ CI environment variables set up"
+          echo "✅ CI環境変数の設定が完了しました"
         shell: bash
 
       - name: Cache FVM Flutter SDKs
@@ -63,22 +63,32 @@ jobs:
 
       - name: Make scripts executable
         run: |
-          echo "Making setup scripts executable..."
+          echo "セットアップスクリプトを実行可能にしています..."
           chmod +x scripts/setup/*.sh
           chmod +x install.sh
-          echo "✅ Scripts are now executable"
+          echo "✅ スクリプトが実行可能になりました"
 
       - name: Run initial installation test
         run: |
-          echo "🚀 Running initial installation..."
+          echo "🚀 初回インストールを実行しています..."
           ./install.sh | tee install_output.log
+          INSTALL_EXIT_CODE=$?
           
-          echo "🔍 Validating installation log..."
-          if grep -q -E '(\[INSTALL\]|\[OK\].*setup|Start:)' install_output.log; then
-            echo "✅ Installation messages found"
+          echo "🔍 インストールの終了コードとログを検証しています..."
+          if [ $INSTALL_EXIT_CODE -eq 0 ]; then
+            echo "✅ インストールが正常に完了しました (終了コード: 0)"
           else
-            echo "❌ Installation messages not found"
-            echo "=== Installation output sample (first 20 lines) ==="
+            echo "❌ インストールが失敗しました (終了コード: $INSTALL_EXIT_CODE)"
+            echo "=== インストール出力サンプル (最初の20行) ==="
+            head -n 20 install_output.log
+            exit 1
+          fi
+          
+          if grep -q -E '(\[INSTALLING\]|\[SUCCESS\]|Start:)' install_output.log; then
+            echo "✅ インストールメッセージが見つかりました"
+          else
+            echo "❌ インストールメッセージが見つかりませんでした"
+            echo "=== インストール出力サンプル (最初の20行) ==="
             head -n 20 install_output.log
             exit 1
           fi
@@ -86,133 +96,144 @@ jobs:
 
       - name: Run idempotency test
         run: |
-          echo "🔍 Running idempotency test..."
+          echo "🔍 冪等性テストを実行しています..."
           export IDEMPOTENT_TEST=true
           ./install.sh | tee idempotent_output.log
+          IDEMPOTENT_EXIT_CODE=$?
           
-          echo "🔍 Validating idempotency log..."
-          if grep -q 'Installing' idempotent_output.log; then
-            echo "❌ Idempotency test failed: Installation messages found on second run"
-            echo "--- Context ---"
-            grep -A 3 -B 3 'Installing' idempotent_output.log
+          echo "🔍 冪等性の終了コードとログを検証しています..."
+          if [ $IDEMPOTENT_EXIT_CODE -eq 1 ]; then
+            echo "✅ 冪等性を確認しました (終了コード: 1 - インストール不要)"
+          else
+            echo "❌ 冪等性テストが失敗しました (終了コード: $IDEMPOTENT_EXIT_CODE)"
+            echo "期待される終了コード: 1 (冪等性), 実際の終了コード: $IDEMPOTENT_EXIT_CODE"
+            echo "=== 冪等性出力サンプル (最初の20行) ==="
+            head -n 20 idempotent_output.log
+            exit 1
+          fi
+          
+          if grep -q '\[INSTALLING\]' idempotent_output.log; then
+            echo "❌ 冪等性テストが失敗しました: 2回目の実行でインストールメッセージが見つかりました"
+            echo "--- コンテキスト ---"
+            grep -A 3 -B 3 '\[INSTALLING\]' idempotent_output.log
             echo "---------------"
             exit 1
           else
-            echo "✅ Confirmed no installation messages (idempotency)"
+            echo "✅ インストールメッセージがないことを確認しました (冪等性)"
           fi
           
-          if grep -q -E '(already installed|Skipping)' idempotent_output.log; then
-            echo "✅ Appropriate skip messages found"
+          if grep -q -E '(\[INSTALLED\]|\[OK\]|already installed|Skipping)' idempotent_output.log; then
+            echo "✅ 適切なスキップメッセージが見つかりました"
           else
-            echo "⚠️ Warning: Skip messages not found. Continuing idempotency verification."
+            echo "⚠️ 警告: スキップメッセージが見つかりませんでした。冪等性検証を続行します。"
           fi
         shell: bash
 
       - name: Verify Shell Setup
         run: |
-          echo "🔍 Verifying shell configuration..."
+          echo "🔍 シェルの設定を検証しています..."
           source ./scripts/setup/shell.sh
           if verify_shell_setup; then
-            echo "✅ Shell verification passed"
+            echo "✅ シェルの検証が成功しました"
           else
-            echo "❌ Shell verification failed"
+            echo "❌ シェルの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify Mac Setup
         run: |
-          echo "🔍 Starting Mac verification..."
+          echo "🔍 Macの設定の検証を開始しています..."
           source ./scripts/setup/mac.sh
           if verify_mac_setup; then
-            echo "✅ Mac verification passed"
+            echo "✅ Macの検証が成功しました"
           else
-            echo "❌ Mac verification failed"
+            echo "❌ Macの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify Homebrew Setup
         run: |
-          echo "🔍 Verifying Homebrew setup and packages..."
+          echo "🔍 Homebrewのセットアップとパッケージを検証しています..."
           source ./scripts/setup/homebrew.sh
           if verify_homebrew_setup && verify_brewfile "$REPO_ROOT/config/brew/Brewfile"; then
-            echo "✅ Homebrew verification passed"
+            echo "✅ Homebrewの検証が成功しました"
           else
-            echo "❌ Homebrew verification failed"
+            echo "❌ Homebrewの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify Git Setup
         run: |
-          echo "🔍 Verifying Git configuration..."
+          echo "🔍 Gitの設定を検証しています..."
           source ./scripts/setup/git.sh
           if verify_git_setup; then
-            echo "✅ Git verification passed"
+            echo "✅ Gitの検証が成功しました"
           else
-            echo "❌ Git verification failed"
+            echo "❌ Gitの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify Flutter Setup
         run: |
-          echo "🔍 Starting Flutter verification..."
+          echo "🔍 Flutterの検証を開始しています..."
           export PATH="$HOME/fvm/default/bin:$PATH"
           source ./scripts/setup/flutter.sh
           if verify_flutter_setup; then
-            echo "✅ Flutter verification passed"
+            echo "✅ Flutterの検証が成功しました"
           else
-            echo "❌ Flutter verification failed"
+            echo "❌ Flutterの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify Node.js Setup
         run: |
-          echo "🔍 Starting Node.js verification..."
+          echo "🔍 Node.jsの検証を開始しています..."
           source ./scripts/setup/node.sh
           if verify_node_setup; then
-            echo "✅ Node.js verification passed"
+            echo "✅ Node.jsの検証が成功しました"
           else
-            echo "❌ Node.js verification failed"
+            echo "❌ Node.jsの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify Ruby Setup
         run: |
-          echo "🔍 Verifying Ruby configuration..."
+          echo "🔍 Rubyの設定を検証しています..."
           source ./scripts/setup/ruby.sh
           if verify_ruby_setup; then
-            echo "✅ Ruby verification passed"
+            echo "✅ Rubyの検証が成功しました"
           else
-            echo "❌ Ruby verification failed"
+            echo "❌ Rubyの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify VS Code Setup
         run: |
-          echo "🔍 Verifying VS Code configuration..."
+          echo "🔍 VS Codeの設定を検証しています..."
           source ./scripts/setup/vscode.sh
           if verify_vscode_setup; then
-            echo "✅ VS Code verification passed"
+            echo "✅ VS Codeの検証が成功しました"
           else
-            echo "❌ VS Code verification failed"
+            echo "❌ VS Codeの検証が失敗しました"
             exit 1
           fi
         shell: bash
 
       - name: Verify Cursor Setup
         run: |
-          echo "🔍 Verifying Cursor configuration..."
+          echo "🔍 Cursorの設定を検証しています..."
           source ./scripts/setup/cursor.sh
           if verify_cursor_setup; then
-            echo "✅ Cursor verification passed"
+            echo "✅ Cursorの検証が成功しました"
           else
-            echo "❌ Cursor verification failed"
+            echo "❌ Cursorの検証が失敗しました"
             exit 1
           fi
         shell: bash
@@ -220,6 +241,6 @@ jobs:
       - name: Verification Summary
         run: |
           echo "======================"
-          echo "✅ All verification steps passed successfully!"
-          echo "🎉 All tests passed successfully!"
-        shell: bash 
+          echo "✅ すべての検証ステップが正常に完了しました！"
+          echo "🎉 すべてのテストが正常に完了しました！"
+        shell: bash

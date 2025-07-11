@@ -22,10 +22,6 @@ find "$SCRIPT_DIR/scripts" -type f -name "*.sh" | sort
 
 # ユーティリティのロード
 echo "ユーティリティスクリプトをロード中..."
-source "$SCRIPT_DIR/scripts/utils/logging.sh" || { 
-    echo "❌ logging.shをロードできませんでした。処理を終了します。" 
-    exit 1
-}
 source "$SCRIPT_DIR/scripts/utils/helpers.sh" || echo "警告: helpers.shをロードできませんでした"
 
 # エラー発生時に即座に終了する設定
@@ -36,37 +32,82 @@ start_time=$(date +%s)
 echo "Macをセットアップ中..."
 
 main() {
-    log_start "開発環境のセットアップを開始します"
+    echo ""
+    echo "==== Start: 開発環境のセットアップを開始します ===="
     
-    # 環境フラグのチェックと関連ユーティリティのロード
-    if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
-        if [ -f "$SCRIPT_ROOT_DIR/scripts/utils/idempotency_utils.sh" ]; then
-            source "$SCRIPT_ROOT_DIR/scripts/utils/idempotency_utils.sh"
-            mark_second_run
-            log_info "🔍 冪等性テストモード：2回目の実行でインストールされるコンポーネントを検出します"
-        else
-            log_warning "冪等性テストユーティリティが見つかりません: $SCRIPT_ROOT_DIR/scripts/utils/idempotency_utils.sh"
-            export IDEMPOTENT_TEST="false"
-        fi
-    fi
+    # セットアップスクリプトの実行と終了ステータスの収集
+    declare -A script_results
+    declare -a scripts=(
+        "shell:$SCRIPT_ROOT_DIR/scripts/setup/shell.sh"
+        "homebrew:$SCRIPT_ROOT_DIR/scripts/setup/homebrew.sh"
+        "mac:$SCRIPT_ROOT_DIR/scripts/setup/mac.sh"
+        "git:$SCRIPT_ROOT_DIR/scripts/setup/git.sh"
+        "cursor:$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh"
+        "vscode:$SCRIPT_ROOT_DIR/scripts/setup/vscode.sh"
+        "ruby:$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh"
+        "flutter:$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh"
+        "node:$SCRIPT_ROOT_DIR/scripts/setup/node.sh"
+    )
     
-    # セットアップスクリプトの実行
-    "$SCRIPT_ROOT_DIR/scripts/setup/shell.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/homebrew.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/mac.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/git.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/vscode.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh"
-    "$SCRIPT_ROOT_DIR/scripts/setup/node.sh"
-
-    # インストール結果の表示
+    local has_error=false
+    local idempotent_violations=()
+    
+    for script_entry in "${scripts[@]}"; do
+        local script_name="${script_entry%%:*}"
+        local script_path="${script_entry#*:}"
+        
+        echo "[INFO] 実行中: $script_name"
+        "$script_path"
+        local exit_code=$?
+        
+        script_results["$script_name"]=$exit_code
+        
+        case $exit_code in
+            0)
+                echo "[OK] $script_name: インストール実行済み"
+                if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
+                    idempotent_violations+=("$script_name")
+                fi
+                ;;
+            1)
+                echo "[OK] $script_name: インストール不要（冪等性保持）"
+                ;;
+            2)
+                echo "[ERROR] $script_name: エラー発生"
+                has_error=true
+                ;;
+            *)
+                echo "[ERROR] $script_name: 不明な終了ステータス ($exit_code)"
+                has_error=true
+                ;;
+        esac
+    done
+    
+    # 結果の表示
     end_time=$(date +%s)
     elapsed_time=$((end_time - start_time))
-
-    log_success "セットアップ処理が完了しました！"
-    log_success "所要時間: ${elapsed_time}秒"
+    
+    if [ "$has_error" = "true" ]; then
+        echo "[ERROR] セットアップ処理中にエラーが発生しました"
+        echo "[ERROR] 所要時間: ${elapsed_time}秒"
+        exit 2
+    elif [ "${IDEMPOTENT_TEST:-false}" = "true" ] && [ ${#idempotent_violations[@]} -gt 0 ]; then
+        echo "[ERROR] ==== 冪等性テスト結果: 失敗 ===="
+        echo "[ERROR] 以下のコンポーネントが2回目の実行でもインストールを試みています:"
+        for violation in "${idempotent_violations[@]}"; do
+            echo "[ERROR] - $violation"
+        done
+        echo "[ERROR] 所要時間: ${elapsed_time}秒"
+        exit 1
+    else
+        if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
+            echo "[OK] ==== 冪等性テスト結果: 成功 ===="
+            echo "[OK] すべてのコンポーネントが正しく冪等性を維持しています"
+        fi
+        echo "[OK] セットアップ処理が完了しました！"
+        echo "[OK] 所要時間: ${elapsed_time}秒"
+        exit 0
+    fi
 }
 
 # メイン処理の実行
