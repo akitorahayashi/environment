@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh" || exit 2
+
 
 # インストール実行フラグ
 installation_performed=false

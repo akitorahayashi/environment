@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh" || { echo "[ERROR] helpers.shをロードできませんでした。処理を終了します。" && exit 2; }
+
 
 # インストール実行フラグ
 installation_performed=false
@@ -32,7 +32,7 @@ install_xcode_command_line_tools() {
         fi
         echo "[OK] Xcode Command Line Tools のインストール完了"
     else
-        echo "[OK] Xcode Command Line Tools ... already installed"
+        echo "[OK] Xcode Command Line Tools はすでにインストールされています"
     fi
     
     return 0
@@ -43,13 +43,13 @@ install_homebrew() {
     # まずXcode Command Line Toolsをインストール
     install_xcode_command_line_tools
     
-    if ! command_exists brew; then
+    if ! command -v brew; then
         echo "[INSTALL] Homebrew ..."
         installation_performed=true
         install_homebrew_binary # バイナリインストール後、この関数内でPATH設定も行う
         echo "[OK] Homebrew のインストール完了"
     else
-        echo "[OK] Homebrew ... already installed"
+        echo "[OK] Homebrew はすでにインストールされています"
     fi
 }
 
@@ -66,11 +66,11 @@ install_homebrew_binary() {
     fi
     
     # インストールスクリプト実行後、直ちに現在のシェルセッションにPATHを設定
-    # これにより、次のcommand_exists brewが正しく機能するようになる
+    # これにより、次のcommand -v brewが正しく機能するようになる
     setup_homebrew_path # <-- ここに移動し、現在のセッションと永続的なPATH設定を行う
     
     # インストール結果確認 (この時点でbrewコマンドが利用可能になっているはず)
-    if ! command_exists brew; then
+    if ! command -v brew; then
         echo "[ERROR] Homebrewのインストールに失敗しました"
         exit 2
     fi
@@ -174,7 +174,7 @@ verify_homebrew_setup() {
     verify_brew_path || verification_failed=true
     
     if [ "$verification_failed" = "true" ]; then
-        echo "[ERROR] "Homebrewの検証に失敗しました""
+        echo "[ERROR] Homebrewの検証に失敗しました"
         return 1
     else
         echo "[SUCCESS] "Homebrewの検証が完了しました""
@@ -184,8 +184,8 @@ verify_homebrew_setup() {
 
 # brewコマンドの検証
 verify_brew_command() {
-    if ! command_exists brew; then
-        echo "[ERROR] "brewコマンドが見つかりません""
+    if ! command -v brew; then
+        echo "[ERROR] brewコマンドが見つかりません"
         return 1
     fi
     echo "[SUCCESS] "brewコマンドが正常に使用可能です""
@@ -207,7 +207,7 @@ verify_brew_version() {
     else
         # 通常環境での確認
         if ! brew --version > /dev/null; then
-            echo "[ERROR] "Homebrewのバージョン確認に失敗しました""
+            echo "[ERROR] Homebrewのバージョン確認に失敗しました"
             return 1
         fi
         echo "[SUCCESS] "Homebrewのバージョン: $(brew --version | head -n 1)""
@@ -228,9 +228,9 @@ verify_brew_path() {
     fi
     
     if [[ "$BREW_PATH" != "$expected_path" ]]; then
-        echo "[ERROR] "Homebrewのパスが想定と異なります""
-        echo "[ERROR] "期待: $expected_path""
-        echo "[ERROR] "実際: $BREW_PATH""
+        echo "[ERROR] Homebrewのパスが想定と異なります"
+        echo "[ERROR] 期待: $expected_path"
+        echo "[ERROR] 実際: $BREW_PATH"
         return 1
     else
         echo "[SUCCESS] "Homebrewのパスが正しく設定されています: $BREW_PATH""
@@ -242,7 +242,7 @@ verify_brew_path() {
 verify_brewfile() {
     local brewfile_path="${1:-$REPO_ROOT/config/brew/Brewfile}"
     if [ ! -f "$brewfile_path" ]; then
-        echo "[ERROR] "Brewfileが見つかりません: $brewfile_path""
+        echo "[ERROR] Brewfileが見つかりません: $brewfile_path"
         return 1
     fi
     echo "[SUCCESS] "Brewfileが存在します: $brewfile_path""
@@ -279,7 +279,7 @@ verify_brew_package() {
     
     if [ "$type" = "formula" ]; then
         if ! brew list --formula "$package" &>/dev/null; then
-            echo "[ERROR] "formula $package がインストールされていません""
+            echo "[ERROR] formula $package がインストールされていません"
             return 1
         else
             echo "[SUCCESS] "formula $package がインストールされています""
@@ -287,7 +287,7 @@ verify_brew_package() {
         fi
     elif [ "$type" = "cask" ]; then
         if ! brew list --cask "$package" &>/dev/null; then
-            echo "[ERROR] "cask $package がインストールされていません""
+            echo "[ERROR] cask $package がインストールされていません"
             return 1
         else
             echo "[SUCCESS] "cask $package がインストールされています""
@@ -299,7 +299,7 @@ verify_brew_package() {
 # Xcode Command Line Toolsの検証
 verify_xcode_command_line_tools() {
     if ! xcode-select -p &>/dev/null; then
-        echo "[ERROR] "Xcode Command Line Toolsがインストールされていません""
+        echo "[ERROR] Xcode Command Line Toolsがインストールされていません"
         return 1
     else
         echo "[SUCCESS] "Xcode Command Line Toolsがインストールされています""

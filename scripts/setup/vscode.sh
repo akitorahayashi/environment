@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh" || exit 2
+
 
 # インストール実行フラグ
 installation_performed=false
@@ -29,7 +29,7 @@ setup_vscode() {
         echo "[WARN] Visual Studio Code がインストールされていません。スキップします。"
         return 0 # インストールされていなければエラーではない
     fi
-    echo "[OK] Visual Studio Code ... already installed"
+    echo "[OK] Visual Studio Code はすでにインストールされています"
 
     # ターゲットディレクトリの作成
     mkdir -p "$vscode_target_dir"
@@ -75,7 +75,7 @@ verify_vscode_setup() {
         echo "[ERROR] Visual Studio Code.appが見つかりません"
         return 1
     fi
-    echo "[OK] Visual Studio Code ... already installed"
+    echo "[OK] Visual Studio Code はすでにインストールされています"
 
     # リポジトリに設定ファイルがない場合はスキップ
     if [ ! -d "$config_dir" ]; then

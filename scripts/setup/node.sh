@@ -2,7 +2,7 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"# メイン関数
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"  # メイン関数
 main() {
     echo ""
     echo "==== Start: Node.js 環境のセットアップを開始します ===="
@@ -18,7 +18,7 @@ main() {
         exit 1  # インストール不要（冪等性保持）
     fi
 }
-source "$SCRIPT_DIR/../utils/helpers.sh" || exit 2
+
 
 # インストール実行フラグ
 installation_performed=false
@@ -29,18 +29,18 @@ setup_node() {
     echo "==== Start: Node.js のセットアップを開始します... ===="
 
     # Node.js のインストール確認
-    if ! command_exists node; then
+    if ! command -v node; then
         echo "[WARN] Node.js がインストールされていません。Brewfileを確認してください。"
         exit 2
     fi
-    echo "[OK] Node.js ... already installed"
+    echo "[OK] Node.js はすでにインストールされています"
 
     # npm のインストール確認
-    if ! command_exists npm; then
+    if ! command -v npm; then
         echo "[WARN] npm がインストールされていません。Node.js のインストールを確認してください。"
         exit 2
     fi
-    echo "[OK] npm ... already installed"
+    echo "[OK] npm はすでにインストールされています"
 
     # グローバルパッケージのインストール
     install_global_packages
@@ -99,7 +99,7 @@ verify_node_setup() {
     local verification_failed=false
     
     # Node.js の確認
-    if ! command_exists node; then
+    if ! command -v node; then
         echo "[ERROR] Node.js がインストールされていません"
         verification_failed=true
     else
@@ -107,7 +107,7 @@ verify_node_setup() {
     fi
     
     # npm の確認
-    if ! command_exists npm; then
+    if ! command -v npm; then
         echo "[ERROR] npm がインストールされていません"
         verification_failed=true
     else
@@ -173,4 +173,4 @@ main() {
 # スクリプトが直接実行された場合のみメイン関数を実行
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
-fi 
+fi

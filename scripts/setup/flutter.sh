@@ -6,28 +6,28 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh" || exit 2
+
 
 # インストール実行フラグ
 installation_performed=false
 
 # Flutter のセットアップ
 setup_flutter() {
-    echo "==== Start: "Flutter SDK のセットアップを開始します (fvm)...""
+    echo "==== Start: Flutter SDK のセットアップを開始します (fvm)... ===="
 
     # fvm コマンドの存在確認
-    if ! command_exists fvm; then
-        echo "[ERROR] "fvm コマンドが見つかりません。Brewfileを確認してください。""
+    if ! command -v fvm; then
+        echo "[ERROR] fvm コマンドが見つかりません。Brewfileを確認してください。"
         exit 2
     fi
 
     # 安定版 Flutter SDK のインストール (fvm install は冪等)
-    echo "[INFO] "fvm を使用して安定版 Flutter SDK をインストールします...""
+    echo "[INFO] fvm を使用して安定版 Flutter SDK をインストールします..."
     if fvm install stable; then
         installation_performed=true
-        echo "[SUCCESS] "Flutter SDK (stable) のインストール/確認が完了しました。""
+        echo "[SUCCESS] Flutter SDK (stable) のインストール/確認が完了しました。"
     else
-        echo "[ERROR] "fvm install stable に失敗しました。""
+        echo "[ERROR] fvm install stable に失敗しました。"
         exit 2
     fi
 
@@ -41,11 +41,11 @@ setup_flutter() {
 
     # グローバル設定がまだ stable でなければ設定
     if [ "$is_global_already_stable" = true ]; then
-        echo "[SUCCESS] "fvm global は既に stable に設定されています。スキップします。""
+        echo "[SUCCESS] fvm global は既に stable に設定されています。スキップします。"
     else
-        echo "[INFO] "fvm global stable を設定します...""
+        echo "[INFO] fvm global stable を設定します..."
         if fvm global stable; then
-            echo "[SUCCESS] "fvm global stable の設定が完了しました。""
+            echo "[SUCCESS] fvm global stable の設定が完了しました。"
         else
             handle_error "fvm global stable の設定に失敗しました。"
             return 1
@@ -57,7 +57,7 @@ setup_flutter() {
     echo "[INFO] "現在のシェルセッションのPATHにfvmのパスを追加しました。""
 
     # flutter コマンド存在確認 (fvm管理下のパスで)
-    if ! command_exists flutter; then
+    if ! command -v flutter; then
         handle_error "Flutter コマンド (fvm管理下) が見つかりません"
         return 1
     fi
@@ -119,7 +119,7 @@ verify_flutter_setup() {
 
 # Flutterのインストール確認
 verify_flutter_installation() {
-    if ! command_exists flutter; then
+    if ! command -v flutter; then
         echo "[ERROR] "Flutterがインストールされていません""
         return 1
     fi
@@ -188,4 +188,4 @@ fi
 # スクリプトが直接実行された場合のみメイン関数を実行
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
-fi 
+fi

@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
 
 # ユーティリティのロード
-source "$SCRIPT_DIR/../utils/helpers.sh" || exit 2
+
 
 # インストール実行フラグ
 installation_performed=false
@@ -42,7 +42,7 @@ setup_git_config() {
 # グローバルGitignoreを設定
 setup_gitignore_global() {
     echo ""
-    echo "==== Start: グローバルgitignoreのセットアップを開始します... ===="
+    echo "==== Start: gitignore_globalのセットアップを開始します... ===="
 
     local ignore_file="$HOME/.gitignore_global"
 
@@ -96,7 +96,7 @@ setup_ssh_agent() {
     fi
 }
 
-# Git環境を検証
+# Gitの環境を検証
 verify_git_setup() {
     echo ""
     echo "==== Start: Git設定を検証中... ===="
@@ -158,7 +158,7 @@ verify_gitignore_global() {
 
 # Gitコマンドの検証
 verify_git_command() {
-    if ! command_exists git; then
+    if ! command -v git; then
         echo "[ERROR] "gitコマンドが見つかりません""
         return 1
     fi
@@ -169,24 +169,20 @@ verify_git_command() {
 # SSHキーの検証
 verify_ssh_keys() {
     if [ -f "$HOME/.ssh/id_ed25519" ]; then
-        echo "[SUCCESS] "SSH鍵ファイル(id_ed25519)が存在します""
+        echo "[SUCCESS] SSH鍵ファイル(id_ed25519)が存在します"
         return 0
     else
         # CI環境ではキーが存在しない場合もあるため警告に留める
         if [ "$IS_CI" = "true" ]; then
-             echo "[WARN] "[CI] SSH鍵ファイル(id_ed25519)が見つかりません""
+             echo "[WARN] [CI] SSH鍵ファイル(id_ed25519)が見つかりません"
              return 0 # CIではエラーにしない
         else
-             echo "[ERROR] "SSH鍵ファイル(id_ed25519)が見つかりません""
+             echo "[ERROR] SSH鍵ファイル(id_ed25519)が見つかりません"
              return 1
         fi
     fi
 }
 
-# メイン関数
-main() {
-    echo "==== Start: "Git環境のセットアップを開始します""
-    
 # メイン関数
 main() {
     echo "==== Start: "Git環境のセットアップを開始します""
@@ -208,4 +204,4 @@ main() {
 # スクリプトが直接実行された場合のみメイン関数を実行
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
-fi 
+fi
