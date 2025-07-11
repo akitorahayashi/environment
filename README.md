@@ -16,8 +16,6 @@ environment/
 │   ├── shell/
 │   └── vscode/
 ├── scripts/
-│   ├── setup/
-│   └── utils/
 ├── .gitignore
 ├── install.sh
 └── README.md
@@ -87,7 +85,7 @@ $ cat ~/.ssh/id_ed25519.pub
 
 ```sh
 $ chmod +x install.sh
-$ chmod +x scripts/setup/*.sh
+$ chmod +x scripts/*.sh
 ```
 
 ### 4. Run the Installation Script
@@ -98,32 +96,32 @@ $ ./install.sh
 
 ### 5. Individual Setup Scripts
 
-`scripts/setup/`内の各セットアップスクリプトは個別に実行でき、冪等性を持ち、複数回安全に実行できます
+`scripts/`内の各セットアップスクリプトは個別に実行でき、冪等性を持ち、複数回安全に実行できます
 
 ```sh
 # Homebrewのセットアップ
-$ ./scripts/setup/homebrew.sh
+$ ./scripts/homebrew.sh
 
 # シェルの設定
-$ ./scripts/setup/shell.sh
+$ ./scripts/shell.sh
 
 # Gitの設定
-$ ./scripts/setup/git.sh
+$ ./scripts/git.sh
 
 # Ruby環境のセットアップ
-$ ./scripts/setup/ruby.sh
+$ ./scripts/ruby.sh
 
 # Flutterのセットアップ
-$ ./scripts/setup/flutter.sh
+$ ./scripts/flutter.sh
 
 # Cursorの設定
-$ ./scripts/setup/cursor.sh
+$ ./scripts/cursor.sh
 
 # VSCodeの設定
-$ ./scripts/setup/vscode.sh
+$ ./scripts/vscode.sh
 
 # macOSの設定
-$ ./scripts/setup/mac.sh
+$ ./scripts/mac.sh
 ```
 
 各スクリプトは以下のように動作します

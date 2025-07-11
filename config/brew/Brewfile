@@ -7,7 +7,7 @@ brew "node"
 # brew "go"
 
 tap "leoafarias/fvm"
-brew "fvm"
+brew "leoafarias/fvm/fvm"
 
 ## Xcode & Swift Development
 # brew "xcodes"

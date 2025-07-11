@@ -161,7 +161,7 @@ jobs:
       - name: Verify Ruby Setup
         run: |
           echo "🔍 Rubyの設定を検証しています..."
-          source ./scripts/setup/ruby.sh
+          source ./scripts/ruby.sh
           if verify_ruby_setup; then
             echo "✅ Rubyの検証が成功しました"
           else
@@ -173,7 +173,7 @@ jobs:
       - name: Verify VS Code Setup
         run: |
           echo "🔍 VS Codeの設定を検証しています..."
-          source ./scripts/setup/vscode.sh
+          source ./scripts/vscode.sh
           if verify_vscode_setup; then
             echo "✅ VS Codeの検証が成功しました"
           else
@@ -185,7 +185,7 @@ jobs:
       - name: Verify Cursor Setup
         run: |
           echo "🔍 Cursorの設定を検証しています..."
-          source ./scripts/setup/cursor.sh
+          source ./scripts/cursor.sh
           if verify_cursor_setup; then
             echo "✅ Cursorの検証が成功しました"
           else
@@ -208,14 +208,12 @@ jobs:
           ./install.sh | tee idempotent_output.log
           IDEMPOTENT_EXIT_CODE=$?
           
-          echo "🔍 冪等性の終了コードとログを検証しています..."
+          echo "🔍 冪等性の終了コードを検証しています..."
           if [ $IDEMPOTENT_EXIT_CODE -eq 1 ]; then
             echo "✅ 冪等性を確認しました (終了コード: 1 - インストール不要)"
           else
             echo "❌ 冪等性テストが失敗しました (終了コード: $IDEMPOTENT_EXIT_CODE)"
             echo "期待される終了コード: 1 (冪等性), 実際の終了コード: $IDEMPOTENT_EXIT_CODE"
-            echo "=== 冪等性出力サンプル (最初の20行) ==="
-            head -n 20 idempotent_output.log
             exit 1
           fi
           

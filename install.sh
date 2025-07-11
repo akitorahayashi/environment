@@ -20,10 +20,6 @@ find "$SCRIPT_DIR/scripts" -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
 echo "スクリプトディレクトリの内容:"
 find "$SCRIPT_DIR/scripts" -type f -name "*.sh" | sort
 
-# ユーティリティのロード
-echo "ユーティリティスクリプトをロード中..."
-source "$SCRIPT_DIR/scripts/utils/helpers.sh" || echo "警告: helpers.shをロードできませんでした"
-
 # エラー発生時に即座に終了する設定
 set -e
 
@@ -55,7 +51,6 @@ main() {
         local script_name="${script_entry%%:*}"
         local script_path="${script_entry#*:}"
         
-        echo "[INFO] 実行中: $script_name"
         # 一時的に errexit を無効にし、スクリプトの戻り値を取得する
         set +e
         "${script_path}"
@@ -104,6 +99,9 @@ main() {
         if [ "${IDEMPOTENT_TEST:-false}" = "true" ]; then
             echo "[OK] ==== 冪等性テスト結果: 成功 ===="
             echo "[OK] すべてのコンポーネントが正しく冪等性を維持しています"
+            echo "[OK] 所要時間: ${elapsed_time}秒"
+            set +e  # 冪等性テスト成功時は set -e を無効化
+            exit 1
         fi
         echo "[OK] セットアップ処理が完了しました！"
         echo "[OK] 所要時間: ${elapsed_time}秒"
