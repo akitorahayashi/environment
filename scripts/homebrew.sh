@@ -2,10 +2,7 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
-
-# ユーティリティのロード
-
+REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 # インストール実行フラグ
 installation_performed=false

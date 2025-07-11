@@ -37,15 +37,15 @@ main() {
     
     # セットアップスクリプトの実行と終了ステータスの収集
     declare -a scripts=(
-        "shell:$SCRIPT_ROOT_DIR/scripts/setup/shell.sh"
-        "homebrew:$SCRIPT_ROOT_DIR/scripts/setup/homebrew.sh"
-        "mac:$SCRIPT_ROOT_DIR/scripts/setup/mac.sh"
-        "git:$SCRIPT_ROOT_DIR/scripts/setup/git.sh"
-        "cursor:$SCRIPT_ROOT_DIR/scripts/setup/cursor.sh"
-        "vscode:$SCRIPT_ROOT_DIR/scripts/setup/vscode.sh"
-        "ruby:$SCRIPT_ROOT_DIR/scripts/setup/ruby.sh"
-        "flutter:$SCRIPT_ROOT_DIR/scripts/setup/flutter.sh"
-        "node:$SCRIPT_ROOT_DIR/scripts/setup/node.sh"
+        "shell:$SCRIPT_ROOT_DIR/scripts/shell.sh"
+        "homebrew:$SCRIPT_ROOT_DIR/scripts/homebrew.sh"
+        "mac:$SCRIPT_ROOT_DIR/scripts/mac.sh"
+        "git:$SCRIPT_ROOT_DIR/scripts/git.sh"
+        "cursor:$SCRIPT_ROOT_DIR/scripts/cursor.sh"
+        "vscode:$SCRIPT_ROOT_DIR/scripts/vscode.sh"
+        "ruby:$SCRIPT_ROOT_DIR/scripts/ruby.sh"
+        "flutter:$SCRIPT_ROOT_DIR/scripts/flutter.sh"
+        "node:$SCRIPT_ROOT_DIR/scripts/node.sh"
     )
     
     local has_error=false

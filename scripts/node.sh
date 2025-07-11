@@ -2,7 +2,9 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"  # メイン関数
+REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"  # scripts/ の一つ上を指す
+
+# メイン関数
 main() {
     echo ""
     echo "==== Start: Node.js 環境のセットアップを開始します ===="

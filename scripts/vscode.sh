@@ -2,10 +2,7 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
-
-# ユーティリティのロード
-
+REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 # インストール実行フラグ
 installation_performed=false
@@ -152,4 +149,4 @@ main() {
 # スクリプトが直接実行された場合のみメイン関数を実行
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
-fi 
+fi

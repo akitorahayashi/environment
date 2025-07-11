@@ -2,14 +2,17 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../../" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
-
-# ユーティリティのロード
-
 
 # インストール実行フラグ
 installation_performed=false
+
+# エラーハンドリング関数
+handle_error() {
+    echo "[ERROR] $1"
+    exit 2
+}
 
 # Flutter のセットアップ
 setup_flutter() {
@@ -23,9 +26,22 @@ setup_flutter() {
 
     # 安定版 Flutter SDK のインストール (fvm install は冪等)
     echo "[INFO] fvm を使用して安定版 Flutter SDK をインストールします..."
+    
+    # 既にインストール済みかチェック
+    local fvm_stable_path="$HOME/fvm/versions/stable"
+    local was_already_installed=false
+    if [ -d "$fvm_stable_path" ]; then
+        was_already_installed=true
+    fi
+    
     if fvm install stable; then
-        installation_performed=true
-        echo "[SUCCESS] Flutter SDK (stable) のインストール/確認が完了しました。"
+        # 新規インストールの場合のみフラグを設定
+        if [ "$was_already_installed" = false ]; then
+            installation_performed=true
+            echo "[SUCCESS] Flutter SDK (stable) を新規インストールしました。"
+        else
+            echo "[SUCCESS] Flutter SDK (stable) は既にインストール済みです。"
+        fi
     else
         echo "[ERROR] fvm install stable に失敗しました。"
         exit 2
@@ -54,7 +70,7 @@ setup_flutter() {
 
     # FVM管理下のFlutterを使うため、PATHを更新
     export PATH="$HOME/fvm/default/bin:$PATH"
-    echo "[INFO] "現在のシェルセッションのPATHにfvmのパスを追加しました。""
+    echo "[INFO] 現在のシェルセッションのPATHにfvmのパスを追加しました。"
 
     # flutter コマンド存在確認 (fvm管理下のパスで)
     if ! command -v flutter; then
@@ -64,37 +80,37 @@ setup_flutter() {
 
     # Flutterのパスを確認 (fvm管理下のパス)
     FLUTTER_PATH=$(which flutter)
-    echo "[INFO] "Flutter PATH (fvm): $FLUTTER_PATH""
+    echo "[INFO] Flutter PATH (fvm): $FLUTTER_PATH"
 
     # パスが正しいか確認（FVM管理下のパスを確認）
     local expected_fvm_path="$HOME/fvm/default/bin/flutter"
     if [[ "$FLUTTER_PATH" != "$expected_fvm_path" ]]; then
-        echo "[ERROR] "Flutter (fvm) が期待するパスにありません""
-        echo "[INFO] "現在のパス: $FLUTTER_PATH""
-        echo "[INFO] "期待するパス: $expected_fvm_path""
+        echo "[ERROR] Flutter (fvm) が期待するパスにありません"
+        echo "[INFO] 現在のパス: $FLUTTER_PATH"
+        echo "[INFO] 期待するパス: $expected_fvm_path"
         handle_error "Flutter (fvm) のパスが正しくありません"
         return 1
     else
-        echo "[SUCCESS] "Flutter (fvm) のパスが正しく設定されています""
+        echo "[SUCCESS] Flutter (fvm) のパスが正しく設定されています"
     fi
 
     # Flutter環境の簡易確認 (バージョン表示)
-    echo "==== Start: "Flutter環境を確認中...""
+    echo "==== Start: Flutter環境を確認中... ===="
     # IS_CI チェックを削除し、常に flutter --version を実行
     if flutter --version > /dev/null 2>&1; then
-        echo "[INFO] "Flutter のバージョン確認を実行しました""
+        echo "[INFO] Flutter のバージョン確認を実行しました"
     else
         # 失敗した場合はエラーとして処理し、終了する
         handle_error "flutter --version の実行に失敗しました。Flutter環境を確認してください。"
         return 1
     fi
 
-    echo "[SUCCESS] "Flutter SDK のセットアップ処理が完了しました" # メッセージを修正"
+    echo "[SUCCESS] Flutter SDK のセットアップ処理が完了しました"
 }
 
 # Flutter環境を検証
 verify_flutter_setup() {
-    echo "==== Start: "Flutter環境を検証中...""
+    echo "==== Start: Flutter環境を検証中... ===="
     local verification_failed=false
     
     # インストール確認
@@ -109,10 +125,10 @@ verify_flutter_setup() {
     verify_flutter_environment || verification_failed=true
     
     if [ "$verification_failed" = "true" ]; then
-        echo "[ERROR] "Flutter環境の検証に失敗しました""
+        echo "[ERROR] Flutter環境の検証に失敗しました"
         return 1
     else
-        echo "[SUCCESS] "Flutter環境の検証が完了しました""
+        echo "[SUCCESS] Flutter環境の検証が完了しました"
         return 0
     fi
 }
@@ -120,27 +136,27 @@ verify_flutter_setup() {
 # Flutterのインストール確認
 verify_flutter_installation() {
     if ! command -v flutter; then
-        echo "[ERROR] "Flutterがインストールされていません""
+        echo "[ERROR] Flutterがインストールされていません"
         return 1
     fi
-    echo "[OK] "Flutter""
+    echo "[OK] Flutter"
     return 0
 }
 
 # Flutterのパス確認
 verify_flutter_path() {
     FLUTTER_PATH=$(which flutter)
-    echo "[INFO] "Flutter PATH: $FLUTTER_PATH""
+    echo "[INFO] Flutter PATH: $FLUTTER_PATH"
     
     # FVM管理下のパスを期待する
     local expected_fvm_path="$HOME/fvm/default/bin/flutter"
     if [[ "$FLUTTER_PATH" != "$expected_fvm_path" ]]; then
-        echo "[ERROR] "Flutterのパスが想定 (FVM) と異なります""
-        echo "[ERROR] "期待: $expected_fvm_path""
-        echo "[ERROR] "実際: $FLUTTER_PATH""
+        echo "[ERROR] Flutterのパスが想定 (FVM) と異なります"
+        echo "[ERROR] 期待: $expected_fvm_path"
+        echo "[ERROR] 実際: $FLUTTER_PATH"
         return 1
     else
-        echo "[SUCCESS] "Flutterのパスが正しく設定されています (FVM)""
+        echo "[SUCCESS] Flutterのパスが正しく設定されています (FVM)"
         return 0
     fi
 }
@@ -154,36 +170,31 @@ verify_flutter_environment() {
 
 # Flutter環境の検証 (常に flutter --version を使用)
 verify_flutter_full_environment() {
-    echo "[INFO] "Flutter環境チェック (flutter --version) を実行中..." # メッセージを修正"
+    echo "[INFO] Flutter環境チェック (flutter --version) を実行中..."
     if ! flutter --version > /dev/null 2>&1; then
-        echo "[ERROR] "flutter --version の実行に失敗しました""
+        echo "[ERROR] flutter --version の実行に失敗しました"
         return 1
     fi
-    echo "[SUCCESS] "Flutterコマンドが正常に動作しています""
+    echo "[SUCCESS] Flutterコマンドが正常に動作しています"
     
     return 0
 }
 
 # メイン関数
 main() {
-    echo "==== Start: "Flutter環境のセットアップを開始します""
+    echo "==== Start: Flutter環境のセットアップを開始します ===="
     
     setup_flutter
     
-    echo "[SUCCESS] "Flutter環境のセットアップが完了しました""
+    echo "[SUCCESS] Flutter環境のセットアップが完了しました"
     
     # 終了ステータスの決定
     if [ "$installation_performed" = "true" ]; then
         exit 0  # インストール実行済み
     else
-        exit 1  # インストール不要（冪等性保持）
+        exit 1  # 冪等性保持
     fi
 }
-
-# スクリプトが直接実行された場合のみメイン関数を実行
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
 
 # スクリプトが直接実行された場合のみメイン関数を実行
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

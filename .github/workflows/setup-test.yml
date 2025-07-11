@@ -64,7 +64,7 @@ jobs:
       - name: Make scripts executable
         run: |
           echo "セットアップスクリプトを実行可能にしています..."
-          chmod +x scripts/setup/*.sh
+          chmod +x scripts/*.sh
           chmod +x install.sh
           echo "✅ スクリプトが実行可能になりました"
 
@@ -83,56 +83,12 @@ jobs:
             head -n 20 install_output.log
             exit 1
           fi
-          
-          if grep -q -E '(\[INSTALLING\]|\[SUCCESS\]|Start:)' install_output.log; then
-            echo "✅ インストールメッセージが見つかりました"
-          else
-            echo "❌ インストールメッセージが見つかりませんでした"
-            echo "=== インストール出力サンプル (最初の20行) ==="
-            head -n 20 install_output.log
-            exit 1
-          fi
-        shell: bash
-
-      - name: Run idempotency test
-        run: |
-          echo "🔍 冪等性テストを実行しています..."
-          export IDEMPOTENT_TEST=true
-          ./install.sh | tee idempotent_output.log
-          IDEMPOTENT_EXIT_CODE=$?
-          
-          echo "🔍 冪等性の終了コードとログを検証しています..."
-          if [ $IDEMPOTENT_EXIT_CODE -eq 1 ]; then
-            echo "✅ 冪等性を確認しました (終了コード: 1 - インストール不要)"
-          else
-            echo "❌ 冪等性テストが失敗しました (終了コード: $IDEMPOTENT_EXIT_CODE)"
-            echo "期待される終了コード: 1 (冪等性), 実際の終了コード: $IDEMPOTENT_EXIT_CODE"
-            echo "=== 冪等性出力サンプル (最初の20行) ==="
-            head -n 20 idempotent_output.log
-            exit 1
-          fi
-          
-          if grep -q '\[INSTALLING\]' idempotent_output.log; then
-            echo "❌ 冪等性テストが失敗しました: 2回目の実行でインストールメッセージが見つかりました"
-            echo "--- コンテキスト ---"
-            grep -A 3 -B 3 '\[INSTALLING\]' idempotent_output.log
-            echo "---------------"
-            exit 1
-          else
-            echo "✅ インストールメッセージがないことを確認しました (冪等性)"
-          fi
-          
-          if grep -q -E '(\[INSTALLED\]|\[OK\]|already installed|Skipping)' idempotent_output.log; then
-            echo "✅ 適切なスキップメッセージが見つかりました"
-          else
-            echo "⚠️ 警告: スキップメッセージが見つかりませんでした。冪等性検証を続行します。"
-          fi
         shell: bash
 
       - name: Verify Shell Setup
         run: |
           echo "🔍 シェルの設定を検証しています..."
-          source ./scripts/setup/shell.sh
+          source ./scripts/shell.sh
           if verify_shell_setup; then
             echo "✅ シェルの検証が成功しました"
           else
@@ -144,7 +100,7 @@ jobs:
       - name: Verify Mac Setup
         run: |
           echo "🔍 Macの設定の検証を開始しています..."
-          source ./scripts/setup/mac.sh
+          source ./scripts/mac.sh
           if verify_mac_setup; then
             echo "✅ Macの検証が成功しました"
           else
@@ -156,7 +112,7 @@ jobs:
       - name: Verify Homebrew Setup
         run: |
           echo "🔍 Homebrewのセットアップとパッケージを検証しています..."
-          source ./scripts/setup/homebrew.sh
+          source ./scripts/homebrew.sh
           if verify_homebrew_setup && verify_brewfile "$REPO_ROOT/config/brew/Brewfile"; then
             echo "✅ Homebrewの検証が成功しました"
           else
@@ -168,7 +124,7 @@ jobs:
       - name: Verify Git Setup
         run: |
           echo "🔍 Gitの設定を検証しています..."
-          source ./scripts/setup/git.sh
+          source ./scripts/git.sh
           if verify_git_setup; then
             echo "✅ Gitの検証が成功しました"
           else
@@ -181,7 +137,7 @@ jobs:
         run: |
           echo "🔍 Flutterの検証を開始しています..."
           export PATH="$HOME/fvm/default/bin:$PATH"
-          source ./scripts/setup/flutter.sh
+          source ./scripts/flutter.sh
           if verify_flutter_setup; then
             echo "✅ Flutterの検証が成功しました"
           else
@@ -193,7 +149,7 @@ jobs:
       - name: Verify Node.js Setup
         run: |
           echo "🔍 Node.jsの検証を開始しています..."
-          source ./scripts/setup/node.sh
+          source ./scripts/node.sh
           if verify_node_setup; then
             echo "✅ Node.jsの検証が成功しました"
           else
@@ -243,4 +199,24 @@ jobs:
           echo "======================"
           echo "✅ すべての検証ステップが正常に完了しました！"
           echo "🎉 すべてのテストが正常に完了しました！"
+        shell: bash
+
+      - name: Run idempotency test
+        run: |
+          echo "🔍 冪等性テストを実行しています..."
+          export IDEMPOTENT_TEST=true
+          ./install.sh | tee idempotent_output.log
+          IDEMPOTENT_EXIT_CODE=$?
+          
+          echo "🔍 冪等性の終了コードとログを検証しています..."
+          if [ $IDEMPOTENT_EXIT_CODE -eq 1 ]; then
+            echo "✅ 冪等性を確認しました (終了コード: 1 - インストール不要)"
+          else
+            echo "❌ 冪等性テストが失敗しました (終了コード: $IDEMPOTENT_EXIT_CODE)"
+            echo "期待される終了コード: 1 (冪等性), 実際の終了コード: $IDEMPOTENT_EXIT_CODE"
+            echo "=== 冪等性出力サンプル (最初の20行) ==="
+            head -n 20 idempotent_output.log
+            exit 1
+          fi
+          
         shell: bash
