@@ -36,7 +36,6 @@ main() {
     echo "==== Start: 開発環境のセットアップを開始します ===="
     
     # セットアップスクリプトの実行と終了ステータスの収集
-    declare -A script_results
     declare -a scripts=(
         "shell:$SCRIPT_ROOT_DIR/scripts/setup/shell.sh"
         "homebrew:$SCRIPT_ROOT_DIR/scripts/setup/homebrew.sh"
@@ -57,10 +56,8 @@ main() {
         local script_path="${script_entry#*:}"
         
         echo "[INFO] 実行中: $script_name"
-        "$script_path"
+        "${script_path}"
         local exit_code=$?
-        
-        script_results["$script_name"]=$exit_code
         
         case $exit_code in
             0)
@@ -70,7 +67,7 @@ main() {
                 fi
                 ;;
             1)
-                echo "[OK] $script_name: インストール不要（冪等性保持）"
+                echo "[OK] $script_name: 冪等性が保たれています"
                 ;;
             2)
                 echo "[ERROR] $script_name: エラー発生"
