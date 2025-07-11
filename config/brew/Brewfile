@@ -3,7 +3,6 @@ brew "git"
 brew "gh"
 
 ## Development Tools
-brew "pipx"
 brew "node"
 brew "go"
 

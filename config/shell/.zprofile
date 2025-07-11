@@ -6,6 +6,11 @@ if [ -d "$HOME/bin" ] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
     export PATH="$HOME/bin:$PATH"
 fi
 
+# FVM 用 PATH 設定
+if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"* ]]; then
+    export PATH="$HOME/fvm/default/bin:$PATH"
+fi
+
 # Android SDK 環境変数
 if [[ -z "$ANDROID_HOME" ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
@@ -33,6 +38,3 @@ fi
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
-
-# pipx 用 PATH 設定
-export PATH="$PATH:$HOME/.local/bin"
