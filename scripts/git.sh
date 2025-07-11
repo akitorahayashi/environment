@@ -4,29 +4,16 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# インストール実行フラグ
-installation_performed=false
-
 main() {
-    echo "==== Start: "Git環境のセットアップを開始します""
-    
     setup_git_config
     setup_gitignore_global
     setup_ssh_agent
     
-    echo "[SUCCESS] "Git環境のセットアップが完了しました""
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0
-    else
-        exit 1
-    fi
+    echo "[SUCCESS] Git環境のセットアップが完了しました"
 }
 
 setup_git_config() {
-    echo ""
-    echo "==== Start: Gitの設定ファイルのセットアップを開始します... ===="
+    echo "[Start] Gitの設定ファイルのセットアップを開始します..."
 
     mkdir -p "$HOME/.config/git"
     local src="$REPO_ROOT/config/git/.gitconfig"
@@ -55,10 +42,9 @@ setup_git_config() {
         echo "[INFO] Gitの設定ファイルをコピーします..."
         if cp "$src" "$dest"; then
             echo "[SUCCESS] Gitの設定ファイルをコピーしました。"
-            installation_performed=true
         else
             echo "[ERROR] Gitの設定ファイルのコピーに失敗しました。"
-            exit 2
+            exit 1
         fi
     else
         echo "[INFO] Gitの設定ファイルは最新です。スキップします。"
@@ -85,20 +71,13 @@ setup_gitignore_global() {
 
     local ignore_file="$HOME/.gitignore_global"
 
-    # 既存ファイルがあれば削除
-    if [ -e "$ignore_file" ]; then
-        echo "[INFO] 既存の gitignore_global を削除します: $ignore_file"
-        rm -f "$ignore_file"
-    fi
-
     # シンボリックリンクの作成
     echo "[INFO] gitignore_global のシンボリックリンクを作成します..."
-    if ln -s "$REPO_ROOT/config/git/.gitignore_global" "$ignore_file"; then
+    if ln -sf "$REPO_ROOT/config/git/.gitignore_global" "$ignore_file"; then
         echo "[SUCCESS] gitignore_global のシンボリックリンクを作成しました。"
-        installation_performed=true
     else
         echo "[ERROR] gitignore_global のシンボリックリンク作成に失敗しました。"
-        exit 2
+        exit 1
     fi
 
     # Git に global gitignore を設定

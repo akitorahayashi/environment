@@ -5,37 +5,25 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
 
-# インストール実行フラグ
-installation_performed=false
-
 # エラーハンドリング関数
 handle_error() {
     echo "[ERROR] $1"
-    exit 2
+    exit 1
 }
 
 main() {
-    echo "==== Start: Flutter環境のセットアップを開始します ===="
-    
     setup_flutter
     
     echo "[SUCCESS] Flutter環境のセットアップが完了しました"
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0
-    else
-        exit 1
-    fi
 }
 
 setup_flutter() {
-    echo "==== Start: Flutter SDK のセットアップを開始します (fvm)... ===="
+    echo "[Start] Flutter SDK のセットアップを開始します (fvm)..."
 
     # fvm コマンドの存在確認
     if ! command -v fvm; then
         echo "[ERROR] fvm コマンドが見つかりません。Brewfileを確認してください。"
-        exit 2
+        exit 1
     fi
 
     # 安定版 Flutter SDK のインストール (fvm install は冪等)
@@ -51,14 +39,14 @@ setup_flutter() {
     if fvm install stable; then
         # 新規インストールの場合のみフラグを設定
         if [ "$was_already_installed" = false ]; then
-            installation_performed=true
+            echo "INSTALL_PERFORMED"
             echo "[SUCCESS] Flutter SDK (stable) を新規インストールしました。"
         else
             echo "[SUCCESS] Flutter SDK (stable) は既にインストール済みです。"
         fi
     else
         echo "[ERROR] fvm install stable に失敗しました。"
-        exit 2
+        exit 1
     fi
 
     # 現在のグローバル設定が stable か確認

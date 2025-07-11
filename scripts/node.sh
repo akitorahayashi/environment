@@ -5,36 +5,25 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    echo ""
-    echo "==== Start: Node.js 環境のセットアップを開始します ===="
-    
     setup_node
     
     echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0
-    else
-        exit 1
-    fi
 }
 
 setup_node() {
-    echo ""
-    echo "==== Start: Node.js のセットアップを開始します... ===="
+    echo "[Start] Node.js のセットアップを開始します..."
 
     # Node.js のインストール確認
     if ! command -v node; then
         echo "[WARN] Node.js がインストールされていません。Brewfileを確認してください。"
-        exit 2
+        exit 1
     fi
-    echo "[OK] Node.js はすでにインストールされています"
+    echo "[SUCCESS] Node.js はすでにインストールされています"
 
     # npm のインストール確認
     if ! command -v npm; then
         echo "[WARN] npm がインストールされていません。Node.js のインストールを確認してください。"
-        exit 2
+        exit 1
     fi
     echo "[OK] npm はすでにインストールされています"
 
@@ -74,12 +63,12 @@ install_global_packages() {
             echo "[INSTALLED] $pkg_name"
         else
             echo "[INSTALLING] $pkg_full"
-            installation_performed=true
+            echo "INSTALL_PERFORMED"
             if npm install -g "$pkg_full"; then
                 echo "[SUCCESS] $pkg_name のインストールが完了しました"
             else
                 echo "[ERROR] $pkg_name のインストールに失敗しました"
-                exit 2
+                exit 1
             fi
         fi
     done

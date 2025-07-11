@@ -4,70 +4,30 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# インストール実行フラグ
-installation_performed=false
-
 # CI環境かどうかを確認
 export IS_CI=${CI:-false}
 
 main() {
-    echo ""
-    echo "==== Start: Homebrewのセットアップを開始します ===="
-    
-    # Xcode Command Line Toolsをインストール
-    install_xcode_command_line_tools
-
     # Homebrewのインストール
     install_homebrew
     
     # Brewfileのインストール
     echo ""
-    echo "==== Start: Homebrew パッケージのインストールを開始します..."
+    echo "[Start] Homebrew パッケージのインストールを開始します..."
     local brewfile_path="$REPO_ROOT/config/brew/Brewfile"
     install_packages_from_brewfile "$brewfile_path"
     
-    echo "[OK] Homebrewのセットアップが完了しました"
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0
-    else
-        exit 1
-    fi
-}
-
-install_xcode_command_line_tools() {
-    # Xcode Command Line Tools のインストール
-    if ! xcode-select -p &>/dev/null; then
-        echo "[INSTALL] Xcode Command Line Tools ..."
-        installation_performed=true
-        if [ "$IS_CI" = "true" ]; then
-            # CI環境ではすでにインストールされていることを前提とする
-            echo "[INFO] CI環境では Xcode Command Line Tools はすでにインストールされていると想定します"
-        else
-            xcode-select --install
-            # インストールが完了するまで待機
-            echo "[INFO] インストールが完了するまで待機..."
-            until xcode-select -p &>/dev/null; do
-                sleep 5
-            done
-        fi
-        echo "[OK] Xcode Command Line Tools のインストール完了"
-    else
-        echo "[OK] Xcode Command Line Tools はすでにインストールされています"
-    fi
-    
-    return 0
+    echo "[SUCCESS] Homebrewのセットアップが完了しました"
 }
 
 install_homebrew() {
     if ! command -v brew; then
         echo "[INSTALL] Homebrew ..."
-        installation_performed=true
+        echo "INSTALL_PERFORMED"
         install_homebrew_binary # バイナリインストール後、この関数内でPATH設定も行う
-        echo "[OK] Homebrew のインストール完了"
+        echo "[SUCCESS] Homebrew のインストール完了"
     else
-        echo "[OK] Homebrew はすでにインストールされています"
+        echo "[SUCCESS] Homebrew はすでにインストールされています"
     fi
 }
 
@@ -93,7 +53,7 @@ install_homebrew_binary() {
     # インストール結果確認 (この時点でbrewコマンドが利用可能になっているはず)
     if ! command -v brew; then
         echo "[ERROR] Homebrewのインストールに失敗しました"
-        exit 2
+        exit 1
     fi
     echo "[OK] Homebrewバイナリのインストールが完了しました。"
 }
@@ -107,12 +67,12 @@ install_packages_from_brewfile() {
     if ! brew bundle --file "$brewfile_path" 2>&1 | tee "$temp_output"; then
         rm -f "$temp_output"
         echo "[ERROR] Brewfileからのパッケージインストールに失敗しました"
-        exit 2
+        exit 1
     fi
     
     # 出力を解析して実際にインストールやアップグレードが発生したかチェック
     if grep -E "(Installing|Upgrading|Downloading)" "$temp_output" > /dev/null; then
-        installation_performed=true
+        echo "INSTALL_PERFORMED"
         echo "[OK] Homebrew パッケージのインストール/アップグレードが完了しました"
     else
         echo "[OK] Homebrew パッケージは既に最新の状態です"
@@ -187,8 +147,7 @@ verify_brew_package() {
 }
 
 verify_homebrew_setup() {
-    echo ""
-    echo "==== Start: Homebrew環境を検証中... ===="
+    echo "[Start] Homebrew環境を検証中..."
     local verification_failed=false
 
     # Homebrew パスの確認

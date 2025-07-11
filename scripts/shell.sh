@@ -4,51 +4,31 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# インストール実行フラグ
-installation_performed=false
-
 main() {
-    echo "==== Start: "シェル環境のセットアップを開始します""
-    
     setup_shell_config
     
-    echo "[SUCCESS] "シェル環境のセットアップが完了しました""
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0
-    else
-        exit 1
-    fi
+    echo "[SUCCESS] シェル環境のセットアップが完了しました"
 }
 
 setup_shell_config() {
-    echo "==== Start: "シェル設定ファイルのセットアップを開始します...""
-
-    # 既存の設定ファイルの削除
-    if [ -f "$HOME/.zprofile" ] || [ -L "$HOME/.zprofile" ]; then
-        rm -f "$HOME/.zprofile"
-    fi
-    if [ -f "$HOME/.zshrc" ] || [ -L "$HOME/.zshrc" ]; then
-        rm -f "$HOME/.zshrc"
-    fi
+    echo "[Start] シェル設定ファイルのセットアップを開始します..."
 
     # シンボリックリンクの作成
-    echo "[INFO] "シェル設定ファイルのシンボリックリンクを作成します...""
-    if ln -s "$REPO_ROOT/config/shell/.zprofile" "$HOME/.zprofile" && \
-       ln -s "$REPO_ROOT/config/shell/.zshrc" "$HOME/.zshrc"; then
-        echo "[SUCCESS] "シェル設定ファイルのシンボリックリンクを作成しました。""
+    echo "[INFO] シェル設定ファイルのシンボリックリンクを作成します..."
+    if ln -sf "$REPO_ROOT/config/shell/.zprofile" "$HOME/.zprofile" && \
+       ln -sf "$REPO_ROOT/config/shell/.zshrc" "$HOME/.zshrc"; then
+        echo "[SUCCESS] シェル設定ファイルのシンボリックリンクを作成しました。"
     else
-        echo "[ERROR] "シェル設定ファイルのシンボリックリンク作成に失敗しました。""
-        exit 2
+        echo "[ERROR] シェル設定ファイルのシンボリックリンク作成に失敗しました。"
+        exit 1
     fi
 
-    echo "[SUCCESS] "シェル設定ファイルのセットアップが完了しました。""
+    echo "[SUCCESS] シェル設定ファイルのセットアップが完了しました。"
     return 0
 }
 
 verify_shell_setup() {
-    echo "==== Start: "シェル設定を検証中...""
+    echo "[Start] シェル設定を検証中..."
     local verification_failed=false
 
     verify_shell_type || verification_failed=true
@@ -57,10 +37,10 @@ verify_shell_setup() {
     verify_env_vars || verification_failed=true
 
     if [ "$verification_failed" = "true" ]; then
-        echo "[ERROR] "シェル設定の検証に失敗しました""
+        echo "[ERROR] シェル設定の検証に失敗しました"
         return 1
     else
-        echo "[SUCCESS] "シェル設定の検証が正常に完了しました""
+        echo "[SUCCESS] シェル設定の検証が正常に完了しました"
         return 0
     fi
 }

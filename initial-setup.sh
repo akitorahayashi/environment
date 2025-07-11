@@ -10,10 +10,11 @@ main() {
     echo "==== Start: macOS環境セットアップ - 事前準備 ===="
     echo ""
     echo "[INFO] このスクリプトは以下の作業を行います："
-    echo "  1. 必要に応じたSSH鍵の生成"
-    echo "  2. GitHubへのSSH鍵追加のガイド"
-    echo "  3. SSH接続のテスト"
-    echo "  4. 実行権限の付与"
+    echo "  1. Xcode Command Line Tools のインストール"
+    echo "  2. 必要に応じたSSH鍵の生成"
+    echo "  3. GitHubへのSSH鍵追加のガイド"
+    echo "  4. SSH接続のテスト"
+    echo "  5. 実行権限の付与"
     echo ""
     
     if ! ask_yes_no "続行しますか？"; then
@@ -21,6 +22,7 @@ main() {
         exit 0
     fi
     
+    install_xcode_command_line_tools
     generate_ssh_key
     setup_public_key
     
@@ -28,8 +30,13 @@ main() {
     set_permissions
     
     echo -e "\n[SUCCESS] セットアップが完了しました！"
-    echo -e "[INFO] 次のステップ：\n  1. 以下のコマンドを実行してメインのセットアップを開始してください：\n     ./install.sh\n  2. セットアップ完了後、ターミナルを再起動または以下を実行してください：\n     source ~/.zprofile"
-    echo "[WARN] 注意: install.shの実行には時間がかかる場合があります。"
+    echo ""
+    echo "[INFO] 次のステップ："
+    echo "  1. 以下のコマンドを実行してメインのセットアップを開始してください："
+    echo "     ./install.sh"
+    echo ""
+    echo "  2. セットアップ完了後、ターミナルを再起動または以下を実行してください："
+    echo "     source ~/.zprofile"
 }
 
 ask_yes_no() {
@@ -72,6 +79,23 @@ get_email() {
     done
 }
 
+install_xcode_command_line_tools() {
+    echo -e "\n==== Start: Xcode Command Line Tools のインストール ===="
+    
+    if xcode-select -p &>/dev/null; then
+        echo "[INFO] Xcode Command Line Tools は既にインストールされています"
+    else
+        echo "[INFO] Xcode Command Line Tools をインストールしています..."
+        xcode-select --install
+        
+        while ! xcode-select -p &>/dev/null; do
+            sleep 5
+        done
+        
+        echo "[SUCCESS] Xcode Command Line Tools のインストールが完了しました"
+    fi
+}
+
 generate_ssh_key() {
     echo -e "\n==== Start: SSH鍵の生成 ===="
     
@@ -80,7 +104,7 @@ generate_ssh_key() {
         echo "[SUCCESS] 既存のSSH鍵を使用します"
         return 0
     else
-        echo "[WARN] SSH キー (id_ed25519) が見つかりません"
+        echo "[INFO] SSH鍵が見つかりません"
     fi
     
     local email
@@ -100,7 +124,7 @@ setup_public_key() {
     
     if [ ! -f ~/.ssh/id_ed25519.pub ]; then
         echo "[ERROR] 公開鍵ファイルが見つかりません"
-        exit 2
+        exit 1
     fi
     
     echo -e "[INFO] 以下の公開鍵をGitHubアカウントに追加してください：\n"
@@ -113,7 +137,7 @@ setup_public_key() {
         echo "[SUCCESS] 公開鍵がクリップボードにコピーされました"
     fi
     
-    echo "準備ができたらEnterキーを押してください..."
+    echo "Githubへの登録が完了した後にEnterキーを押してください、接続をテストします。"
     read -r
     
     echo "[SUCCESS] GitHub SSH鍵の設定完了"

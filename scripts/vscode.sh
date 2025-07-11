@@ -4,28 +4,14 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# インストール実行フラグ
-installation_performed=false
-
 main() {
-    echo ""
-    echo "==== Start: VS Code環境のセットアップを開始します ===="
-    
     setup_vscode
     
-    echo "[OK] VS Code環境のセットアップが完了しました"
-    
-    # 終了ステータスの決定
-    if [ "$installation_performed" = "true" ]; then
-        exit 0
-    else
-        exit 1
-    fi
+    echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 }
 
 setup_vscode() {
-    echo ""
-    echo "==== Start: VS Code のセットアップを開始します... ===="
+    echo "[Start] VS Code のセットアップを開始します..."
     local config_dir="$REPO_ROOT/config/vscode"
     local vscode_target_dir="$HOME/Library/Application Support/Code/User"
 
@@ -55,17 +41,12 @@ setup_vscode() {
             filename=$(basename "$file")
             local target_file="$vscode_target_dir/$filename"
             
-            # 既存のファイルを削除
-            if [ -f "$target_file" ] || [ -L "$target_file" ]; then
-                rm -f "$target_file"
-            fi
-            
             # シンボリックリンクの作成
-            if ln -s "$file" "$target_file"; then
+            if ln -sf "$file" "$target_file"; then
                 ((linked_count++))
             else
                 echo "[ERROR] VS Code設定ファイル $filename のシンボリックリンク作成に失敗しました。"
-                exit 2
+                exit 1
             fi
         fi
     done

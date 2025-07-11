@@ -8,7 +8,6 @@ environment/
 │   └── workflows/
 ├── config/
 │   ├── brew/
-│   ├── cursor/
 │   ├── gems/
 │   ├── git/
 │   ├── macos/
@@ -16,6 +15,15 @@ environment/
 │   ├── shell/
 │   └── vscode/
 ├── scripts/
+│   ├── cursor.sh
+│   ├── flutter.sh
+│   ├── git.sh
+│   ├── homebrew.sh
+│   ├── mac.sh
+│   ├── node.sh
+│   ├── ruby.sh
+│   ├── shell.sh
+│   └── vscode.sh
 ├── .gitignore
 ├── install.sh
 └── README.md
@@ -24,7 +32,6 @@ environment/
 ## Implementation Features
 
 1.  **Homebrew Setup**
-    -   Xcode Command Line Toolsのインストール
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
@@ -69,7 +76,8 @@ $ cd environment
 
 ### 2. Pre-setup Script
 
-事前準備を行うスクリプトを実行します：
+事前準備を行うスクリプトを実行します
+特に初回は実行してください
 
 ```sh
 $ chmod +x initial-setup.sh
@@ -77,6 +85,7 @@ $ ./initial-setup.sh
 ```
 
 このスクリプトは以下を行います
+- Xcode Command Line Tools のインストール
 - SSH鍵の生成（存在しない場合）
 - GitHubへのSSH鍵追加のガイド
 - SSH接続のテスト
@@ -90,7 +99,7 @@ $ ./install.sh
 
 ### 4. Individual Setup Scripts
 
-`scripts/`内の各セットアップスクリプトは個別に実行でき、冪等性を持ち、複数回安全に実行できます
+`scripts/`内の各セットアップスクリプトは個別に実行できます
 
 ```sh
 # Homebrewのセットアップ
@@ -127,25 +136,7 @@ $ ./scripts/mac.sh
 
 スクリプトが完了したら、ターミナルを再起動するか、`source ~/.zprofile`を実行してシェル設定を適用してください
 
-### 6. Android Development Environment Setup
-
-Flutterアプリ開発の場合は、Android Studioを起動し、画面の指示に従ってセットアップを完了してください
-
-### 7. Verify SSH Connection
-
-SSH接続が正しく設定されているか確認します：
-
-```sh
-$ ssh -T git@github.com
-```
-
-成功すると、以下のようなメッセージが表示されます
-
-```
-Hi ${GITHUB_USERNAME}! You've successfully authenticated, but GitHub does not provide shell access.
-```
-
-### 8. Configure GitHub CLI
+### 6. Configure GitHub CLI
 
 スクリプト実行中にプロンプトが表示された場合、またはスキップした場合は、GitHub CLIを認証してください
 
