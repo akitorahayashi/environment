@@ -8,5 +8,6 @@
   "explorer.confirmDelete": false,
   "explorer.confirmPasteNative": false,
   "chat.editing.confirmEditRequestRemoval": false,
-  "diffEditor.ignoreTrimWhitespace": false
+  "diffEditor.ignoreTrimWhitespace": false,
+  "terminal.integrated.enableMultiLinePasteWarning": "never"
 }
