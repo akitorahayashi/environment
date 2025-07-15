@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # ================================================
 # 現在の macOS の設定を取得し、settings.sh を生成
@@ -20,7 +21,6 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ENVIRONMENT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 if [ "$IS_CI" = "true" ]; then
   OUTPUT_FILE="/tmp/macos-settings.sh"
@@ -49,14 +49,14 @@ EOF
 # 値を取得し、存在しない場合はデフォルト値にフォールバックする関数
 get_default_value() {
     local value
-    value=$(defaults read "$1" "$2" 2>/dev/null || echo "$3")
-    [[ -z "$value" ]] && value="$3"
+    value=$(defaults read "$1" "$2" 2>/dev/null) || value="$3"
     echo "$value"
 }
 
 # bool値を適切な形式に変換する関数
 format_bool_value() {
-    local value="$1"
+    local value
+    value="$(echo "$1" | tr '[:upper:]' '[:lower:]' | xargs)"
     case "$value" in
         1|true) echo "true" ;;
         0|false) echo "false" ;;
@@ -138,7 +138,7 @@ PRESS_AND_HOLD=$(get_default_value "NSGlobalDomain" "ApplePressAndHoldEnabled" "
 NATURAL_SCROLLING=$(get_default_value "NSGlobalDomain" "com.apple.swipescrolldirection" "true")
 
 # --- マウス ---
-MOUSE_SCALING=$(get_default_value ".GlobalPreferences" "com.apple.mouse.scaling" "1.0")
+MOUSE_SCALING=$(get_default_value -g "com.apple.mouse.scaling" "1.0")
 
 # --- トラックパッド ---
 TRACKPAD_SCALING=$(get_default_value -g "com.apple.trackpad.scaling" "1.5")
@@ -258,7 +258,7 @@ EOF
 
 # --- マウス ---
 MOUSE_COMMANDS=$(cat << EOF
-defaults write .GlobalPreferences com.apple.mouse.scaling -float $MOUSE_SCALING
+defaults write -g com.apple.mouse.scaling -float $MOUSE_SCALING
 EOF
 )
 
@@ -298,9 +298,9 @@ echo "" >> "$OUTPUT_FILE"
 echo "# ================================================" >> "$OUTPUT_FILE"
 echo "# 設定の反映" >> "$OUTPUT_FILE"
 echo "# ================================================" >> "$OUTPUT_FILE"
-echo "killall Dock" >> "$OUTPUT_FILE"
-echo "killall Finder" >> "$OUTPUT_FILE"
-echo "killall SystemUIServer" >> "$OUTPUT_FILE"
+echo "for proc in Dock Finder SystemUIServer; do" >> "$OUTPUT_FILE"
+echo "  pgrep \"\$proc\" >/dev/null && killall \"\$proc\"" >> "$OUTPUT_FILE"
+echo "done" >> "$OUTPUT_FILE"
 
 # 実行権限を付与
 chmod +x "$OUTPUT_FILE"
