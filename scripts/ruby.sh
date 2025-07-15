@@ -5,13 +5,30 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
+    local ruby_version="3.3.0"
+
     echo "==== Start: Ruby環境のセットアップを開始します..."
     install_rbenv || exit 1
     eval "$(rbenv init -)"
-    if command -v ruby; then
-        install_gems
-        echo "[INFO] Ruby環境: $(ruby -v) / $(gem -v) / $(bundle -v 2>/dev/null || echo 'bundler未インストール')"
+
+    # Ruby 3.3.0がインストールされていなければインストール
+    if ! rbenv versions --bare | grep -q "^${ruby_version}$"; then
+        echo "[INSTALL] Ruby ${ruby_version}"
+        rbenv install "${ruby_version}"
+    else
+        echo "[INFO] Ruby ${ruby_version} はすでにインストールされています"
     fi
+
+    # グローバルバージョンを3.3.0に設定
+    if [ "$(rbenv global)" != "${ruby_version}" ]; then
+        echo "[CONFIG] rbenv global を ${ruby_version} に設定します"
+        rbenv global "${ruby_version}"
+    else
+        echo "[INFO] rbenv global はすでに ${ruby_version} に設定されています"
+    fi
+
+    install_gems
+    echo "[INFO] Ruby環境: $(ruby -v) / $(gem -v) / $(bundle -v 2>/dev/null || echo 'bundler未インストール')"
     echo "[SUCCESS] Ruby環境のセットアップが完了しました"
 }
 
