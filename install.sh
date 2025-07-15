@@ -54,7 +54,7 @@ main() {
     declare -a scripts=(
         "shell:$SCRIPT_ROOT_DIR/scripts/shell.sh"
         "homebrew:$SCRIPT_ROOT_DIR/scripts/homebrew.sh"
-        "mac:$SCRIPT_ROOT_DIR/scripts/mac.sh"
+        "mac:$SCRIPT_ROOT_DIR/scripts/macos.sh"
         "git:$SCRIPT_ROOT_DIR/scripts/git.sh"
         "cursor:$SCRIPT_ROOT_DIR/scripts/cursor.sh"
         "vscode:$SCRIPT_ROOT_DIR/scripts/vscode.sh"
