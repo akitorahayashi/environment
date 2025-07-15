@@ -1,16 +1,11 @@
 name: Verify macOS Backup Script
 
 on:
-  push:
-    paths:
-      - 'config/macos/backup_settings.sh'
-  pull_request:
-    paths:
-      - 'config/macos/backup_settings.sh'
+  workflow_call:
 
 jobs:
   verify:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository
@@ -24,9 +19,14 @@ jobs:
 
       - name: Run backup script
         run: ./config/macos/backup_settings.sh
+        env:
+          IS_CI: true
 
       - name: Check if settings.sh is generated
-        run: test -f config/macos/settings.sh
+        run: test -f /tmp/macos-settings.sh
 
       - name: Lint generated settings.sh
-        run: shellcheck config/macos/settings.sh
+        run: shellcheck /tmp/macos-settings.sh
+
+      - name: Clean up temporary file
+        run: rm -f /tmp/macos-settings.sh

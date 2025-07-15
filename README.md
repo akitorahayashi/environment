@@ -19,7 +19,7 @@ environment/
 │   ├── flutter.sh
 │   ├── git.sh
 │   ├── homebrew.sh
-│   ├── mac.sh
+│   ├── macos.sh
 │   ├── node.sh
 │   ├── ruby.sh
 │   ├── shell.sh
@@ -124,7 +124,7 @@ $ ./scripts/cursor.sh
 $ ./scripts/vscode.sh
 
 # macOSの設定
-$ ./scripts/mac.sh
+$ ./scripts/macos.sh
 ```
 
 各スクリプトは以下のように動作します

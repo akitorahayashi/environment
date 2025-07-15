@@ -1,14 +1,11 @@
 name: Run Setup Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_call:
 
 jobs:
   setup-test:
-    runs-on: macos-latest
+    runs-on: macos-15
     
     steps:
       - name: Checkout repository
