@@ -22,7 +22,11 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ENVIRONMENT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-OUTPUT_FILE="$SCRIPT_DIR/settings.sh"
+if [ "$IS_CI" = "true" ]; then
+  OUTPUT_FILE="/tmp/macos-settings.sh"
+else
+  OUTPUT_FILE="$SCRIPT_DIR/macos-settings.sh"
+fi
 
 echo "現在の macOS の設定を取得し、$OUTPUT_FILE を生成します..."
 

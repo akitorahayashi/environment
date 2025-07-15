@@ -1,0 +1,14 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  run-setup-tests:
+    uses: ./.github/workflows/setup-test.yml
+
+  verify-backup-script:
+    uses: ./.github/workflows/verify-backup-script.yml
