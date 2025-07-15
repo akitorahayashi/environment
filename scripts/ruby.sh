@@ -79,8 +79,40 @@ install_gems() {
 verify_ruby_setup() {
     echo "==== Start: Ruby環境を検証中..."
     local errors=0
-    verify_rbenv_installation || ((errors++))
-    verify_ruby_installation
+    local ruby_version="3.3.0"
+
+    # rbenvチェック
+    if ! command -v rbenv >/dev/null 2>&1; then
+        echo "[ERROR] rbenvコマンドが見つかりません"
+        ((errors++))
+    else
+        echo "[SUCCESS] rbenv: $(rbenv --version)"
+        # ruby-buildの確認
+        if rbenv install --version >/dev/null 2>&1 || command -v ruby-build >/dev/null 2>&1 || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
+            echo "[SUCCESS] ruby-buildが使用可能です"
+        else
+            echo "[ERROR] ruby-buildが見つかりません"
+            ((errors++))
+        fi
+    fi
+
+    # Rubyバージョンチェック
+    if [ "$(rbenv version-name)" != "${ruby_version}" ]; then
+        echo "[ERROR] Rubyのバージョンが${ruby_version}ではありません"
+        ((errors++))
+    else
+        echo "[SUCCESS] Ruby: $(ruby -v)"
+    fi
+
+    # bundlerチェック
+    if ! command -v bundle >/dev/null 2>&1; then
+        echo "[ERROR] bundlerコマンドが見つかりません"
+        ((errors++))
+    else
+        echo "[SUCCESS] bundler: $(bundle -v)"
+    fi
+
+    # 検証結果
     if [ $errors -eq 0 ]; then
         echo "[SUCCESS] Ruby環境の検証が完了しました"
         return 0
@@ -88,42 +120,6 @@ verify_ruby_setup() {
         echo "[ERROR] Ruby環境の検証に失敗しました ($errors エラー)"
         return 1
     fi
-}
-
-verify_rbenv_installation() {
-    if ! command -v rbenv; then
-        echo "[ERROR] rbenvコマンドが見つかりません"
-        return 1
-    fi
-    echo "[SUCCESS] rbenv: $(rbenv --version)"
-    if rbenv install --version >/dev/null 2>&1 || \
-       command -v ruby-build || \
-       [ -d "$(rbenv root)/plugins/ruby-build" ]; then
-        echo "[SUCCESS] ruby-buildが使用可能です"
-        return 0
-    else
-        echo "[ERROR] ruby-buildが見つかりません"
-        return 1
-    fi
-}
-
-verify_ruby_installation() {
-    if ! command -v ruby; then
-        echo "[INFO] Rubyはインストールされていません"
-        return 0
-    fi
-    echo "[SUCCESS] Ruby: $(ruby -v)"
-    if ! command -v gem; then
-        echo "[ERROR] gemコマンドが見つかりません"
-        return 1
-    fi
-    echo "[SUCCESS] gem: $(gem -v)"
-    if command -v bundle; then
-        echo "[SUCCESS] bundler: $(bundle -v)"
-    else
-        echo "[WARN] bundlerコマンドは利用できません（global-gems.rbがない場合は正常）"
-    fi
-    return 0
 }
 
 # スクリプトが直接実行された場合のみメイン関数を実行
