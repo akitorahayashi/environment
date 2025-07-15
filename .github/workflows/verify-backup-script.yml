@@ -1,0 +1,32 @@
+name: Verify macOS Backup Script
+
+on:
+  push:
+    paths:
+      - 'config/macos/backup_settings.sh'
+  pull_request:
+    paths:
+      - 'config/macos/backup_settings.sh'
+
+jobs:
+  verify:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: brew install shellcheck
+
+      - name: Grant execution permission
+        run: chmod +x config/macos/backup_settings.sh
+
+      - name: Run backup script
+        run: ./config/macos/backup_settings.sh
+
+      - name: Check if settings.sh is generated
+        run: test -f config/macos/settings.sh
+
+      - name: Lint generated settings.sh
+        run: shellcheck config/macos/settings.sh
