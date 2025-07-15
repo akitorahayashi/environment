@@ -14,7 +14,10 @@ main() {
     # Ruby 3.3.0がインストールされていなければインストール
     if ! rbenv versions --bare | grep -q "^${ruby_version}$"; then
         echo "[INSTALL] Ruby ${ruby_version}"
-        rbenv install "${ruby_version}"
+        if ! rbenv install "${ruby_version}"; then
+            echo "[ERROR] Ruby ${ruby_version} のインストールに失敗しました"
+            exit 1
+        fi
     else
         echo "[INFO] Ruby ${ruby_version} はすでにインストールされています"
     fi
@@ -23,6 +26,7 @@ main() {
     if [ "$(rbenv global)" != "${ruby_version}" ]; then
         echo "[CONFIG] rbenv global を ${ruby_version} に設定します"
         rbenv global "${ruby_version}"
+        rbenv rehash
     else
         echo "[INFO] rbenv global はすでに ${ruby_version} に設定されています"
     fi
@@ -68,6 +72,7 @@ install_gems() {
     if BUNDLE_GEMFILE="$gem_file" bundle install --quiet; then
         echo "[SUCCESS] Gemfileからgemのインストールが完了しました"
         echo "INSTALL_PERFORMED"
+        rbenv rehash
     elif [ "${IS_CI:-false}" = "true" ]; then
         echo "[WARN] CI環境: gemインストールに問題がありますが続行します"
     else
