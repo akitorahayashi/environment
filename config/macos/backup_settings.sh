@@ -153,6 +153,8 @@ VOLUME_FEEDBACK=$(get_default_value -g "com.apple.sound.beep.feedback" "1")
 
 # --- スクリーンショット ---
 SCREENSHOT_LOCATION=$(get_default_value "com.apple.screencapture" "location" "$HOME/Desktop")
+# SCREENSHOT_LOCATIONのパスを$HOMEで置換
+SCREENSHOT_LOCATION_ESCAPED="${SCREENSHOT_LOCATION/#$HOME/\$HOME}"
 SCREENSHOT_DISABLE_SHADOW=$(get_default_value "com.apple.screencapture" "disable-shadow" "false")
 SCREENSHOT_TYPE=$(get_default_value "com.apple.screencapture" "type" "png")
 
@@ -281,7 +283,7 @@ EOF
 
 # --- スクリーンショット ---
 SCREENSHOT_COMMANDS=$(cat << EOF
-defaults write com.apple.screencapture location -string "$SCREENSHOT_LOCATION"
+defaults write com.apple.screencapture location -string "$SCREENSHOT_LOCATION_ESCAPED"
 defaults write com.apple.screencapture disable-shadow -bool $(format_bool_value $SCREENSHOT_DISABLE_SHADOW)
 defaults write com.apple.screencapture type -string "$SCREENSHOT_TYPE"
 EOF
