@@ -12,6 +12,6 @@ jobs:
     name: Run Setup Tests
     uses: ./.github/workflows/setup-test.yml
 
-  verify-backup-script:
+  verify-macos-backup-script:
     name: Verify Backup Script
-    uses: ./.github/workflows/verify-backup-script.yml
+    uses: ./.github/workflows/verify-macos-backup-script.yml
