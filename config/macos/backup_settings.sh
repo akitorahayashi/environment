@@ -148,7 +148,7 @@ UI_SOUND=$(get_default_value "com.apple.systemsound" "com.apple.sound.uiaudio.en
 VOLUME_FEEDBACK=$(get_default_value -g "com.apple.sound.beep.feedback" "1")
 
 # --- スクリーンショット ---
-SCREENSHOT_LOCATION=$(get_default_value "com.apple.screencapture" "location" "~/Desktop")
+SCREENSHOT_LOCATION=$(get_default_value "com.apple.screencapture" "location" "$HOME/Desktop")
 SCREENSHOT_DISABLE_SHADOW=$(get_default_value "com.apple.screencapture" "disable-shadow" "false")
 SCREENSHOT_TYPE=$(get_default_value "com.apple.screencapture" "type" "png")
 
