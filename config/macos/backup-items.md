@@ -2,16 +2,12 @@
 
 このドキュメントは、`config/macos/backup_settings.sh` スクリプトでバックアップ可能な macOS の設定項目と、それに対応するコマンドの一覧です。
 
-### 一般・UI/UX
+### システム
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
-| `defaults write NSGlobalDomain _HIHideMenuBar -bool true` | メニューバーの自動非表示 | `true`でメニューバーを自動的に隠します。 |
-| `defaults write com.apple.universalaccess reduceTransparency -bool true` | メニューバーの透明度 | `true`でメニューバーの透明度を下げ、視認性を向上させます。 |
 | `defaults write NSGlobalDomain AppleHighlightColor -string "R G B"` | アクセントカラー | `R G B` に `0.0`〜`1.0`の値をスペース区切りで指定し、クリックや選択範囲のハイライト色を変更します。 |
-| `defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2` | サイドバーのアイコンサイズ | サイドバーに表示されるアイコンのサイズを指定します。（1: 小, 2: 中, 3: 大） |
 | `defaults write NSGlobalDomain AppleShowScrollBars -string "Always"` | スクロールバーの表示 | スクロールバーを常に表示するかどうかを指定します。（`WhenScrolling`, `Automatic`, `Always`） |
-| `defaults write NSGlobalDomain NSWindowResizeTime -float 0.001` | ウィンドウリサイズのアニメーション速度 | アプリケーションのウィンドウサイズを変更する際のアニメーション速度を調整します。（`0.001` など小さい値で高速化） |
 | `defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true` | 保存パネルのデフォルト展開 | `true`で保存ダイアログを常に詳細表示で開きます。 |
 | `defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true` | 印刷パネルのデフォルト展開 | `true`で印刷ダイアログを常に詳細表示で開きます。 |
 | `defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false` | 書類をiCloudに保存 | `false`で新規作成した書類をデフォルトでローカルディスクに保存します。 |
@@ -19,6 +15,15 @@
 | `defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false` | システムの復元機能（Resume） | `false`でアプリケーションを再起動した際に前回のウィンドウを復元する機能を無効化します。 |
 | `defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true` | 非アクティブなアプリの自動終了 | `true`で、システムのメモリが圧迫された際に、OSが非アクティブと判断したアプリケーションを自動終了させる機能を無効化します。 |
 | `defaults write com.apple.CrashReporter DialogType -string "none"` | クラッシュレポーター | `none`に設定すると、アプリケーションのクラッシュ時に表示されるレポート送信ダイアログを無効化します。 |
+
+### UI/UX
+
+| コマンド | 項目 | 説明 |
+| :--- | :--- | :--- |
+| `defaults write NSGlobalDomain _HIHideMenuBar -bool true` | メニューバーの自動非表示 | `true`でメニューバーを自動的に隠します。 |
+| `defaults write com.apple.universalaccess reduceTransparency -bool true` | メニューバーの透明度 | `true`でメニューバーの透明度を下げ、視認性を向上させます。 |
+| `defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2` | サイドバーのアイコンサイズ | サイドバーに表示されるアイコンのサイズを指定します。（1: 小, 2: 中, 3: 大） |
+| `defaults write NSGlobalDomain NSWindowResizeTime -float 0.001` | ウィンドウリサイズのアニメーション速度 | アプリケーションのウィンドウサイズを変更する際のアニメーション速度を調整します。（`0.001` など小さい値で高速化） |
 | `defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false` | 自動大文字入力 | `false`で文頭の自動的な大文字化を無効にします。 |
 | `defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false` | スマートダッシュ | `false`でハイフン2つ（--）がエムダッシュ（—）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false` | スマートクオート | `false`でストレートクオート（"）がタイポグラフィカルクオート（“”）に自動変換されるのを防ぎます。 |
@@ -40,7 +45,7 @@
 | `defaults write com.apple.dock launchanim -bool false` | アプリケーション起動時のアニメーション | `false`でDockからアプリケーションを起動する際のジャンプアニメーションを無効化します。 |
 | `defaults write com.apple.dock showhidden -bool true` | 非表示アプリのアイコンを半透明化 | `true`で非表示（Hidden）に設定されているアプリケーションのアイコンを半透明で表示します。 |
 
-### Finderとデスクトップ
+### Finder
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
@@ -56,12 +61,17 @@
 | `defaults write com.apple.finder WarnOnEmptyTrash -bool false` | ゴミ箱を空にする前の警告 | `false`でゴミ箱を空にする際の確認ダイアログを無効にします。 |
 | `defaults write com.apple.finder FXRemoveOldTrashItems -bool true` | 30日後にゴミ箱を空にする | `true`で30日以上ゴミ箱にある項目を自動的に削除します。 |
 | `defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true` | `.DS_Store`ファイルの生成抑制 | ネットワークドライブやUSBメモリで `.DS_Store` ファイルが自動生成されるのを防ぎます。 |
-| `defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true` | デスクトップアイコンの表示 | デスクトップに表示するアイコンの種類を制御します。（ハードドライブ、外部ディスク、リムーバブルメディア、サーバー） |
 | `defaults write com.apple.finder QuitMenuItem -bool true` | Finderの終了メニュー | `true`でFinderのメニューに「Finderを終了」の項目を追加します。 |
 | `defaults write com.apple.finder DisableAllAnimations -bool true` | Finderのアニメーション効果 | `true`でFinderのウィンドウアニメーションや情報表示のアニメーションを無効化します。 |
 | `defaults write NSGlobalDomain com.apple.springing.enabled -bool true` | スプリングローディング | ディレクトリ上でのドラッグ＆ドロップ操作におけるスプリングローディング（フォルダが自動で開く機能）を有効化・高速化します。 |
 
-### ミッションコントロールとホットコーナー
+### デスクトップ
+
+| コマンド | 項目 | 説明 |
+| :--- | :--- | :--- |
+| `defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true` | デスクトップアイコンの表示 | デスクトップに表示するアイコンの種類を制御します。（ハードドライブ、外部ディスク、リムーバブルメディア、サーバー） |
+
+### ミッションコントロール
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
@@ -71,9 +81,14 @@
 | `defaults write com.apple.dock workspaces-auto-swoosh -bool true` | アプリ切り替え時にスペースを移動 | `true`でアプリケーションのウィンドウが含まれる操作スペースに自動で切り替えます。 |
 | `defaults write com.apple.spaces spans-displays -bool true` | ディスプレイごとに個別の操作スペース | `true`で各ディスプレイに個別のメニューバーと操作スペースを持たせます。 |
 | `defaults write com.apple.dashboard mcx-disabled -bool true` | Dashboardの無効化 | `true`でDashboard機能を無効にします。 |
+
+### ホットコーナー
+
+| コマンド | 項目 | 説明 |
+| :--- | :--- | :--- |
 | `defaults write com.apple.dock wvous-tl-corner -int 2` | ホットコーナーの設定 | 画面の四隅（tl:左上, tr:右上, bl:左下, br:右下）にカーソルを移動したときのアクションを割り当てます。 |
 
-### キーボードとマウス・トラックパッド
+### キーボード
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
@@ -83,9 +98,19 @@
 | `defaults write NSGlobalDomain AppleKeyboardUIMode -int 3` | フルキーボードアクセス | モーダルダイアログ内のすべてのコントロール（ボタンなど）をTabキーで移動できるようにします。 |
 | `defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false` | 「自然な」スクロール | `false`でコンテンツと指の動きが連動しない、従来のスクロール方向にします。 |
 | `defaults write com.apple.keyboard.fnState -bool true` | ファンクションキーの動作 | `true`でF1, F2などのキーを標準のファンクションキーとして使用します。 |
+
+### マウス
+
+| コマンド | 項目 | 説明 |
+| :--- | :--- | :--- |
 | `defaults write -g com.apple.mouse.scaling -float 3.0` | マウスの移動速度 | マウスカーソルの移動速度を調整します。 |
 | `defaults write .GlobalPreferences com.apple.mouse.scaling -1` | マウス加速の無効化 | `-1` を設定することでマウスの加速を無効にし、リニアな動きにします。 |
 | `defaults write com.apple.Terminal FocusFollowsMouse -bool true` | マウスカーソル追従フォーカス | `true`でマウスカーソルをウィンドウ上に移動するだけでそのウィンドウをアクティブにします。（クリック不要） |
+
+### トラックパッド
+
+| コマンド | 項目 | 説明 |
+| :--- | :--- | :--- |
 | `defaults write -g com.apple.trackpad.scaling -float 1.5` | トラックパッドの移動速度 | トラックパッドでのカーソル移動速度を調整します。 |
 | `defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true` | タップでクリック | `true`でトラックパッドをタップしてクリックできるようにします。 |
 | `defaults write com.apple.AppleMultitouchTrackpad Dragging -bool true` | タップでドラッグ | `true`でダブルタップから指を離さずにドラッグ操作ができるようにします。 |
@@ -95,7 +120,7 @@
 | `defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 2` | 3本指タップ | 3本指タップの動作を割り当てます。（0: 無効, 2: 辞書で調べる） |
 | `defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true` | 2本指で右クリック | `true`で2本指でのクリックまたはタップを右クリックとして扱います。 |
 
-### サウンドと通知
+### サウンド
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
@@ -104,6 +129,11 @@
 | `defaults write -g "com.apple.sound.beep.feedback" -int 0` | 音量変更時のフィードバック音 | `0`で音量を変更したときに再生される効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.sound" -string "/path/to/sound.aiff"` | アラート音の種類 | システムのアラート音として使用するサウンドファイルを指定します。 |
 | `defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40` | Bluetoothヘッドフォンの音質向上 | Bluetoothオーディオのビットプール値を調整し、音質を向上させます。 |
+
+### 通知
+
+| コマンド | 項目 | 説明 |
+| :--- | :--- | :--- |
 | `launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist` | 通知センターの無効化 | `launchctl`を使い、通知センターのプロセスを無効化します。 |
 
 ### スクリーンショット
@@ -124,7 +154,7 @@
 | `sudo pmset -a autorestart 1` | 電源喪失時の自動再起動 | `1`で停電などから復旧した際に自動的にMacを再起動します。 |
 | `sudo systemsetup -setrestartfreeze on` | フリーズ時の自動再起動 | `on`でシステムがフリーズした際に自動的に再起動します。 |
 
-### アプリケーション別設定
+### アプリケーション
 
 #### Safari
 | コマンド | 項目 | 説明 |
