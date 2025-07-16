@@ -20,6 +20,8 @@ main() {
     else
         echo "[SUCCESS] Mac のシステム設定が適用されました"
     fi
+
+    verify_mac_setup
 }
 
 verify_mac_setup() {

@@ -49,6 +49,8 @@ main() {
     echo "[SUCCESS] Cursor設定ファイル ${linked_count}個のシンボリックリンクを作成しました"
 
     echo "[SUCCESS] Cursor環境のセットアップが完了しました"
+
+    verify_cursor_setup
 }
 
 verify_cursor_setup() {

@@ -45,6 +45,8 @@ main() {
     done
     
     echo "[SUCCESS] VS Code環境のセットアップが完了しました"
+
+    verify_vscode_setup
 }
 
 verify_vscode_setup() {

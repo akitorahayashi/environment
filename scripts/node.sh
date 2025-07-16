@@ -25,6 +25,8 @@ main() {
     install_global_packages
 
     echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
+
+    verify_node_setup
 }
 
 install_global_packages() {

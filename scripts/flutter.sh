@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -9,7 +11,7 @@ main() {
     echo "[Start] Flutter SDK のセットアップを開始します (fvm)..."
 
     # fvm コマンドの存在確認
-    if ! command -v fvm; then
+    if ! command -v fvm >/dev/null 2>&1; then
         echo "[ERROR] fvm コマンドが見つかりません。Brewfileを確認してください。"
         exit 1
     fi
@@ -39,7 +41,6 @@ main() {
 
     # 現在のグローバル設定が stable か確認
     local fvm_default_link="$HOME/fvm/default"
-    local fvm_stable_path="$HOME/fvm/versions/stable"
     local is_global_already_stable=false
     if [ -L "$fvm_default_link" ] && [ "$(readlink "$fvm_default_link")" == "$fvm_stable_path" ]; then
         is_global_already_stable=true
@@ -96,6 +97,8 @@ main() {
     fi
 
     echo "[SUCCESS] Flutter環境のセットアップが完了しました"
+
+    verify_flutter_setup
 }
 
 verify_flutter_setup() {

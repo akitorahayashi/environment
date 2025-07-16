@@ -23,6 +23,8 @@ main() {
     fi
 
     echo "[SUCCESS] シェル環境のセットアップが完了しました"
+
+    verify_shell_setup
 }
 
 verify_shell_setup() {
