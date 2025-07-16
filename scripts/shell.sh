@@ -9,11 +9,16 @@ main() {
 
     # シンボリックリンクの作成
     echo "[INFO] シェル設定ファイルのシンボリックリンクを作成します..."
-    if ln -sf "$REPO_ROOT/config/shell/.zprofile" "$HOME/.zprofile" && \
-       ln -sf "$REPO_ROOT/config/shell/.zshrc" "$HOME/.zshrc"; then
-        echo "[SUCCESS] シェル設定ファイルのシンボリックリンクを作成しました。"
+    if ln -sf "$REPO_ROOT/config/shell/.zprofile" "$HOME/.zprofile"; then
+        echo "[SUCCESS] .zprofile のシンボリックリンクを作成しました。"
     else
-        echo "[ERROR] シェル設定ファイルのシンボリックリンク作成に失敗しました。"
+        echo "[ERROR] .zprofile のシンボリックリンク作成に失敗しました。"
+        exit 1
+    fi
+    if ln -sf "$REPO_ROOT/config/shell/.zshrc" "$HOME/.zshrc"; then
+        echo "[SUCCESS] .zshrc のシンボリックリンクを作成しました。"
+    else
+        echo "[ERROR] .zshrc のシンボリックリンク作成に失敗しました。"
         exit 1
     fi
 
