@@ -7,7 +7,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler
+  bundler (= 2.6.9)
 
 BUNDLED WITH
-   2.5.3
+   2.6.9
