@@ -18,6 +18,8 @@ main() {
     install_packages_from_brewfile "$brewfile_path"
     
     echo "[SUCCESS] Homebrewのセットアップが完了しました"
+
+    verify_homebrew_setup
 }
 
 install_homebrew() {

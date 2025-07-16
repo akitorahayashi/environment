@@ -1,27 +1,17 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
 
-# エラーハンドリング関数
-handle_error() {
-    echo "[ERROR] $1"
-    exit 1
-}
-
 main() {
-    setup_flutter
-    
-    echo "[SUCCESS] Flutter環境のセットアップが完了しました"
-}
-
-setup_flutter() {
     echo "[Start] Flutter SDK のセットアップを開始します (fvm)..."
 
     # fvm コマンドの存在確認
-    if ! command -v fvm; then
+    if ! command -v fvm >/dev/null 2>&1; then
         echo "[ERROR] fvm コマンドが見つかりません。Brewfileを確認してください。"
         exit 1
     fi
@@ -51,7 +41,6 @@ setup_flutter() {
 
     # 現在のグローバル設定が stable か確認
     local fvm_default_link="$HOME/fvm/default"
-    local fvm_stable_path="$HOME/fvm/versions/stable"
     local is_global_already_stable=false
     if [ -L "$fvm_default_link" ] && [ "$(readlink "$fvm_default_link")" == "$fvm_stable_path" ]; then
         is_global_already_stable=true
@@ -65,8 +54,8 @@ setup_flutter() {
         if fvm global stable; then
             echo "[SUCCESS] fvm global stable の設定が完了しました。"
         else
-            handle_error "fvm global stable の設定に失敗しました。"
-            return 1
+            echo "[ERROR] fvm global stable の設定に失敗しました。"
+            exit 1
         fi
     fi
 
@@ -75,9 +64,9 @@ setup_flutter() {
     echo "[INFO] 現在のシェルセッションのPATHにfvmのパスを追加しました。"
 
     # flutter コマンド存在確認 (fvm管理下のパスで)
-    if ! command -v flutter; then
-        handle_error "Flutter コマンド (fvm管理下) が見つかりません"
-        return 1
+    if ! command -v flutter >/dev/null 2>&1; then
+        echo "[ERROR] Flutter コマンド (fvm管理下) が見つかりません"
+        exit 1
     fi
 
     # Flutterのパスを確認 (fvm管理下のパス)
@@ -90,8 +79,7 @@ setup_flutter() {
         echo "[ERROR] Flutter (fvm) が期待するパスにありません"
         echo "[INFO] 現在のパス: $FLUTTER_PATH"
         echo "[INFO] 期待するパス: $expected_fvm_path"
-        handle_error "Flutter (fvm) のパスが正しくありません"
-        return 1
+        exit 1
     else
         echo "[SUCCESS] Flutter (fvm) のパスが正しく設定されています"
     fi
@@ -103,11 +91,14 @@ setup_flutter() {
         echo "[INFO] Flutter のバージョン確認を実行しました"
     else
         # 失敗した場合はエラーとして処理し、終了する
-        handle_error "flutter --version の実行に失敗しました。Flutter環境を確認してください。"
-        return 1
+        echo "[ERROR] flutter --version の実行に失敗しました。"
+        echo "[INFO] 詳細な診断には 'flutter doctor' を実行してみてください。"
+        exit 1
     fi
 
-    echo "[SUCCESS] Flutter SDK のセットアップ処理が完了しました"
+    echo "[SUCCESS] Flutter環境のセットアップが完了しました"
+
+    verify_flutter_setup
 }
 
 verify_flutter_setup() {

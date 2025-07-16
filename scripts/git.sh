@@ -10,6 +10,8 @@ main() {
     setup_ssh_agent
     
     echo "[SUCCESS] Git環境のセットアップが完了しました"
+
+    verify_git_setup
 }
 
 setup_git_config() {

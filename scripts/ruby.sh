@@ -44,6 +44,8 @@ main() {
     bundler_version=$(bundle -v 2>/dev/null || echo 'bundler未インストール')
     echo "[INFO] Ruby環境: $(ruby -v) / $(gem -v) / ${bundler_version}"
     echo "[SUCCESS] Ruby環境のセットアップが完了しました"
+
+    verify_ruby_setup
 }
 
 # rbenvのインストール

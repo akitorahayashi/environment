@@ -5,12 +5,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    setup_vscode
-    
-    echo "[SUCCESS] VS Code環境のセットアップが完了しました"
-}
-
-setup_vscode() {
     echo "[Start] VS Code のセットアップを開始します..."
     local config_dir="$REPO_ROOT/config/vscode"
     local vscode_target_dir="$HOME/Library/Application Support/Code/User"
@@ -27,13 +21,12 @@ setup_vscode() {
         echo "[WARN] Visual Studio Code がインストールされていません。スキップします。"
         return 0 # インストールされていなければエラーではない
     fi
-    echo "[OK] Visual Studio Code はすでにインストールされています"
+    echo "[SUCCESS] Visual Studio Code はすでにインストールされています"
 
     # ターゲットディレクトリの作成
     mkdir -p "$vscode_target_dir"
 
     # 設定ファイルのシンボリックリンクを作成
-    local linked_count=0
     shopt -s nullglob
     for file in "$config_dir"/*; do
         if [ -f "$file" ]; then
@@ -43,7 +36,7 @@ setup_vscode() {
             
             # シンボリックリンクの作成
             if ln -sf "$file" "$target_file"; then
-                ((linked_count++))
+                echo "[SUCCESS] VS Code設定ファイル $filename のシンボリックリンクを作成しました。"
             else
                 echo "[ERROR] VS Code設定ファイル $filename のシンボリックリンク作成に失敗しました。"
                 exit 1
@@ -51,8 +44,9 @@ setup_vscode() {
         fi
     done
     
-    echo "[OK] VS Code設定ファイル ${linked_count}個のシンボリックリンクを作成しました"
-    return 0
+    echo "[SUCCESS] VS Code環境のセットアップが完了しました"
+
+    verify_vscode_setup
 }
 
 verify_vscode_setup() {

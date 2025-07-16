@@ -5,12 +5,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    setup_node
-    
-    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
-}
-
-setup_node() {
     echo "[Start] Node.js のセットアップを開始します..."
 
     # Node.js のインストール確認
@@ -30,8 +24,9 @@ setup_node() {
     # グローバルパッケージのインストール
     install_global_packages
 
-    echo "[SUCCESS] Node.js のセットアップが完了しました"
-    return 0
+    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
+
+    verify_node_setup
 }
 
 install_global_packages() {

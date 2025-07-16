@@ -5,18 +5,12 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    setup_mac_settings
-    
-    echo "[SUCCESS] macOS環境のセットアップが完了しました"
-}
-
-setup_mac_settings() {
     echo "[Start] Mac のシステム設定を適用中..."
     
     # 設定ファイルの存在確認
-    local settings_file="$REPO_ROOT/config/macos/settings.sh"
+    local settings_file="$REPO_ROOT/config/macos/macos-settings.sh"
     if [[ ! -f "$settings_file" ]]; then
-        echo "[WARN] config/macos/settings.sh が見つかりません"
+        echo "[WARN] config/macos/macos-settings.sh が見つかりません"
         exit 1
     fi
     
@@ -26,15 +20,15 @@ setup_mac_settings() {
     else
         echo "[SUCCESS] Mac のシステム設定が適用されました"
     fi
-    
-    return 0
+
+    verify_mac_setup
 }
 
 verify_mac_setup() {
     echo "==== Start: macOS設定を検証中... ===="
     
     # 設定ファイルの存在確認
-    local settings_file="$REPO_ROOT/config/macos/settings.sh"
+    local settings_file="$REPO_ROOT/config/macos/macos-settings.sh"
     if [[ -f "$settings_file" ]]; then
         echo "[SUCCESS] macOS設定ファイルが存在します: $settings_file"
         echo "[SUCCESS] macOS設定の検証が完了しました"
