@@ -79,6 +79,7 @@ add_setting() {
 # ================================================
 
 # --- システム ---
+CRASH_REPORTER_DIALOG=$(get_default_value "com.apple.CrashReporter" "DialogType" "none")
 ACCENT_COLOR=$(get_default_value "NSGlobalDomain" "AppleHighlightColor" "0.764700 0.976500 0.568600")
 SCROLL_BARS=$(get_default_value "NSGlobalDomain" "AppleShowScrollBars" "Automatic")
 SAVE_PANEL_EXPANDED=$(get_default_value "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode" "false")
@@ -86,6 +87,7 @@ PRINT_PANEL_EXPANDED=$(get_default_value "NSGlobalDomain" "PMPrintingExpandedSta
 SAVE_TO_ICLOUD=$(get_default_value "NSGlobalDomain" "NSDocumentSaveNewDocumentsToCloud" "true")
 QUIT_ALWAYS_KEEPS_WINDOWS=$(get_default_value "com.apple.systempreferences" "NSQuitAlwaysKeepsWindows" "false")
 DISABLE_AUTO_TERMINATION=$(get_default_value "NSGlobalDomain" "NSDisableAutomaticTermination" "false")
+LSQUARANTINE=$(get_default_value "com.apple.LaunchServices" "LSQuarantine" "true")
 
 # --- UI/UX ---
 HIDE_MENU_BAR=$(get_default_value "NSGlobalDomain" "_HIHideMenuBar" "false")
@@ -171,6 +173,8 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool $(format_boo
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool $(format_bool_value $SAVE_TO_ICLOUD)
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool $(format_bool_value $QUIT_ALWAYS_KEEPS_WINDOWS)
 defaults write NSGlobalDomain NSDisableAutomaticTermination -bool $(format_bool_value $DISABLE_AUTO_TERMINATION)
+defaults write com.apple.LaunchServices LSQuarantine -bool $(format_bool_value $LSQUARANTINE)
+defaults write com.apple.CrashReporter DialogType -string "$CRASH_REPORTER_DIALOG"
 EOF
 )
 

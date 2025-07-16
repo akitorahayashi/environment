@@ -8,8 +8,8 @@
 | :--- | :--- | :--- |
 | `defaults write NSGlobalDomain AppleHighlightColor -string "R G B"` | アクセントカラー | `R G B` に `0.0`〜`1.0`の値をスペース区切りで指定し、クリックや選択範囲のハイライト色を変更します。 |
 | `defaults write NSGlobalDomain AppleShowScrollBars -string "Always"` | スクロールバーの表示 | スクロールバーを常に表示するかどうかを指定します。（`WhenScrolling`, `Automatic`, `Always`） |
-| `defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true` | 保存パネルのデフォルト展開 | `true`で保存ダイアログを常に詳細表示で開きます。 |
-| `defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true` | 印刷パネルのデフォルト展開 | `true`で印刷ダイアログを常に詳細表示で開きます。 |
+| `defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true` | 保存パネルのデフォルト展開 | ファイル保存時に出てくるダイアログ（保存パネル）を、最初から詳細表示（フォルダ選択やタグなどが見える状態）で開くようにします。通常はシンプル表示ですが、この設定で毎回詳細オプションが展開されます。 |
+| `defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true` | 印刷パネルのデフォルト展開 | ファイル印刷時に表示されるダイアログ（印刷パネル）を、最初から詳細表示（プリンタ選択や用紙設定などが見える状態）で開くようにします。通常はシンプル表示ですが、この設定で毎回詳細オプションが展開されます。 |
 | `defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false` | 書類をiCloudに保存 | `false`で新規作成した書類をデフォルトでローカルディスクに保存します。 |
 | `defaults write com.apple.LaunchServices LSQuarantine -bool false` | アプリケーション起動時の確認ダイアログ | `false`で初回起動時に表示される「〜を開いてもよろしいですか？」の確認を無効化します。 |
 | `defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false` | システムの復元機能（Resume） | `false`でアプリケーションを再起動した際に前回のウィンドウを復元する機能を無効化します。 |

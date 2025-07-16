@@ -1,13 +1,15 @@
 #!/bin/bash
 
 # システム
-defaults write NSGlobalDomain AppleHighlightColor -string "0.764700 0.976500 0.568600"
+defaults write NSGlobalDomain AppleHighlightColor -string "0.709800 0.835300 1.000000"
 defaults write NSGlobalDomain AppleShowScrollBars -string "Automatic"
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool false
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool false
-defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 defaults write NSGlobalDomain NSDisableAutomaticTermination -bool false
+defaults write com.apple.LaunchServices LSQuarantine -bool false
+defaults write com.apple.CrashReporter DialogType -string "none"
 
 # UI/UX
 defaults write NSGlobalDomain _HIHideMenuBar -bool false
