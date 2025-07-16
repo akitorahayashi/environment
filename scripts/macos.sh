@@ -20,8 +20,6 @@ main() {
     else
         echo "[SUCCESS] Mac のシステム設定が適用されました"
     fi
-    
-    echo "[SUCCESS] macOS環境のセットアップが完了しました"
 }
 
 verify_mac_setup() {

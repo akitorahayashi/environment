@@ -63,7 +63,7 @@ main() {
     echo "[INFO] 現在のシェルセッションのPATHにfvmのパスを追加しました。"
 
     # flutter コマンド存在確認 (fvm管理下のパスで)
-    if ! command -v flutter; then
+    if ! command -v flutter >/dev/null 2>&1; then
         echo "[ERROR] Flutter コマンド (fvm管理下) が見つかりません"
         exit 1
     fi
@@ -78,7 +78,6 @@ main() {
         echo "[ERROR] Flutter (fvm) が期待するパスにありません"
         echo "[INFO] 現在のパス: $FLUTTER_PATH"
         echo "[INFO] 期待するパス: $expected_fvm_path"
-        echo "[ERROR] Flutter (fvm) のパスが正しくありません"
         exit 1
     else
         echo "[SUCCESS] Flutter (fvm) のパスが正しく設定されています"
@@ -91,11 +90,10 @@ main() {
         echo "[INFO] Flutter のバージョン確認を実行しました"
     else
         # 失敗した場合はエラーとして処理し、終了する
-        echo "[ERROR] flutter --version の実行に失敗しました。Flutter環境を確認してください。"
+        echo "[ERROR] flutter --version の実行に失敗しました。"
+        echo "[INFO] 詳細な診断には 'flutter doctor' を実行してみてください。"
         exit 1
     fi
-
-    echo "[SUCCESS] Flutter SDK のセットアップ処理が完了しました"
 
     echo "[SUCCESS] Flutter環境のセットアップが完了しました"
 }

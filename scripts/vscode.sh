@@ -21,7 +21,7 @@ main() {
         echo "[WARN] Visual Studio Code がインストールされていません。スキップします。"
         return 0 # インストールされていなければエラーではない
     fi
-    echo "[OK] Visual Studio Code はすでにインストールされています"
+    echo "[SUCCESS] Visual Studio Code はすでにインストールされています"
 
     # ターゲットディレクトリの作成
     mkdir -p "$vscode_target_dir"
