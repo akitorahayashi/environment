@@ -5,12 +5,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    setup_shell_config
-    
-    echo "[SUCCESS] シェル環境のセットアップが完了しました"
-}
-
-setup_shell_config() {
     echo "[Start] シェル設定ファイルのセットアップを開始します..."
 
     # シンボリックリンクの作成
@@ -24,7 +18,8 @@ setup_shell_config() {
     fi
 
     echo "[SUCCESS] シェル設定ファイルのセットアップが完了しました。"
-    return 0
+
+    echo "[SUCCESS] シェル環境のセットアップが完了しました"
 }
 
 verify_shell_setup() {

@@ -5,12 +5,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    setup_vscode
-    
-    echo "[SUCCESS] VS Code環境のセットアップが完了しました"
-}
-
-setup_vscode() {
     echo "[Start] VS Code のセットアップを開始します..."
     local config_dir="$REPO_ROOT/config/vscode"
     local vscode_target_dir="$HOME/Library/Application Support/Code/User"
@@ -52,7 +46,8 @@ setup_vscode() {
     done
     
     echo "[OK] VS Code設定ファイル ${linked_count}個のシンボリックリンクを作成しました"
-    return 0
+
+    echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 }
 
 verify_vscode_setup() {

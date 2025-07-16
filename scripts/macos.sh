@@ -5,12 +5,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    setup_mac_settings
-    
-    echo "[SUCCESS] macOS環境のセットアップが完了しました"
-}
-
-setup_mac_settings() {
     echo "[Start] Mac のシステム設定を適用中..."
     
     # 設定ファイルの存在確認
@@ -27,7 +21,7 @@ setup_mac_settings() {
         echo "[SUCCESS] Mac のシステム設定が適用されました"
     fi
     
-    return 0
+    echo "[SUCCESS] macOS環境のセットアップが完了しました"
 }
 
 verify_mac_setup() {

@@ -5,12 +5,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 main() {
-    setup_cursor
-    
-    echo "[SUCCESS] Cursor環境のセットアップが完了しました"
-}
-
-setup_cursor() {
     echo "[Start] Cursor のセットアップを開始します..."
     local config_dir="$REPO_ROOT/config/vscode"
     local cursor_target_dir="$HOME/Library/Application Support/Cursor/User"
@@ -53,7 +47,8 @@ setup_cursor() {
     shopt -u nullglob
     
     echo "[SUCCESS] Cursor設定ファイル ${linked_count}個のシンボリックリンクを作成しました"
-    return 0
+
+    echo "[SUCCESS] Cursor環境のセットアップが完了しました"
 }
 
 verify_cursor_setup() {
