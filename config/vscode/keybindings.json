@@ -3,5 +3,15 @@
         "key": "cmd+r",
         "command": "renameFile",
         "when": "explorerViewletVisible && filesExplorerFocus"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "copyRelativeFilePath",
+        "when": "explorerViewletVisible && filesExplorerFocus"
+    },
+    {
+        "key": "ctrl+a",
+        "command": "copyFilePath",
+        "when": "explorerViewletVisible && filesExplorerFocus"
     }
 ]
