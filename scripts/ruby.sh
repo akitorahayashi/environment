@@ -4,31 +4,33 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+# 使用するRubyのバージョンを定数として定義
+readonly RUBY_VERSION="3.3.0"
+
 main() {
-    local ruby_version="3.3.0"
 
     echo "==== Start: Ruby環境のセットアップを開始します..."
     install_rbenv || exit 1
     eval "$(rbenv init -)"
 
     # Ruby 3.3.0がインストールされていなければインストール
-    if ! rbenv versions --bare | grep -q "^${ruby_version}$"; then
-        echo "[INSTALL] Ruby ${ruby_version}"
-        if ! rbenv install "${ruby_version}"; then
-            echo "[ERROR] Ruby ${ruby_version} のインストールに失敗しました"
+    if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
+        echo "[INSTALL] Ruby ${RUBY_VERSION}"
+        if ! rbenv install "${RUBY_VERSION}"; then
+            echo "[ERROR] Ruby ${RUBY_VERSION} のインストールに失敗しました"
             exit 1
         fi
     else
-        echo "[INFO] Ruby ${ruby_version} はすでにインストールされています"
+        echo "[INFO] Ruby ${RUBY_VERSION} はすでにインストールされています"
     fi
 
     # グローバルバージョンを3.3.0に設定
-    if [ "$(rbenv global)" != "${ruby_version}" ]; then
-        echo "[CONFIG] rbenv global を ${ruby_version} に設定します"
-        rbenv global "${ruby_version}"
+    if [ "$(rbenv global)" != "${RUBY_VERSION}" ]; then
+        echo "[CONFIG] rbenv global を ${RUBY_VERSION} に設定します"
+        rbenv global "${RUBY_VERSION}"
         rbenv rehash
     else
-        echo "[INFO] rbenv global はすでに ${ruby_version} に設定されています"
+        echo "[INFO] rbenv global はすでに ${RUBY_VERSION} に設定されています"
     fi
 
     install_gems
@@ -45,7 +47,6 @@ install_rbenv() {
     echo "INSTALL_PERFORMED"
     if brew install rbenv ruby-build; then
         echo "[SUCCESS] rbenvのインストールが完了しました"
-        eval "$(rbenv init -)"
         return 0
     else
         echo "[ERROR] rbenvのインストールに失敗しました"
@@ -54,6 +55,10 @@ install_rbenv() {
 }
 
 install_gems() {
+    if ! command -v bundle >/dev/null 2>&1; then
+        echo "[ERROR] bundler が見つかりません。gem install bundler を実行してください"
+        return 1
+    fi
     local gem_file="${REPO_ROOT:-$ROOT_DIR}/config/gems/global-gems.rb"
     if [ ! -f "$gem_file" ]; then
         echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
@@ -84,13 +89,13 @@ install_gems() {
 verify_ruby_setup() {
     echo "==== Start: Ruby環境を検証中..."
     local errors=0
-    local ruby_version="3.3.0"
 
     # rbenvチェック
     if ! command -v rbenv >/dev/null 2>&1; then
         echo "[ERROR] rbenvコマンドが見つかりません"
         ((errors++))
     else
+        eval "$(rbenv init -)"
         echo "[SUCCESS] rbenv: $(rbenv --version)"
         # ruby-buildの確認
         if rbenv install --version >/dev/null 2>&1 || command -v ruby-build >/dev/null 2>&1 || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
@@ -102,8 +107,8 @@ verify_ruby_setup() {
     fi
 
     # Rubyバージョンチェック
-    if [ "$(rbenv version-name)" != "${ruby_version}" ]; then
-        echo "[ERROR] Rubyのバージョンが${ruby_version}ではありません"
+    if [ "$(rbenv version-name)" != "${RUBY_VERSION}" ]; then
+        echo "[ERROR] Rubyのバージョンが${RUBY_VERSION}ではありません"
         ((errors++))
     else
         echo "[SUCCESS] Ruby: $(ruby -v)"
