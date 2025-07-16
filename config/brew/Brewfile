@@ -5,7 +5,6 @@ brew "gh"
 ## Development Tools
 brew "node"
 brew "go"
-
 tap "leoafarias/fvm"
 brew "leoafarias/fvm/fvm"
 
@@ -21,8 +20,8 @@ brew "ruby-build"
 
 ## Utility
 brew "yamllint"
-brew "marp-cli"
 brew "displayplacer"
+brew "pdfunite"
 
 ## Cask
 cask "visual-studio-code"
