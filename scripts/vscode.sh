@@ -27,7 +27,6 @@ main() {
     mkdir -p "$vscode_target_dir"
 
     # 設定ファイルのシンボリックリンクを作成
-    local linked_count=0
     shopt -s nullglob
     for file in "$config_dir"/*; do
         if [ -f "$file" ]; then
@@ -37,7 +36,7 @@ main() {
             
             # シンボリックリンクの作成
             if ln -sf "$file" "$target_file"; then
-                ((linked_count++))
+                echo "[SUCCESS] VS Code設定ファイル $filename のシンボリックリンクを作成しました。"
             else
                 echo "[ERROR] VS Code設定ファイル $filename のシンボリックリンク作成に失敗しました。"
                 exit 1
@@ -45,8 +44,6 @@ main() {
         fi
     done
     
-    echo "[OK] VS Code設定ファイル ${linked_count}個のシンボリックリンクを作成しました"
-
     echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 }
 

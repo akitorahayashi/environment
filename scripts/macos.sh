@@ -8,9 +8,9 @@ main() {
     echo "[Start] Mac のシステム設定を適用中..."
     
     # 設定ファイルの存在確認
-    local settings_file="$REPO_ROOT/config/macos/settings.sh"
+    local settings_file="$REPO_ROOT/config/macos/macos-settings.sh"
     if [[ ! -f "$settings_file" ]]; then
-        echo "[WARN] config/macos/settings.sh が見つかりません"
+        echo "[WARN] config/macos/macos-settings.sh が見つかりません"
         exit 1
     fi
     
@@ -28,7 +28,7 @@ verify_mac_setup() {
     echo "==== Start: macOS設定を検証中... ===="
     
     # 設定ファイルの存在確認
-    local settings_file="$REPO_ROOT/config/macos/settings.sh"
+    local settings_file="$REPO_ROOT/config/macos/macos-settings.sh"
     if [[ -f "$settings_file" ]]; then
         echo "[SUCCESS] macOS設定ファイルが存在します: $settings_file"
         echo "[SUCCESS] macOS設定の検証が完了しました"
