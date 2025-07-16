@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -12,7 +14,7 @@ main() {
     install_rbenv || exit 1
 
     # rbenvを初期化して、以降のコマンドでrbenvのRubyが使われるようにする
-    eval "$(rbenv init - bash)"
+    eval "$(rbenv init -)"
 
     # Ruby 3.3.0がインストールされていなければインストール
     if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
@@ -80,9 +82,10 @@ install_gems() {
             echo "[INSTALL] bundler"
             gem install bundler && rbenv rehash
         fi
-        export BUNDLE_GEMFILE="$gem_file"
-        cd "$(dirname "$gem_file")" || return 1
-        bundle install --quiet
+        (
+            cd "$(dirname "$gem_file")" || return 1
+            BUNDLE_GEMFILE="$gem_file" bundle install --quiet
+        )
         return $?
     fi
 
@@ -106,56 +109,58 @@ install_gems() {
     # 特定バージョンのBundlerコマンドを定義
     local bundler_cmd="bundle _${required_bundler_version}_"
 
-    export BUNDLE_GEMFILE="$gem_file"
-    cd "$(dirname "$gem_file")" || {
-        echo "[ERROR] Gemfileのディレクトリに移動できませんでした: $(dirname "$gem_file")"
-        return 1
-    }
+    (
+        cd "$(dirname "$gem_file")" || {
+            echo "[ERROR] Gemfileのディレクトリに移動できませんでした: $(dirname "$gem_file")"
+            return 1
+        }
 
-    echo "[INFO] Gemfileからgemをチェック中 (using bundler v${required_bundler_version})..."
-    # 特定バージョンのBundlerでチェック
-    if ${bundler_cmd} check >/dev/null 2>&1; then
-        echo "[OK] 必要なgemはすべてインストール済みです"
-        return 0
-    fi
+        echo "[INFO] Gemfileからgemをチェック中 (using bundler v${required_bundler_version})..."
+        # 特定バージョンのBundlerでチェック
+        if BUNDLE_GEMFILE="$gem_file" ${bundler_cmd} check >/dev/null 2>&1; then
+            echo "[OK] 必要なgemはすべてインストール済みです"
+            return 0
+        fi
 
-    echo "[INSTALL] gemをインストールします (using bundler v${required_bundler_version})..."
-    # 特定バージョンのBundlerでインストール
-    if ${bundler_cmd} install --quiet; then
-        echo "[SUCCESS] Gemfileからgemのインストールが完了しました"
-        echo "INSTALL_PERFORMED"
-        rbenv rehash
-    else
-        echo "[ERROR] gemインストールに失敗しました"
-        # CI環境での警告は削除し、常にエラーとして扱う
-        return 1
-    fi
+        echo "[INSTALL] gemをインストールします (using bundler v${required_bundler_version})..."
+        # 特定バージョンのBundlerでインストール
+        if BUNDLE_GEMFILE="$gem_file" ${bundler_cmd} install --quiet; then
+            echo "[SUCCESS] Gemfileからgemのインストールが完了しました"
+            echo "INSTALL_PERFORMED"
+            rbenv rehash
+        else
+            echo "[ERROR] gemインストールに失敗しました"
+            # CI環境での警告は削除し、常にエラーとして扱う
+            return 1
+        fi
+    )
 }
 
 verify_ruby_setup() {
     echo "==== Start: Ruby環境を検証中..."
-    local errors=0
-
     # rbenvチェック
     if ! command -v rbenv >/dev/null 2>&1; then
         echo "[ERROR] rbenvコマンドが見つかりません"
-        ((errors++))
-    else
+        return 1
+    fi
+    # rbenvが関数としてロードされているか確認
+    if ! type rbenv | grep -q 'function'; then
         eval "$(rbenv init -)"
-        echo "[SUCCESS] rbenv: $(rbenv --version)"
-        # ruby-buildの確認
-        if rbenv install --version >/dev/null 2>&1 || command -v ruby-build >/dev/null 2>&1 || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
-            echo "[SUCCESS] ruby-buildが使用可能です"
-        else
-            echo "[ERROR] ruby-buildが見つかりません"
-            ((errors++))
-        fi
+    fi
+
+    echo "[SUCCESS] rbenv: $(rbenv --version)"
+    # ruby-buildの確認
+    if rbenv install --version >/dev/null 2>&1 || command -v ruby-build >/dev/null 2>&1 || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
+        echo "[SUCCESS] ruby-buildが使用可能です"
+    else
+        echo "[ERROR] ruby-buildが見つかりません"
+        return 1
     fi
 
     # Rubyバージョンチェック
     if [ "$(rbenv version-name)" != "${RUBY_VERSION}" ]; then
         echo "[ERROR] Rubyのバージョンが${RUBY_VERSION}ではありません"
-        ((errors++))
+        return 1
     else
         echo "[SUCCESS] Ruby: $(ruby -v)"
     fi
@@ -163,19 +168,13 @@ verify_ruby_setup() {
     # bundlerチェック
     if ! command -v bundle >/dev/null 2>&1; then
         echo "[ERROR] bundlerコマンドが見つかりません"
-        ((errors++))
+        return 1
     else
         echo "[SUCCESS] bundler: $(bundle -v)"
     fi
 
-    # 検証結果
-    if [ $errors -eq 0 ]; then
-        echo "[SUCCESS] Ruby環境の検証が完了しました"
-        return 0
-    else
-        echo "[ERROR] Ruby環境の検証に失敗しました ($errors エラー)"
-        return 1
-    fi
+    echo "[SUCCESS] Ruby環境の検証が完了しました"
+    return 0
 }
 
 # スクリプトが直接実行された場合のみメイン関数を実行
