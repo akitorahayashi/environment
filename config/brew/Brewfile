@@ -21,7 +21,6 @@ brew "ruby-build"
 ## Utility
 brew "yamllint"
 brew "displayplacer"
-brew "pdfunite"
 
 ## Cask
 cask "visual-studio-code"
