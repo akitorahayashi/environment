@@ -109,7 +109,32 @@ $ ./initial-setup.sh
 $ ./install.sh
 ```
 
-### 4. Individual Setup Scripts
+### 4. Configure Git
+
+`~/.gitconfig` に `user.name` と `user.email` を設定してください。
+
+```sh
+$ git config --global user.name "Your Name"
+$ git config --global user.email "your.email@example.com"
+```
+
+### 6. Configure GitHub CLI
+
+GitHub CLIを認証してください
+
+```sh
+# GitHub.comの認証を追加
+$ gh auth login
+
+# GitHub Enterpriseの認証を追加（該当する場合）
+$ gh auth login --hostname your-enterprise-hostname.com
+```
+
+### 7. Restart macOS
+
+設定を完全に適用するために、macOSを再起動してください。
+
+## Individual Setup Scripts
 
 `scripts/`内の各セットアップスクリプトは個別に実行できます
 
@@ -150,48 +175,3 @@ $ ./scripts/macos.sh
 2. 必要な場合のみインストールまたは設定を実行
 3. セットアップを検証
 
-### 5. Apply Shell Configuration
-
-スクリプトが完了したら、ターミナルを再起動するか、`source ~/.zprofile`を実行してシェル設定を適用してください
-
-### 6. Configure GitHub CLI
-
-スクリプト実行中にプロンプトが表示された場合、またはスキップした場合は、GitHub CLIを認証してください
-
-### 7. Restart macOS
-
-設定を完全に適用するために、macOSを再起動してください。
-
-```sh
-# GitHub.comの認証を追加
-$ gh auth login
-
-# GitHub Enterpriseの認証を追加（該当する場合）
-$ gh auth login --hostname your-enterprise-hostname.com
-```
-
-## Ruby Development Environment
-
-```bash
-# 利用可能なRubyバージョンを表示
-$ rbenv install -l
-
-# バージョンをインストール
-$ rbenv install 3.2.2
-
-# グローバルに設定
-$ rbenv global 3.2.2
-```
-
-## Python Development Environment
-
-```bash
-# 利用可能なPythonバージョンを表示
-$ pyenv install -l
-
-# バージョンをインストール
-$ pyenv install 3.12.4
-
-# グローバルに設定
-$ pyenv global 3.12.4
-```

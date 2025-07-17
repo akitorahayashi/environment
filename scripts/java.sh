@@ -28,6 +28,11 @@ main() {
     echo "[SUCCESS] Java環境のセットアップが完了しました"
 
 
+    # .zprofileをsourceして環境変数を反映
+    if [ -f "$HOME/.zprofile" ]; then
+        source "$HOME/.zprofile"
+    fi
+
     verify_java_setup
 }
 
@@ -44,17 +49,10 @@ verify_java_setup() {
 
     # JAVA_HOMEが設定されているか確認
     if [ -z "${JAVA_HOME:-}" ]; then
-        echo "[INFO] JAVA_HOME が設定されていないため、.zprofile を読み込みます"
-        if [ -f "$HOME/.zprofile" ]; then
-            eval "$(zsh -c '{ source "$HOME/.zprofile" >/dev/null 2>&1; export -p; }')"
-        fi
-    fi
-
-    if [ -z "${JAVA_HOME:-}" ] || [ ! -d "$JAVA_HOME" ]; then
-        echo "[ERROR] JAVA_HOME が設定されていないか、無効なパスです"
+        echo "[ERROR] JAVA_HOME が設定されていません"
         exit 1
     else
-        echo "[SUCCESS] JAVA_HOME は正しく設定されています: $JAVA_HOME"
+        echo "[SUCCESS] JAVA_HOME は設定されています: $JAVA_HOME"
     fi
 
     # javaコマンドが実行できるか確認
