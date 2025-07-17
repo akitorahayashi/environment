@@ -80,7 +80,3 @@ defaults write com.apple.screencapture location -string "$HOME/Desktop"
 defaults write com.apple.screencapture disable-shadow -bool false
 defaults write com.apple.screencapture type -string "png"
 
-
-# ================================================
-# 設定の反映
-# ================================================
