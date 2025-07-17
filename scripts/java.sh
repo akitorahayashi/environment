@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 set -euo pipefail
 
@@ -21,6 +21,12 @@ main() {
     fi
 
     echo "[SUCCESS] Java環境のセットアップが完了しました"
+
+
+    # .zprofileをsourceして環境変数を反映（zsh前提）
+    if [ -f "$HOME/.zprofile" ]; then
+        source "$HOME/.zprofile"
+    fi
 
     verify_java_setup
 }
@@ -55,7 +61,4 @@ verify_java_setup() {
     echo "[SUCCESS] Java環境の検証が完了しました"
 }
 
-# スクリプトが直接実行された場合のみメイン関数を実行
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+main "$@"
