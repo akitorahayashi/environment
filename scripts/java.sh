@@ -28,16 +28,17 @@ main() {
     echo "[SUCCESS] Java環境のセットアップが完了しました"
 
 
-    # .zprofileをsourceして環境変数を反映（zsh前提）
-    if [ -f "$HOME/.zprofile" ]; then
-        source "$HOME/.zprofile"
-    fi
-
     verify_java_setup
 }
 
 verify_java_setup() {
     echo "==== Start: Java環境を検証中..."
+
+    # .zprofileをsourceして環境変数を反映
+    if [ -f "$HOME/.zprofile" ]; then
+        # zshの設定ファイルをbashで読み込む
+        eval "$(zsh -c 'source $HOME/.zprofile; export -p')"
+    fi
 
     # temurinがインストールされているか確認
     if ! brew list --cask "temurin@${JDK_VERSION}" > /dev/null 2>&1; then
