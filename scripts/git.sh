@@ -127,7 +127,11 @@ verify_git_setup() {
     local verification_failed=false
 
     # git コマンドの検証
-    verify_git_command || return 1
+    if ! git --version >/dev/null 2>&1; then
+        echo "[ERROR] gitコマンドが使用できません"
+        return 1
+    fi
+    echo "[SUCCESS] gitコマンドが使用可能です: $(git --version)"
 
     # 設定ファイルの存在確認（setup 関数の後なので必ず存在するはず）
     echo "[SUCCESS] $HOME/.config/git/config が存在します。"
@@ -172,11 +176,6 @@ verify_gitignore_global() {
         echo "[ERROR] Git の core.excludesfile が $config_value になっています"
         return 1
     fi
-}
-
-verify_git_command() {
-    echo "[SUCCESS] gitコマンドが使用可能です: $(git --version)"
-    return 0
 }
 
 verify_ssh_keys() {
