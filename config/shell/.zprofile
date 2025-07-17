@@ -40,6 +40,8 @@ if command -v rbenv 1>/dev/null 2>&1; then
 fi
 
 # JAVA_HOME 設定
-if [ -x /usr/libexec/java_home ]; then
-    export JAVA_HOME=$(/usr/libexec/java_home -v "21")
+if ! command -v /usr/libexec/java_home >/dev/null 2>&1; then
+    echo "Error: /usr/libexec/java_home is not installed." >&2
+    exit 1
 fi
+export JAVA_HOME="$(/usr/libexec/java_home -v "21")"
