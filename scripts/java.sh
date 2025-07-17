@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 set -euo pipefail
 
@@ -11,12 +11,11 @@ main() {
     # temurin@<バージョン>がインストールされていなければインストール
     if ! brew list --cask "temurin@${JDK_VERSION}" > /dev/null 2>&1; then
         echo "[INSTALL] temurin@${JDK_VERSION}"
-        local -a brew_install_cmd=(brew install --cask)
+        local brew_install_cmd=("brew" "install" "--cask")
         if [ "${IS_CI:-false}" = "true" ]; then
             brew_install_cmd+=("--no-quarantine")
         fi
 
-        # shellcheck disable=SC2086 # 配列展開で安全に実行
         if ! "${brew_install_cmd[@]}" "temurin@${JDK_VERSION}"; then
             echo "[ERROR] temurin@${JDK_VERSION} のインストールに失敗しました"
             exit 1
