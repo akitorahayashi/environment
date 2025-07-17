@@ -140,6 +140,10 @@ $ ./scripts/macos.sh
 
 スクリプト実行中にプロンプトが表示された場合、またはスキップした場合は、GitHub CLIを認証してください
 
+### 7. Restart macOS
+
+設定を完全に適用するために、macOSを再起動してください。
+
 ```sh
 # GitHub.comの認証を追加
 $ gh auth login

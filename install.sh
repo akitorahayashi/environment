@@ -53,12 +53,14 @@ main() {
     # セットアップスクリプトの実行と終了ステータスの収集
     declare -a scripts=(
         "shell:$SCRIPT_ROOT_DIR/scripts/shell.sh"
-        "homebrew:$SCRIPT_ROOT_DIR/scripts/homebrew.sh"
         "mac:$SCRIPT_ROOT_DIR/scripts/macos.sh"
+        "homebrew:$SCRIPT_ROOT_DIR/scripts/homebrew.sh"
         "git:$SCRIPT_ROOT_DIR/scripts/git.sh"
         "cursor:$SCRIPT_ROOT_DIR/scripts/cursor.sh"
         "vscode:$SCRIPT_ROOT_DIR/scripts/vscode.sh"
         "ruby:$SCRIPT_ROOT_DIR/scripts/ruby.sh"
+        "python:$SCRIPT_ROOT_DIR/scripts/python.sh"
+        "java:$SCRIPT_ROOT_DIR/scripts/java.sh"
         "flutter:$SCRIPT_ROOT_DIR/scripts/flutter.sh"
         "node:$SCRIPT_ROOT_DIR/scripts/node.sh"
     )
