@@ -299,14 +299,6 @@ add_setting "トラックパッド" "$TRACKPAD_COMMANDS"
 add_setting "サウンド" "$SOUND_COMMANDS"
 add_setting "スクリーンショット" "$SCREENSHOT_COMMANDS"
 
-# 設定の反映用コマンド
-echo "" >> "$OUTPUT_FILE"
-echo "# ================================================" >> "$OUTPUT_FILE"
-echo "# 設定の反映" >> "$OUTPUT_FILE"
-echo "# ================================================" >> "$OUTPUT_FILE"
-echo "for proc in Dock Finder SystemUIServer; do" >> "$OUTPUT_FILE"
-echo "  pgrep \"\$proc\" >/dev/null && killall \"\$proc\"" >> "$OUTPUT_FILE"
-echo "done" >> "$OUTPUT_FILE"
 
 # 実行権限を付与
 chmod +x "$OUTPUT_FILE"
