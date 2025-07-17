@@ -20,6 +20,7 @@ brew "ruby-build"
 
 ## Python
 brew "pyenv"
+brew "pyenv-virtualenv"
 
 ## Utility
 brew "yamllint"
