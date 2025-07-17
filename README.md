@@ -51,7 +51,7 @@ environment/
 
 6.  **Ruby Environment Setup**
     -   `rbenv`と`ruby-build`をインストール
-    -   特定のバージョンのRubyをインストールし、グローバル設定
+    -   特定のバージョンのRubyをインストールし、グローバルに設定
     -   `config/gems/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
 
 7.  **Cursor Configuration**
@@ -62,7 +62,7 @@ environment/
 
 9.  **Python Environment Setup**
     -   `pyenv`をインストール
-    -   特定のバージョンのPythonをインストールし、グローバル設定
+    -   特定のバージョンのPythonをインストールし、グローバルに設定
 
 10. **Java Environment Setup**
     -   `Homebrew`を使用して特定のバージョンのJava (Temurin)をインストール
@@ -177,7 +177,7 @@ $ rbenv install -l
 # バージョンをインストール
 $ rbenv install 3.2.2
 
-# グローバルデフォルトとして設定
+# グローバルに設定
 $ rbenv global 3.2.2
 ```
 
@@ -190,7 +190,7 @@ $ pyenv install -l
 # バージョンをインストール
 $ pyenv install 3.12.4
 
-# グローバルデフォルトとして設定
+# グローバルに設定
 $ pyenv global 3.12.4
 ```
 
