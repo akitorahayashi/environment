@@ -27,26 +27,22 @@ main() {
     mkdir -p "$cursor_target_dir"
 
     # 設定ファイルのシンボリックリンクを作成
-    shopt -s nullglob   # マッチしない場合は展開結果を空にする
-    local linked_count=0
+    shopt -s nullglob
     for file in "$config_dir"/*; do
-        if [[ -f "$file" ]]; then
+        if [ -f "$file" ]; then
             local filename
-            filename=$(basename "$file")  
+            filename=$(basename "$file")
             local target_file="$cursor_target_dir/$filename"
             
             # シンボリックリンクの作成
             if ln -sf "$file" "$target_file"; then
-                ((linked_count++))
+                echo "[SUCCESS] Cursor設定ファイル $filename のシンボリックリンクを作成しました。"
             else
                 echo "[ERROR] Cursor設定ファイル $filename のシンボリックリンク作成に失敗しました。"
                 exit 1
             fi
         fi
     done
-    shopt -u nullglob
-    
-    echo "[SUCCESS] Cursor設定ファイル ${linked_count}個のシンボリックリンクを作成しました"
 
     echo "[SUCCESS] Cursor環境のセットアップが完了しました"
 
