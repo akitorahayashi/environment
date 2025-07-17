@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # 使用するJDKのバージョンを定数として定義
-readonly JDK_VERSION="24.0.1"
+readonly JDK_VERSION="21"
 
 main() {
     echo "==== Start: Java環境のセットアップを開始します..."
