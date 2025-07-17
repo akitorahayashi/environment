@@ -50,6 +50,9 @@ environment/
     -   `config/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
 
 6.  **Ruby Environment Setup**
+    -   `rbenv`と`ruby-build`をインストール
+    -   特定のバージョンのRubyをインストールし、グローバル設定
+    -   `config/gems/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
 
 7.  **Cursor Configuration**
     -   `config/cursor/`から`$HOME/Library/Application Support/Cursor/User`への設定ファイルのシンボリックリンクを作成
@@ -57,11 +60,18 @@ environment/
 8.  **VS Code Configuration**
     -   `config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
-9.  **Flutter Setup**
+9.  **Python Environment Setup**
+    -   `pyenv`をインストール
+    -   特定のバージョンのPythonをインストールし、グローバル設定
 
-10. **GitHub CLI Configuration**
+10. **Java Environment Setup**
+    -   `Homebrew`を使用して特定のバージョンのJava (Temurin)をインストール
 
-11. **SSH Key Management**
+11. **Flutter Setup**
+
+12. **GitHub CLI Configuration**
+
+13. **SSH Key Management**
     -   SSHキーの存在確認
     -   SSHエージェントの設定
 
@@ -114,6 +124,12 @@ $ ./scripts/git.sh
 # Ruby環境のセットアップ
 $ ./scripts/ruby.sh
 
+# Python環境のセットアップ
+$ ./scripts/python.sh
+
+# Java環境のセットアップ
+$ ./scripts/java.sh
+
 # Flutterのセットアップ
 $ ./scripts/flutter.sh
 
@@ -163,4 +179,24 @@ $ rbenv install 3.2.2
 
 # グローバルデフォルトとして設定
 $ rbenv global 3.2.2
-``` 
+```
+
+## Python Development Environment
+
+```bash
+# 利用可能なPythonバージョンを表示
+$ pyenv install -l
+
+# バージョンをインストール
+$ pyenv install 3.12.4
+
+# グローバルデフォルトとして設定
+$ pyenv global 3.12.4
+```
+
+## Java Development Environment
+
+```bash
+# インストールされたJavaのバージョンを確認
+$ /usr/libexec/java_home -V
+```
