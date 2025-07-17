@@ -38,3 +38,8 @@ fi
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
+
+# JAVA_HOME 設定
+if [ -x /usr/libexec/java_home ]; then
+    export JAVA_HOME=$(/usr/libexec/java_home)
+fi
