@@ -34,12 +34,6 @@ main() {
 verify_java_setup() {
     echo "==== Start: Java環境を検証中..."
 
-    # .zprofileをsourceして環境変数を反映
-    if [ -f "$HOME/.zprofile" ]; then
-        # zshの設定ファイルをbashで読み込む
-        eval "$(zsh -c 'source $HOME/.zprofile; export -p')"
-    fi
-
     # temurinがインストールされているか確認
     if ! brew list --cask "temurin@${JDK_VERSION}" > /dev/null 2>&1; then
         echo "[ERROR] temurin@${JDK_VERSION} がインストールされていません"
@@ -50,10 +44,17 @@ verify_java_setup() {
 
     # JAVA_HOMEが設定されているか確認
     if [ -z "${JAVA_HOME:-}" ]; then
-        echo "[ERROR] JAVA_HOME が設定されていません"
+        echo "[INFO] JAVA_HOME が設定されていないため、.zprofile を読み込みます"
+        if [ -f "$HOME/.zprofile" ]; then
+            eval "$(zsh -c '{ source "$HOME/.zprofile" >/dev/null 2>&1; export -p; }')"
+        fi
+    fi
+
+    if [ -z "${JAVA_HOME:-}" ] || [ ! -d "$JAVA_HOME" ]; then
+        echo "[ERROR] JAVA_HOME が設定されていないか、無効なパスです"
         exit 1
     else
-        echo "[SUCCESS] JAVA_HOME は設定されています: $JAVA_HOME"
+        echo "[SUCCESS] JAVA_HOME は正しく設定されています: $JAVA_HOME"
     fi
 
     # javaコマンドが実行できるか確認
