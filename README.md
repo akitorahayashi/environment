@@ -19,8 +19,10 @@ environment/
 │   ├── flutter.sh
 │   ├── git.sh
 │   ├── homebrew.sh
+│   ├── java.sh
 │   ├── macos.sh
 │   ├── node.sh
+│   ├── python.sh
 │   ├── ruby.sh
 │   ├── shell.sh
 │   └── vscode.sh
@@ -192,11 +194,4 @@ $ pyenv install 3.12.4
 
 # グローバルに設定
 $ pyenv global 3.12.4
-```
-
-## Java Development Environment
-
-```bash
-# インストールされたJavaのバージョンを確認
-$ /usr/libexec/java_home -V
 ```
