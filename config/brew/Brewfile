@@ -18,6 +18,9 @@ brew "cocoapods"
 brew "rbenv"
 brew "ruby-build"
 
+## Python
+brew "pyenv"
+
 ## Utility
 brew "yamllint"
 brew "displayplacer"

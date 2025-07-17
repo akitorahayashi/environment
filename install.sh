@@ -59,6 +59,7 @@ main() {
         "cursor:$SCRIPT_ROOT_DIR/scripts/cursor.sh"
         "vscode:$SCRIPT_ROOT_DIR/scripts/vscode.sh"
         "ruby:$SCRIPT_ROOT_DIR/scripts/ruby.sh"
+        "python:$SCRIPT_ROOT_DIR/scripts/python.sh"
         "flutter:$SCRIPT_ROOT_DIR/scripts/flutter.sh"
         "node:$SCRIPT_ROOT_DIR/scripts/node.sh"
     )
