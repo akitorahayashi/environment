@@ -41,5 +41,6 @@ fi
 
 # JAVA_HOME 設定
 if [ -x /usr/libexec/java_home ]; then
-    export JAVA_HOME=$(/usr/libexec/java_home)
+    # temurin 24.0.1 を優先して設定
+    export JAVA_HOME=$(/usr/libexec/java_home -v 24.0.1)
 fi

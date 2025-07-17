@@ -84,6 +84,3 @@ defaults write com.apple.screencapture type -string "png"
 # ================================================
 # 設定の反映
 # ================================================
-for proc in Dock Finder SystemUIServer; do
-  pgrep "$proc" >/dev/null && killall "$proc"
-done
