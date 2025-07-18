@@ -46,27 +46,20 @@ verify_shell_setup() {
 }
 
 verify_shell_type() {
-    current_shell=$(echo $SHELL)
-
-    # CI環境とそれ以外で検証条件を分岐
+    # CI環境ではシェルの種類をチェックしない
     if [ "$IS_CI" = "true" ]; then
-        # CI環境ではbashも許容
-        if [[ "$current_shell" == */bash || "$current_shell" == */zsh ]]; then
-            echo "[SUCCESS] CI環境: シェルがbashまたはzshです: $current_shell"
-            return 0
-        else
-            echo "[WARN] CI環境: 未知のシェルが使用されています: $current_shell"
-            return 0
-        fi
+        echo "[INFO] CI環境のため、シェルの種類の検証をスキップします。"
+        return 0
+    fi
+
+    current_shell=$(echo $SHELL)
+    # 通常環境ではzshのみ
+    if [[ "$current_shell" == */zsh ]]; then
+        echo "[SUCCESS] シェルがzshに設定されています: $current_shell"
+        return 0
     else
-        # 通常環境ではzshのみ
-        if [[ "$current_shell" == */zsh ]]; then
-            echo "[SUCCESS] シェルがzshに設定されています: $current_shell"
-            return 0
-        else
-            echo "[ERROR] シェルがzshに設定されていません: $current_shell"
-            return 1
-        fi
+        echo "[ERROR] シェルがzshに設定されていません: $current_shell"
+        return 1
     fi
 }
 

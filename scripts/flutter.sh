@@ -11,18 +11,19 @@ SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
 install_dependencies() {
     echo "[INFO] 依存関係をチェック・インストールします: fvm"
     if ! command -v fvm &> /dev/null; then
-        brew install fvm
+        brew tap leoafarias/fvm
+        brew install leoafarias/fvm/fvm
         echo "STATE_CHANGED" >&2
     fi
 }
 
 main() {
     install_dependencies
-    echo "[Start] Flutter SDK のセットアップを開始します (fvm)..."
+    echo "[Start] fvm を使用してFlutter SDK のセットアップを開始します"
 
     local changed=false
     # 安定版 Flutter SDK のインストール (fvm install は冪等)
-    echo "[INFO] fvm を使用して安定版 Flutter SDK をインストールします..."
+    echo "[INFO] 安定版 Flutter SDK をインストールします..."
     
     # 既にインストール済みかチェック
     local fvm_stable_path="$HOME/fvm/versions/stable"
@@ -81,7 +82,7 @@ main() {
 
     # Flutterのパスを確認 (fvm管理下のパス)
     FLUTTER_PATH=$(which flutter)
-    echo "[INFO] Flutter PATH (fvm): $FLUTTER_PATH"
+    echo "[INFO] Flutter PATH: $FLUTTER_PATH"
 
     # パスが正しいか確認（FVM管理下のパスを確認）
     local expected_fvm_path="$HOME/fvm/default/bin/flutter"
@@ -147,12 +148,12 @@ verify_flutter_path() {
     # FVM管理下のパスを期待する
     local expected_fvm_path="$HOME/fvm/default/bin/flutter"
     if [[ "$FLUTTER_PATH" != "$expected_fvm_path" ]]; then
-        echo "[ERROR] Flutterのパスが想定 (FVM) と異なります"
+        echo "[ERROR] Flutterのパスが想定と異なります"
         echo "[ERROR] 期待: $expected_fvm_path"
         echo "[ERROR] 実際: $FLUTTER_PATH"
         return 1
     else
-        echo "[SUCCESS] Flutterのパスが正しく設定されています (FVM)"
+        echo "[SUCCESS] Flutterのパスが正しく設定されています"
         return 0
     fi
 }
