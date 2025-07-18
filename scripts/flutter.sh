@@ -7,15 +7,20 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
 
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: fvm"
+    if ! command -v fvm &> /dev/null; then
+        brew install fvm
+        echo "STATE_CHANGED" >&2
+    fi
+}
+
 main() {
+    install_dependencies
     echo "[Start] Flutter SDK のセットアップを開始します (fvm)..."
 
-    # fvm コマンドの存在確認
-    if ! command -v fvm >/dev/null 2>&1; then
-        echo "[ERROR] fvm コマンドが見つかりません。Brewfileを確認してください。"
-        exit 1
-    fi
-
+    local changed=false
     # 安定版 Flutter SDK のインストール (fvm install は冪等)
     echo "[INFO] fvm を使用して安定版 Flutter SDK をインストールします..."
     
@@ -29,7 +34,7 @@ main() {
     if fvm install stable; then
         # 新規インストールの場合のみフラグを設定
         if [ "$was_already_installed" = false ]; then
-            echo "INSTALL_PERFORMED"
+            changed=true
             echo "[SUCCESS] Flutter SDK (stable) を新規インストールしました。"
         else
             echo "[SUCCESS] Flutter SDK (stable) は既にインストール済みです。"
@@ -53,10 +58,15 @@ main() {
         echo "[INFO] fvm global stable を設定します..."
         if fvm global stable; then
             echo "[SUCCESS] fvm global stable の設定が完了しました。"
+            changed=true
         else
             echo "[ERROR] fvm global stable の設定に失敗しました。"
             exit 1
         fi
+    fi
+
+    if [ "$changed" = true ]; then
+        echo "STATE_CHANGED" >&2
     fi
 
     # FVM管理下のFlutterを使うため、PATHを更新

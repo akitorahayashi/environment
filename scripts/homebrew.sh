@@ -25,7 +25,7 @@ main() {
 install_homebrew() {
     if ! command -v brew; then
         echo "[INSTALL] Homebrew ..."
-        echo "INSTALL_PERFORMED"
+        echo "STATE_CHANGED" >&2
         install_homebrew_binary # バイナリインストール後、この関数内でPATH設定も行う
         echo "[SUCCESS] Homebrew のインストール完了"
     else
@@ -74,7 +74,7 @@ install_packages_from_brewfile() {
     
     # 出力を解析して実際にインストールやアップグレードが発生したかチェック
     if grep -E "(Installing|Upgrading|Downloading)" "$temp_output" > /dev/null; then
-        echo "INSTALL_PERFORMED"
+        echo "STATE_CHANGED" >&2
         echo "[OK] Homebrew パッケージのインストール/アップグレードが完了しました"
     else
         echo "[OK] Homebrew パッケージは既に最新の状態です"

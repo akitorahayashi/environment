@@ -1,0 +1,32 @@
+name: Setup macOS
+
+on:
+  workflow_call:
+
+jobs:
+  setup-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run macos.sh for setup
+        id: setup
+        run: ./scripts/macos.sh
+
+      - name: Run macos.sh for idempotency check
+        id: idempotency
+        run: |
+          exec 3>&1
+          stderr_output=$(./scripts/macos.sh 2>&1 >&3)
+          echo "stderr_output<<EOF" >> $GITHUB_OUTPUT
+          echo "$stderr_output" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Verify idempotency
+        if: contains(steps.idempotency.outputs.stderr_output, 'STATE_CHANGED')
+        run: |
+          echo "Idempotency check failed for macos.sh"
+          echo "Error output:"
+          echo "${{ steps.idempotency.outputs.stderr_output }}"
+          exit 1

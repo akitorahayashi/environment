@@ -4,15 +4,18 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-main() {
-    echo "[Start] Node.js のセットアップを開始します..."
-
-    # Node.js のインストール確認
-    if ! command -v node; then
-        echo "[WARN] Node.js がインストールされていません。Brewfileを確認してください。"
-        exit 1
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: node"
+    if ! command -v node &> /dev/null; then
+        brew install node
+        echo "STATE_CHANGED" >&2
     fi
-    echo "[SUCCESS] Node.js はすでにインストールされています"
+}
+
+main() {
+    install_dependencies
+    echo "[Start] Node.js のセットアップを開始します..."
 
     # npm のインストール確認
     if ! command -v npm; then
@@ -47,6 +50,7 @@ install_global_packages() {
         return 0
     fi
     
+    local changed=false
     # 各 "name@version" を分割してインストール
     for entry in "${entries[@]}"; do
         # pkg_full: "name@version" 例: "@anthropic-ai/claude-code@latest"
@@ -58,9 +62,9 @@ install_global_packages() {
             echo "[INSTALLED] $pkg_name"
         else
             echo "[INSTALLING] $pkg_full"
-            echo "INSTALL_PERFORMED"
             if npm install -g "$pkg_full"; then
                 echo "[SUCCESS] $pkg_name のインストールが完了しました"
+                changed=true
             else
                 echo "[ERROR] $pkg_name のインストールに失敗しました"
                 exit 1
@@ -68,6 +72,10 @@ install_global_packages() {
         fi
     done
     
+    if [ "$changed" = true ]; then
+        echo "STATE_CHANGED" >&2
+    fi
+
     return 0
 }
 

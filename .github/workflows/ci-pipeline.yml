@@ -8,9 +8,49 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-setup-tests:
-    name: Run Setup Tests
-    uses: ./.github/workflows/setup-test.yml
+  setup-homebrew:
+    uses: ./.github/workflows/setup-homebrew.yml
+    secrets: inherit
+
+  setup-git:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-git.yml
+
+  setup-node:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-node.yml
+
+  setup-ruby:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-ruby.yml
+
+  setup-python:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-python.yml
+
+  setup-flutter:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-flutter.yml
+
+  setup-cursor:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-cursor.yml
+
+  setup-vscode:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-vscode.yml
+
+  setup-macos:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-macos.yml
+
+  setup-shell:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-shell.yml
+
+  setup-java:
+    needs: setup-homebrew
+    uses: ./.github/workflows/setup-java.yml
 
   verify-macos-backup-script:
     name: Verify Backup Script

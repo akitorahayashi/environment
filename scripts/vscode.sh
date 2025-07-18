@@ -4,7 +4,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: visual-studio-code"
+    if ! brew list --cask visual-studio-code &> /dev/null; then
+        brew install --cask visual-studio-code
+        echo "STATE_CHANGED" >&2
+    fi
+}
+
 main() {
+    install_dependencies
     echo "[Start] VS Code のセットアップを開始します..."
     local config_dir="$REPO_ROOT/config/vscode"
     local vscode_target_dir="$HOME/Library/Application Support/Code/User"

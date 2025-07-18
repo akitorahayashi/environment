@@ -1,34 +1,8 @@
-## Version Control
-brew "git"
-brew "gh"
-
-## Development Tools
-brew "node"
-brew "go"
-tap "leoafarias/fvm"
-brew "leoafarias/fvm/fvm"
-
-## Xcode & Swift Development
-brew "xcodes"
-brew "xcbeautify"
-brew "mint"
-brew "cocoapods"
-
-## Ruby
-brew "rbenv"
-brew "ruby-build"
-
-## Python
-brew "pyenv"
-brew "pyenv-virtualenv"
-
 ## Utility
 brew "yamllint"
 brew "displayplacer"
 
 ## Cask
-cask "visual-studio-code"
-cask "cursor"
 cask "android-studio"
 cask "android-commandlinetools"
 cask "figma"

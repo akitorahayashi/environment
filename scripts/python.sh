@@ -9,9 +9,18 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # 使用するPythonのバージョンを定数として定義
 readonly PYTHON_VERSION="3.12.4"
 
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: pyenv"
+    if ! command -v pyenv &> /dev/null; then
+        brew install pyenv
+        echo "STATE_CHANGED" >&2
+    fi
+}
+
 main() {
+    install_dependencies
     echo "==== Start: Python環境のセットアップを開始します..."
-    install_pyenv || exit 1
 
     # pyenvを初期化して、以降のコマンドでpyenvのPythonが使われるようにする
     if command -v pyenv 1>/dev/null 2>&1; then
@@ -19,6 +28,7 @@ main() {
         eval "$(pyenv init -)"
     fi
 
+    local changed=false
     # Python 3.12.4がインストールされていなければインストール
     if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
         echo "[INSTALL] Python ${PYTHON_VERSION}"
@@ -26,7 +36,7 @@ main() {
             echo "[ERROR] Python ${PYTHON_VERSION} のインストールに失敗しました"
             exit 1
         fi
-        echo "INSTALL_PERFORMED"
+        changed=true
     else
         echo "[INFO] Python ${PYTHON_VERSION} はすでにインストールされています"
     fi
@@ -36,7 +46,7 @@ main() {
         echo "[CONFIG] pyenv global を ${PYTHON_VERSION} に設定します"
         pyenv global "${PYTHON_VERSION}"
         pyenv rehash
-        echo "INSTALL_PERFORMED"
+        changed=true
     else
         echo "[INFO] pyenv global はすでに ${PYTHON_VERSION} に設定されています"
     fi
@@ -46,22 +56,9 @@ main() {
     echo "[SUCCESS] Python環境のセットアップが完了しました"
 
     verify_python_setup
-}
 
-# pyenvのインストール
-install_pyenv() {
-    if command -v pyenv >/dev/null 2>&1; then
-        echo "[SUCCESS] pyenv はインストール済みです"
-        return 0
-    fi
-    echo "[INSTALL] pyenv"
-    if brew install pyenv; then
-        echo "[SUCCESS] pyenvのインストールが完了しました"
-        echo "INSTALL_PERFORMED"
-        return 0
-    else
-        echo "[ERROR] pyenvのインストールに失敗しました"
-        exit 1
+    if [ "$changed" = true ]; then
+        echo "STATE_CHANGED" >&2
     fi
 }
 
