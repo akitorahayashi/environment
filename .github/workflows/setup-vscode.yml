@@ -14,6 +14,20 @@ jobs:
         id: setup
         run: ./scripts/vscode.sh
 
+      - name: Grant execution permission for backup script
+        run: chmod +x config/vscode/extensions/backup-extensions.sh
+
+      - name: Run backup script
+        run: ./config/vscode/extensions/backup-extensions.sh
+
+      - name: Verify backup file
+        run: |
+          if [ ! -f /tmp/extensions.txt ]; then
+            echo "Backup file /tmp/extensions.txt was not created."
+            exit 1
+          fi
+          echo "Backup file created successfully."
+
       - name: Run vscode.sh for idempotency check
         id: idempotency
         run: |

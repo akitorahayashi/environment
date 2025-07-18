@@ -18,15 +18,24 @@ set -euo pipefail
 # VSCode拡張機能のリストをバックアップするスクリプト
 # バックアップファイルのパス
 EXT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EXT_FILE="$EXT_DIR/extensions.txt"
+
+# CI環境かどうかで出力先を決定
+if [ "${CI:-false}" = "true" ]; then
+  EXT_FILE="/tmp/extensions.txt"
+else
+  EXT_FILE="$EXT_DIR/extensions.txt"
+fi
 
 # VSCodeコマンドの検出
+# CI環境ではPATHが通っていない可能性があるため、絶対パスも試す
 if command -v code >/dev/null 2>&1; then
   CODE_CMD="code"
+elif [ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
+  CODE_CMD="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
 elif command -v code-insiders >/dev/null 2>&1; then
   CODE_CMD="code-insiders"
 else
-  echo "VSCodeのコマンド(code または code-insiders)が見つかりません。PATHを確認してください。" >&2
+  echo "VSCodeのコマンド(code または code-insiders)が見つかりません。" >&2
   exit 1
 fi
 
