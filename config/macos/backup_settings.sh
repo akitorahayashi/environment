@@ -311,7 +311,7 @@ fi
 
 if [[ -n "$DISPLAY_COMMAND" ]]; then
     DISPLAY_SETTINGS_COMMANDS=$(cat << EOF
-displayplacer "$DISPLAY_COMMAND"
+displayplacer $DISPLAY_COMMAND
 EOF
 )
     add_setting "ディスプレイ" "$DISPLAY_SETTINGS_COMMANDS"
