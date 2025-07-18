@@ -14,7 +14,7 @@ install_dependencies() {
     echo "[INFO] 依存関係をチェック・インストールします: pyenv"
     if ! command -v pyenv &> /dev/null; then
         brew install pyenv
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 
@@ -58,7 +58,7 @@ main() {
     verify_python_setup
 
     if [ "$changed" = true ]; then
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 

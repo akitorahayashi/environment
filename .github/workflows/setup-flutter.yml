@@ -24,7 +24,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Verify idempotency
-        if: contains(steps.idempotency.outputs.stderr_output, 'STATE_CHANGED')
+        if: contains(steps.idempotency.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
         run: |
           echo "Idempotency check failed for flutter.sh"
           echo "Error output:"

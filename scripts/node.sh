@@ -9,7 +9,7 @@ install_dependencies() {
     echo "[INFO] 依存関係をチェック・インストールします: node"
     if ! command -v node &> /dev/null; then
         brew install node
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 
@@ -91,7 +91,7 @@ install_global_packages() {
     done
     
     if [ "$changed" = true ]; then
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 
     return 0

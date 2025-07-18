@@ -9,7 +9,7 @@ install_dependencies() {
     echo "[INFO] 依存関係をチェック・インストールします: visual-studio-code"
     if ! brew list --cask visual-studio-code &> /dev/null; then
         brew install --cask visual-studio-code
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 

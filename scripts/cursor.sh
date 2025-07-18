@@ -9,7 +9,7 @@ install_dependencies() {
     echo "[INFO] 依存関係をチェック・インストールします: cursor"
     if ! brew list --cask cursor &> /dev/null; then
         brew install --cask cursor
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 

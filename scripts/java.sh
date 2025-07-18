@@ -20,7 +20,7 @@ main() {
             echo "[ERROR] temurin@${JDK_VERSION} のインストールに失敗しました"
             exit 1
         fi
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     else
         echo "[INFO] temurin@${JDK_VERSION} はすでにインストールされています"
     fi

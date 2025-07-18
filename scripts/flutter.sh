@@ -13,7 +13,7 @@ install_dependencies() {
     if ! command -v fvm &> /dev/null; then
         brew tap leoafarias/fvm
         brew install leoafarias/fvm/fvm
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 
@@ -67,7 +67,7 @@ main() {
     fi
 
     if [ "$changed" = true ]; then
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 
     # FVM管理下のFlutterを使うため、PATHを更新

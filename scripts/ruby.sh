@@ -19,7 +19,7 @@ install_dependencies() {
     fi
 
     if [ "$changed" = true ]; then
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 
@@ -65,7 +65,7 @@ main() {
     verify_ruby_setup
 
     if [ "$changed" = true ]; then
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 
@@ -145,7 +145,7 @@ install_gems() {
     }
 
     if [ "$changed" = true ]; then
-        echo "STATE_CHANGED" >&2
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 
