@@ -6,9 +6,18 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 # 依存関係をインストール
 install_dependencies() {
-    echo "[INFO] 依存関係をチェック・インストールします: node"
+    echo "[INFO] 依存関係をチェック・インストールします: node, jq"
+    local changed=false
     if ! command -v node &> /dev/null; then
         brew install node
+        changed=true
+    fi
+    if ! command -v jq &> /dev/null; then
+        brew install jq
+        changed=true
+    fi
+
+    if [ "$changed" = true ]; then
         echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }

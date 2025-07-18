@@ -17,6 +17,7 @@ jobs:
       - name: Run cursor.sh for idempotency check
         id: idempotency
         run: |
+          set -o pipefail
           exec 3>&1
           stderr_output=$(./scripts/cursor.sh 2>&1 | tee /dev/fd/3)
           echo "stderr_output<<EOF" >> $GITHUB_OUTPUT

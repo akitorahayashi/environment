@@ -4,6 +4,7 @@
 
 ## Development Tools
 # brew "node" # installed by scripts/node.sh
+# brew "jq"   # installed by scripts/node.sh
 brew "go"
 # tap "leoafarias/fvm" # installed by scripts/flutter.sh
 # brew "leoafarias/fvm/fvm" # installed by scripts/flutter.sh
