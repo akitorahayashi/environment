@@ -1,8 +1,34 @@
+## Version Control
+# brew "git" # installed by scripts/git.sh
+# brew "gh" # installed by scripts/git.sh
+
+## Development Tools
+# brew "node" # installed by scripts/node.sh
+brew "go"
+# tap "leoafarias/fvm" # installed by scripts/flutter.sh
+# brew "leoafarias/fvm/fvm" # installed by scripts/flutter.sh
+
+## Xcode & Swift Development
+brew "xcodes"
+brew "xcbeautify"
+brew "mint"
+brew "cocoapods"
+
+## Ruby
+# brew "rbenv" # installed by scripts/ruby.sh
+# brew "ruby-build" # installed by scripts/ruby.sh
+
+## Python
+# brew "pyenv" # installed by scripts/python.sh
+brew "pyenv-virtualenv"
+
 ## Utility
 brew "yamllint"
-brew "displayplacer"
+# brew "displayplacer" # installed by scripts/macos.sh
 
 ## Cask
+# cask "visual-studio-code" # installed by scripts/vscode.sh
+# cask "cursor" # installed by scripts/cursor.sh
 cask "android-studio"
 cask "android-commandlinetools"
 cask "figma"
