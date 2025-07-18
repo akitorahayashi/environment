@@ -27,7 +27,7 @@ main() {
     fi
 
     # Cursor アプリケーションの存在確認
-    if ! ls /Applications/Cursor.app &>/dev/null; then
+    if [ ! -d "/Applications/Cursor.app" ]; then
         echo "[WARN] Cursor がインストールされていません。スキップします。"
         return 0 # インストールされていなければエラーではない
     fi
@@ -53,6 +53,7 @@ main() {
             fi
         fi
     done
+    shopt -u nullglob
 
     echo "[SUCCESS] Cursor環境のセットアップが完了しました"
 

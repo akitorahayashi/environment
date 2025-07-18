@@ -22,7 +22,7 @@ set -euo pipefail
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ "${IS_CI:-false}" = "true" ]; then
+if [ "${CI:-false}" = "true" ]; then
   OUTPUT_FILE="/tmp/macos-settings.sh"
 else
   OUTPUT_FILE="$SCRIPT_DIR/macos-settings.sh"

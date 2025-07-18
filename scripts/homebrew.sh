@@ -4,9 +4,6 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# CI環境かどうかを確認
-export IS_CI=${CI:-false}
-
 main() {
     # Homebrewのインストール
     install_homebrew
@@ -37,7 +34,7 @@ install_homebrew_binary() {
     local install_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
     
     echo "[INFO] Homebrewインストールスクリプトを実行します..."
-    if [ "$IS_CI" = "true" ]; then
+    if [ "${CI}" = "true" ]; then
         echo "[INFO] CI環境では非対話型でインストールします"
         NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL $install_url)"
     else

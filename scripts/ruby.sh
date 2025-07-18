@@ -118,7 +118,7 @@ install_gems() {
     # 特定バージョンのBundlerコマンドを定義
     local bundler_cmd="bundle _${required_bundler_version}_"
 
-    (
+    {
         cd "$(dirname "$gem_file")" || {
             echo "[ERROR] Gemfileのディレクトリに移動できませんでした: $(dirname "$gem_file")"
             return 1
@@ -142,7 +142,7 @@ install_gems() {
             # CI環境での警告は削除し、常にエラーとして扱う
             return 1
         fi
-    )
+    }
 
     if [ "$changed" = true ]; then
         echo "STATE_CHANGED" >&2

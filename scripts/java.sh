@@ -12,7 +12,7 @@ main() {
     if ! brew list --cask "temurin@${JDK_VERSION}" > /dev/null 2>&1; then
         echo "[INSTALL] temurin@${JDK_VERSION}"
         local brew_install_cmd=("brew" "install" "--cask")
-        if [ "${IS_CI:-false}" = "true" ]; then
+        if [ "${CI:-false}" = "true" ]; then
             brew_install_cmd+=("--no-quarantine")
         fi
 
@@ -20,7 +20,7 @@ main() {
             echo "[ERROR] temurin@${JDK_VERSION} のインストールに失敗しました"
             exit 1
         fi
-        echo "INSTALL_PERFORMED"
+        echo "STATE_CHANGED" >&2
     else
         echo "[INFO] temurin@${JDK_VERSION} はすでにインストールされています"
     fi

@@ -4,22 +4,8 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SCRIPT_ROOT_DIR="$SCRIPT_DIR"
 
-# CI環境かどうかを確認
-export IS_CI=${CI:-false}
-
-# コマンドライン引数の処理
-# 現在は引数をサポートしていませんが、将来の拡張のために残しておきます。
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-done
-
 # リポジトリのルートディレクトリを設定
-if [ "$IS_CI" = "true" ] && [ -n "$GITHUB_WORKSPACE" ]; then
+if [ "${CI}" = "true" ] && [ -n "$GITHUB_WORKSPACE" ]; then
     export REPO_ROOT="$GITHUB_WORKSPACE"
 else
     export REPO_ROOT="$SCRIPT_DIR"
@@ -63,6 +49,11 @@ main() {
         
         echo "==== Processing:  $script_name"
         
+        # スクリプト存在 & 実行権限確認
+        if [[ ! -x "$script_path" ]]; then
+            echo "[ERROR] $script_name: スクリプトが見つからないか実行権限がありません ($script_path)"
+            exit 1
+        fi
         # スクリプトを実行
         if ! "${script_path}"; then
             echo "[ERROR] $script_name: エラー発生"

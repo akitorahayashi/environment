@@ -58,17 +58,35 @@ install_global_packages() {
         # pkg_name: entry から最終の "@バージョン" を取り除く
         pkg_name="${entry%@*}"
         
-        if npm list -g "$pkg_name" &>/dev/null; then
-            echo "[INSTALLED] $pkg_name"
-        else
-            echo "[INSTALLING] $pkg_full"
+        installed_version=$(npm list -g --depth=0 "$pkg_name" | grep "$pkg_name@" | sed "s/.*@//")
+        required_version=$(echo "$pkg_full" | sed "s/.*@//")
+
+        # バージョンが 'latest' の場合は単純な存在チェックにフォールバック
+        if [ "$required_version" == "latest" ]; then
+            if [ -z "$installed_version" ]; then
+                echo "[INSTALLING] $pkg_full"
+                if npm install -g "$pkg_full"; then
+                    echo "[SUCCESS] $pkg_name のインストールが完了しました"
+                    changed=true
+                else
+                    echo "[ERROR] $pkg_name のインストールに失敗しました"
+                    exit 1
+                fi
+            else
+                echo "[INSTALLED] $pkg_name (latest)"
+            fi
+        # バージョンが指定されていて、インストールされているバージョンと異なる場合
+        elif [ "$installed_version" != "$required_version" ]; then
+            echo "[UPDATING] $pkg_full (found: $installed_version)"
             if npm install -g "$pkg_full"; then
-                echo "[SUCCESS] $pkg_name のインストールが完了しました"
+                echo "[SUCCESS] $pkg_name の更新が完了しました"
                 changed=true
             else
-                echo "[ERROR] $pkg_name のインストールに失敗しました"
+                echo "[ERROR] $pkg_name の更新に失敗しました"
                 exit 1
             fi
+        else
+            echo "[INSTALLED] $pkg_name"
         fi
     done
     

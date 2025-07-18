@@ -27,7 +27,7 @@ main() {
     fi
 
     # VS Code アプリケーションの存在確認
-    if ! ls /Applications/Visual\ Studio\ Code.app &>/dev/null; then
+    if [ ! -d "/Applications/Visual Studio Code.app" ]; then
         echo "[WARN] Visual Studio Code がインストールされていません。スキップします。"
         return 0 # インストールされていなければエラーではない
     fi
@@ -53,6 +53,7 @@ main() {
             fi
         fi
     done
+    shopt -u nullglob
     
     echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 

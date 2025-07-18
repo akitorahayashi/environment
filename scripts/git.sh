@@ -55,7 +55,7 @@ setup_git_config() {
     fi
 
     # Only apply if missing or different
-    if [ ! -f "$dest" ] || ! cmp -s "$src" "$dest" ]; then
+    if [ ! -f "$dest" ] || ! cmp -s "$src" "$dest"; then
         if [ -f "$dest" ] || [ -L "$dest" ]; then
             echo "[INFO] 既存の設定ファイルを削除します: $dest"
             rm -f "$dest"
