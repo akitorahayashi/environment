@@ -21,7 +21,7 @@ brew "cocoapods"
 
 ## Python
 # brew "pyenv" # installed by scripts/python.sh
-brew "pyenv-virtualenv"
+# brew "pyenv-virtualenv" # installed by scripts/python.sh
 
 ## Utility
 brew "yamllint"

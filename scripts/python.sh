@@ -11,9 +11,13 @@ readonly PYTHON_VERSION="3.12.4"
 
 # 依存関係をインストール
 install_dependencies() {
-    echo "[INFO] 依存関係をチェック・インストールします: pyenv"
+    echo "[INFO] 依存関係をチェック・インストールします: pyenv, pyenv-virtualenv"
     if ! command -v pyenv &> /dev/null; then
         brew install pyenv
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+    if ! brew list pyenv-virtualenv &> /dev/null; then
+        brew install pyenv-virtualenv
         echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
