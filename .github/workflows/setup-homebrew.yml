@@ -1,0 +1,44 @@
+name: Setup Homebrew
+
+on:
+  workflow_call:
+
+jobs:
+  setup-homebrew:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub authentication for Homebrew
+        run: |
+          echo "🔑 CI環境用のGitHub認証を設定中..."
+          # 認証情報を環境変数に設定
+          echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          # Gitの認証設定 (トークン漏洩対策)
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}"
+          echo "✅ GitHub認証の設定が完了しました"
+        shell: bash
+
+      - name: Run homebrew.sh for setup
+        id: setup
+        run: ./scripts/homebrew.sh
+
+      - name: Run homebrew.sh for idempotency check
+        id: idempotency
+        run: |
+          set -eo pipefail
+          stderr_output=$(./scripts/homebrew.sh 1>/dev/null 2>&1)
+          {
+            echo "stderr_output<<EOF"
+            echo "${stderr_output}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Verify idempotency
+        if: contains(steps.idempotency.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
+        run: |
+          echo "Idempotency check failed for homebrew.sh"
+          echo "Error output:"
+          echo "${{ steps.idempotency.outputs.stderr_output }}"
+          exit 1

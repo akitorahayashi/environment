@@ -9,13 +9,28 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # 使用するRubyのバージョンを定数として定義
 readonly RUBY_VERSION="3.3.0"
 
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: rbenv, ruby-build"
+    local changed=false
+    if ! command -v rbenv &> /dev/null; then
+        brew install rbenv ruby-build
+        changed=true
+    fi
+
+    if [ "$changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+}
+
 main() {
+    install_dependencies
     echo "==== Start: Ruby環境のセットアップを開始します..."
-    install_rbenv || exit 1
 
     # rbenvを初期化して、以降のコマンドでrbenvのRubyが使われるようにする
     eval "$(rbenv init -)"
 
+    local changed=false
     # Ruby 3.3.0がインストールされていなければインストール
     if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
         echo "[INSTALL] Ruby ${RUBY_VERSION}"
@@ -23,6 +38,7 @@ main() {
             echo "[ERROR] Ruby ${RUBY_VERSION} のインストールに失敗しました"
             exit 1
         fi
+        changed=true
     else
         echo "[INFO] Ruby ${RUBY_VERSION} はすでにインストールされています"
     fi
@@ -32,6 +48,7 @@ main() {
         echo "[CONFIG] rbenv global を ${RUBY_VERSION} に設定します"
         rbenv global "${RUBY_VERSION}"
         rbenv rehash
+        changed=true
     else
         echo "[INFO] rbenv global はすでに ${RUBY_VERSION} に設定されています"
     fi
@@ -46,22 +63,9 @@ main() {
     echo "[SUCCESS] Ruby環境のセットアップが完了しました"
 
     verify_ruby_setup
-}
 
-# rbenvのインストール
-install_rbenv() {
-    if command -v rbenv >/dev/null 2>&1; then
-        echo "[SUCCESS] rbenv はインストール済みです"
-        return 0
-    fi
-    echo "[INSTALL] rbenv"
-    if brew install rbenv ruby-build; then
-        echo "[SUCCESS] rbenvのインストールが完了しました"
-        echo "INSTALL_PERFORMED"
-        return 0
-    else
-        echo "[ERROR] rbenvのインストールに失敗しました"
-        exit 1
+    if [ "$changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 
@@ -73,6 +77,8 @@ install_gems() {
         return 0
     fi
 
+    local changed=false
+
     # global-gems.rbからbundlerのバージョンを抽出（シングル/ダブルクォート両対応に修正）
     local required_bundler_version
     required_bundler_version=$(grep -E "gem[[:space:]]+['\"]bundler['\"]," "$gem_file" | grep -oE '[0-9.]+')
@@ -83,6 +89,7 @@ install_gems() {
         if ! command -v bundle >/dev/null 2>&1; then
             echo "[INSTALL] bundler"
             gem install bundler && rbenv rehash
+            changed=true
         fi
         (
             cd "$(dirname "$gem_file")" || return 1
@@ -102,7 +109,7 @@ install_gems() {
             return 1
         fi
         echo "[SUCCESS] bundler v${required_bundler_version} をインストールしました"
-        echo "INSTALL_PERFORMED" # 冪等性チェックのため追加
+        changed=true
         rbenv rehash
     else
         echo "[INFO] bundler v${required_bundler_version} はすでにインストールされています"
@@ -111,7 +118,7 @@ install_gems() {
     # 特定バージョンのBundlerコマンドを定義
     local bundler_cmd="bundle _${required_bundler_version}_"
 
-    (
+    {
         cd "$(dirname "$gem_file")" || {
             echo "[ERROR] Gemfileのディレクトリに移動できませんでした: $(dirname "$gem_file")"
             return 1
@@ -128,14 +135,18 @@ install_gems() {
         # 特定バージョンのBundlerでインストール
         if BUNDLE_GEMFILE="$gem_file" ${bundler_cmd} install --quiet; then
             echo "[SUCCESS] Gemfileからgemのインストールが完了しました"
-            echo "INSTALL_PERFORMED"
+            changed=true
             rbenv rehash
         else
             echo "[ERROR] gemインストールに失敗しました"
             # CI環境での警告は削除し、常にエラーとして扱う
             return 1
         fi
-    )
+    }
+
+    if [ "$changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
 }
 
 verify_ruby_setup() {

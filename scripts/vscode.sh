@@ -4,7 +4,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: visual-studio-code"
+    if ! brew list --cask visual-studio-code &> /dev/null; then
+        brew install --cask visual-studio-code
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+}
+
 main() {
+    install_dependencies
     echo "[Start] VS Code のセットアップを開始します..."
     local config_dir="$REPO_ROOT/config/vscode"
     local vscode_target_dir="$HOME/Library/Application Support/Code/User"
@@ -17,7 +27,7 @@ main() {
     fi
 
     # VS Code アプリケーションの存在確認
-    if ! ls /Applications/Visual\ Studio\ Code.app &>/dev/null; then
+    if [ ! -d "/Applications/Visual Studio Code.app" ]; then
         echo "[WARN] Visual Studio Code がインストールされていません。スキップします。"
         return 0 # インストールされていなければエラーではない
     fi
@@ -43,6 +53,7 @@ main() {
             fi
         fi
     done
+    shopt -u nullglob
     
     echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 

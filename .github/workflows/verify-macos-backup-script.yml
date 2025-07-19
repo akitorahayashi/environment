@@ -19,8 +19,6 @@ jobs:
 
       - name: Run backup script
         run: ./config/macos/backup_settings.sh
-        env:
-          IS_CI: true
 
       - name: Check if settings.sh is generated
         run: test -f /tmp/macos-settings.sh

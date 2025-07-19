@@ -4,7 +4,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: cursor"
+    if ! brew list --cask cursor &> /dev/null; then
+        brew install --cask cursor
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+}
+
 main() {
+    install_dependencies
     echo "[Start] Cursor のセットアップを開始します..."
     local config_dir="$REPO_ROOT/config/vscode"
     local cursor_target_dir="$HOME/Library/Application Support/Cursor/User"
@@ -17,7 +27,7 @@ main() {
     fi
 
     # Cursor アプリケーションの存在確認
-    if ! ls /Applications/Cursor.app &>/dev/null; then
+    if [ ! -d "/Applications/Cursor.app" ]; then
         echo "[WARN] Cursor がインストールされていません。スキップします。"
         return 0 # インストールされていなければエラーではない
     fi
@@ -43,6 +53,7 @@ main() {
             fi
         fi
     done
+    shopt -u nullglob
 
     echo "[SUCCESS] Cursor環境のセットアップが完了しました"
 

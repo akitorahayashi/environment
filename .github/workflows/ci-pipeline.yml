@@ -8,9 +8,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-setup-tests:
-    name: Run Setup Tests
-    uses: ./.github/workflows/setup-test.yml
+  setup-homebrew:
+    uses: ./.github/workflows/setup-homebrew.yml
+    secrets: inherit
+
+  setup-git:
+    uses: ./.github/workflows/setup-git.yml
+
+  setup-node:
+    uses: ./.github/workflows/setup-node.yml
+
+  setup-ruby:
+    uses: ./.github/workflows/setup-ruby.yml
+
+  setup-python:
+    uses: ./.github/workflows/setup-python.yml
+
+  setup-flutter:
+    uses: ./.github/workflows/setup-flutter.yml
+
+  setup-cursor:
+    uses: ./.github/workflows/setup-cursor.yml
+
+  setup-vscode:
+    uses: ./.github/workflows/setup-vscode.yml
+
+  setup-macos:
+    uses: ./.github/workflows/setup-macos.yml
+
+  setup-shell:
+    uses: ./.github/workflows/setup-shell.yml
+
+  setup-java:
+    uses: ./.github/workflows/setup-java.yml
 
   verify-macos-backup-script:
     name: Verify Backup Script

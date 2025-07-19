@@ -4,15 +4,27 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-main() {
-    echo "[Start] Node.js のセットアップを開始します..."
-
-    # Node.js のインストール確認
-    if ! command -v node; then
-        echo "[WARN] Node.js がインストールされていません。Brewfileを確認してください。"
-        exit 1
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: node, jq"
+    local changed=false
+    if ! command -v node &> /dev/null; then
+        brew install node
+        changed=true
     fi
-    echo "[SUCCESS] Node.js はすでにインストールされています"
+    if ! command -v jq &> /dev/null; then
+        brew install jq
+        changed=true
+    fi
+
+    if [ "$changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+}
+
+main() {
+    install_dependencies
+    echo "[Start] Node.js のセットアップを開始します..."
 
     # npm のインストール確認
     if ! command -v npm; then
@@ -47,6 +59,7 @@ install_global_packages() {
         return 0
     fi
     
+    local changed=false
     # 各 "name@version" を分割してインストール
     for entry in "${entries[@]}"; do
         # pkg_full: "name@version" 例: "@anthropic-ai/claude-code@latest"
@@ -54,20 +67,42 @@ install_global_packages() {
         # pkg_name: entry から最終の "@バージョン" を取り除く
         pkg_name="${entry%@*}"
         
-        if npm list -g "$pkg_name" &>/dev/null; then
-            echo "[INSTALLED] $pkg_name"
-        else
-            echo "[INSTALLING] $pkg_full"
-            echo "INSTALL_PERFORMED"
-            if npm install -g "$pkg_full"; then
-                echo "[SUCCESS] $pkg_name のインストールが完了しました"
+        installed_version=$(npm list -g --depth=0 "$pkg_name" | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}')
+        required_version=$(echo "$pkg_full" | awk -F'@' '{print $NF}')
+
+        # バージョンが 'latest' の場合は単純な存在チェックにフォールバック
+        if [ "$required_version" == "latest" ]; then
+            if [ -z "$installed_version" ]; then
+                echo "[INSTALLING] $pkg_full"
+                if npm install -g "$pkg_full"; then
+                    echo "[SUCCESS] $pkg_name のインストールが完了しました"
+                    changed=true
+                else
+                    echo "[ERROR] $pkg_name のインストールに失敗しました"
+                    exit 1
+                fi
             else
-                echo "[ERROR] $pkg_name のインストールに失敗しました"
+                echo "[INSTALLED] $pkg_name (latest)"
+            fi
+        # バージョンが指定されていて、インストールされているバージョンと異なる場合
+        elif [ "$installed_version" != "$required_version" ]; then
+            echo "[UPDATING] $pkg_full (found: $installed_version)"
+            if npm install -g "$pkg_full"; then
+                echo "[SUCCESS] $pkg_name の更新が完了しました"
+                changed=true
+            else
+                echo "[ERROR] $pkg_name の更新に失敗しました"
                 exit 1
             fi
+        else
+            echo "[INSTALLED] $pkg_name"
         fi
     done
     
+    if [ "$changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+
     return 0
 }
 

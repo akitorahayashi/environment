@@ -1,0 +1,14 @@
+name: Setup macOS
+
+on:
+  workflow_call:
+
+jobs:
+  setup-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run macos.sh
+        run: ./scripts/macos.sh

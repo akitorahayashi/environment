@@ -4,7 +4,26 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+# 依存関係をインストール
+install_dependencies() {
+    echo "[INFO] 依存関係をチェック・インストールします: git, gh"
+    local changed=false
+    if ! command -v git &> /dev/null; then
+        brew install git
+        changed=true
+    fi
+    if ! command -v gh &> /dev/null; then
+        brew install gh
+        changed=true
+    fi
+
+    if [ "$changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+}
+
 main() {
+    install_dependencies
     setup_git_config
     setup_gitignore_global
     setup_ssh_agent
@@ -36,7 +55,7 @@ setup_git_config() {
     fi
 
     # Only apply if missing or different
-    if [ ! -f "$dest" ] || ! cmp -s "$src" "$dest" ]; then
+    if [ ! -f "$dest" ] || ! cmp -s "$src" "$dest"; then
         if [ -f "$dest" ] || [ -L "$dest" ]; then
             echo "[INFO] 既存の設定ファイルを削除します: $dest"
             rm -f "$dest"

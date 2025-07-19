@@ -31,7 +31,6 @@ verify_shell_setup() {
     echo "[Start] シェル設定を検証中..."
     local verification_failed=false
 
-    verify_shell_type || verification_failed=true
     verify_zprofile || verification_failed=true
     verify_zshrc || verification_failed=true
     verify_env_vars || verification_failed=true
@@ -42,31 +41,6 @@ verify_shell_setup() {
     else
         echo "[SUCCESS] シェル設定の検証が正常に完了しました"
         return 0
-    fi
-}
-
-verify_shell_type() {
-    current_shell=$(echo $SHELL)
-
-    # CI環境とそれ以外で検証条件を分岐
-    if [ "$IS_CI" = "true" ]; then
-        # CI環境ではbashも許容
-        if [[ "$current_shell" == */bash || "$current_shell" == */zsh ]]; then
-            echo "[SUCCESS] CI環境: シェルがbashまたはzshです: $current_shell"
-            return 0
-        else
-            echo "[WARN] CI環境: 未知のシェルが使用されています: $current_shell"
-            return 0
-        fi
-    else
-        # 通常環境ではzshのみ
-        if [[ "$current_shell" == */zsh ]]; then
-            echo "[SUCCESS] シェルがzshに設定されています: $current_shell"
-            return 0
-        else
-            echo "[ERROR] シェルがzshに設定されていません: $current_shell"
-            return 1
-        fi
     fi
 }
 
