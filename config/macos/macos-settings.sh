@@ -16,7 +16,7 @@ defaults write NSGlobalDomain _HIHideMenuBar -bool false
 defaults write com.apple.universalaccess reduceTransparency -bool false
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
-defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool true
+defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool true
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool true
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool true
@@ -79,4 +79,7 @@ defaults write -g "com.apple.sound.beep.feedback" -int 0
 defaults write com.apple.screencapture location -string "$HOME/Desktop"
 defaults write com.apple.screencapture disable-shadow -bool false
 defaults write com.apple.screencapture type -string "png"
+
+# ディスプレイ
+displayplacer "id:37D8832A-2D66-02CA-B9F7-8F30A301B230 res:1710x1112 hz:60 color_depth:8 enabled:true scaling:on origin:(0,0) degree:0"
 
