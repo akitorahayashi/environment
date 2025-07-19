@@ -3,7 +3,7 @@
 # brew "gh" # installed by scripts/git.sh
 
 ## Development Tools
-# brew "node" # installed by scripts/node.sh
+# brew "nvm" # installed by scripts/node.sh
 # brew "jq"   # installed by scripts/node.sh
 brew "go"
 # tap "leoafarias/fvm" # installed by scripts/flutter.sh
