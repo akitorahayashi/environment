@@ -9,3 +9,4 @@ ms-python.python
 ms-python.vscode-pylance
 ms-vscode.makefile-tools
 swiftlang.swift-vscode
+tomoki1207.pdf
