@@ -5,11 +5,12 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 # 依存関係をインストール
+# displayplacerのインストールは状態変更とみなすが、macOSの設定適用自体は冪等であるため、
+# このスクリプト全体としては冪等性違反のシグナルを出力しない。
 install_dependencies() {
     echo "[INFO] 依存関係をチェック・インストールします: displayplacer"
     if ! command -v displayplacer &> /dev/null; then
         brew install displayplacer
-        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 }
 

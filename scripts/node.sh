@@ -67,8 +67,8 @@ install_global_packages() {
         # pkg_name: entry から最終の "@バージョン" を取り除く
         pkg_name="${entry%@*}"
         
-        installed_version=$(npm list -g --depth=0 "$pkg_name" | grep "$pkg_name@" | sed "s/.*@//")
-        required_version=$(echo "$pkg_full" | sed "s/.*@//")
+        installed_version=$(npm list -g --depth=0 "$pkg_name" | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}')
+        required_version=$(echo "$pkg_full" | awk -F'@' '{print $NF}')
 
         # バージョンが 'latest' の場合は単純な存在チェックにフォールバック
         if [ "$required_version" == "latest" ]; then
