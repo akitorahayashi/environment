@@ -36,8 +36,8 @@ source_nvm() {
     fi
 }
 
-# 特定のNode.jsバージョンをインストールしてデフォルトに設定
-install_and_set_default_node() {
+# 特定のNode.jsバージョンをインストール
+install_node() {
     source_nvm
     local changed=false
 
@@ -55,20 +55,6 @@ install_and_set_default_node() {
         echo "[INSTALLED] Node.js $NODE_VERSION はすでにインストールされています"
     fi
 
-    # デフォルトバージョンとして設定
-    if [[ "$(nvm alias default)" != *"$NODE_VERSION"* ]]; then
-        echo "[CONFIGURING] Node.js $NODE_VERSION をデフォルトバージョンに設定します"
-        if nvm alias default "$NODE_VERSION"; then
-            echo "[SUCCESS] デフォルトバージョンを $NODE_VERSION に設定しました"
-            changed=true
-        else
-            echo "[ERROR] デフォルトバージョンの設定に失敗しました"
-            exit 1
-        fi
-    else
-        echo "[CONFIGURED] Node.js $NODE_VERSION はすでにデフォルトバージョンです"
-    fi
-
     if [ "$changed" = true ]; then
         echo "IDEMPOTENCY_VIOLATION" >&2
     fi
@@ -79,12 +65,12 @@ main() {
     install_dependencies
     echo "[Start] Node.js のセットアップを開始します..."
 
-    # nvm経由でNode.jsをインストール・設定
-    install_and_set_default_node
+    # nvm経由でNode.jsをインストール
+    install_node
 
     # nvm環境を読み込む
     source_nvm
-    nvm use default > /dev/null # ターミナルの出力なし
+    nvm use "$NODE_VERSION" > /dev/null # ターミナルの出力なし
 
     # npm のインストール確認
     if ! command -v npm &> /dev/null; then
