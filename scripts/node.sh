@@ -44,7 +44,6 @@ install_node() {
 
     # 特定のバージョンがインストールされているか確認
     if ! nvm ls "$NODE_VERSION" | grep -q "$NODE_VERSION"; then
-        echo "[INSTALLING] Node.js $NODE_VERSION をインストールします..."
         if nvm install "$NODE_VERSION"; then
             echo "[SUCCESS] Node.js $NODE_VERSION のインストールが完了しました"
             changed=true
@@ -125,7 +124,6 @@ install_global_packages() {
         # バージョンが 'latest' の場合は単純な存在チェックにフォールバック
         if [ "$required_version" == "latest" ]; then
             if [ -z "$installed_version" ]; then
-                echo "[INSTALLING] $pkg_full"
                 if npm install -g "$pkg_full"; then
                     echo "[SUCCESS] $pkg_name のインストールが完了しました"
                     changed=true
@@ -138,7 +136,6 @@ install_global_packages() {
             fi
         # バージョンが指定されていて、インストールされているバージョンと異なる場合
         elif [ "$installed_version" != "$required_version" ]; then
-            echo "[UPDATING] $pkg_full (found: $installed_version)"
             if npm install -g "$pkg_full"; then
                 echo "[SUCCESS] $pkg_name の更新が完了しました"
                 changed=true
