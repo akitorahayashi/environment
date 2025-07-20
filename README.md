@@ -58,12 +58,17 @@ environment/
 7.  **VS Code Configuration**
     -   `config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
-9.  **Python Environment Setup**
+8.  **Python Environment Setup**
     -   `pyenv`をインストール
     -   特定のバージョンのPythonをインストールし、グローバルに設定
 
-10. **Java Environment Setup**
+9. **Java Environment Setup**
     -   `Homebrew`を使用して特定のバージョンのJava (Temurin)をインストール
+
+10. **Node.js Environment Setup**
+    -   `nvm`と`jq`をHomebrewでインストール
+    -   特定のバージョンのNode.jsをインストールし、デフォルトとして設定
+    -   `config/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
 
 11. **Flutter Setup**
 
@@ -152,6 +157,9 @@ $ ./scripts/python.sh
 
 # Java環境のセットアップ
 $ ./scripts/java.sh
+
+# Node.js環境のセットアップ
+$ ./scripts/node.sh
 
 # Flutterのセットアップ
 $ ./scripts/flutter.sh
