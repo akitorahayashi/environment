@@ -7,11 +7,40 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # 使用するNode.jsのバージョンを定数として定義
 readonly NODE_VERSION="22.17.1"
 
+main() {
+    install_dependencies
+
+    # nvm環境を読み込む
+    source_nvm
+
+    echo "[Start] Node.js のセットアップを開始します..."
+
+    # nvm経由でNode.jsをインストール・設定
+    install_and_set_default_node
+
+    # 現在のシェルで指定バージョンを使用
+    nvm use "$NODE_VERSION" > /dev/null
+
+    # npm のインストール確認
+    if ! command -v npm &> /dev/null; then
+        echo "[ERROR] npm が見つかりません。nvm の設定と Node.js のインストールを確認してください。"
+        exit 1
+    fi
+    echo "[OK] npm は利用可能です"
+
+    # グローバルパッケージのインストール
+    install_global_packages
+
+    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
+
+    verify_node_setup
+}
+
 # 依存関係をインストール
 install_dependencies() {
     echo "[INFO] 依存関係をチェック・インストールします: nvm, jq"
     local changed=false
-    if ! command -v nvm &> /dev/null; then
+    if ! brew list nvm &> /dev/null; then
         brew install nvm
         changed=true
     fi
@@ -37,9 +66,8 @@ source_nvm() {
     fi
 }
 
-# 特定のNode.jsバージョンをインストール
-install_node() {
-    source_nvm
+# 特定のNode.jsバージョンをインストールしてデフォルトに設定
+install_and_set_default_node() {
     local changed=false
 
     # 特定のバージョンがインストールされているか確認
@@ -55,40 +83,24 @@ install_node() {
         echo "[INSTALLED] Node.js $NODE_VERSION はすでにインストールされています"
     fi
 
+    # デフォルトバージョンとして設定
+    local current_default
+    current_default=$(nvm alias default 2>/dev/null || true)
+    if [[ "$current_default" != *"$NODE_VERSION"* ]]; then
+        echo "[CONFIGURING] Node.js $NODE_VERSION をデフォルトバージョンに設定します"
+        if nvm alias default "$NODE_VERSION"; then
+            echo "[SUCCESS] デフォルトバージョンを $NODE_VERSION に設定しました"
+            changed=true
+        else
+            echo "[ERROR] デフォルトバージョンの設定に失敗しました"
+            exit 1
+        fi
+    else
+        echo "[CONFIGURED] Node.js $NODE_VERSION はすでにデフォルトバージョンです"
+    fi
+
     if [ "$changed" = true ]; then
         echo "IDEMPOTENCY_VIOLATION" >&2
-    fi
-}
-
-
-main() {
-    install_dependencies
-    echo "[Start] Node.js のセットアップを開始します..."
-
-    # nvm経由でNode.jsをインストール
-    install_node
-
-    # nvm環境を読み込む
-    source_nvm
-    nvm use "$NODE_VERSION" > /dev/null # ターミナルの出力なし
-
-    # npm のインストール確認
-    if ! command -v npm &> /dev/null; then
-        echo "[ERROR] npm が見つかりません。nvm の設定と Node.js のインストールを確認してください。"
-        exit 1
-    fi
-    echo "[OK] npm は利用可能です"
-
-    # グローバルパッケージのインストール
-    install_global_packages
-
-    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
-
-    # macOS のみ環境検証を実行
-    if [[ "$(uname)" == "Darwin" ]]; then
-        verify_node_setup
-    else
-        echo "[INFO] macOS以外の環境のため、環境検証をスキップします"
     fi
 }
 
