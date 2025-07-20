@@ -121,6 +121,7 @@ FINDER_QUIT_MENU=$(get_default_value "com.apple.finder" "QuitMenuItem" "false")
 
 # --- デスクトップ ---
 SHOW_HD_ON_DESKTOP=$(get_default_value "com.apple.finder" "ShowHardDrivesOnDesktop" "true")
+CLICK_TO_SHOW_DESKTOP=$(get_default_value "com.apple.WindowManager" "EnableStandardClickToShowDesktop" "false")
 
 # --- ミッションコントロール ---
 MC_ANIMATION_DURATION=$(get_default_value "com.apple.dock" "expose-animation-duration" "0.2")
@@ -229,6 +230,7 @@ add_setting "Finder" "$FINDER_COMMANDS"
 # --- デスクトップ ---
 DESKTOP_COMMANDS=$(cat << EOF
 defaults write com.apple.finder ShowHardDrivesOnDesktop -bool $(format_bool_value $SHOW_HD_ON_DESKTOP)
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool $(format_bool_value $CLICK_TO_SHOW_DESKTOP)
 EOF
 )
 
@@ -321,4 +323,4 @@ fi
 # 実行権限を付与
 chmod +x "$OUTPUT_FILE"
 
-echo "設定スクリプトを生成しました: $OUTPUT_FILE" 
+echo "設定スクリプトを生成しました: $OUTPUT_FILE"

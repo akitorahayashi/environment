@@ -69,7 +69,8 @@
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
-| `defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true` | デスクトップアイコンの表示 | デスクトップに表示するアイコンの種類を制御します。（ハードドライブ、外部ディスク、リムーバブルメディア、サーバー） |
+| `defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false` | 外部ハードドライブのデスクトップへの表示 | USBやThunderbolt接続のディスクなどをデスクトップに表示するか|
+| `defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool true` | デスクトップ表示のクリック挙動 | 通常のクリックでデスクトップ表示を有効化するかどうかを制御します。 |
 
 ### ミッションコントロール
 
