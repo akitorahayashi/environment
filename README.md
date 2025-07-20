@@ -15,7 +15,6 @@ environment/
 │   ├── shell/
 │   └── vscode/
 ├── scripts/
-│   ├── cursor.sh
 │   ├── flutter.sh
 │   ├── git.sh
 │   ├── homebrew.sh
@@ -56,29 +55,26 @@ environment/
     -   特定のバージョンのRubyをインストールし、グローバルに設定
     -   `config/gems/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
 
-7.  **Cursor Configuration**
-    -   `config/cursor/`から`$HOME/Library/Application Support/Cursor/User`への設定ファイルのシンボリックリンクを作成
-
-8.  **VS Code Configuration**
+7.  **VS Code Configuration**
     -   `config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
-9.  **Python Environment Setup**
+8.  **Python Environment Setup**
     -   `pyenv`をインストール
     -   特定のバージョンのPythonをインストールし、グローバルに設定
 
-10. **Java Environment Setup**
+9. **Java Environment Setup**
     -   `Homebrew`を使用して特定のバージョンのJava (Temurin)をインストール
 
-11. **Node.js Environment Setup**
+10. **Node.js Environment Setup**
     -   `nvm`と`jq`をHomebrewでインストール
     -   特定のバージョンのNode.jsをインストールし、デフォルトとして設定
     -   `config/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
 
-12. **Flutter Setup**
+11. **Flutter Setup**
 
-13. **GitHub CLI Configuration**
+12. **GitHub CLI Configuration**
 
-14. **SSH Key Management**
+13. **SSH Key Management**
     -   SSHキーの存在確認
     -   SSHエージェントの設定
 
@@ -167,9 +163,6 @@ $ ./scripts/node.sh
 
 # Flutterのセットアップ
 $ ./scripts/flutter.sh
-
-# Cursorの設定
-$ ./scripts/cursor.sh
 
 # VSCodeの設定
 $ ./scripts/vscode.sh
