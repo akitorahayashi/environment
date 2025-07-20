@@ -29,7 +29,6 @@ brew "yamllint"
 
 ## Cask
 # cask "visual-studio-code" # installed by scripts/vscode.sh
-# cask "cursor" # installed by scripts/cursor.sh
 cask "android-studio"
 cask "android-commandlinetools"
 cask "figma"
