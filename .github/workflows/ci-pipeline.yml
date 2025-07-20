@@ -27,9 +27,6 @@ jobs:
   setup-flutter:
     uses: ./.github/workflows/setup-flutter.yml
 
-  setup-cursor:
-    uses: ./.github/workflows/setup-cursor.yml
-
   setup-vscode:
     uses: ./.github/workflows/setup-vscode.yml
 

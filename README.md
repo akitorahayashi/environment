@@ -15,7 +15,6 @@ environment/
 │   ├── shell/
 │   └── vscode/
 ├── scripts/
-│   ├── cursor.sh
 │   ├── flutter.sh
 │   ├── git.sh
 │   ├── homebrew.sh
@@ -56,10 +55,7 @@ environment/
     -   特定のバージョンのRubyをインストールし、グローバルに設定
     -   `config/gems/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
 
-7.  **Cursor Configuration**
-    -   `config/cursor/`から`$HOME/Library/Application Support/Cursor/User`への設定ファイルのシンボリックリンクを作成
-
-8.  **VS Code Configuration**
+7.  **VS Code Configuration**
     -   `config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
 9.  **Python Environment Setup**
@@ -159,9 +155,6 @@ $ ./scripts/java.sh
 
 # Flutterのセットアップ
 $ ./scripts/flutter.sh
-
-# Cursorの設定
-$ ./scripts/cursor.sh
 
 # VSCodeの設定
 $ ./scripts/vscode.sh
