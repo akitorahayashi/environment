@@ -39,6 +39,12 @@ if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
+# pyenv 初期化
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+
 # nvm 初期化
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
