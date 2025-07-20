@@ -9,5 +9,6 @@
   "explorer.confirmPasteNative": false,
   "chat.editing.confirmEditRequestRemoval": false,
   "diffEditor.ignoreTrimWhitespace": false,
-  "terminal.integrated.enableMultiLinePasteWarning": "never"
+  "terminal.integrated.enableMultiLinePasteWarning": "never",
+  "github.copilot.nextEditSuggestions.enabled": true
 }

@@ -43,6 +43,7 @@ defaults write com.apple.finder QuitMenuItem -bool false
 
 # デスクトップ
 defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
 
 # ミッションコントロール
 defaults write com.apple.dock expose-animation-duration -float 0.2
