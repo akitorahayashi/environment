@@ -27,6 +27,7 @@ install_dependencies() {
 
 # nvmを初期化
 source_nvm() {
+    export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
     if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
         # shellcheck source=/dev/null
         . "$(brew --prefix nvm)/nvm.sh"

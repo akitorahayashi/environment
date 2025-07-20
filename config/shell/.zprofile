@@ -40,10 +40,9 @@ if command -v rbenv 1>/dev/null 2>&1; then
 fi
 
 # nvm 初期化
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
   . "$(brew --prefix nvm)/nvm.sh" --no-use # スクリプト読み込み時に use しない
-  # nvm use default # 新しいシェルで常にデフォルトを使う場合
 fi
 
 # JAVA_HOME 設定
