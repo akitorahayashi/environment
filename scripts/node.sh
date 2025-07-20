@@ -4,12 +4,44 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+# 使用するNode.jsのバージョンを定数として定義
+readonly NODE_VERSION="22.17.1"
+
+main() {
+    install_dependencies
+
+    # nvm環境を読み込む
+    source_nvm
+
+    echo "[Start] Node.js のセットアップを開始します..."
+
+    # nvm経由でNode.jsをインストール・設定
+    install_and_set_default_node
+
+    # 現在のシェルで指定バージョンを使用
+    nvm use "$NODE_VERSION" > /dev/null
+
+    # npm のインストール確認
+    if ! command -v npm &> /dev/null; then
+        echo "[ERROR] npm が見つかりません。nvm の設定と Node.js のインストールを確認してください。"
+        exit 1
+    fi
+    echo "[OK] npm は利用可能です"
+
+    # グローバルパッケージのインストール
+    install_global_packages
+
+    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
+
+    verify_node_setup
+}
+
 # 依存関係をインストール
 install_dependencies() {
-    echo "[INFO] 依存関係をチェック・インストールします: node, jq"
+    echo "[INFO] 依存関係をチェック・インストールします: nvm, jq"
     local changed=false
-    if ! command -v node &> /dev/null; then
-        brew install node
+    if ! brew list nvm &> /dev/null; then
+        brew install nvm
         changed=true
     fi
     if ! command -v jq &> /dev/null; then
@@ -22,23 +54,54 @@ install_dependencies() {
     fi
 }
 
-main() {
-    install_dependencies
-    echo "[Start] Node.js のセットアップを開始します..."
-
-    # npm のインストール確認
-    if ! command -v npm; then
-        echo "[WARN] npm がインストールされていません。Node.js のインストールを確認してください。"
+# nvmを初期化
+source_nvm() {
+    export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+    if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$(brew --prefix nvm)/nvm.sh"
+    else
+        echo "[ERROR] nvm.sh が見つかりません。nvm のインストールを確認してください"
         exit 1
     fi
-    echo "[OK] npm はすでにインストールされています"
+}
 
-    # グローバルパッケージのインストール
-    install_global_packages
+# 特定のNode.jsバージョンをインストールしてデフォルトに設定
+install_and_set_default_node() {
+    local changed=false
 
-    echo "[SUCCESS] Node.js 環境のセットアップが完了しました"
+    # 特定のバージョンがインストールされているか確認
+    if ! nvm ls "$NODE_VERSION" | grep -q "$NODE_VERSION"; then
+        if nvm install "$NODE_VERSION"; then
+            echo "[SUCCESS] Node.js $NODE_VERSION のインストールが完了しました"
+            changed=true
+        else
+            echo "[ERROR] Node.js $NODE_VERSION のインストールに失敗しました"
+            exit 1
+        fi
+    else
+        echo "[INSTALLED] Node.js $NODE_VERSION はすでにインストールされています"
+    fi
 
-    verify_node_setup
+    # デフォルトバージョンとして設定
+    local current_default
+    current_default=$(nvm alias default 2>/dev/null || true)
+    if [[ "$current_default" != *"$NODE_VERSION"* ]]; then
+        echo "[CONFIGURING] Node.js $NODE_VERSION をデフォルトバージョンに設定します"
+        if nvm alias default "$NODE_VERSION"; then
+            echo "[SUCCESS] デフォルトバージョンを $NODE_VERSION に設定しました"
+            changed=true
+        else
+            echo "[ERROR] デフォルトバージョンの設定に失敗しました"
+            exit 1
+        fi
+    else
+        echo "[CONFIGURED] Node.js $NODE_VERSION はすでにデフォルトバージョンです"
+    fi
+
+    if [ "$changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
 }
 
 install_global_packages() {
@@ -73,7 +136,6 @@ install_global_packages() {
         # バージョンが 'latest' の場合は単純な存在チェックにフォールバック
         if [ "$required_version" == "latest" ]; then
             if [ -z "$installed_version" ]; then
-                echo "[INSTALLING] $pkg_full"
                 if npm install -g "$pkg_full"; then
                     echo "[SUCCESS] $pkg_name のインストールが完了しました"
                     changed=true
@@ -86,7 +148,6 @@ install_global_packages() {
             fi
         # バージョンが指定されていて、インストールされているバージョンと異なる場合
         elif [ "$installed_version" != "$required_version" ]; then
-            echo "[UPDATING] $pkg_full (found: $installed_version)"
             if npm install -g "$pkg_full"; then
                 echo "[SUCCESS] $pkg_name の更新が完了しました"
                 changed=true

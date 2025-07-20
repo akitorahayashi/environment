@@ -39,6 +39,12 @@ if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
+# nvm 初期化
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
+  . "$(brew --prefix nvm)/nvm.sh" --no-use # スクリプト読み込み時に use しない
+fi
+
 # JAVA_HOME 設定
 if ! command -v /usr/libexec/java_home >/dev/null 2>&1; then
     echo "Error: /usr/libexec/java_home is not installed." >&2
