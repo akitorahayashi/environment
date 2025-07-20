@@ -42,7 +42,7 @@ fi
 # nvm 初期化
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
-  . "$(brew --prefix nvm)/nvm.sh" --no-use # スクリプト読み込み時に use しない
+  . "$(brew --prefix nvm)/nvm.sh"
 fi
 
 # JAVA_HOME 設定
