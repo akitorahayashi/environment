@@ -69,11 +69,16 @@ environment/
 10. **Java Environment Setup**
     -   `Homebrew`を使用して特定のバージョンのJava (Temurin)をインストール
 
-11. **Flutter Setup**
+11. **Node.js Environment Setup**
+    -   `nvm`と`jq`をHomebrewでインストール
+    -   特定のバージョンのNode.jsをインストールし、デフォルトとして設定
+    -   `config/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
 
-12. **GitHub CLI Configuration**
+12. **Flutter Setup**
 
-13. **SSH Key Management**
+13. **GitHub CLI Configuration**
+
+14. **SSH Key Management**
     -   SSHキーの存在確認
     -   SSHエージェントの設定
 
@@ -156,6 +161,9 @@ $ ./scripts/python.sh
 
 # Java環境のセットアップ
 $ ./scripts/java.sh
+
+# Node.js環境のセットアップ
+$ ./scripts/node.sh
 
 # Flutterのセットアップ
 $ ./scripts/flutter.sh
