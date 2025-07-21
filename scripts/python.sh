@@ -9,29 +9,27 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # 使用するPythonのバージョンを定数として定義
 readonly PYTHON_VERSION="3.12.4"
 
-# --- 依存関係のインストール ---
+# 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: pyenv, pyenv-virtualenv"
-changed=false
 if ! command -v pyenv &> /dev/null; then
     brew install pyenv
-    changed=true
+    echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 if ! brew list pyenv-virtualenv &> /dev/null; then
     brew install pyenv-virtualenv
-    changed=true
+    echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
-# --- Python環境のセットアップ ---
 echo "==== Start: Python環境のセットアップを開始します..."
 
-# pyenvを初期化
+# pyenvを初期化して、以降のコマンドでpyenvのPythonが使われるようにする
 if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init --path)"
     eval "$(pyenv init -)"
 fi
 
 changed=false
-# Pythonのインストール
+# Python 3.12.4がインストールされていなければインストール
 if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
     echo "[INSTALL] Python ${PYTHON_VERSION}"
     if ! pyenv install "${PYTHON_VERSION}"; then
@@ -43,7 +41,7 @@ else
     echo "[INFO] Python ${PYTHON_VERSION} はすでにインストールされています"
 fi
 
-# グローバルバージョンの設定
+# グローバルバージョンを3.12.4に設定
 if [ "$(pyenv global)" != "${PYTHON_VERSION}" ]; then
     echo "[CONFIG] pyenv global を ${PYTHON_VERSION} に設定します"
     pyenv global "${PYTHON_VERSION}"
@@ -53,14 +51,14 @@ else
     echo "[INFO] pyenv global はすでに ${PYTHON_VERSION} に設定されています"
 fi
 
+# 最終的な環境情報を表示
+echo "[INFO] Python環境: $(python -V)"
+echo "[SUCCESS] Python環境のセットアップが完了しました"
+
 if [ "$changed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
-echo "[INFO] Python環境: $(python -V)"
-echo "[SUCCESS] Python環境のセットアップが完了しました"
-
-# --- 検証フェーズ ---
 echo "==== Start: Python環境を検証中..."
 # pyenvチェック
 if ! command -v pyenv >/dev/null 2>&1; then

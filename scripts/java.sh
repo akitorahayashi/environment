@@ -32,7 +32,6 @@ if [ -f "$HOME/.zprofile" ]; then
     source "$HOME/.zprofile"
 fi
 
-# --- 検証フェーズ ---
 echo "==== Start: Java環境を検証中..."
 
 # temurinがインストールされているか確認

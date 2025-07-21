@@ -5,18 +5,18 @@ set -euo pipefail
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
-SETUP_DIR="$SCRIPT_DIR"  # セットアップディレクトリを保存
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: fvm"
-changed=false
 if ! command -v fvm &> /dev/null; then
     brew tap leoafarias/fvm
     brew install leoafarias/fvm/fvm
-    changed=true
+    echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
 echo "[Start] fvm を使用してFlutter SDK のセットアップを開始します"
+
+changed=false
 # 安定版 Flutter SDK のインストール (fvm install は冪等)
 echo "[INFO] 安定版 Flutter SDK をインストールします..."
 
@@ -76,7 +76,7 @@ if ! command -v flutter >/dev/null 2>&1; then
 fi
 
 # Flutterのパスを確認 (fvm管理下のパス)
-    FLUTTER_PATH=$(command -v flutter)
+FLUTTER_PATH=$(which flutter)
 echo "[INFO] Flutter PATH: $FLUTTER_PATH"
 
 # パスが正しいか確認（FVM管理下のパスを確認）
@@ -104,7 +104,6 @@ fi
 
 echo "[SUCCESS] Flutter環境のセットアップが完了しました"
 
-# --- 検証フェーズ ---
 echo "==== Start: Flutter環境を検証中... ===="
 verification_failed=false
 
@@ -112,7 +111,7 @@ verification_failed=false
 echo "[OK] Flutter"
 
 # パス確認
-FLUTTER_PATH=$(command -v flutter)
+FLUTTER_PATH=$(which flutter)
 echo "[INFO] Flutter PATH: $FLUTTER_PATH"
 
 # FVM管理下のパスを期待する

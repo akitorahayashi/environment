@@ -4,14 +4,13 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# --- 依存関係のインストール ---
+# 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: visual-studio-code"
 if ! brew list --cask visual-studio-code &> /dev/null; then
     brew install --cask visual-studio-code
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
-# --- VS Codeのセットアップ ---
 echo "[Start] VS Code のセットアップを開始します..."
 config_dir="$REPO_ROOT/config/vscode"
 vscode_target_dir="$HOME/Library/Application Support/Code/User"
@@ -26,7 +25,7 @@ fi
 # VS Code アプリケーションの存在確認
 if [ ! -d "/Applications/Visual Studio Code.app" ]; then
     echo "[WARN] Visual Studio Code がインストールされていません。スキップします。"
-    exit 0
+    exit 0 # インストールされていなければエラーではない
 fi
 echo "[SUCCESS] Visual Studio Code はすでにインストールされています"
 
@@ -40,6 +39,7 @@ for file in "$config_dir"/*; do
         filename=$(basename "$file")
         target_file="$vscode_target_dir/$filename"
 
+        # シンボリックリンクの作成
         if ln -sf "$file" "$target_file"; then
             echo "[SUCCESS] VS Code設定ファイル $filename のシンボリックリンクを作成しました。"
         else
@@ -52,10 +52,11 @@ shopt -u nullglob
 
 echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 
-# --- 検証フェーズ ---
 echo ""
 echo "==== Start: VS Code環境を検証中... ===="
 verification_failed=false
+config_dir="$REPO_ROOT/config/vscode"
+vscode_target_dir="$HOME/Library/Application Support/Code/User"
 
 # リポジトリに設定ファイルがない場合はスキップ
 if [ ! -d "$config_dir" ]; then

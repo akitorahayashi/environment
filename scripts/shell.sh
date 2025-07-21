@@ -23,7 +23,6 @@ fi
 
 echo "[SUCCESS] シェル環境のセットアップが完了しました"
 
-# --- 検証フェーズ ---
 echo "[Start] シェル設定を検証中..."
 verification_failed=false
 
@@ -34,7 +33,6 @@ if [ ! -L "$HOME/.zprofile" ]; then
 else
     link_target=$(readlink "$HOME/.zprofile")
     expected_target="$REPO_ROOT/config/shell/.zprofile"
-
     if [ "$link_target" = "$expected_target" ]; then
         echo "[SUCCESS] .zprofile がシンボリックリンクとして存在し、期待される場所を指しています"
     else
@@ -52,7 +50,6 @@ if [ ! -L "$HOME/.zshrc" ]; then
 else
     link_target=$(readlink "$HOME/.zshrc")
     expected_target="$REPO_ROOT/config/shell/.zshrc"
-
     if [ "$link_target" = "$expected_target" ]; then
         echo "[SUCCESS] .zshrc がシンボリックリンクとして存在し、期待される場所を指しています"
     else
@@ -63,7 +60,7 @@ else
     fi
 fi
 
-# 環境変数の検証
+# PATH環境変数の検証
 if [ -z "$PATH" ]; then
     echo "[ERROR] PATH環境変数が設定されていません"
     verification_failed=true

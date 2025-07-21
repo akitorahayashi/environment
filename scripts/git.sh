@@ -20,7 +20,7 @@ if [ "$changed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
-# --- Git設定のセットアップ ---
+# Gitの設定ファイルのセットアップ
 echo "[Start] Gitの設定ファイルのセットアップを開始します..."
 
 mkdir -p "$HOME/.config/git"
@@ -71,7 +71,7 @@ fi
 
 echo "[SUCCESS] Git の設定適用完了"
 
-# --- gitignore_globalのセットアップ ---
+# gitignore_globalのセットアップ
 echo ""
 echo "==== Start: gitignore_globalのセットアップを開始します... ===="
 
@@ -93,7 +93,7 @@ echo "[SUCCESS] Git の core.excludesfile に global gitignore を設定しま�
 
 echo "[SUCCESS] gitignore_global の設定完了"
 
-# --- SSHエージェントのセットアップ ---
+# SSH エージェントとキーの確認
 echo ""
 echo "==== Start: SSH エージェントとキーの確認中... ===="
 
@@ -108,7 +108,7 @@ if [[ -f "$HOME/.ssh/id_ed25519" ]]; then
     else
         echo "[INFO] SSH エージェントは既に動作中です"
     fi
-    
+
     # SSH キーをエージェントに追加
     echo "[INFO] SSH キーを SSH エージェントに追加中..."
     if ssh-add "$HOME/.ssh/id_ed25519"; then
@@ -124,7 +124,7 @@ fi
 
 echo "[SUCCESS] Git環境のセットアップが完了しました"
 
-# --- 検証フェーズ ---
+# Git設定の検証
 echo ""
 echo "==== Start: Git設定を検証中... ===="
 verification_failed=false
@@ -144,7 +144,6 @@ if [ -f "$HOME/.ssh/id_ed25519" ]; then
     echo "[SUCCESS] SSH鍵ファイル(id_ed25519)が存在します"
 else
     echo "[WARN] SSH鍵ファイル(id_ed25519)が見つかりません"
-    # 警告のみでエラーにしない
 fi
 
 # gitignore_global の検証
@@ -171,7 +170,6 @@ else
     echo "[ERROR] Git の core.excludesfile が $config_value になっています"
     verification_failed=true
 fi
-
 
 if [ "$verification_failed" = "true" ]; then
     echo "[ERROR] Git環境の検証に失敗しました"
