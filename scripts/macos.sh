@@ -24,11 +24,8 @@ if [[ ! -f "$settings_file" ]]; then
 fi
 
 # 設定を適用
-if ! source "$settings_file" 2>/dev/null; then
-    echo "[WARN] Mac 設定の適用中に一部エラーが発生しましたが、続行します"
-else
-    echo "[SUCCESS] Mac のシステム設定が適用されました"
-fi
+source "$settings_file" 2>/dev/null || true
+echo "[SUCCESS] Mac のシステム設定が適用されました（一部エラーは無視されます）"
 
 # --- 検証フェーズ ---
 echo "==== Start: macOS設定を検証中... ===="
