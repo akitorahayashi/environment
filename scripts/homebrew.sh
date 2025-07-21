@@ -37,20 +37,22 @@ echo ""
 echo "[Start] Homebrew パッケージのインストールを開始します..."
 brewfile_path="$REPO_ROOT/config/brew/Brewfile"
 
-temp_output=$(mktemp)
-if ! brew bundle --file "$brewfile_path" 2>&1 | tee "$temp_output"; then
-    rm -f "$temp_output"
-    echo "[ERROR] Brewfileからのパッケージインストールに失敗しました"
-    exit 1
-fi
+if [ -f "$brewfile_path" ]; then
+    temp_output=$(mktemp)
+    if ! brew bundle --file "$brewfile_path" 2>&1 | tee "$temp_output"; then
+        rm -f "$temp_output"
+        echo "[ERROR] Brewfileからのパッケージインストールに失敗しました"
+        exit 1
+    fi
 
-if grep -E "(Installing|Upgrading|Downloading)" "$temp_output" > /dev/null; then
-    changed=true
-    echo "[OK] Homebrew パッケージのインストール/アップグレードが完了しました"
-else
-    echo "[OK] Homebrew パッケージは既に最新の状態です"
+    if grep -E "(Installing|Upgrading|Downloading)" "$temp_output" > /dev/null; then
+        changed=true
+        echo "[OK] Homebrew パッケージのインストール/アップグレードが完了しました"
+    else
+        echo "[OK] Homebrew パッケージは既に最新の状態です"
+    fi
+    rm -f "$temp_output"
 fi
-rm -f "$temp_output"
 
 if [ "$changed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
@@ -75,7 +77,6 @@ else
 fi
 
 # パッケージの確認
-brewfile_path="$REPO_ROOT/config/brew/Brewfile"
 if [ -f "$brewfile_path" ]; then
     if ! brew bundle check --file="$brewfile_path"; then
         echo "[ERROR] Brewfileで定義されたパッケージの一部がインストールされていません。"
