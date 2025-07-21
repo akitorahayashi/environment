@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -32,7 +34,6 @@ fi
 echo "==== Start: macOS設定を検証中... ===="
 
 # 設定ファイルの存在確認
-settings_file="$REPO_ROOT/config/macos/macos-settings.sh"
 if [[ -f "$settings_file" ]]; then
     echo "[SUCCESS] macOS設定ファイルが存在します: $settings_file"
     echo "[SUCCESS] macOS設定の検証が完了しました"

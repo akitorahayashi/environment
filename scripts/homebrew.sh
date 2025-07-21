@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 # --- Homebrewのインストール ---
-if ! command -v brew; then
+if ! command -v brew &>/dev/null; then
     echo "[INSTALL] Homebrew ..."
     echo "IDEMPOTENCY_VIOLATION" >&2
     
