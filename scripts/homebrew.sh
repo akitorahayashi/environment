@@ -77,7 +77,7 @@ fi
 # パッケージの確認
 brewfile_path="$REPO_ROOT/config/brew/Brewfile"
 if [ -f "$brewfile_path" ]; then
-    if ! brew bundle check --file="$brewfile_path" --no-lock; then
+    if ! brew bundle check --file="$brewfile_path"; then
         echo "[ERROR] Brewfileで定義されたパッケージの一部がインストールされていません。"
         verification_failed=true
     else
