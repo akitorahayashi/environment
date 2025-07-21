@@ -4,10 +4,12 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+changed=false
+
 # Homebrewのインストール
-if ! command -v brew; then
+if ! command -v brew &> /dev/null; then
     echo "[INSTALL] Homebrew ..."
-    echo "IDEMPOTENCY_VIOLATION" >&2
+    changed=true
     
     install_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
     echo "[INFO] Homebrewインストールスクリプトを実行します..."
@@ -18,11 +20,7 @@ if ! command -v brew; then
         /bin/bash -c "$(curl -fsSL $install_url)"
     fi
     
-    if [[ "$(uname -m)" == "arm64" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
+    eval "$($(brew --prefix)/bin/brew shellenv)"
     
     if ! command -v brew; then
         echo "[ERROR] Homebrewのインストールに失敗しました"
@@ -47,12 +45,16 @@ if ! brew bundle --file "$brewfile_path" 2>&1 | tee "$temp_output"; then
 fi
 
 if grep -E "(Installing|Upgrading|Downloading)" "$temp_output" > /dev/null; then
-    echo "IDEMPOTENCY_VIOLATION" >&2
+    changed=true
     echo "[OK] Homebrew パッケージのインストール/アップグレードが完了しました"
 else
     echo "[OK] Homebrew パッケージは既に最新の状態です"
 fi
 rm -f "$temp_output"
+
+if [ "$changed" = true ]; then
+    echo "IDEMPOTENCY_VIOLATION" >&2
+fi
 
 echo "[SUCCESS] Homebrewのセットアップが完了しました"
 
@@ -62,50 +64,21 @@ verification_failed=false
 
 # Homebrew パスの確認
 BREW_PATH=$(which brew)
-expected_path=""
-if [[ "$(uname -m)" == "arm64" ]]; then
-    expected_path="/opt/homebrew/bin/brew"
-else
-    expected_path="/usr/local/bin/brew"
-fi
+expected_path="$(brew --prefix)/bin/brew"
 if [[ "$BREW_PATH" != "$expected_path" ]]; then
     echo "[ERROR] Homebrewのパスが想定と異なります"
     echo "[ERROR] 期待: $expected_path"
     echo "[ERROR] 実際: $BREW_PATH"
     verification_failed=true
 else
-    echo "[SUCCESS] "Homebrewのパスが正しく設定されています: $BREW_PATH""
+    echo "[SUCCESS] Homebrewのパスが正しく設定されています: $BREW_PATH"
 fi
 
 # パッケージの確認
 brewfile_path="$REPO_ROOT/config/brew/Brewfile"
 if [ -f "$brewfile_path" ]; then
-    missing_packages=0
-    while IFS= read -r line; do
-        [[ $line =~ ^#.*$ ]] && continue
-        [[ -z $line ]] && continue
-        
-        if [[ $line =~ ^brew\ "([^\"]*)" ]]; then
-            package="${BASH_REMATCH[1]}"
-            if ! brew list --formula "$package" &>/dev/null; then
-                echo "[ERROR] formula $package がインストールされていません"
-                ((missing_packages++))
-            else
-                echo "[SUCCESS] "formula $package がインストールされています""
-            fi
-        elif [[ $line =~ ^cask\ "([^\"]*)" ]]; then
-            package="${BASH_REMATCH[1]}"
-            if ! brew list --cask "$package" &>/dev/null; then
-                echo "[ERROR] cask $package がインストールされていません"
-                ((missing_packages++))
-            else
-                echo "[SUCCESS] "cask $package がインストールされています""
-            fi
-        fi
-    done < "$brewfile_path"
-
-    if [ "$missing_packages" -gt 0 ]; then
-        echo "[ERROR] $missing_packages 個のパッケージが不足しています"
+    if ! brew bundle check --file="$brewfile_path" --no-lock; then
+        echo "[ERROR] Brewfileで定義されたパッケージの一部がインストールされていません。"
         verification_failed=true
     else
         echo "[SUCCESS] すべてのパッケージがインストールされています"

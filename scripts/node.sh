@@ -9,16 +9,16 @@ readonly NODE_VERSION="22.17.1"
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: nvm, jq"
-changed=false
+dependencies_changed=false
 if ! brew list nvm &> /dev/null; then
     brew install nvm
-    changed=true
+    dependencies_changed=true
 fi
 if ! command -v jq &> /dev/null; then
     brew install jq
-    changed=true
+    dependencies_changed=true
 fi
-if [ "$changed" = true ]; then
+if [ "$dependencies_changed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
@@ -35,11 +35,11 @@ fi
 echo "[Start] Node.js のセットアップを開始します..."
 
 # nvm経由でNode.jsをインストール・設定
-changed=false
+node_changed=false
 if ! nvm ls "$NODE_VERSION" | grep -q "$NODE_VERSION"; then
     if nvm install "$NODE_VERSION"; then
         echo "[SUCCESS] Node.js $NODE_VERSION のインストールが完了しました"
-        changed=true
+        node_changed=true
     else
         echo "[ERROR] Node.js $NODE_VERSION のインストールに失敗しました"
         exit 1
@@ -52,7 +52,7 @@ if [[ "$current_default" != *"$NODE_VERSION"* ]]; then
     echo "[CONFIGURING] Node.js $NODE_VERSION をデフォルトバージョンに設定します"
     if nvm alias default "$NODE_VERSION"; then
         echo "[SUCCESS] デフォルトバージョンを $NODE_VERSION に設定しました"
-        changed=true
+        node_changed=true
     else
         echo "[ERROR] デフォルトバージョンの設定に失敗しました"
         exit 1
@@ -60,7 +60,7 @@ if [[ "$current_default" != *"$NODE_VERSION"* ]]; then
 else
     echo "[CONFIGURED] Node.js $NODE_VERSION はすでにデフォルトバージョンです"
 fi
-if [ "$changed" = true ]; then
+if [ "$node_changed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
@@ -80,11 +80,11 @@ if [ ! -f "$packages_file" ]; then
     echo "[WARN] global-packages.json が見つかりません。グローバルパッケージのインストールをスキップします"
 else
     echo "[INFO] グローバルパッケージをチェック中..."
-    entries=($(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null))
+    mapfile -t entries < <(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null)
     if [ ${#entries[@]} -eq 0 ]; then
         echo "[WARN] global-packages.json にパッケージが定義されていません"
     else
-        changed=false
+        packages_changed=false
         for entry in "${entries[@]}"; do
             pkg_full="$entry"
             pkg_name="${entry%@*}"
@@ -94,7 +94,7 @@ else
                 if [ -z "$installed_version" ]; then
                     if npm install -g "$pkg_full"; then
                         echo "[SUCCESS] $pkg_name のインストールが完了しました"
-                        changed=true
+                        packages_changed=true
                     else
                         echo "[ERROR] $pkg_name のインストールに失敗しました"
                         exit 1
@@ -105,7 +105,7 @@ else
             elif [ "$installed_version" != "$required_version" ]; then
                 if npm install -g "$pkg_full"; then
                     echo "[SUCCESS] $pkg_name の更新が完了しました"
-                    changed=true
+                    packages_changed=true
                 else
                     echo "[ERROR] $pkg_name の更新に失敗しました"
                     exit 1
@@ -114,7 +114,7 @@ else
                 echo "[INSTALLED] $pkg_name"
             fi
         done
-        if [ "$changed" = true ]; then
+        if [ "$packages_changed" = true ]; then
             echo "IDEMPOTENCY_VIOLATION" >&2
         fi
     fi
@@ -133,7 +133,7 @@ packages_file="$REPO_ROOT/config/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
     echo "[WARN] global-packages.json が見つかりません"
 else
-    packages=($(jq -r '.globalPackages | to_entries[] | "\(.key)"' "$packages_file" 2>/dev/null))
+    mapfile -t packages < <(jq -r '.globalPackages | to_entries[] | "\(.key)"' "$packages_file" 2>/dev/null)
     missing=0
     for package in "${packages[@]}"; do
         if ! npm list -g "$package" &>/dev/null; then
