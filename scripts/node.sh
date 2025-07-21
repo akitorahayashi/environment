@@ -215,7 +215,4 @@ verify_global_packages() {
     return 0
 }
 
-# スクリプトが直接実行された場合のみメイン関数を実行
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+main "$@"

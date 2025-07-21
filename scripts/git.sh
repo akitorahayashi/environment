@@ -207,7 +207,4 @@ verify_ssh_keys() {
     fi
 }
 
-# スクリプトが直接実行された場合のみメイン関数を実行
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+main "$@"
