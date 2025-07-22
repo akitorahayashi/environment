@@ -99,6 +99,7 @@ AUTO_CAPITALIZATION=$(get_default_value "NSGlobalDomain" "NSAutomaticCapitalizat
 SMART_DASHES=$(get_default_value "NSGlobalDomain" "NSAutomaticDashSubstitutionEnabled" "true")
 SMART_QUOTES=$(get_default_value "NSGlobalDomain" "NSAutomaticQuoteSubstitutionEnabled" "true")
 AUTO_SPELLING_CORRECTION=$(get_default_value "NSGlobalDomain" "NSAutomaticSpellingCorrectionEnabled" "true")
+WEBKIT_DEVELOPER_EXTRAS=$(get_default_value "NSGlobalDomain" "WebKitDeveloperExtras" "false")
 
 # --- Dock ---
 DOCK_SIZE=$(get_default_value "com.apple.dock" "tilesize" "50")
@@ -214,6 +215,7 @@ defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool $(format_bo
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool $(format_bool_value $SMART_DASHES)
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool $(format_bool_value $SMART_QUOTES)
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool $(format_bool_value $AUTO_SPELLING_CORRECTION)
+defaults write NSGlobalDomain WebKitDeveloperExtras -bool $(format_bool_value $WEBKIT_DEVELOPER_EXTRAS)
 EOF
 )
 
@@ -348,16 +350,6 @@ add_setting "マウス" "$MOUSE_COMMANDS"
 add_setting "トラックパッド" "$TRACKPAD_COMMANDS"
 add_setting "サウンド" "$SOUND_COMMANDS"
 add_setting "スクリーンショット" "$SCREENSHOT_COMMANDS"
-
-# --- Safari ---
-WEBKIT_DEVELOPER_EXTRAS=$(get_default_value "NSGlobalDomain" "WebKitDeveloperExtras" "false")
-
-SAFARI_COMMANDS=$(cat << EOF
-defaults write NSGlobalDomain WebKitDeveloperExtras -bool $(format_bool_value $WEBKIT_DEVELOPER_EXTRAS)
-EOF
-)
-add_setting "Safari" "$SAFARI_COMMANDS"
-
 
 # ディスプレイ設定を取得
 DISPLAY_COMMAND=""

@@ -28,6 +28,7 @@
 | `defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false` | スマートダッシュ | `false`でハイフン2つ（--）がエムダッシュ（—）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false` | スマートクオート | `false`でストレートクオート（"）がタイポグラフィカルクオート（“”）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false` | 自動スペル修正 | `false`で入力中の自動的なスペル修正を無効にします。 |
+| `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |
 
 ### Dock
 
@@ -145,10 +146,3 @@
 | `defaults write com.apple.screencapture include-date -bool true` | ファイル名に日付を含める | `true`でスクリーンショットのファイル名に撮影日時を含めます。 |
 | `defaults write com.apple.screencapture show-thumbnail -bool false` | サムネイル表示 | `false`で撮影後に画面右下に表示されるフローティングサムネイルを無効にします。 |
 | `defaults write com.apple.screencapture type -string "png"` | ファイルフォーマット | スクリーンショットの画像ファイル形式を指定します。（`png`, `jpg`, `gif`, `tiff`, `pdf`） |
-
-### アプリケーション
-
-#### Safari
-| コマンド | 項目 | 説明 |
-| :--- | :--- | :--- |
-| `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |
