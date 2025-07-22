@@ -28,6 +28,7 @@
 | `defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false` | スマートダッシュ | `false`でハイフン2つ（--）がエムダッシュ（—）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false` | スマートクオート | `false`でストレートクオート（"）がタイポグラフィカルクオート（“”）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false` | 自動スペル修正 | `false`で入力中の自動的なスペル修正を無効にします。 |
+| `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |
 
 ### Dock
 
@@ -105,7 +106,7 @@
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
 | `defaults write -g com.apple.mouse.scaling -float 3.0` | マウスの移動速度 | マウスカーソルの移動速度を調整します。 |
-| `defaults write .GlobalPreferences com.apple.mouse.scaling -1` | マウス加速の無効化 | `-1` を設定することでマウスの加速を無効にし、リニアな動きにします。 |
+| `defaults write .GlobalPreferences com.apple.mouse.scaling 1` | マウス加速の無効化 | `-1`でマウス加速を完全に無効化し、リニアな動きになります。`0`は加速ほぼなし（非常に遅い）、`1`以上の正の値は加速あり（値が大きいほど加速・速度が速くなります）。 |
 | `defaults write com.apple.Terminal FocusFollowsMouse -bool true` | マウスカーソル追従フォーカス | `true`でマウスカーソルをウィンドウ上に移動するだけでそのウィンドウをアクティブにします。（クリック不要） |
 
 ### トラックパッド
@@ -125,17 +126,10 @@
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
-| `sudo nvram SystemAudioVolume=" "` | 起動時のサウンド | ` `（スペース）を設定することでMacの起動音を無効にします。 |
 | `defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0` | UI操作音 | `0`でユーザーインターフェースの効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.feedback" -int 0` | 音量変更時のフィードバック音 | `0`で音量を変更したときに再生される効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.sound" -string "/path/to/sound.aiff"` | アラート音の種類 | システムのアラート音として使用するサウンドファイルを指定します。 |
 | `defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40` | Bluetoothヘッドフォンの音質向上 | Bluetoothオーディオのビットプール値を調整し、音質を向上させます。 |
-
-### 通知
-
-| コマンド | 項目 | 説明 |
-| :--- | :--- | :--- |
-| `launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist` | 通知センターの無効化 | `launchctl`を使い、通知センターのプロセスを無効化します。 |
 
 ### スクリーンショット
 
@@ -146,22 +140,3 @@
 | `defaults write com.apple.screencapture include-date -bool true` | ファイル名に日付を含める | `true`でスクリーンショットのファイル名に撮影日時を含めます。 |
 | `defaults write com.apple.screencapture show-thumbnail -bool false` | サムネイル表示 | `false`で撮影後に画面右下に表示されるフローティングサムネイルを無効にします。 |
 | `defaults write com.apple.screencapture type -string "png"` | ファイルフォーマット | スクリーンショットの画像ファイル形式を指定します。（`png`, `jpg`, `gif`, `tiff`, `pdf`） |
-
-### 省エネルギー
-
-| コマンド | 項目 | 説明 |
-| :--- | :--- | :--- |
-| `sudo pmset -a displaysleep 15` | スリープやハイバネーションの設定 | ディスプレイのスリープ、コンピュータのスリープ、スタンバイモードへの移行時間などを `pmset` コマンドで細かく設定します。 |
-| `sudo pmset -a autorestart 1` | 電源喪失時の自動再起動 | `1`で停電などから復旧した際に自動的にMacを再起動します。 |
-| `sudo systemsetup -setrestartfreeze on` | フリーズ時の自動再起動 | `on`でシステムがフリーズした際に自動的に再起動します。 |
-
-### アプリケーション
-
-#### Safari
-| コマンド | 項目 | 説明 |
-| :--- | :--- | :--- |
-| `defaults write com.apple.Safari UniversalSearchEnabled -bool false` | 検索クエリの非送信 | `false`でSafariの検索候補機能のために検索クエリがAppleに送信されるのを防ぎます。 |
-| `defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true` | フルURLの表示 | `true`でスマートサーチフィールドに常に完全なURLを表示します。 |
-| `defaults write com.apple.Safari AutoOpenSafeDownloads -bool false` | ダウンロード後の自動展開 | `false`でダウンロードした「安全な」ファイル（zipなど）が自動的に展開されるのを防ぎます。 |
-| `defaults write com.apple.Safari IncludeInternalDebugMenu -bool true` | デバッグメニューの有効化 | `true`でSafariに詳細な設定が可能なデバッグメニューを追加します。 |
-| `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |
