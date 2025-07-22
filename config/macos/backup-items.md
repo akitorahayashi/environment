@@ -125,7 +125,6 @@
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
-| `sudo nvram SystemAudioVolume="%00"` | 起動時のサウンド | `%00` を設定することでMacの起動音を無効にします。 |
 | `defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0` | UI操作音 | `0`でユーザーインターフェースの効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.feedback" -int 0` | 音量変更時のフィードバック音 | `0`で音量を変更したときに再生される効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.sound" -string "/path/to/sound.aiff"` | アラート音の種類 | システムのアラート音として使用するサウンドファイルを指定します。 |
@@ -146,14 +145,6 @@
 | `defaults write com.apple.screencapture include-date -bool true` | ファイル名に日付を含める | `true`でスクリーンショットのファイル名に撮影日時を含めます。 |
 | `defaults write com.apple.screencapture show-thumbnail -bool false` | サムネイル表示 | `false`で撮影後に画面右下に表示されるフローティングサムネイルを無効にします。 |
 | `defaults write com.apple.screencapture type -string "png"` | ファイルフォーマット | スクリーンショットの画像ファイル形式を指定します。（`png`, `jpg`, `gif`, `tiff`, `pdf`） |
-
-### 省エネルギー
-
-| コマンド | 項目 | 説明 |
-| :--- | :--- | :--- |
-| `sudo pmset -a displaysleep 15` | スリープやハイバネーションの設定 | ディスプレイのスリープ、コンピュータのスリープ、スタンバイモードへの移行時間などを `pmset` コマンドで細かく設定します。 |
-| `sudo pmset -a autorestart 1` | 電源喪失時の自動再起動 | `1`で停電などから復旧した際に自動的にMacを再起動します。 |
-| `sudo systemsetup -setrestartfreeze on` | フリーズ時の自動再起動 | `on`でシステムがフリーズした際に自動的に再起動します。 |
 
 ### アプリケーション
 

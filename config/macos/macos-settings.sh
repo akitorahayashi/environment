@@ -92,8 +92,6 @@ defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -
 defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
 
 # サウンド
-# NOTE: 起動音の変更には sudo が必要です
-sudo nvram SystemAudioVolume="%00"
 defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
 defaults write -g "com.apple.sound.beep.feedback" -int 0
 defaults write -g "com.apple.sound.beep.sound" -string "/System/Library/Sounds/Boop.aiff"
@@ -105,12 +103,6 @@ defaults write com.apple.screencapture disable-shadow -bool false
 defaults write com.apple.screencapture include-date -bool false
 defaults write com.apple.screencapture show-thumbnail -bool true
 defaults write com.apple.screencapture type -string "png"
-
-# 省エネルギー
-# NOTE: 以下のコマンドの実行には sudo が必要です
-sudo pmset -a displaysleep 2
-sudo pmset -a autorestart 0
-sudo systemsetup -setrestartfreeze exiting!
 
 # Safari
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool true

@@ -326,8 +326,6 @@ EOF
 
 # --- サウンド ---
 SOUND_COMMANDS=$(cat << EOF
-# NOTE: 起動音の変更には sudo が必要です
-sudo nvram SystemAudioVolume="$STARTUP_SOUND"
 defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int $UI_SOUND
 defaults write -g "com.apple.sound.beep.feedback" -int $VOLUME_FEEDBACK
 defaults write -g "com.apple.sound.beep.sound" -string "$ALERT_SOUND_PATH"
@@ -350,22 +348,6 @@ add_setting "マウス" "$MOUSE_COMMANDS"
 add_setting "トラックパッド" "$TRACKPAD_COMMANDS"
 add_setting "サウンド" "$SOUND_COMMANDS"
 add_setting "スクリーンショット" "$SCREENSHOT_COMMANDS"
-
-# --- 省エネルギー ---
-# sudo なしで実行できる範囲で pmset の設定を取得
-displaysleep=$(pmset -g | grep displaysleep | awk '{print $2}' || echo "15")
-autorestart=$(pmset -g | grep autorestart | awk '{print $2}' || echo "0")
-# sudo が必須のため取得失敗時のみデフォルトを設定
-restartfreeze=$(systemsetup -getrestartfreeze 2>/dev/null | awk '{print $NF}' || echo "on")
-
-ENERGY_COMMANDS=$(cat << EOF
-# NOTE: 以下のコマンドの実行には sudo が必要です
-sudo pmset -a displaysleep $displaysleep
-sudo pmset -a autorestart $autorestart
-sudo systemsetup -setrestartfreeze $restartfreeze
-EOF
-)
-add_setting "省エネルギー" "$ENERGY_COMMANDS"
 
 # --- Safari ---
 WEBKIT_DEVELOPER_EXTRAS=$(get_default_value "NSGlobalDomain" "WebKitDeveloperExtras" "false")
