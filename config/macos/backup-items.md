@@ -125,7 +125,7 @@
 
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
-| `sudo nvram SystemAudioVolume=" "` | 起動時のサウンド | ` `（スペース）を設定することでMacの起動音を無効にします。 |
+| `sudo nvram SystemAudioVolume="%00"` | 起動時のサウンド | `%00` を設定することでMacの起動音を無効にします。 |
 | `defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0` | UI操作音 | `0`でユーザーインターフェースの効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.feedback" -int 0` | 音量変更時のフィードバック音 | `0`で音量を変更したときに再生される効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.sound" -string "/path/to/sound.aiff"` | アラート音の種類 | システムのアラート音として使用するサウンドファイルを指定します。 |
@@ -160,8 +160,4 @@
 #### Safari
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
-| `defaults write com.apple.Safari UniversalSearchEnabled -bool false` | 検索クエリの非送信 | `false`でSafariの検索候補機能のために検索クエリがAppleに送信されるのを防ぎます。 |
-| `defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true` | フルURLの表示 | `true`でスマートサーチフィールドに常に完全なURLを表示します。 |
-| `defaults write com.apple.Safari AutoOpenSafeDownloads -bool false` | ダウンロード後の自動展開 | `false`でダウンロードした「安全な」ファイル（zipなど）が自動的に展開されるのを防ぎます。 |
-| `defaults write com.apple.Safari IncludeInternalDebugMenu -bool true` | デバッグメニューの有効化 | `true`でSafariに詳細な設定が可能なデバッグメニューを追加します。 |
 | `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |

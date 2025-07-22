@@ -367,17 +367,9 @@ EOF
 add_setting "省エネルギー" "$ENERGY_COMMANDS"
 
 # --- Safari ---
-SAFARI_UNIVERSAL_SEARCH=$(get_default_value "com.apple.Safari" "UniversalSearchEnabled" "true")
-SAFARI_SHOW_FULL_URL=$(get_default_value "com.apple.Safari" "ShowFullURLInSmartSearchField" "false")
-SAFARI_AUTO_OPEN_SAFE_DOWNLOADS=$(get_default_value "com.apple.Safari" "AutoOpenSafeDownloads" "true")
-SAFARI_DEBUG_MENU=$(get_default_value "com.apple.Safari" "IncludeInternalDebugMenu" "false")
 WEBKIT_DEVELOPER_EXTRAS=$(get_default_value "NSGlobalDomain" "WebKitDeveloperExtras" "false")
 
 SAFARI_COMMANDS=$(cat << EOF
-defaults write com.apple.Safari UniversalSearchEnabled -bool $(format_bool_value $SAFARI_UNIVERSAL_SEARCH)
-defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool $(format_bool_value $SAFARI_SHOW_FULL_URL)
-defaults write com.apple.Safari AutoOpenSafeDownloads -bool $(format_bool_value $SAFARI_AUTO_OPEN_SAFE_DOWNLOADS)
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool $(format_bool_value $SAFARI_DEBUG_MENU)
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool $(format_bool_value $WEBKIT_DEVELOPER_EXTRAS)
 EOF
 )
