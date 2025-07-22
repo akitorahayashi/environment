@@ -232,8 +232,8 @@ defaults write com.apple.dock autohide-delay -float $DOCK_AUTOHIDE_DELAY
 defaults write com.apple.dock show-recents -bool $(format_bool_value $DOCK_SHOW_RECENTS)
 defaults write com.apple.dock mineffect -string "$DOCK_MIN_EFFECT"
 defaults write com.apple.dock minimize-to-application -bool $(format_bool_value $DOCK_MIN_TO_APP)
-defaults write com.apple.dock static-only -int $( [ "$DOCK_STATIC_ONLY" = "true" ] && echo 1 || echo 0 )
-defaults write com.apple.dock scroll-to-open -int $( [ "$DOCK_SCROLL_TO_OPEN" = "true" ] && echo 1 || echo 0 )
+defaults write com.apple.dock static-only -bool $(format_bool_value $DOCK_STATIC_ONLY)
+defaults write com.apple.dock scroll-to-open -bool $(format_bool_value $DOCK_SCROLL_TO_OPEN)
 defaults write com.apple.dock launchanim -bool $(format_bool_value $DOCK_LAUNCH_ANIM)
 defaults write com.apple.dock showhidden -bool $(format_bool_value $DOCK_SHOW_HIDDEN)
 EOF
