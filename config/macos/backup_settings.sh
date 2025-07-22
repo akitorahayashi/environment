@@ -360,8 +360,13 @@ if command -v displayplacer >/dev/null 2>&1; then
 fi
 
 if [[ -n "$DISPLAY_COMMAND" ]]; then
-    DISPLAY_SETTINGS_COMMANDS=$(cat << EOF
-displayplacer $DISPLAY_COMMAND
+    # ヒアドキュメントを使い、CI判定のif文を追記する
+    # catのEOFをシングルクォートで囲まないことで、$DISPLAY_COMMANDを展開させる
+    # ${CI}の$はエスケープし、生成後のファイルで変数が評価されるようにする
+    DISPLAY_SETTINGS_COMMANDS=$(cat <<EOF
+if [ -z "\${CI}" ]; then
+  displayplacer $DISPLAY_COMMAND
+fi
 EOF
 )
     add_setting "ディスプレイ" "$DISPLAY_SETTINGS_COMMANDS"
