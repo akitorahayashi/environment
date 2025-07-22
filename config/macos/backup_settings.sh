@@ -92,7 +92,6 @@ LSQUARANTINE=$(get_default_value "com.apple.LaunchServices" "LSQuarantine" "true
 
 # --- UI/UX ---
 HIDE_MENU_BAR=$(get_default_value "NSGlobalDomain" "_HIHideMenuBar" "false")
-REDUCE_TRANSPARENCY=$(get_default_value "com.apple.universalaccess" "reduceTransparency" "false")
 SIDEBAR_ICON_SIZE=$(get_default_value "NSGlobalDomain" "NSTableViewDefaultSizeMode" "2")
 WINDOW_RESIZE_TIME=$(get_default_value "NSGlobalDomain" "NSWindowResizeTime" "0.001")
 AUTO_CAPITALIZATION=$(get_default_value "NSGlobalDomain" "NSAutomaticCapitalizationEnabled" "true")
@@ -208,7 +207,6 @@ EOF
 # --- UI/UX ---
 UIUX_COMMANDS=$(cat << EOF
 defaults write NSGlobalDomain _HIHideMenuBar -bool $(format_bool_value $HIDE_MENU_BAR)
-defaults write com.apple.universalaccess reduceTransparency -bool $(format_bool_value $REDUCE_TRANSPARENCY)
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int $SIDEBAR_ICON_SIZE
 defaults write NSGlobalDomain NSWindowResizeTime -float $WINDOW_RESIZE_TIME
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool $(format_bool_value $AUTO_CAPITALIZATION)
@@ -232,8 +230,8 @@ defaults write com.apple.dock autohide-delay -float $DOCK_AUTOHIDE_DELAY
 defaults write com.apple.dock show-recents -bool $(format_bool_value $DOCK_SHOW_RECENTS)
 defaults write com.apple.dock mineffect -string "$DOCK_MIN_EFFECT"
 defaults write com.apple.dock minimize-to-application -bool $(format_bool_value $DOCK_MIN_TO_APP)
-defaults write com.apple.dock static-only -int $( [ "$DOCK_STATIC_ONLY" = "true" ] && echo 1 || echo 0 )
-defaults write com.apple.dock scroll-to-open -int $( [ "$DOCK_SCROLL_TO_OPEN" = "true" ] && echo 1 || echo 0 )
+defaults write com.apple.dock static-only -bool $(format_bool_value $DOCK_STATIC_ONLY)
+defaults write com.apple.dock scroll-to-open -bool $(format_bool_value $DOCK_SCROLL_TO_OPEN)
 defaults write com.apple.dock launchanim -bool $(format_bool_value $DOCK_LAUNCH_ANIM)
 defaults write com.apple.dock showhidden -bool $(format_bool_value $DOCK_SHOW_HIDDEN)
 EOF
@@ -362,8 +360,13 @@ if command -v displayplacer >/dev/null 2>&1; then
 fi
 
 if [[ -n "$DISPLAY_COMMAND" ]]; then
-    DISPLAY_SETTINGS_COMMANDS=$(cat << EOF
-displayplacer $DISPLAY_COMMAND
+    # ヒアドキュメントを使い、CI判定のif文を追記する
+    # catのEOFをシングルクォートで囲まないことで、$DISPLAY_COMMANDを展開させる
+    # ${CI}の$はエスケープし、生成後のファイルで変数が評価されるようにする
+    DISPLAY_SETTINGS_COMMANDS=$(cat <<EOF
+if [ -z "\${CI}" ]; then
+  displayplacer $DISPLAY_COMMAND
+fi
 EOF
 )
     add_setting "ディスプレイ" "$DISPLAY_SETTINGS_COMMANDS"

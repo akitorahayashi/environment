@@ -14,7 +14,6 @@ defaults write com.apple.CrashReporter DialogType -string "none"
 
 # UI/UX
 defaults write NSGlobalDomain _HIHideMenuBar -bool false
-defaults write com.apple.universalaccess reduceTransparency -bool false
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
@@ -31,8 +30,8 @@ defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock show-recents -bool false
 defaults write com.apple.dock mineffect -string "genie"
 defaults write com.apple.dock minimize-to-application -bool false
-defaults write com.apple.dock static-only -int 0
-defaults write com.apple.dock scroll-to-open -int 0
+defaults write com.apple.dock static-only -bool false
+defaults write com.apple.dock scroll-to-open -bool false
 defaults write com.apple.dock launchanim -bool false
 defaults write com.apple.dock showhidden -bool false
 
@@ -80,7 +79,7 @@ defaults write -g com.apple.keyboard.fnState -bool false
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
 
 # マウス
-defaults write .GlobalPreferences com.apple.mouse.scaling -float 1.5
+defaults write .GlobalPreferences com.apple.mouse.scaling -float 1
 defaults write com.apple.Terminal FocusFollowsMouse -bool true
 
 # トラックパッド
@@ -107,5 +106,7 @@ defaults write com.apple.screencapture show-thumbnail -bool true
 defaults write com.apple.screencapture type -string "png"
 
 # ディスプレイ
-displayplacer "id:37D8832A-2D66-02CA-B9F7-8F30A301B230 res:1710x1112 hz:60 color_depth:8 enabled:true scaling:on origin:(0,0) degree:0"
+if [ -z "${CI}" ]; then
+  displayplacer "id:37D8832A-2D66-02CA-B9F7-8F30A301B230 res:1710x1112 hz:60 color_depth:8 enabled:true scaling:on origin:(0,0) degree:0"
+fi
 
