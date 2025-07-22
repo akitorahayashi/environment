@@ -92,7 +92,6 @@ LSQUARANTINE=$(get_default_value "com.apple.LaunchServices" "LSQuarantine" "true
 
 # --- UI/UX ---
 HIDE_MENU_BAR=$(get_default_value "NSGlobalDomain" "_HIHideMenuBar" "false")
-REDUCE_TRANSPARENCY=$(get_default_value "com.apple.universalaccess" "reduceTransparency" "false")
 SIDEBAR_ICON_SIZE=$(get_default_value "NSGlobalDomain" "NSTableViewDefaultSizeMode" "2")
 WINDOW_RESIZE_TIME=$(get_default_value "NSGlobalDomain" "NSWindowResizeTime" "0.001")
 AUTO_CAPITALIZATION=$(get_default_value "NSGlobalDomain" "NSAutomaticCapitalizationEnabled" "true")
@@ -208,7 +207,6 @@ EOF
 # --- UI/UX ---
 UIUX_COMMANDS=$(cat << EOF
 defaults write NSGlobalDomain _HIHideMenuBar -bool $(format_bool_value $HIDE_MENU_BAR)
-defaults write com.apple.universalaccess reduceTransparency -bool $(format_bool_value $REDUCE_TRANSPARENCY)
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int $SIDEBAR_ICON_SIZE
 defaults write NSGlobalDomain NSWindowResizeTime -float $WINDOW_RESIZE_TIME
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool $(format_bool_value $AUTO_CAPITALIZATION)
