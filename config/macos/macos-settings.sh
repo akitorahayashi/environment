@@ -81,7 +81,7 @@ defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
 
 # マウス
 defaults write .GlobalPreferences com.apple.mouse.scaling -float 1.5
-defaults write com.apple.Terminal FocusFollowsMouse -bool false
+defaults write com.apple.Terminal FocusFollowsMouse -bool true
 
 # トラックパッド
 defaults write -g com.apple.trackpad.scaling -float 1.5

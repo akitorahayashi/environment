@@ -106,7 +106,7 @@
 | コマンド | 項目 | 説明 |
 | :--- | :--- | :--- |
 | `defaults write -g com.apple.mouse.scaling -float 3.0` | マウスの移動速度 | マウスカーソルの移動速度を調整します。 |
-| `defaults write .GlobalPreferences com.apple.mouse.scaling -1` | マウス加速の無効化 | `-1` を設定することでマウスの加速を無効にし、リニアな動きにします。 |
+| `defaults write .GlobalPreferences com.apple.mouse.scaling 1` | マウス加速の無効化 | `-1`でマウス加速を完全に無効化し、リニアな動きになります。`0`は加速ほぼなし（非常に遅い）、`1`以上の正の値は加速あり（値が大きいほど加速・速度が速くなります）。 |
 | `defaults write com.apple.Terminal FocusFollowsMouse -bool true` | マウスカーソル追従フォーカス | `true`でマウスカーソルをウィンドウ上に移動するだけでそのウィンドウをアクティブにします。（クリック不要） |
 
 ### トラックパッド
@@ -130,12 +130,6 @@
 | `defaults write -g "com.apple.sound.beep.feedback" -int 0` | 音量変更時のフィードバック音 | `0`で音量を変更したときに再生される効果音を無効にします。 |
 | `defaults write -g "com.apple.sound.beep.sound" -string "/path/to/sound.aiff"` | アラート音の種類 | システムのアラート音として使用するサウンドファイルを指定します。 |
 | `defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40` | Bluetoothヘッドフォンの音質向上 | Bluetoothオーディオのビットプール値を調整し、音質を向上させます。 |
-
-### 通知
-
-| コマンド | 項目 | 説明 |
-| :--- | :--- | :--- |
-| `launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist` | 通知センターの無効化 | `launchctl`を使い、通知センターのプロセスを無効化します。 |
 
 ### スクリーンショット
 
