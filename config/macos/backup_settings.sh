@@ -152,12 +152,11 @@ KEY_REPEAT_RATE=$(get_default_value "NSGlobalDomain" "KeyRepeat" "2")
 KEY_REPEAT_DELAY=$(get_default_value "NSGlobalDomain" "InitialKeyRepeat" "15")
 PRESS_AND_HOLD=$(get_default_value "NSGlobalDomain" "ApplePressAndHoldEnabled" "true")
 KEYBOARD_UI_MODE=$(get_default_value "NSGlobalDomain" "AppleKeyboardUIMode" "1")
-FN_STATE=$(get_default_value "com.apple.keyboard" "fnState" "false")
+FN_STATE=$(get_default_value -g "com.apple.keyboard.fnState" "false")
 NATURAL_SCROLLING=$(get_default_value "NSGlobalDomain" "com.apple.swipescrolldirection" "true")
 
 # --- マウス ---
-MOUSE_SCALING=$(get_default_value -g "com.apple.mouse.scaling" "1.0")
-MOUSE_ACCELERATION=$(get_default_value ".GlobalPreferences" "com.apple.mouse.scaling" "-1")
+MOUSE_SCALING=$(get_default_value ".GlobalPreferences" "com.apple.mouse.scaling" "1.0")
 FOCUS_FOLLOWS_MOUSE=$(get_default_value "com.apple.Terminal" "FocusFollowsMouse" "false")
 
 # --- トラックパッド ---
@@ -230,8 +229,8 @@ defaults write com.apple.dock autohide-delay -float $DOCK_AUTOHIDE_DELAY
 defaults write com.apple.dock show-recents -bool $(format_bool_value $DOCK_SHOW_RECENTS)
 defaults write com.apple.dock mineffect -string "$DOCK_MIN_EFFECT"
 defaults write com.apple.dock minimize-to-application -bool $(format_bool_value $DOCK_MIN_TO_APP)
-defaults write com.apple.dock static-only -bool $(format_bool_value $DOCK_STATIC_ONLY)
-defaults write com.apple.dock scroll-to-open -bool $(format_bool_value $DOCK_SCROLL_TO_OPEN)
+defaults write com.apple.dock static-only -int $( [ "$DOCK_STATIC_ONLY" = "true" ] && echo 1 || echo 0 )
+defaults write com.apple.dock scroll-to-open -int $( [ "$DOCK_SCROLL_TO_OPEN" = "true" ] && echo 1 || echo 0 )
 defaults write com.apple.dock launchanim -bool $(format_bool_value $DOCK_LAUNCH_ANIM)
 defaults write com.apple.dock showhidden -bool $(format_bool_value $DOCK_SHOW_HIDDEN)
 EOF
@@ -299,15 +298,14 @@ defaults write NSGlobalDomain KeyRepeat -int $KEY_REPEAT_RATE
 defaults write NSGlobalDomain InitialKeyRepeat -int $KEY_REPEAT_DELAY
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool $(format_bool_value $PRESS_AND_HOLD)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int $KEYBOARD_UI_MODE
-defaults write com.apple.keyboard.fnState -bool $(format_bool_value $FN_STATE)
+defaults write -g com.apple.keyboard.fnState -bool $(format_bool_value $FN_STATE)
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool $(format_bool_value $NATURAL_SCROLLING)
 EOF
 )
 
 # --- マウス ---
 MOUSE_COMMANDS=$(cat << EOF
-defaults write -g com.apple.mouse.scaling -float $MOUSE_SCALING
-defaults write .GlobalPreferences com.apple.mouse.scaling -float $MOUSE_ACCELERATION
+defaults write .GlobalPreferences com.apple.mouse.scaling -float $MOUSE_SCALING
 defaults write com.apple.Terminal FocusFollowsMouse -bool $(format_bool_value $FOCUS_FOLLOWS_MOUSE)
 EOF
 )
@@ -356,8 +354,8 @@ add_setting "スクリーンショット" "$SCREENSHOT_COMMANDS"
 # sudo なしで実行できる範囲で pmset の設定を取得
 displaysleep=$(pmset -g | grep displaysleep | awk '{print $2}' || echo "15")
 autorestart=$(pmset -g | grep autorestart | awk '{print $2}' || echo "0")
-# systemsetup は sudo が必須のため、デフォルト値を設定
-restartfreeze="on"
+# sudo が必須のため取得失敗時のみデフォルトを設定
+restartfreeze=$(systemsetup -getrestartfreeze 2>/dev/null | awk '{print $NF}' || echo "on")
 
 ENERGY_COMMANDS=$(cat << EOF
 # NOTE: 以下のコマンドの実行には sudo が必要です
