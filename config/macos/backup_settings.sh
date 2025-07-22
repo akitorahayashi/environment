@@ -96,6 +96,7 @@ SIDEBAR_ICON_SIZE=$(get_default_value "NSGlobalDomain" "NSTableViewDefaultSizeMo
 WINDOW_RESIZE_TIME=$(get_default_value "NSGlobalDomain" "NSWindowResizeTime" "0.001")
 AUTO_CAPITALIZATION=$(get_default_value "NSGlobalDomain" "NSAutomaticCapitalizationEnabled" "true")
 SMART_DASHES=$(get_default_value "NSGlobalDomain" "NSAutomaticDashSubstitutionEnabled" "true")
+AUTO_PERIOD_SUBSTITUTION=$(get_default_value "NSGlobalDomain" "NSAutomaticPeriodSubstitutionEnabled" "true")
 SMART_QUOTES=$(get_default_value "NSGlobalDomain" "NSAutomaticQuoteSubstitutionEnabled" "true")
 AUTO_SPELLING_CORRECTION=$(get_default_value "NSGlobalDomain" "NSAutomaticSpellingCorrectionEnabled" "true")
 WEBKIT_DEVELOPER_EXTRAS=$(get_default_value "NSGlobalDomain" "WebKitDeveloperExtras" "false")
@@ -140,7 +141,6 @@ MC_AUTO_REARRANGE=$(get_default_value "com.apple.dock" "mru-spaces" "true")
 MC_GROUP_BY_APP=$(get_default_value "com.apple.dock" "expose-group-by-app" "true")
 MC_AUTO_SWOOSH=$(get_default_value "com.apple.dock" "workspaces-auto-swoosh" "false")
 MC_SPANS_DISPLAYS=$(get_default_value "com.apple.spaces" "spans-displays" "false")
-MC_DASHBOARD_DISABLED=$(get_default_value "com.apple.dashboard" "mcx-disabled" "false")
 
 # --- ホットコーナー ---
 HOT_CORNER_TL=$(get_default_value "com.apple.dock" "wvous-tl-corner" "1")
@@ -211,6 +211,7 @@ defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int $SIDEBAR_ICON_SIZE
 defaults write NSGlobalDomain NSWindowResizeTime -float $WINDOW_RESIZE_TIME
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool $(format_bool_value $AUTO_CAPITALIZATION)
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool $(format_bool_value $SMART_DASHES)
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool $(format_bool_value $AUTO_PERIOD_SUBSTITUTION)
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool $(format_bool_value $SMART_QUOTES)
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool $(format_bool_value $AUTO_SPELLING_CORRECTION)
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool $(format_bool_value $WEBKIT_DEVELOPER_EXTRAS)
@@ -276,7 +277,6 @@ defaults write com.apple.dock mru-spaces -bool $(format_bool_value $MC_AUTO_REAR
 defaults write com.apple.dock expose-group-by-app -bool $(format_bool_value $MC_GROUP_BY_APP)
 defaults write com.apple.dock workspaces-auto-swoosh -bool $(format_bool_value $MC_AUTO_SWOOSH)
 defaults write com.apple.spaces spans-displays -bool $(format_bool_value $MC_SPANS_DISPLAYS)
-defaults write com.apple.dashboard mcx-disabled -bool $(format_bool_value $MC_DASHBOARD_DISABLED)
 EOF
 )
 
