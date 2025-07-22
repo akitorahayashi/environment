@@ -15,11 +15,12 @@ defaults write com.apple.CrashReporter DialogType -string "none"
 # UI/UX
 defaults write NSGlobalDomain _HIHideMenuBar -bool false
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
-defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
+defaults write NSGlobalDomain NSWindowResizeTime -float 0.01
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool true
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool true
-defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool true
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
 # Dock
@@ -36,21 +37,21 @@ defaults write com.apple.dock launchanim -bool false
 defaults write com.apple.dock showhidden -bool false
 
 # Finder
-defaults write com.apple.finder ShowPathbar -bool false
+defaults write com.apple.finder ShowPathbar -bool true
 defaults write com.apple.finder ShowStatusBar -bool false
-defaults write com.apple.finder AppleShowAllFiles -bool false
-defaults write NSGlobalDomain AppleShowAllExtensions -bool false
+defaults write com.apple.finder AppleShowAllFiles -bool true
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool false
 defaults write com.apple.finder FXPreferredViewStyle -string "icnv"
-defaults write com.apple.finder _FXSortFoldersFirst -bool false
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
 defaults write com.apple.finder FXDefaultSearchScope -string "SCev"
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool true
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.finder WarnOnEmptyTrash -bool true
-defaults write com.apple.finder FXRemoveOldTrashItems -bool false
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool false
+defaults write com.apple.finder FXRemoveOldTrashItems -bool true
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.finder QuitMenuItem -bool false
 defaults write com.apple.finder DisableAllAnimations -bool false
-defaults write NSGlobalDomain com.apple.springing.enabled -bool true
+defaults write NSGlobalDomain com.apple.springing.enabled -bool false
 
 # デスクトップ
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true

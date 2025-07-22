@@ -22,7 +22,7 @@
 | :--- | :--- | :--- |
 | `defaults write NSGlobalDomain _HIHideMenuBar -bool true` | メニューバーの自動非表示 | `true`でメニューバーを自動的に隠します。 |
 | `defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2` | サイドバーのアイコンサイズ | サイドバーに表示されるアイコンのサイズを指定します。（1: 小, 2: 中, 3: 大） |
-| `defaults write NSGlobalDomain NSWindowResizeTime -float 0.001` | ウィンドウリサイズのアニメーション速度 | アプリケーションのウィンドウサイズを変更する際のアニメーション速度を調整します。（`0.001` など小さい値で高速化） |
+| `defaults write NSGlobalDomain NSWindowResizeTime -float 0.001` | ウィンドウリサイズのアニメーション速度 | アプリケーションのウィンドウサイズを変更する際のアニメーション速度を調整します。（`0.01` など小さい値で高速化） |
 | `defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false` | 自動大文字入力 | `false`で文頭の自動的な大文字化を無効にします。 |
 | `defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false` | スマートダッシュ | `false`でハイフン2つ（--）がエムダッシュ（—）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false` | スマートクオート | `false`でストレートクオート（"）がタイポグラフィカルクオート（“”）に自動変換されるのを防ぎます。 |
