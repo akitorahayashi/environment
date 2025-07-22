@@ -39,6 +39,7 @@ fi
 # 設定スクリプトのヘッダーを作成
 cat <<EOF > "$OUTPUT_FILE"
 #!/bin/bash
+set -euo pipefail
 
 EOF
 
