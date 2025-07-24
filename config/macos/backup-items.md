@@ -25,6 +25,7 @@
 | `defaults write NSGlobalDomain NSWindowResizeTime -float 0.001` | ウィンドウリサイズのアニメーション速度 | アプリケーションのウィンドウサイズを変更する際のアニメーション速度を調整します。（`0.01` など小さい値で高速化） |
 | `defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false` | 自動大文字入力 | `false`で文頭の自動的な大文字化を無効にします。 |
 | `defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false` | スマートダッシュ | `false`でハイフン2つ（--）がエムダッシュ（—）に自動変換されるのを防ぎます。 |
+| `defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false` | 自動ピリオド入力 | `false`でスペース2回でピリオドが自動入力されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false` | スマートクオート | `false`でストレートクオート（"）がタイポグラフィカルクオート（“”）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false` | 自動スペル修正 | `false`で入力中の自動的なスペル修正を無効にします。 |
 | `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |
@@ -81,7 +82,6 @@
 | `defaults write com.apple.dock expose-group-by-app -bool false` | アプリごとにウィンドウをグループ化 | `false`でミッションコントロールでウィンドウをアプリケーションごとにグループ化しないようにします。（旧Exposéの挙動） |
 | `defaults write com.apple.dock workspaces-auto-swoosh -bool true` | アプリ切り替え時にスペースを移動 | `true`でアプリケーションのウィンドウが含まれる操作スペースに自動で切り替えます。 |
 | `defaults write com.apple.spaces spans-displays -bool true` | ディスプレイごとに個別の操作スペース | `true`で各ディスプレイに個別のメニューバーと操作スペースを持たせます。 |
-| `defaults write com.apple.dashboard mcx-disabled -bool true` | Dashboardの無効化 | `true`でDashboard機能を無効にします。 |
 
 ### ホットコーナー
 

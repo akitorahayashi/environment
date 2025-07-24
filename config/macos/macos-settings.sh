@@ -17,10 +17,10 @@ defaults write NSGlobalDomain _HIHideMenuBar -bool false
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.01
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool true
-defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool true
 defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool true
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool true
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
 # Dock
@@ -63,11 +63,10 @@ defaults write com.apple.dock mru-spaces -bool true
 defaults write com.apple.dock expose-group-by-app -bool true
 defaults write com.apple.dock workspaces-auto-swoosh -bool false
 defaults write com.apple.spaces spans-displays -bool false
-defaults write com.apple.dashboard mcx-disabled -bool false
 
 # ホットコーナー
 defaults write com.apple.dock wvous-tl-corner -int 1
-defaults write com.apple.dock wvous-tr-corner -int 1
+defaults write com.apple.dock wvous-tr-corner -int 5
 defaults write com.apple.dock wvous-bl-corner -int 10
 defaults write com.apple.dock wvous-br-corner -int 10
 
