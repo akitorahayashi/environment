@@ -67,7 +67,7 @@ fi
 # Poetryのインストール
 if ! command -v poetry &> /dev/null; then
     echo "[INSTALL] poetry"
-    pipx install poetry
+    pipx install poetry --python "$(pyenv which python)"
     echo "IDEMPOTENCY_VIOLATION" >&2
 else
     echo "[INFO] poetry はすでにインストールされています"
