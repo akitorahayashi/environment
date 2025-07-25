@@ -9,7 +9,7 @@ alias pl="pip list"
 alias pi="pip install"
 alias pu="pip uninstall"
 alias pir="pip install -r requirements.txt"
-alias pif="pip freeze > requirements.txt"
+alias pif="pip freeze > requirements-lock.txt"
 
 # Ruby
 alias be="bundle exec"

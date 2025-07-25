@@ -27,7 +27,6 @@ else
 fi
 
 # VSCodeコマンドの検出
-# CI環境ではPATHが通っていない可能性があるため、絶対パスも試す
 if command -v code >/dev/null 2>&1; then
   CODE_CMD="code"
 elif [ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
