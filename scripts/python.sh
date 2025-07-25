@@ -32,7 +32,7 @@ changed=false
 # Python 3.12.4がインストールされていなければインストール
 if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
     echo "[INSTALL] Python ${PYTHON_VERSION}"
-    if ! pyenv install "${PYTHON_VERSION}"; then
+    if ! pyenv install --skip-existing "${PYTHON_VERSION}"; then
         echo "[ERROR] Python ${PYTHON_VERSION} のインストールに失敗しました"
         exit 1
     fi
@@ -55,10 +55,11 @@ fi
 if ! command -v pipx &> /dev/null; then
     echo "[INSTALL] pipx"
     python -m pip install --user pipx
-    # PATH へ pipx の bin ディレクトリを追加
-    pipx ensurepath
     # ensurepath は次回シェルから有効になるため、当該シェルでも即座に反映
     export PATH="$HOME/.local/bin:$PATH"
+    hash -r  # コマンドキャッシュをクリア
+    # PATH へ pipx の bin ディレクトリを追加
+    pipx ensurepath
     echo "IDEMPOTENCY_VIOLATION" >&2
 else
     echo "[INFO] pipx はすでにインストールされています"

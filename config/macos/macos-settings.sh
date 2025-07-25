@@ -106,7 +106,7 @@ defaults write com.apple.screencapture show-thumbnail -bool true
 defaults write com.apple.screencapture type -string "png"
 
 # ディスプレイ
-if [ -z "${CI}" ]; then
+if [ -z "${CI:-}" ]; then
   displayplacer "id:37D8832A-2D66-02CA-B9F7-8F30A301B230 res:1710x1112 hz:60 color_depth:8 enabled:true scaling:on origin:(0,0) degree:0"
 fi
 
