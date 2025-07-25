@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -80,15 +82,15 @@ if [ ! -f "$packages_file" ]; then
     echo "[WARN] global-packages.json が見つかりません。グローバルパッケージのインストールをスキップします"
 else
     echo "[INFO] グローバルパッケージをチェック中..."
-    mapfile -t entries < <(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null)
-    if [ ${#entries[@]} -eq 0 ]; then
+    packages_json=$(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null)
+    if [ -z "$packages_json" ]; then
         echo "[WARN] global-packages.json にパッケージが定義されていません"
     else
         packages_changed=false
-        for entry in "${entries[@]}"; do
+        echo "$packages_json" | while IFS= read -r entry; do
             pkg_full="$entry"
             pkg_name="${entry%@*}"
-            installed_version=$(npm list -g --depth=0 "$pkg_name" | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}')
+            installed_version=$(npm list -g --depth=0 "$pkg_name" | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}' || true)
             required_version=$(echo "$pkg_full" | awk -F'@' '{print $NF}')
             if [ "$required_version" == "latest" ]; then
                 if [ -z "$installed_version" ]; then
@@ -133,16 +135,18 @@ packages_file="$REPO_ROOT/config/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
     echo "[WARN] global-packages.json が見つかりません"
 else
-    mapfile -t packages < <(jq -r '.globalPackages | to_entries[] | "\(.key)"' "$packages_file" 2>/dev/null)
+    packages_json=$(jq -r '.globalPackages | keys[]' "$packages_file" 2>/dev/null)
     missing=0
-    for package in "${packages[@]}"; do
-        if ! npm list -g "$package" &>/dev/null; then
-            echo "[ERROR] グローバルパッケージ $package がインストールされていません"
-            ((missing++))
-        else
-            echo "[SUCCESS] グローバルパッケージ $package がインストールされています"
-        fi
-    done
+    if [ -n "$packages_json" ]; then
+        echo "$packages_json" | while IFS= read -r package; do
+            if ! npm list -g "$package" &>/dev/null; then
+                echo "[ERROR] グローバルパッケージ $package がインストールされていません"
+                ((missing++))
+            else
+                echo "[SUCCESS] グローバルパッケージ $package がインストールされています"
+            fi
+        done
+    fi
     if [ $missing -gt 0 ]; then
         verification_failed=true
     fi
