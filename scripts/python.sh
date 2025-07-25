@@ -51,6 +51,24 @@ else
     echo "[INFO] pyenv global はすでに ${PYTHON_VERSION} に設定されています"
 fi
 
+# pipxのインストール
+if ! command -v pipx &> /dev/null; then
+    echo "[INSTALL] pipx"
+    python -m pip install --user pipx
+    echo "IDEMPOTENCY_VIOLATION" >&2
+else
+    echo "[INFO] pipx はすでにインストールされています"
+fi
+
+# Poetryのインストール
+if ! command -v poetry &> /dev/null; then
+    echo "[INSTALL] poetry"
+    pipx install poetry
+    echo "IDEMPOTENCY_VIOLATION" >&2
+else
+    echo "[INFO] poetry はすでにインストールされています"
+fi
+
 # 最終的な環境情報を表示
 echo "[INFO] Python環境: $(python -V)"
 echo "[SUCCESS] Python環境のセットアップが完了しました"
@@ -80,5 +98,20 @@ if [ "$(pyenv version-name)" != "${PYTHON_VERSION}" ]; then
 else
     echo "[SUCCESS] Python: $(python -V)"
 fi
+
+# pipxのチェック
+if ! command -v pipx >/dev/null 2>&1; then
+    echo "[ERROR] pipxコマンドが見つかりません"
+    exit 1
+fi
+echo "[SUCCESS] pipx: $(pipx --version)"
+
+# poetryのチェック
+if ! command -v poetry >/dev/null 2>&1; then
+    echo "[ERROR] poetryコマンドが見つかりません"
+    exit 1
+fi
+echo "[SUCCESS] poetry: $(poetry --version)"
+
 
 echo "[SUCCESS] Python環境の検証が完了しました"
