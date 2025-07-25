@@ -55,6 +55,10 @@ fi
 if ! command -v pipx &> /dev/null; then
     echo "[INSTALL] pipx"
     python -m pip install --user pipx
+    # PATH へ pipx の bin ディレクトリを追加
+    pipx ensurepath
+    # ensurepath は次回シェルから有効になるため、当該シェルでも即座に反映
+    export PATH="$HOME/.local/bin:$PATH"
     echo "IDEMPOTENCY_VIOLATION" >&2
 else
     echo "[INFO] pipx はすでにインストールされています"
