@@ -1,10 +1,9 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# エラー発生時に即座に終了する設定
-set -e
 
 main() {
     echo "==== Start: macOS環境セットアップ - 事前準備 ===="
