@@ -21,10 +21,10 @@ brew "cocoapods"
 
 ## Python
 # brew "pyenv" # installed by scripts/python.sh
-# brew "pyenv-virtualenv" # installed by scripts/python.sh
 
 ## Utility
 brew "yamllint"
+brew "poppler"
 # brew "displayplacer" # installed by scripts/macos.sh
 
 ## Cask

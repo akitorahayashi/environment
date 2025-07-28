@@ -11,18 +11,15 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # 使用するPythonのバージョンを定数として定義
 readonly PYTHON_VERSION="3.12.4"
 
-# 依存関係をインストール
-echo "[INFO] 依存関係をチェック・インストールします: pyenv, pyenv-virtualenv"
+ # 依存関係をインストール
+echo "[INFO] 依存関係をチェック・インストールします: pyenv"
 if ! command -v pyenv &> /dev/null; then
     brew install pyenv
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
-if ! brew list pyenv-virtualenv &> /dev/null; then
-    brew install pyenv-virtualenv
-    echo "IDEMPOTENCY_VIOLATION" >&2
-fi
 
 echo "==== Start: Python環境のセットアップを開始します..."
+
 
 # pyenvを初期化して、以降のコマンドでpyenvのPythonが使われるようにする
 if command -v pyenv 1>/dev/null 2>&1; then
@@ -91,10 +88,7 @@ if ! command -v pyenv >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! type pyenv | grep -q 'function'; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-fi
+
 
 echo "[SUCCESS] pyenv: $(pyenv --version)"
 
