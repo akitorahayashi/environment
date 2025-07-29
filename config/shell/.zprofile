@@ -60,3 +60,8 @@ if ! command -v /usr/libexec/java_home >/dev/null 2>&1; then
     exit 1
 fi
 export JAVA_HOME="$(/usr/libexec/java_home -v "21")"
+
+# Android SDK
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
