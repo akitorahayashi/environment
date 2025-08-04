@@ -10,5 +10,7 @@
   "chat.editing.confirmEditRequestRemoval": false,
   "diffEditor.ignoreTrimWhitespace": false,
   "terminal.integrated.enableMultiLinePasteWarning": "never",
-  "github.copilot.nextEditSuggestions.enabled": true
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "vscode-office.openOutline": true,
+  "editor.minimap.enabled": false
 }

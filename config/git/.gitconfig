@@ -4,10 +4,10 @@
 [alias]
     cl = clone
     co = checkout
-    br = branch
+    b = branch
     mr = merge
 
-    ad = add
+    a = add
     df = diff
     ts = status
     sh = stash
