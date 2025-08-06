@@ -48,6 +48,7 @@ alias op-c="open -a 'Google Chrome'"
 alias op-s="open -a 'System Preferences'"
 alias op-st="open -a 'Stickies'"
 alias op-o="open -a 'Obsidian'"
+alias op-as="open -a 'Android Studio'"
 alias op-a="open -a 'Automator'"
 
 md2pdf() {
