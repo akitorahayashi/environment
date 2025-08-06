@@ -9,11 +9,6 @@ fi
 # pipx/poetry 用のパス
 export PATH="$HOME/.local/bin:$PATH"
 
-# FVM 用 PATH 設定
-if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"* ]]; then
-    export PATH="$HOME/fvm/default/bin:$PATH"
-fi
-
 # Android SDK 環境変数
 if [[ -z "$ANDROID_HOME" ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
@@ -48,6 +43,9 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 
+# ollama models のパス設定
+export OLLAMA_MODELS="$HOME/.ollama/models"
+
 # nvm の初期化
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
@@ -65,3 +63,8 @@ export JAVA_HOME="$(/usr/libexec/java_home -v "21")"
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+# FVM 用 PATH 設定
+if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"* ]]; then
+    export PATH="$HOME/fvm/default/bin:$PATH"
+fi

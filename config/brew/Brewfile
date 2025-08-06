@@ -25,6 +25,7 @@ brew "cocoapods"
 ## Utility
 brew "yamllint"
 brew "poppler"
+brew "ollama"
 # brew "displayplacer" # installed by scripts/macos.sh
 
 ## Cask
@@ -35,3 +36,4 @@ cask "google-chrome"
 cask "chatgpt"
 cask "slack"
 cask "zoom"
+cask "obsidian"
