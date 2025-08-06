@@ -22,6 +22,9 @@ if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 fi
 
+# Ollama ホスト
+export OLLAMA_HOST="0.0.0.0:11434"
+
 # SSH Agent 設定
 if [ -z "$SSH_AUTH_SOCK" ]; then
    # ssh-agent が実行されていない場合に起動
