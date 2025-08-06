@@ -1,7 +1,10 @@
 # Apple Silicon 用 Homebrew の初期化
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# ユーザーローカルの bin ディレクトリを PATH に追加
+# poppler のパス
+export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
+
+# ユーザーローカルの bin ディレクトリ
 if [ -d "$HOME/bin" ] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
     export PATH="$HOME/bin:$PATH"
 fi

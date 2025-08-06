@@ -29,6 +29,8 @@
 | `defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false` | スマートクオート | `false`でストレートクオート（"）がタイポグラフィカルクオート（“”）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false` | 自動スペル修正 | `false`で入力中の自動的なスペル修正を無効にします。 |
 | `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |
+| `defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool false` | スワイプでのナビゲーション無効化 | `false`でトラックパッドやマウスのスワイプ操作による「戻る・進む」ジェスチャーを無効にします。 |
+
 
 ### Dock
 
@@ -45,6 +47,7 @@
 | `defaults write com.apple.dock scroll-to-open -bool true` | スクロールでExposé | `true`でDockのアイコン上でスクロールすると、そのアプリのExposé（App Exposé）を起動します。 |
 | `defaults write com.apple.dock launchanim -bool false` | アプリケーション起動時のアニメーション | `false`でDockからアプリケーションを起動する際のジャンプアニメーションを無効化します。 |
 | `defaults write com.apple.dock showhidden -bool true` | 非表示アプリのアイコンを半透明化 | `true`で非表示（Hidden）に設定されているアプリケーションのアイコンを半透明で表示します。 |
+| `defaults write com.apple.dock no-bouncing -bool true` | アプリ起動時のアイコンバウンド | `true`でアプリケーション起動時のDockアイコンのバウンドを無効にします。 |
 
 ### Finder
 
@@ -72,6 +75,7 @@
 | :--- | :--- | :--- |
 | `defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false` | 外部ハードドライブのデスクトップへの表示 | USBやThunderbolt接続のディスクなどをデスクトップに表示するか|
 | `defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool true` | デスクトップ表示のクリック挙動 | 通常のクリックでデスクトップ表示を有効化するかどうかを制御します。 |
+| `defaults write com.apple.WindowManager GloballyEnabled -bool true` | ステージマネージャの有効化 | `true`でステージマネージャを有効にします。 |
 
 ### ミッションコントロール
 

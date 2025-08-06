@@ -45,3 +45,13 @@ alias mk="make"
 alias op="open"
 alias op-a="open -a 'Android Studio'"
 alias op-c="open -a 'Google Chrome'"
+
+md2pdf() {
+  pandoc "$1" -o "$2" --pdf-engine=lualatex \
+    -V documentclass=ltjarticle \
+    -V mainfont="Hiragino Mincho ProN" \
+    -V sansfont="Hiragino Sans" \
+    -V monofont="Hiragino Kaku Gothic ProN" \
+    -V geometry:a4paper \
+    -V geometry:margin=2.5cm
+}
