@@ -113,6 +113,7 @@ DOCK_STATIC_ONLY=$(get_default_value "com.apple.dock" "static-only" "false")
 DOCK_SCROLL_TO_OPEN=$(get_default_value "com.apple.dock" "scroll-to-open" "false")
 DOCK_LAUNCH_ANIM=$(get_default_value "com.apple.dock" "launchanim" "true")
 DOCK_SHOW_HIDDEN=$(get_default_value "com.apple.dock" "showhidden" "false")
+DOCK_NO_BOUNCING=$(get_default_value "com.apple.dock" "no-bouncing" "false")
 
 # --- Finder ---
 FINDER_SHOW_PATHBAR=$(get_default_value "com.apple.finder" "ShowPathbar" "false")
@@ -134,6 +135,7 @@ FINDER_SPRINGING_ENABLED=$(get_default_value "NSGlobalDomain" "com.apple.springi
 # --- デスクトップ ---
 SHOW_EXTERNAL_HD_ON_DESKTOP=$(get_default_value "com.apple.finder" "ShowExternalHardDrivesOnDesktop" "true")
 CLICK_TO_SHOW_DESKTOP=$(get_default_value "com.apple.WindowManager" "EnableStandardClickToShowDesktop" "false")
+STAGE_MANAGER_ENABLED=$(get_default_value "com.apple.WindowManager" "GloballyEnabled" "false")
 
 # --- ミッションコントロール ---
 MC_ANIMATION_DURATION=$(get_default_value "com.apple.dock" "expose-animation-duration" "0.2")
@@ -235,6 +237,7 @@ defaults write com.apple.dock static-only -bool $(format_bool_value $DOCK_STATIC
 defaults write com.apple.dock scroll-to-open -bool $(format_bool_value $DOCK_SCROLL_TO_OPEN)
 defaults write com.apple.dock launchanim -bool $(format_bool_value $DOCK_LAUNCH_ANIM)
 defaults write com.apple.dock showhidden -bool $(format_bool_value $DOCK_SHOW_HIDDEN)
+defaults write com.apple.dock no-bouncing -bool $(format_bool_value $DOCK_NO_BOUNCING)
 EOF
 )
 
@@ -267,6 +270,7 @@ add_setting "Finder" "$FINDER_COMMANDS"
 DESKTOP_COMMANDS=$(cat << EOF
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool $(format_bool_value $SHOW_EXTERNAL_HD_ON_DESKTOP)
 defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool $(format_bool_value $CLICK_TO_SHOW_DESKTOP)
+defaults write com.apple.WindowManager GloballyEnabled -bool $(format_bool_value $STAGE_MANAGER_ENABLED)
 EOF
 )
 

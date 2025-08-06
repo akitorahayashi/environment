@@ -45,6 +45,7 @@
 | `defaults write com.apple.dock scroll-to-open -bool true` | スクロールでExposé | `true`でDockのアイコン上でスクロールすると、そのアプリのExposé（App Exposé）を起動します。 |
 | `defaults write com.apple.dock launchanim -bool false` | アプリケーション起動時のアニメーション | `false`でDockからアプリケーションを起動する際のジャンプアニメーションを無効化します。 |
 | `defaults write com.apple.dock showhidden -bool true` | 非表示アプリのアイコンを半透明化 | `true`で非表示（Hidden）に設定されているアプリケーションのアイコンを半透明で表示します。 |
+| `defaults write com.apple.dock no-bouncing -bool true` | アプリ起動時のアイコンバウンド | `true`でアプリケーション起動時のDockアイコンのバウンドを無効にします。 |
 
 ### Finder
 
@@ -72,6 +73,7 @@
 | :--- | :--- | :--- |
 | `defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false` | 外部ハードドライブのデスクトップへの表示 | USBやThunderbolt接続のディスクなどをデスクトップに表示するか|
 | `defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool true` | デスクトップ表示のクリック挙動 | 通常のクリックでデスクトップ表示を有効化するかどうかを制御します。 |
+| `defaults write com.apple.WindowManager GloballyEnabled -bool true` | ステージマネージャの有効化 | `true`でステージマネージャを有効にします。 |
 
 ### ミッションコントロール
 
