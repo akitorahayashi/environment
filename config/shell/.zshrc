@@ -43,8 +43,10 @@ alias mk="make"
 
 # Utility
 alias op="open"
-alias op-a="open -a 'Android Studio'"
+alias op-f="open ."
 alias op-c="open -a 'Google Chrome'"
+alias op-s="open -a 'System Preferences'"
+alias op-a="open -a 'Automator'"
 
 md2pdf() {
   pandoc "$1" -o "$2" --pdf-engine=lualatex \
