@@ -29,6 +29,8 @@
 | `defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false` | スマートクオート | `false`でストレートクオート（"）がタイポグラフィカルクオート（“”）に自動変換されるのを防ぎます。 |
 | `defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false` | 自動スペル修正 | `false`で入力中の自動的なスペル修正を無効にします。 |
 | `defaults write NSGlobalDomain WebKitDeveloperExtras -bool true` | Webインスペクタの有効化 | `true`でWeb開発用のインスペクタ機能を有効にします。 |
+| `defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool false` | スワイプでのナビゲーション無効化 | `false`でトラックパッドやマウスのスワイプ操作による「戻る・進む」ジェスチャーを無効にします。 |
+
 
 ### Dock
 

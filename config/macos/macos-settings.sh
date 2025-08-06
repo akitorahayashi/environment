@@ -22,10 +22,11 @@ defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool true
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool true
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
+defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool false
 
 # Dock
 defaults write com.apple.dock tilesize -int 50
-defaults write com.apple.dock autohide -bool false
+defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-time-modifier -float 0.5
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock show-recents -bool false
@@ -35,6 +36,7 @@ defaults write com.apple.dock static-only -bool false
 defaults write com.apple.dock scroll-to-open -bool false
 defaults write com.apple.dock launchanim -bool false
 defaults write com.apple.dock showhidden -bool false
+defaults write com.apple.dock no-bouncing -bool false
 
 # Finder
 defaults write com.apple.finder ShowPathbar -bool true
@@ -55,10 +57,11 @@ defaults write NSGlobalDomain com.apple.springing.enabled -bool false
 
 # デスクトップ
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
-defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool true
+defaults write com.apple.WindowManager GloballyEnabled -bool true
 
 # ミッションコントロール
-defaults write com.apple.dock expose-animation-duration -float 0.2
+defaults write com.apple.dock expose-animation-duration -float 0.2000000029802322
 defaults write com.apple.dock mru-spaces -bool true
 defaults write com.apple.dock expose-group-by-app -bool true
 defaults write com.apple.dock workspaces-auto-swoosh -bool false
@@ -106,7 +109,7 @@ defaults write com.apple.screencapture show-thumbnail -bool true
 defaults write com.apple.screencapture type -string "png"
 
 # ディスプレイ
-if [ -z "${CI:-}" ]; then
+if [ -z "${CI}" ]; then
   displayplacer "id:37D8832A-2D66-02CA-B9F7-8F30A301B230 res:1710x1112 hz:60 color_depth:8 enabled:true scaling:on origin:(0,0) degree:0"
 fi
 

@@ -13,7 +13,6 @@ brew "go"
 brew "xcodes"
 brew "xcbeautify"
 brew "mint"
-brew "cocoapods"
 
 ## Ruby
 # brew "rbenv" # installed by scripts/ruby.sh
@@ -23,8 +22,8 @@ brew "cocoapods"
 # brew "pyenv" # installed by scripts/python.sh
 
 ## Utility
-brew "yamllint"
 brew "poppler"
+brew "pandoc"
 brew "ollama"
 # brew "displayplacer" # installed by scripts/macos.sh
 
@@ -33,7 +32,7 @@ brew "ollama"
 cask "android-studio"
 cask "android-commandlinetools"
 cask "google-chrome"
-cask "chatgpt"
 cask "slack"
 cask "zoom"
 cask "obsidian"
+cask "mactex"

@@ -100,6 +100,7 @@ AUTO_PERIOD_SUBSTITUTION=$(get_default_value "NSGlobalDomain" "NSAutomaticPeriod
 SMART_QUOTES=$(get_default_value "NSGlobalDomain" "NSAutomaticQuoteSubstitutionEnabled" "true")
 AUTO_SPELLING_CORRECTION=$(get_default_value "NSGlobalDomain" "NSAutomaticSpellingCorrectionEnabled" "true")
 WEBKIT_DEVELOPER_EXTRAS=$(get_default_value "NSGlobalDomain" "WebKitDeveloperExtras" "false")
+SWIPE_NAVIGATE_WITH_SCROLLS=$(get_default_value "NSGlobalDomain" "AppleEnableSwipeNavigateWithScrolls" "false")
 
 # --- Dock ---
 DOCK_SIZE=$(get_default_value "com.apple.dock" "tilesize" "50")
@@ -217,6 +218,7 @@ defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool $(forma
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool $(format_bool_value $SMART_QUOTES)
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool $(format_bool_value $AUTO_SPELLING_CORRECTION)
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool $(format_bool_value $WEBKIT_DEVELOPER_EXTRAS)
+defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool $(format_bool_value $SWIPE_NAVIGATE_WITH_SCROLLS)
 EOF
 )
 
