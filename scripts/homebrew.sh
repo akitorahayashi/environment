@@ -6,6 +6,22 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+# Function to verify brew/cask items
+verify_items() {
+  local type=$1
+  local cmd=(brew info)
+  [[ $type == "cask" ]] && cmd+=(--cask)
+
+  while read -r item; do
+    if ! "${cmd[@]}" "$item" &>/dev/null; then
+      echo "[ERROR] CI: ${type}パッケージ '$item' が見つかりません。"
+      verification_failed=true
+    else
+      echo "[SUCCESS] CI: ${type}パッケージ '$item' はインストール可能です。"
+    fi
+  done < <(grep "^$type " "$brewfile_path" | awk -F'"' '{print $2}')
+}
+
 # Homebrewのインストール
 if ! command -v brew &> /dev/null; then
     echo "[INSTALL] Homebrew ..."
@@ -14,9 +30,9 @@ if ! command -v brew &> /dev/null; then
     echo "[INFO] Homebrewインストールスクリプトを実行します..."
     if [ "${CI:-false}" = "true" ]; then
         echo "[INFO] CI環境では非対話型でインストールします"
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL $install_url)"
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL "$install_url")"
     else
-        /bin/bash -c "$(curl -fsSL $install_url)"
+        /bin/bash -c "$(curl -fsSL "$install_url")"
     fi
     
     
@@ -41,25 +57,8 @@ if [ -f "$brewfile_path" ]; then
         echo "[INFO] CI: Brewfileのパッケージがインストール可能か確認します..."
         verification_failed=false
 
-        # Brewfileからbrewパッケージをチェック
-        while read -r package; do
-            if ! brew info "$package" &> /dev/null; then
-                echo "[ERROR] CI: brewパッケージ '$package' が見つかりません。"
-                verification_failed=true
-            else
-                echo "[SUCCESS] CI: brewパッケージ '$package' はインストール可能です。"
-            fi
-        done < <(grep "^brew " "$brewfile_path" | awk -F'"' '{print $2}')
-
-        # Brewfileからcaskパッケージをチェック
-        while read -r cask; do
-            if ! brew info --cask "$cask" &> /dev/null; then
-                echo "[ERROR] CI: caskパッケージ '$cask' が見つかりません。"
-                verification_failed=true
-            else
-                echo "[SUCCESS] CI: caskパッケージ '$cask' はインストール可能です。"
-            fi
-        done < <(grep "^cask " "$brewfile_path" | awk -F'"' '{print $2}')
+        verify_items "brew"
+        verify_items "cask"
 
         if [ "$verification_failed" = "true" ]; then
             echo "[ERROR] CI: Brewfileの検証に失敗しました。"
@@ -84,7 +83,7 @@ if [ "${CI:-false}" != "true" ]; then
     verification_failed=false
 
     # Homebrew パスの確認
-    BREW_PATH=$(which brew)
+    BREW_PATH=$(command -v brew)
     expected_path="$(brew --prefix)/bin/brew"
     if [[ "$BREW_PATH" != "$expected_path" ]]; then
         echo "[ERROR] Homebrewのパスが想定と異なります"
