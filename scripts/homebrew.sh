@@ -19,11 +19,6 @@ if ! command -v brew &> /dev/null; then
         /bin/bash -c "$(curl -fsSL $install_url)"
     fi
     
-    if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    elif [ -f "/opt/homebrew/bin/brew" ]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
     
     if ! command -v brew; then
         echo "[ERROR] Homebrewのインストールに失敗しました"
@@ -47,24 +42,24 @@ if [ -f "$brewfile_path" ]; then
         verification_failed=false
 
         # Brewfileからbrewパッケージをチェック
-        grep "^brew " "$brewfile_path" | awk -F'"' '{print $2}' | while read -r package; do
+        while read -r package; do
             if ! brew info "$package" &> /dev/null; then
                 echo "[ERROR] CI: brewパッケージ '$package' が見つかりません。"
                 verification_failed=true
             else
                 echo "[SUCCESS] CI: brewパッケージ '$package' はインストール可能です。"
             fi
-        done
+        done < <(grep "^brew " "$brewfile_path" | awk -F'"' '{print $2}')
 
         # Brewfileからcaskパッケージをチェック
-        grep "^cask " "$brewfile_path" | awk -F'"' '{print $2}' | while read -r cask; do
+        while read -r cask; do
             if ! brew info --cask "$cask" &> /dev/null; then
                 echo "[ERROR] CI: caskパッケージ '$cask' が見つかりません。"
                 verification_failed=true
             else
                 echo "[SUCCESS] CI: caskパッケージ '$cask' はインストール可能です。"
             fi
-        done
+        done < <(grep "^cask " "$brewfile_path" | awk -F'"' '{print $2}')
 
         if [ "$verification_failed" = "true" ]; then
             echo "[ERROR] CI: Brewfileの検証に失敗しました。"

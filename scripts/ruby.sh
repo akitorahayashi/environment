@@ -9,16 +9,13 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # 使用するRubyのバージョンを定数として定義
 readonly RUBY_VERSION="3.3.0"
 
-if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-elif [ -f "/opt/homebrew/bin/brew" ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: rbenv, ruby-build"
+changed=false
 if ! command -v rbenv &> /dev/null; then
     brew install rbenv ruby-build
+    changed=true
 fi
 
 echo "==== Start: Ruby環境のセットアップを開始します..."
@@ -35,6 +32,7 @@ if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
         exit 1
     fi
     unset RUBY_CONFIGURE_OPTS
+    changed=true
 else
     echo "[INFO] Ruby ${RUBY_VERSION} はすでにインストールされています"
 fi
@@ -44,6 +42,7 @@ if [ "$(rbenv global)" != "${RUBY_VERSION}" ]; then
     echo "[CONFIG] rbenv global を ${RUBY_VERSION} に設定します"
     rbenv global "${RUBY_VERSION}"
     rbenv rehash
+    changed=true
 else
     echo "[INFO] rbenv global はすでに ${RUBY_VERSION} に設定されています"
 fi
@@ -54,30 +53,22 @@ if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
     echo "[INFO] Bundlerを最新バージョンに更新・インストールします..."
-    gem install --no-document bundler
+    gem_install_output=$(gem install --no-document bundler)
+    if echo "$gem_install_output" | grep -q "gem installed"; then
+        changed=true
+    fi
     rbenv rehash
 
-    # Bundlerを使用してgemをインストール
-    echo "[INFO] Bundlerを使ってgemをインストールします..."
-    (
-        cd "$(dirname "$gem_file")" || exit 1
-        if ! bundle check --gemfile="$gem_file" >/dev/null 2>&1; then
-            echo "[INSTALL] Gemfileからgemをインストールします..."
-            if ! bundle install --gemfile="$gem_file" --quiet; then
-                echo "[ERROR] gemのインストールに失敗しました"
-                exit 1
-            fi
-            echo "[SUCCESS] gemのインストールが完了しました"
-        else
-            echo "[INFO] 必要なgemはすべてインストール済みです"
-        fi
-    )
 fi
 
 # 最終的な環境情報を表示
 bundler_version=$(bundle -v 2>/dev/null || echo 'bundler未インストール')
 echo "[INFO] Ruby環境: $(ruby -v) / $(gem -v) / ${bundler_version}"
 echo "[SUCCESS] Ruby環境のセットアップが完了しました"
+
+if [ "$changed" = true ]; then
+    echo "IDEMPOTENCY_VIOLATION" >&2
+fi
 
 echo "==== Start: Ruby環境を検証中..."
 # rbenvチェック
