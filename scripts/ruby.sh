@@ -9,15 +9,16 @@ REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 # 使用するRubyのバージョンを定数として定義
 readonly RUBY_VERSION="3.3.0"
 
+if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif [ -f "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: rbenv, ruby-build"
-changed=false
 if ! command -v rbenv &> /dev/null; then
     brew install rbenv ruby-build
-    changed=true
-fi
-if [ "$changed" = true ]; then
-    echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
 echo "==== Start: Ruby環境のセットアップを開始します..."
@@ -25,7 +26,6 @@ echo "==== Start: Ruby環境のセットアップを開始します..."
 # rbenvを初期化して、以降のコマンドでrbenvのRubyが使われるようにする
 eval "$(rbenv init -)"
 
-changed=false
 # Ruby 3.3.0がインストールされていなければインストール
 if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
     echo "[INSTALL] Ruby ${RUBY_VERSION}"
@@ -33,7 +33,6 @@ if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
         echo "[ERROR] Ruby ${RUBY_VERSION} のインストールに失敗しました"
         exit 1
     fi
-    changed=true
 else
     echo "[INFO] Ruby ${RUBY_VERSION} はすでにインストールされています"
 fi
@@ -43,7 +42,6 @@ if [ "$(rbenv global)" != "${RUBY_VERSION}" ]; then
     echo "[CONFIG] rbenv global を ${RUBY_VERSION} に設定します"
     rbenv global "${RUBY_VERSION}"
     rbenv rehash
-    changed=true
 else
     echo "[INFO] rbenv global はすでに ${RUBY_VERSION} に設定されています"
 fi
@@ -53,68 +51,37 @@ gem_file="${REPO_ROOT:-.}/config/gems/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
-    gem_changed=false
-    required_bundler_version=$(grep -E "gem[[:space:]]+['\"]bundler['\"]," "$gem_file" | grep -oE '[0-9.]+')
-    if [ -z "$required_bundler_version" ]; then
-        echo "[WARN] global-gems.rb にbundlerのバージョン指定が見つかりませんでした。通常のbundle installを試みます。"
-        if ! command -v bundle >/dev/null 2>&1; then
-            echo "[INSTALL] bundler"
-            gem install bundler && rbenv rehash
-            gem_changed=true
-        fi
-        (
-            cd "$(dirname "$gem_file")" || exit 1
-            BUNDLE_GEMFILE="$gem_file" bundle install --quiet
-        )
+    echo "[INFO] Bundlerを最新バージョンに更新・インストールします..."
+    if ! gem list bundler --installed > /dev/null; then
+        echo "[INSTALL] bundler をインストールします"
+        gem install bundler
     else
-        echo "[INFO] 要求されているBundlerのバージョン: ${required_bundler_version}"
-        if ! gem list bundler -i -v "$required_bundler_version" >/dev/null 2>&1; then
-            echo "[INSTALL] bundler v${required_bundler_version} をインストールします"
-            if ! gem install bundler -v "$required_bundler_version"; then
-                echo "[ERROR] bundler v${required_bundler_version} のインストールに失敗しました"
+        echo "[UPDATE] bundler を更新します"
+        gem update bundler
+    fi
+    rbenv rehash
+
+    # Bundlerを使用してgemをインストール
+    echo "[INFO] Bundlerを使ってgemをインストールします..."
+    (
+        cd "$(dirname "$gem_file")" || exit 1
+        if ! bundle check --gemfile="$gem_file" >/dev/null 2>&1; then
+            echo "[INSTALL] Gemfileからgemをインストールします..."
+            if ! bundle install --gemfile="$gem_file" --quiet; then
+                echo "[ERROR] gemのインストールに失敗しました"
                 exit 1
             fi
-            echo "[SUCCESS] bundler v${required_bundler_version} をインストールしました"
-            gem_changed=true
-            rbenv rehash
+            echo "[SUCCESS] gemのインストールが完了しました"
         else
-            echo "[INFO] bundler v${required_bundler_version} はすでにインストールされています"
+            echo "[INFO] 必要なgemはすべてインストール済みです"
         fi
-        bundler_cmd="bundle _${required_bundler_version}_"
-        {
-            cd "$(dirname "$gem_file")" || {
-                echo "[ERROR] Gemfileのディレクトリに移動できませんでした: $(dirname "$gem_file")"
-                exit 1
-            }
-            echo "[INFO] Gemfileからgemをチェック中 (using bundler v${required_bundler_version})..."
-            if BUNDLE_GEMFILE="$gem_file" ${bundler_cmd} check >/dev/null 2>&1; then
-                echo "[OK] 必要なgemはすべてインストール済みです"
-            else
-                echo "[INSTALL] gemをインストールします (using bundler v${required_bundler_version})..."
-                if BUNDLE_GEMFILE="$gem_file" ${bundler_cmd} install --quiet; then
-                    echo "[SUCCESS] Gemfileからgemのインストールが完了しました"
-                    gem_changed=true
-                    rbenv rehash
-                else
-                    echo "[ERROR] gemインストールに失敗しました"
-                    exit 1
-                fi
-            fi
-        }
-    fi
-    if [ "$gem_changed" = true ]; then
-        echo "IDEMPOTENCY_VIOLATION" >&2
-    fi
+    )
 fi
 
 # 最終的な環境情報を表示
 bundler_version=$(bundle -v 2>/dev/null || echo 'bundler未インストール')
 echo "[INFO] Ruby環境: $(ruby -v) / $(gem -v) / ${bundler_version}"
 echo "[SUCCESS] Ruby環境のセットアップが完了しました"
-
-if [ "$changed" = true ]; then
-    echo "IDEMPOTENCY_VIOLATION" >&2
-fi
 
 echo "==== Start: Ruby環境を検証中..."
 # rbenvチェック
@@ -148,6 +115,13 @@ fi
 if ! command -v bundle >/dev/null 2>&1; then
     echo "[ERROR] bundlerコマンドが見つかりません"
     exit 1
+fi
+
+# bundlerのバージョンが最新であることを確認
+latest_version=$(gem search '^bundler$' --remote | grep -oE '([0-9]+\.[0-9]+\.[0-9]+)' | head -n 1)
+current_version=$(bundle -v | grep -oE '([0-9]+\.[0-9]+\.[0-9]+)')
+if [ "$current_version" != "$latest_version" ]; then
+    echo "[WARN] bundlerのバージョンが最新ではありません。最新: ${latest_version}, 現在: ${current_version}"
 else
     echo "[SUCCESS] bundler: $(bundle -v)"
 fi
