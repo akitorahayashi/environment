@@ -5,9 +5,10 @@
     cl = clone
     co = checkout
     b = branch
+    br = branch
     mr = merge
 
-    a = add
+    ad = add
     df = diff
     ts = status
     sh = stash
