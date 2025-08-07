@@ -29,10 +29,12 @@ eval "$(rbenv init -)"
 # Ruby 3.3.0がインストールされていなければインストール
 if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
     echo "[INSTALL] Ruby ${RUBY_VERSION}"
+    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl)"
     if ! rbenv install "${RUBY_VERSION}"; then
         echo "[ERROR] Ruby ${RUBY_VERSION} のインストールに失敗しました"
         exit 1
     fi
+    unset RUBY_CONFIGURE_OPTS
 else
     echo "[INFO] Ruby ${RUBY_VERSION} はすでにインストールされています"
 fi
@@ -52,13 +54,7 @@ if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
     echo "[INFO] Bundlerを最新バージョンに更新・インストールします..."
-    if ! gem list bundler --installed > /dev/null; then
-        echo "[INSTALL] bundler をインストールします"
-        gem install bundler
-    else
-        echo "[UPDATE] bundler を更新します"
-        gem update bundler
-    fi
+    gem install --no-document bundler
     rbenv rehash
 
     # Bundlerを使用してgemをインストール
@@ -118,8 +114,10 @@ if ! command -v bundle >/dev/null 2>&1; then
 fi
 
 # bundlerのバージョンが最新であることを確認
-latest_version=$(gem search '^bundler$' --remote | grep -oE '([0-9]+\.[0-9]+\.[0-9]+)' | head -n 1)
-current_version=$(bundle -v | grep -oE '([0-9]+\.[0-9]+\.[0-9]+)')
+latest_version_info=$(gem list --remote bundler --all | sort -V | tail -n 1)
+latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+
 if [ "$current_version" != "$latest_version" ]; then
     echo "[WARN] bundlerのバージョンが最新ではありません。最新: ${latest_version}, 現在: ${current_version}"
 else

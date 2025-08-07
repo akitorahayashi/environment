@@ -23,5 +23,3 @@ jobs:
       - name: Run homebrew.sh for setup
         id: setup
         run: ./scripts/homebrew.sh
-        env:
-          CI: true
