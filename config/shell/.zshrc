@@ -41,6 +41,9 @@ alias mr="mint run"
 # Makefile
 alias mk="make"
 
+# AppleScript
+alias as="osascript"
+
 # Utility
 alias op="open"
 alias op-f="open ."
@@ -50,6 +53,7 @@ alias op-st="open -a 'Stickies'"
 alias op-o="open -a 'Obsidian'"
 alias op-as="open -a 'Android Studio'"
 alias op-a="open -a 'Automator'"
+alias op-sc="open -a 'Script Editor'"
 
 md2pdf() {
   pandoc "$1" -o "$2" --pdf-engine=lualatex \
