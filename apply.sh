@@ -11,9 +11,9 @@ echo "[Start] Setting up shell configuration files..."
 
 # Create symbolic links
 echo "[INFO] Creating symbolic links for shell configuration files..."
-ln -sf "$SCRIPT_DIR/macos/config/shell/.zprofile" "$HOME/.zprofile"
+ln -sf "$SCRIPT_DIR/macos/shell/.zprofile" "$HOME/.zprofile"
 echo "[SUCCESS] Created symbolic link for .zprofile."
-ln -sf "$SCRIPT_DIR/macos/config/shell/.zshrc" "$HOME/.zshrc"
+ln -sf "$SCRIPT_DIR/macos/shell/.zshrc" "$HOME/.zshrc"
 echo "[SUCCESS] Created symbolic link for .zshrc."
 
 echo "[SUCCESS] Shell environment setup is complete."
@@ -28,7 +28,7 @@ if ! command -v displayplacer &>/dev/null; then
 fi
 
 # Apply settings
-settings_file="$SCRIPT_DIR/macos/config/macos/macos-settings.sh"
+settings_file="$SCRIPT_DIR/macos/settings/macos-settings.sh"
 if [[ ! -f "$settings_file" ]]; then
   echo "[WARN] $settings_file not found."
 else
@@ -44,7 +44,7 @@ echo "==== Start: Verifying setup... ===="
 verification_failed=false
 
 # Verify .zprofile
-if [ ! -L "$HOME/.zprofile" ] || [ "$(readlink "$HOME/.zprofile")" != "$SCRIPT_DIR/macos/config/shell/.zprofile" ]; then
+if [ ! -L "$HOME/.zprofile" ] || [ "$(readlink "$HOME/.zprofile")" != "$SCRIPT_DIR/macos/shell/.zprofile" ]; then
   echo "[ERROR] .zprofile symbolic link is incorrect."
   verification_failed=true
 else
@@ -52,7 +52,7 @@ else
 fi
 
 # Verify .zshrc
-if [ ! -L "$HOME/.zshrc" ] || [ "$(readlink "$HOME/.zshrc")" != "$SCRIPT_DIR/macos/config/shell/.zshrc" ]; then
+if [ ! -L "$HOME/.zshrc" ] || [ "$(readlink "$HOME/.zshrc")" != "$SCRIPT_DIR/macos/shell/.zshrc" ]; then
   echo "[ERROR] .zshrc symbolic link is incorrect."
   verification_failed=true
 else

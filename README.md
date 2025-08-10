@@ -7,24 +7,24 @@ environment/
 ├── .github/
 │   └── workflows/
 ├── macos/
+│   ├── settings/
+│   └── shell/
+├── installers/
 │   ├── config/
-│   │   ├── macos/
-│   │   └── shell/
-├── config/
-│   ├── brew/
-│   ├── gems/
-│   ├── git/
-│   ├── node/
-│   └── vscode/
-├── scripts/
-│   ├── flutter.sh
-│   ├── git.sh
-│   ├── homebrew.sh
-│   ├── java.sh
-│   ├── node.sh
-│   ├── python.sh
-│   ├── ruby.sh
-│   └── vscode.sh
+│   │   ├── brew/
+│   │   ├── gems/
+│   │   ├── git/
+│   │   ├── node/
+│   │   └── vscode/
+│   └── scripts/
+│       ├── flutter.sh
+│       ├── git.sh
+│       ├── homebrew.sh
+│       ├── java.sh
+│       ├── node.sh
+│       ├── python.sh
+│       ├── ruby.sh
+│       └── vscode.sh
 ├── .gitignore
 ├── apply.sh
 ├── install.sh
@@ -152,32 +152,32 @@ environment/
 
 ### Main setup
 
-`scripts/`内の各セットアップスクリプトは個別に実行できます
+`installers/scripts/`内の各セットアップスクリプトは個別に実行できます
 
 ```sh
 # Homebrewのセットアップ
-$ ./scripts/homebrew.sh
+$ ./installers/scripts/homebrew.sh
 
 # Gitの設定
-$ ./scripts/git.sh
+$ ./installers/scripts/git.sh
 
 # Ruby環境のセットアップ
-$ ./scripts/ruby.sh
+$ ./installers/scripts/ruby.sh
 
 # Python環境のセットアップ
-$ ./scripts/python.sh
+$ ./installers/scripts/python.sh
 
 # Java環境のセットアップ
-$ ./scripts/java.sh
+$ ./installers/scripts/java.sh
 
 # Node.js環境のセットアップ
-$ ./scripts/node.sh
+$ ./installers/scripts/node.sh
 
 # Flutterのセットアップ
-$ ./scripts/flutter.sh
+$ ./installers/scripts/flutter.sh
 
 # VSCodeの設定
-$ ./scripts/vscode.sh
+$ ./installers/scripts/vscode.sh
 ```
 
 ### macOS specific setup

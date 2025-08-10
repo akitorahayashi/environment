@@ -22,4 +22,4 @@ jobs:
 
       - name: Run homebrew.sh for setup
         id: setup
-        run: ./scripts/homebrew.sh
+        run: ./installers/scripts/homebrew.sh
