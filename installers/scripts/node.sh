@@ -48,8 +48,8 @@ else
 fi
 
 # デフォルトエイリアスが 'stable' になっているか確認
-current_default=$(nvm alias default 2>/dev/null || true)
-if [[ "$current_default" != "stable" ]]; then
+current_default_target="$(nvm alias default 2>/dev/null | awk -F'->' 'NR==1{gsub(/^[ \t]+|[ \t]+$/,"",$2); print $2}' | awk '{print $1}')"
+if [[ "$current_default_target" != "stable" ]]; then
     echo "[CONFIGURING] Node.js stable をデフォルトバージョンに設定します"
     if nvm alias default stable; then
         echo "[SUCCESS] デフォルトバージョンを stable に設定しました"
@@ -67,7 +67,10 @@ if [ "$node_changed" = true ]; then
 fi
 
 # 現在のシェルで指定バージョンを使用
-nvm use stable > /dev/null
+if ! nvm use stable > /dev/null; then
+    echo "[ERROR] Node.js stable への切り替えに失敗しました"
+    exit 1
+fi
 
 # npm のインストール確認
 if ! command -v npm &> /dev/null; then

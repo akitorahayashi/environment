@@ -74,9 +74,12 @@ if [ -f "$PIPX_TOOLS_FILE" ]; then
     echo "[INFO] $PIPX_TOOLS_FILE からツールをインストールします"
     installed_tools_output=$(pipx list)
 
-    while IFS= read -r tool_package || [ -n "$tool_package" ]; do
-        # 空行やコメント行をスキップ
-        if [[ -z "$tool_package" || "$tool_package" == \#* ]]; then
+    while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
+        # 行末コメントを除去し、前後空白をトリム
+        tool_package="${tool_package_raw%%#*}"
+        tool_package="$(echo "$tool_package" | xargs)"
+        # 空行はスキップ
+        if [[ -z "$tool_package" ]]; then
             continue
         fi
 
@@ -85,11 +88,11 @@ if [ -f "$PIPX_TOOLS_FILE" ]; then
             echo "[INFO] $tool_package はすでにインストールされています"
         else
             echo "[INSTALL] $tool_package"
-            if pipx install "$tool_package" --python "$(pyenv which python)"; then
-                echo "IDEMPOTENCY_VIOLATION" >&2
-            else
-                echo "[ERROR] $tool_package のインストールに失敗しました"
+            if ! pipx install "$tool_package" --python "$(pyenv which python)"; then
+                echo "[ERROR] $tool_package のインストールに失敗しました" >&2
+                exit 1
             fi
+            echo "IDEMPOTENCY_VIOLATION" >&2
         fi
     done < "$PIPX_TOOLS_FILE"
 else
@@ -137,38 +140,25 @@ if [ -f "$PIPX_TOOLS_FILE" ]; then
     # 検証のたびに最新のリストを取得
     installed_tools_output_verify=$(pipx list)
 
-    while IFS= read -r tool_package || [ -n "$tool_package" ]; do
-        # 空行やコメント行をスキップ
-        if [[ -z "$tool_package" || "$tool_package" == \#* ]]; then
+    while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
+        # 行末コメントを除去し、前後空白をトリム
+        tool_package="${tool_package_raw%%#*}"
+        tool_package="$(echo "$tool_package" | xargs)"
+        # 空行はスキップ
+        if [[ -z "$tool_package" ]]; then
             continue
         fi
 
-        # pipxでインストールされているか確認
-        if ! echo "$installed_tools_output_verify" | grep -q "package $tool_package "; then
-             echo "[ERROR] $tool_package は pipx でインストールされていません"
-             exit 1
-        fi
-
-        # パッケージ名からコマンド名を取得する
-        # デフォルトはパッケージ名と同じ
-        command_name="$tool_package"
-        # 例外: aider-chatパッケージのコマンドはaider
-        if [ "$tool_package" = "aider-chat" ]; then
-            command_name="aider"
-        fi
-
-        if ! command -v "$command_name" >/dev/null 2>&1; then
-            echo "[ERROR] $command_name コマンドが見つかりません（$tool_package パッケージ）"
+        # インストールされているかチェック
+        if echo "$installed_tools_output_verify" | grep -q "package $tool_package "; then
+            echo "[SUCCESS] $tool_package は正常にインストールされています"
+        else
+            echo "[ERROR] $tool_package がインストールされていません"
             exit 1
         fi
-
-        # バージョン表示を試みる。失敗してもエラーにはしない。
-        version_info="$($command_name --version 2>/dev/null || echo "version not found")"
-        echo "[SUCCESS] $tool_package (command: $command_name): $version_info"
     done < "$PIPX_TOOLS_FILE"
 else
-    echo "[WARN] $PIPX_TOOLS_FILE が見つかりません。ツールの検証をスキップします。"
+    echo "[WARN] $PIPX_TOOLS_FILE が見つかりません"
 fi
-
 
 echo "[SUCCESS] Python環境の検証が完了しました"

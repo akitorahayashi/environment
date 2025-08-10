@@ -15,6 +15,7 @@ environment/
 │   │   ├── gems/
 │   │   ├── git/
 │   │   ├── node/
+│   │   ├── python/
 │   │   └── vscode/
 │   └── scripts/
 │       ├── flutter.sh

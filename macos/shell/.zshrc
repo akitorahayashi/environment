@@ -35,9 +35,6 @@ aid-set() {
 aid-lch() {
   aider --model "ollama/$1" --no-auto-commit
 }
-aid-clr() {
-  rm -rf .aider*
-}
 
 # Ruby
 alias be="bundle exec"
