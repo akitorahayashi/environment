@@ -370,8 +370,8 @@ if [[ -n "$DISPLAY_COMMAND" ]]; then
     # catのEOFをシングルクォートで囲まないことで、$DISPLAY_COMMANDを展開させる
     # ${CI}の$はエスケープし、生成後のファイルで変数が評価されるようにする
     DISPLAY_SETTINGS_COMMANDS=$(cat <<EOF
-if [ -z "\${CI}" ]; then
-  displayplacer $DISPLAY_COMMAND
+if [ "\${CI:-false}" = "false" ]; then
+    displayplacer $DISPLAY_COMMAND
 fi
 EOF
 )
