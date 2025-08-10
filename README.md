@@ -37,27 +37,27 @@ environment/
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
-    -   `config/shell/`から`$HOME`への`.zprofile`と`.zshrc`のシンボリックリンクを作成
+    -   `macos/shell/`から`$HOME`への`.zprofile`と`.zshrc`のシンボリックリンクを作成
     -   既存の`.zshrc`は上書きされます
 
 3.  **Git Configuration**
-    -   `config/git/.gitconfig`から`~/.config/git/config`へのコピーを作成
+    -   `installers/config/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   `config/macos/settings.sh`からトラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用
-    -   `config/macos/backup_settings.sh`で現在の設定をバックアップして設定ファイルを生成可能
+    -   `macos/settings/`配下のスクリプトでトラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用
+    -   `macos/settings/`配下のバックアップ用スクリプトで現在の設定をバックアップして設定ファイルを生成可能
 
 5.  **Package Installation from Brewfile**
-    -   `config/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
+    -   `installers/config/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
 
 6.  **Ruby Environment Setup**
     -   `rbenv`と`ruby-build`をインストール
     -   特定のバージョンのRubyをインストールし、グローバルに設定
-    -   `config/gems/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
+    -   `installers/config/gems/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
 
 7.  **VS Code Configuration**
-    -   `config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
+    -   `installers/config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
 8.  **Python Environment Setup**
     -   `pyenv`をインストール
@@ -69,7 +69,7 @@ environment/
 10. **Node.js Environment Setup**
     -   `nvm`と`jq`をHomebrewでインストール
     -   特定のバージョンのNode.jsをインストールし、デフォルトとして設定
-    -   `config/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
+    -   `installers/config/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
 
 11. **Flutter Setup**
 
@@ -94,6 +94,17 @@ environment/
     ```sh
     # メールアドレスを自分のものに置き換えてください
     ssh-keygen -t ed25519 -C "your_email@example.com"
+
+    # macOS で SSH エージェントとキーチェーンへ登録（再起動後も保持）
+    eval "$(ssh-agent -s)"
+    /usr/bin/ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+    # 必要に応じて ~/.ssh/config を作成
+    cat <<'EOF' >> ~/.ssh/config
+    Host github.com
+        AddKeysToAgent yes
+        UseKeychain yes
+        IdentityFile ~/.ssh/id_ed25519
+    EOF
     ```
 
     生成された公開鍵 (`~/.ssh/id_ed25519.pub`) をコピーし、[GitHubのSSHキー設定ページ](https://github.com/settings/keys)に追加します。
@@ -114,6 +125,7 @@ environment/
 3.  **インストールスクリプトの実行**
 
     ```sh
+    chmod +x ./install.sh
     ./install.sh
     ```
 
@@ -129,6 +141,7 @@ environment/
 5.  **macOSとシェルの設定を適用**
 
     ```sh
+    chmod +x ./apply.sh
     ./apply.sh
     ```
 
