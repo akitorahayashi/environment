@@ -18,7 +18,6 @@ alias pui="pip uninstall"
 alias pir="pip install -r requirements.txt"
 alias pif="pip freeze > requirements-lock.txt"
 
-
 # Ollama
 alias ol="ollama"
 alias ol-ls="ollama list"
@@ -28,6 +27,17 @@ alias ol-s="ollama serve"
 alias ol-sp="ollama stop"
 alias ol-c="ollama create"
 alias ol-d="ollama delete"
+
+# Aider
+aid-set() {
+  export OLLAMA_API_BASE="$1"
+}
+aid-lch() {
+  aider --model "ollama/$1" --no-auto-commit
+}
+aid-clr() {
+  rm -rf .aider*
+}
 
 # Ruby
 alias be="bundle exec"

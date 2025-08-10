@@ -64,14 +64,34 @@ else
     echo "[INFO] pipx はすでにインストールされています"
 fi
 
-# Poetryのインストール
-if ! command -v poetry &> /dev/null; then
-    echo "[INSTALL] poetry"
-    pipx install poetry --python "$(pyenv which python)"
-    echo "IDEMPOTENCY_VIOLATION" >&2
+# pipxで管理するツールをインストール
+PIPX_TOOLS_FILE="$REPO_ROOT/config/python/pipx-tools.txt"
+if [ -f "$PIPX_TOOLS_FILE" ]; then
+    echo "[INFO] $PIPX_TOOLS_FILE からツールをインストールします"
+    installed_tools_output=$(pipx list)
+
+    while IFS= read -r tool_package || [ -n "$tool_package" ]; do
+        # 空行やコメント行をスキップ
+        if [[ -z "$tool_package" || "$tool_package" == \#* ]]; then
+            continue
+        fi
+
+        # すでにインストールされているかチェック
+        if echo "$installed_tools_output" | grep -q "package $tool_package "; then
+            echo "[INFO] $tool_package はすでにインストールされています"
+        else
+            echo "[INSTALL] $tool_package"
+            if pipx install "$tool_package" --python "$(pyenv which python)"; then
+                echo "IDEMPOTENCY_VIOLATION" >&2
+            else
+                echo "[ERROR] $tool_package のインストールに失敗しました"
+            fi
+        fi
+    done < "$PIPX_TOOLS_FILE"
 else
-    echo "[INFO] poetry はすでにインストールされています"
+    echo "[WARN] $PIPX_TOOLS_FILE が見つかりません"
 fi
+
 
 # 最終的な環境情報を表示
 echo "[INFO] Python環境: $(python -V)"
@@ -107,12 +127,44 @@ if ! command -v pipx >/dev/null 2>&1; then
 fi
 echo "[SUCCESS] pipx: $(pipx --version)"
 
-# poetryのチェック
-if ! command -v poetry >/dev/null 2>&1; then
-    echo "[ERROR] poetryコマンドが見つかりません"
-    exit 1
+# pipxで管理するツールを検証
+if [ -f "$PIPX_TOOLS_FILE" ]; then
+    echo "[INFO] $PIPX_TOOLS_FILE に記載のツールを検証します"
+    # 検証のたびに最新のリストを取得
+    installed_tools_output_verify=$(pipx list)
+
+    while IFS= read -r tool_package || [ -n "$tool_package" ]; do
+        # 空行やコメント行をスキップ
+        if [[ -z "$tool_package" || "$tool_package" == \#* ]]; then
+            continue
+        fi
+
+        # pipxでインストールされているか確認
+        if ! echo "$installed_tools_output_verify" | grep -q "package $tool_package "; then
+             echo "[ERROR] $tool_package は pipx でインストールされていません"
+             exit 1
+        fi
+
+        # パッケージ名からコマンド名を取得する
+        # デフォルトはパッケージ名と同じ
+        command_name="$tool_package"
+        # 例外: aider-chatパッケージのコマンドはaider
+        if [ "$tool_package" = "aider-chat" ]; then
+            command_name="aider"
+        fi
+
+        if ! command -v "$command_name" >/dev/null 2>&1; then
+            echo "[ERROR] $command_name コマンドが見つかりません（$tool_package パッケージ）"
+            exit 1
+        fi
+
+        # バージョン表示を試みる。失敗してもエラーにはしない。
+        version_info="$($command_name --version 2>/dev/null || echo "version not found")"
+        echo "[SUCCESS] $tool_package (command: $command_name): $version_info"
+    done < "$PIPX_TOOLS_FILE"
+else
+    echo "[WARN] $PIPX_TOOLS_FILE が見つかりません。ツールの検証をスキップします。"
 fi
-echo "[SUCCESS] poetry: $(poetry --version)"
 
 
 echo "[SUCCESS] Python環境の検証が完了しました"
