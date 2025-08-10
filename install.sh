@@ -30,9 +30,7 @@ main() {
     
     # セットアップスクリプトの実行
     declare -a scripts=(
-        "shell:$SCRIPT_ROOT_DIR/scripts/shell.sh"
         "homebrew:$SCRIPT_ROOT_DIR/scripts/homebrew.sh"
-        "mac:$SCRIPT_ROOT_DIR/scripts/macos.sh"
         "git:$SCRIPT_ROOT_DIR/scripts/git.sh"
         "vscode:$SCRIPT_ROOT_DIR/scripts/vscode.sh"
         "ruby:$SCRIPT_ROOT_DIR/scripts/ruby.sh"

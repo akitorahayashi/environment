@@ -33,9 +33,6 @@ jobs:
   setup-macos:
     uses: ./.github/workflows/setup-macos.yml
 
-  setup-shell:
-    uses: ./.github/workflows/setup-shell.yml
-
   setup-java:
     uses: ./.github/workflows/setup-java.yml
 
