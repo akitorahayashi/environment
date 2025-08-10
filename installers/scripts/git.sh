@@ -29,20 +29,6 @@ mkdir -p "$HOME/.config/git"
 src="$REPO_ROOT/installers/config/git/.gitconfig"
 dest="$HOME/.config/git/config"
 
-# 既存のユーザー設定を保持
-existing_user_name=""
-existing_user_email=""
-
-if git config --global user.name >/dev/null 2>&1; then
-    existing_user_name=$(git config --global user.name)
-    echo "[INFO] 既存のユーザー名を保持します: $existing_user_name"
-fi
-
-if git config --global user.email >/dev/null 2>&1; then
-    existing_user_email=$(git config --global user.email)
-    echo "[INFO] 既存のメールアドレスを保持します: $existing_user_email"
-fi
-
 # Only apply if missing or different
 if [ ! -f "$dest" ] || ! cmp -s "$src" "$dest"; then
     if [ -f "$dest" ] || [ -L "$dest" ]; then
@@ -62,39 +48,21 @@ fi
 
 # .envファイルからGitユーザー情報を設定
 env_file="$REPO_ROOT/.env"
-env_config_set=false
 if [ -f "$env_file" ]; then
     echo "[INFO] .envファイルが見つかりました。Gitユーザー情報を読み込みます..."
 
     # .envからキー=値のペアを直接読み込む (厳密なフォーマットを想定)
-    git_user_name=$(grep "^GIT_USERNAME=" "$env_file" | cut -d'=' -f2)
-    git_user_email=$(grep "^GIT_EMAIL=" "$env_file" | cut -d'=' -f2)
+    GIT_USERNAME=$(grep "^GIT_USERNAME=" "$env_file" | cut -d'=' -f2)
+    GIT_EMAIL=$(grep "^GIT_EMAIL=" "$env_file" | cut -d'=' -f2)
 
-    # どちらか一方でも設定されていればそれを適用（部分適用を許容）
-    if [ -n "$git_user_name" ]; then
-        git config --global user.name "$git_user_name"
+    # どちらか一方でも設定されていればそれを適用
+    if [ -n "$GIT_USERNAME" ]; then
+        git config --global user.name "$GIT_USERNAME"
         echo "[SUCCESS] .env から user.name を設定しました。"
-        env_config_set=true
     fi
-    if [ -n "$git_user_email" ]; then
-        git config --global user.email "$git_user_email"
+    if [ -n "$GIT_EMAIL" ]; then
+        git config --global user.email "$GIT_EMAIL"
         echo "[SUCCESS] .env から user.email を設定しました。"
-        env_config_set=true
-    fi
-    if [ "$env_config_set" = false ]; then
-        echo "[WARN] .env に有効な username/email が見つかりませんでした。既存設定を復元します。"
-    fi
-fi
-
-# .env から何も適用されなかった場合のみ、保持していたユーザー設定を復元
-if [ "$env_config_set" = false ]; then
-    if [ -n "$existing_user_name" ]; then
-        echo "[INFO] ユーザー名を復元します（値の表示は省略）"
-        git config --global user.name "$existing_user_name"
-    fi
-    if [ -n "$existing_user_email" ]; then
-        echo "[INFO] メールアドレスを復元します（値の表示は省略）"
-        git config --global user.email "$existing_user_email"
     fi
 fi
 
