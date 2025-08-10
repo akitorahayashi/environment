@@ -15,3 +15,6 @@
 
 # Cursor
 .cursor/
+
+# Environment variables
+.env

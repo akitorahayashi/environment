@@ -119,12 +119,15 @@ environment/
 
 4.  **Gitの個人設定**
 
-    `~/.gitconfig` に `user.name` と `user.email` を設定してください。
+    リポジトリのルートにある`.env.example`をコピーして`.env`ファイルを作成します。
+    その後、`.env`ファイル内の`username`と`email`をご自身のものに編集してください。
 
     ```sh
-    git config --global user.name "Your Name"
-    git config --global user.email "your.email@example.com"
+    cp .env.example .env
+    # .env ファイルを編集して、username と email を設定します
     ```
+
+    `./install.sh` または `./installers/scripts/git.sh` を実行すると、`.env`ファイルの情報が自動的にGitのグローバル設定に反映されます。
 
 5.  **macOSとシェルの設定を適用**
 
