@@ -2,12 +2,21 @@
 
 set -euo pipefail
 
+unset RBENV_VERSION
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# 使用するRubyのバージョンを定数として定義
-readonly RUBY_VERSION="3.3.0"
+# 最新の安定版Rubyのバージョンを取得
+echo "[INFO] 最新の安定版Rubyのバージョンを確認しています..."
+LATEST_RUBY_VERSION=$(rbenv install -l | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
+if [ -z "$LATEST_RUBY_VERSION" ]; then
+    echo "[ERROR] 最新の安定版Rubyのバージョンが取得できませんでした。"
+    exit 1
+fi
+readonly RUBY_VERSION="$LATEST_RUBY_VERSION"
+echo "[INFO] 最新の安定版Rubyのバージョンは ${RUBY_VERSION} です。"
 
 
 # 依存関係をインストール
