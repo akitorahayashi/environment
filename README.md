@@ -6,26 +6,27 @@
 environment/
 ├── .github/
 │   └── workflows/
-├── config/
-│   ├── brew/
-│   ├── gems/
-│   ├── git/
-│   ├── macos/
-│   ├── node/
-│   ├── shell/
-│   └── vscode/
-├── scripts/
-│   ├── flutter.sh
-│   ├── git.sh
-│   ├── homebrew.sh
-│   ├── java.sh
-│   ├── macos.sh
-│   ├── node.sh
-│   ├── python.sh
-│   ├── ruby.sh
-│   ├── shell.sh
-│   └── vscode.sh
+├── macos/
+│   ├── settings/
+│   └── shell/
+├── installers/
+│   ├── config/
+│   │   ├── brew/
+│   │   ├── gems/
+│   │   ├── git/
+│   │   ├── node/
+│   │   └── vscode/
+│   └── scripts/
+│       ├── flutter.sh
+│       ├── git.sh
+│       ├── homebrew.sh
+│       ├── java.sh
+│       ├── node.sh
+│       ├── python.sh
+│       ├── ruby.sh
+│       └── vscode.sh
 ├── .gitignore
+├── apply.sh
 ├── install.sh
 └── README.md
 ```
@@ -80,95 +81,103 @@ environment/
 
 ## Setup Instructions
 
-### 1. Clone or Download the Repository
+1.  **Xcode Command Line Tools のインストール**
 
-```sh
-$ git clone git@github.com:akitorahayashi/environment.git
-$ cd environment
-```
+    ```sh
+    xcode-select --install
+    ```
 
-### 2. Pre-setup Script
+2.  **SSH鍵の生成とGitHubへの登録**
 
-事前準備を行うスクリプトを実行します
-特に初回は実行してください
+    SSH鍵がまだない場合は生成します。
 
-```sh
-$ chmod +x initial-setup.sh
-$ ./initial-setup.sh
-```
+    ```sh
+    # メールアドレスを自分のものに置き換えてください
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ```
 
-このスクリプトは以下を行います
-- Xcode Command Line Tools のインストール
-- SSH鍵の生成（存在しない場合）
-- GitHubへのSSH鍵追加のガイド
-- SSH接続のテスト
-- 実行権限の付与
+    生成された公開鍵 (`~/.ssh/id_ed25519.pub`) をコピーし、[GitHubのSSHキー設定ページ](https://github.com/settings/keys)に追加します。
 
-### 3. Run the Installation Script
+    ```sh
+    # 公開鍵をクリップボードにコピー
+    pbcopy < ~/.ssh/id_ed25519.pub
+    ```
 
-```sh
-$ ./install.sh
-```
+    以下のコマンドでGitHubへの接続をテストします。
 
-### 4. Configure Git
+    ```sh
+    ssh -T git@github.com
+    ```
 
-`~/.gitconfig` に `user.name` と `user.email` を設定してください。
+    "successfully authenticated" というメッセージが表示されれば成功です。
 
-```sh
-$ git config --global user.name "Your Name"
-$ git config --global user.email "your.email@example.com"
-```
+3.  **インストールスクリプトの実行**
 
-### 6. Configure GitHub CLI
+    ```sh
+    ./install.sh
+    ```
 
-GitHub CLIを認証してください
+4.  **Gitの個人設定**
 
-```sh
-# GitHub.comの認証を追加
-$ gh auth login
+    `~/.gitconfig` に `user.name` と `user.email` を設定してください。
 
-# GitHub Enterpriseの認証を追加（該当する場合）
-$ gh auth login --hostname your-enterprise-hostname.com
-```
+    ```sh
+    git config --global user.name "Your Name"
+    git config --global user.email "your.email@example.com"
+    ```
 
-### 7. Restart macOS
+5.  **macOSとシェルの設定を適用**
 
-設定を完全に適用するために、macOSを再起動してください。
+    ```sh
+    ./apply.sh
+    ```
+
+6.  **GitHub CLIの認証**
+
+    GitHub CLIを認証してください。
+
+    ```sh
+    # GitHub.comの認証を追加
+    gh auth login
+
+    # GitHub Enterpriseの認証を追加（該当する場合）
+    gh auth login --hostname your-enterprise-hostname.com
+    ```
+
+7.  **macOSの再起動**
+
+    設定を完全に適用するために、macOSを再起動してください。
 
 ## Individual Setup Scripts
 
-`scripts/`内の各セットアップスクリプトは個別に実行できます
+### Main setup
+
+`installers/scripts/`内の各セットアップスクリプトは個別に実行できます
 
 ```sh
 # Homebrewのセットアップ
-$ ./scripts/homebrew.sh
-
-# シェルの設定
-$ ./scripts/shell.sh
+$ ./installers/scripts/homebrew.sh
 
 # Gitの設定
-$ ./scripts/git.sh
+$ ./installers/scripts/git.sh
 
 # Ruby環境のセットアップ
-$ ./scripts/ruby.sh
+$ ./installers/scripts/ruby.sh
 
 # Python環境のセットアップ
-$ ./scripts/python.sh
+$ ./installers/scripts/python.sh
 
 # Java環境のセットアップ
-$ ./scripts/java.sh
+$ ./installers/scripts/java.sh
 
 # Node.js環境のセットアップ
-$ ./scripts/node.sh
+$ ./installers/scripts/node.sh
 
 # Flutterのセットアップ
-$ ./scripts/flutter.sh
+$ ./installers/scripts/flutter.sh
 
 # VSCodeの設定
-$ ./scripts/vscode.sh
-
-# macOSの設定
-$ ./scripts/macos.sh
+$ ./installers/scripts/vscode.sh
 ```
 
 各スクリプトは以下のように動作します

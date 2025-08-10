@@ -7,6 +7,7 @@ alias poet-r="poetry run python"
 alias poet-u="poetry update"
 alias poet-ls="poetry list"
 alias poet-lock="poetry lock"
+alias poet-e="poetry export -f requirements.txt --output requirements.txt --without-hashes"
 alias poet-env="poetry env list"
 alias poet-env-d="poetry env remove"
 
@@ -17,12 +18,14 @@ alias pui="pip uninstall"
 alias pir="pip install -r requirements.txt"
 alias pif="pip freeze > requirements-lock.txt"
 
+
 # Ollama
 alias ol="ollama"
 alias ol-ls="ollama list"
 alias ol-pl="ollama pull"
 alias ol-r="ollama run"
 alias ol-s="ollama serve"
+alias ol-sp="ollama stop"
 alias ol-c="ollama create"
 alias ol-d="ollama delete"
 
@@ -47,13 +50,16 @@ alias as="osascript"
 # Utility
 alias op="open"
 alias op-f="open ."
-alias op-c="open -a 'Google Chrome'"
 alias op-s="open -a 'System Preferences'"
 alias op-st="open -a 'Stickies'"
 alias op-o="open -a 'Obsidian'"
 alias op-as="open -a 'Android Studio'"
 alias op-a="open -a 'Automator'"
 alias op-sc="open -a 'Script Editor'"
+alias op-t="open -na Terminal"
+alias op-c="open -a 'Google Chrome'"
+alias op-cg="open -a 'Google Chrome' 'https://github.com/akitorahayashi'"
+alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
 
 md2pdf() {
   pandoc "$1" -o "$2" --pdf-engine=lualatex \

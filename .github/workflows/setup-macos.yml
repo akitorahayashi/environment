@@ -1,4 +1,4 @@
-name: Setup macOS
+name: Setup macOS and Shell
 
 on:
   workflow_call:
@@ -10,5 +10,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run macos.sh
-        run: ./scripts/macos.sh
+      - name: Run apply.sh
+        run: ./apply.sh

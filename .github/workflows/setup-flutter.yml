@@ -12,13 +12,13 @@ jobs:
 
       - name: Run flutter.sh for setup
         id: setup
-        run: ./scripts/flutter.sh
+        run: ./installers/scripts/flutter.sh
 
       - name: Run flutter.sh for idempotency check
         id: idempotency
         run: |
           set -eo pipefail
-          stderr_output=$(./scripts/flutter.sh 1>/dev/null 2>&1)
+          stderr_output=$(./installers/scripts/flutter.sh 1>/dev/null 2>&1)
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"

@@ -12,13 +12,13 @@ jobs:
 
       - name: Run java.sh for setup
         id: setup
-        run: ./scripts/java.sh
+        run: ./installers/scripts/java.sh
 
       - name: Run java.sh for idempotency check
         id: idempotency
         run: |
           set -eo pipefail
-          stderr_output=$(./scripts/java.sh 1>/dev/null 2>&1)
+          stderr_output=$(./installers/scripts/java.sh 1>/dev/null 2>&1)
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"
