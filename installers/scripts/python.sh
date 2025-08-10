@@ -24,7 +24,7 @@ fi
 
 # 最新の安定版Pythonのバージョンを取得
 echo "[INFO] 最新の安定版Pythonのバージョンを確認しています..."
-LATEST_PYTHON_VERSION=$(pyenv install --list | grep -E "^\s*3\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
+LATEST_PYTHON_VERSION=$(pyenv install --list | grep -E "^\s*3\.12\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
 if [ -z "$LATEST_PYTHON_VERSION" ]; then
     echo "[ERROR] 最新の安定版Pythonのバージョンが取得できませんでした。"
     exit 1
