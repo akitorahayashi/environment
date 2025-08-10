@@ -4,7 +4,7 @@ set -euo pipefail
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: git, gh"
@@ -26,7 +26,7 @@ fi
 echo "[Start] Gitの設定ファイルのセットアップを開始します..."
 
 mkdir -p "$HOME/.config/git"
-src="$REPO_ROOT/config/git/.gitconfig"
+src="$REPO_ROOT/installers/config/git/.gitconfig"
 dest="$HOME/.config/git/config"
 
 # 既存のユーザー設定を保持
@@ -60,15 +60,64 @@ else
     echo "[INFO] Gitの設定ファイルは最新です。スキップします。"
 fi
 
-# 保持していたユーザー設定を復元
-if [ -n "$existing_user_name" ]; then
-    echo "[INFO] ユーザー名を復元します: $existing_user_name"
-    git config --global user.name "$existing_user_name"
+# .envファイルからGitユーザー情報を設定
+env_file="$REPO_ROOT/.env"
+env_config_set=false
+if [ -f "$env_file" ]; then
+    echo "[INFO] .envファイルが見つかりました。Gitユーザー情報を読み込みます..."
+
+    git_user_name=""
+    git_user_email=""
+
+    # .envファイルを1行ずつ読み込む
+    while IFS= read -r line; do
+        # コメント行と空行をスキップ
+        [[ "$line" =~ ^\s*# ]] && continue
+        [[ -z "$line" ]] && continue
+
+        # `export` プレフィックスを削除
+        line="${line#export }"
+
+        # `=` でキーと値に分割
+        key="${line%%=*}"
+        value="${line#*=}"
+
+        # 値の前後のクォートを削除
+        value="${value%\"}"
+        value="${value#\"}"
+
+        case "$key" in
+            username)
+                git_user_name="$value"
+                ;;
+            email)
+                git_user_email="$value"
+                ;;
+        esac
+    done < "$env_file"
+
+    if [ -n "$git_user_name" ] && [ -n "$git_user_email" ]; then
+        echo "[INFO] .envファイルからユーザー名とメールアドレスを設定します。"
+        git config --global user.name "$git_user_name"
+        git config --global user.email "$git_user_email"
+        echo "[SUCCESS] Gitユーザー情報を.envファイルから設定しました。"
+        env_config_set=true
+    else
+        echo "[WARN] .envファイルにusernameまたはemailが設定されていません。既存の設定を復元します。"
+    fi
 fi
 
-if [ -n "$existing_user_email" ]; then
-    echo "[INFO] メールアドレスを復元します: $existing_user_email"
-    git config --global user.email "$existing_user_email"
+# .envからの設定がない場合、保持していたユーザー設定を復元
+if [ "$env_config_set" = false ]; then
+    if [ -n "$existing_user_name" ]; then
+        echo "[INFO] ユーザー名を復元します: $existing_user_name"
+        git config --global user.name "$existing_user_name"
+    fi
+
+    if [ -n "$existing_user_email" ]; then
+        echo "[INFO] メールアドレスを復元します: $existing_user_email"
+        git config --global user.email "$existing_user_email"
+    fi
 fi
 
 echo "[SUCCESS] Git の設定適用完了"
@@ -81,7 +130,7 @@ ignore_file="$HOME/.gitignore_global"
 
 # シンボリックリンクの作成
 echo "[INFO] gitignore_global のシンボリックリンクを作成します..."
-if ln -sf "$REPO_ROOT/config/git/.gitignore_global" "$ignore_file"; then
+if ln -sf "$REPO_ROOT/installers/config/git/.gitignore_global" "$ignore_file"; then
     echo "[SUCCESS] gitignore_global のシンボリックリンクを作成しました。"
 else
     echo "[ERROR] gitignore_global のシンボリックリンク作成に失敗しました。"
@@ -156,7 +205,7 @@ if [ ! -L "$ignore_file" ]; then
 fi
 
 link_target=$(readlink "$ignore_file")
-expected_target="$REPO_ROOT/config/git/.gitignore_global"
+expected_target="$REPO_ROOT/installers/config/git/.gitignore_global"
 
 if [ "$link_target" = "$expected_target" ]; then
     echo "[SUCCESS] $ignore_file が期待される場所を指しています"
