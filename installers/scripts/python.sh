@@ -8,6 +8,20 @@ unset PYENV_VERSION
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+changed=false
+ # 依存関係をインストール
+echo "[INFO] 依存関係をチェック・インストールします: pyenv"
+if ! command -v pyenv &> /dev/null; then
+    brew install pyenv
+    changed=true
+fi
+
+# pyenvを初期化して、以降のコマンドでpyenvのPythonが使われるようにする
+if command -v pyenv 1>/dev/null 2>&1; then
+    eval "$(pyenv init --path)"
+    eval "$(pyenv init -)"
+fi
+
 # 最新の安定版Pythonのバージョンを取得
 echo "[INFO] 最新の安定版Pythonのバージョンを確認しています..."
 LATEST_PYTHON_VERSION=$(pyenv install --list | grep -E "^\s*3\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
@@ -18,24 +32,7 @@ fi
 readonly PYTHON_VERSION="$LATEST_PYTHON_VERSION"
 echo "[INFO] 最新の安定版Pythonのバージョンは ${PYTHON_VERSION} です。"
 
- # 依存関係をインストール
-echo "[INFO] 依存関係をチェック・インストールします: pyenv"
-if ! command -v pyenv &> /dev/null; then
-    brew install pyenv
-    echo "IDEMPOTENCY_VIOLATION" >&2
-fi
-
-echo "==== Start: Python環境のセットアップを開始します..."
-
-
-# pyenvを初期化して、以降のコマンドでpyenvのPythonが使われるようにする
-if command -v pyenv 1>/dev/null 2>&1; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-fi
-
-changed=false
-# Python 3.12.4がインストールされていなければインストール
+# Python の最新の安定版がインストールされていなければインストール
 if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
     echo "[INSTALL] Python ${PYTHON_VERSION}"
     if ! pyenv install --skip-existing "${PYTHON_VERSION}"; then
@@ -47,7 +44,7 @@ else
     echo "[INFO] Python ${PYTHON_VERSION} はすでにインストールされています"
 fi
 
-# グローバルバージョンを3.12.4に設定
+# グローバルバージョンをPython の最新の安定版に設定
 if [ "$(pyenv global)" != "${PYTHON_VERSION}" ]; then
     echo "[CONFIG] pyenv global を ${PYTHON_VERSION} に設定します"
     pyenv global "${PYTHON_VERSION}"
@@ -66,7 +63,7 @@ if ! command -v pipx &> /dev/null; then
     hash -r  # コマンドキャッシュをクリア
     # PATH へ pipx の bin ディレクトリを追加
     pipx ensurepath
-    echo "IDEMPOTENCY_VIOLATION" >&2
+    changed=true
 else
     echo "[INFO] pipx はすでにインストールされています"
 fi
