@@ -60,13 +60,21 @@ gem_file="${REPO_ROOT:-.}/installers/config/gems/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
-    echo "[INFO] Bundlerを最新バージョンに更新・インストールします..."
-    gem_install_output=$(gem install --no-document bundler)
-    if echo "$gem_install_output" | grep -q "gem installed"; then
-        changed=true
-    fi
-    rbenv rehash
+    echo "[INFO] Bundlerのバージョンを確認しています..."
+    latest_version_info=$(gem list --remote bundler | grep "^bundler ")
+    latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+    current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*' || echo "not-installed")
 
+    if [ "$current_version" != "$latest_version" ]; then
+        echo "[INSTALL] Bundlerを最新バージョンに更新・インストールします..."
+        gem_install_output=$(gem install --no-document bundler)
+        if echo "$gem_install_output" | grep -q "gem installed"; then
+            changed=true
+        fi
+        rbenv rehash
+    else
+        echo "[INFO] Bundlerはすでに最新バージョンです"
+    fi
 fi
 
 # 最終的な環境情報を表示
@@ -113,7 +121,7 @@ if ! command -v bundle >/dev/null 2>&1; then
 fi
 
 # bundlerのバージョンが最新であることを確認
-latest_version_info=$(gem list --remote bundler --all | sort -V | tail -n 1)
+latest_version_info=$(gem list --remote bundler | grep "^bundler ")
 latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
 current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
 
