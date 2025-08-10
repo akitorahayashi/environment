@@ -180,14 +180,6 @@ $ ./installers/scripts/flutter.sh
 $ ./installers/scripts/vscode.sh
 ```
 
-### macOS specific setup
-
-macOSに特化した設定（シェル設定を含む）は、`apply.sh`スクリプトで実行できます。
-
-```sh
-$ ./apply.sh
-```
-
 各スクリプトは以下のように動作します
 1. コンポーネントが既にインストール/設定されているかチェック
 2. 必要な場合のみインストールまたは設定を実行
