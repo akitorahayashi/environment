@@ -22,15 +22,15 @@ if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
 
-# 最新の安定版Pythonのバージョンを取得
-echo "[INFO] 最新の安定版Pythonのバージョンを確認しています..."
+# 3.12系で最新の安定版Pythonのバージョンを取得
+echo "[INFO] 3.12系の最新の安定版Pythonのバージョンを確認しています..."
 LATEST_PYTHON_VERSION=$(pyenv install --list | grep -E "^\s*3\.12\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
 if [ -z "$LATEST_PYTHON_VERSION" ]; then
-    echo "[ERROR] 最新の安定版Pythonのバージョンが取得できませんでした。"
+    echo "[ERROR] 3.12系の最新の安定版Pythonのバージョンが取得できませんでした。"
     exit 1
 fi
 readonly PYTHON_VERSION="$LATEST_PYTHON_VERSION"
-echo "[INFO] 最新の安定版Pythonのバージョンは ${PYTHON_VERSION} です。"
+echo "[INFO] 3.12系の最新の安定版Pythonのバージョンは ${PYTHON_VERSION} です。"
 
 # Python の最新の安定版がインストールされていなければインストール
 if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
@@ -45,11 +45,13 @@ else
 fi
 
 # グローバルバージョンをPython の最新の安定版に設定
+python_version_changed=false
 if [ "$(pyenv global)" != "${PYTHON_VERSION}" ]; then
     echo "[CONFIG] pyenv global を ${PYTHON_VERSION} に設定します"
     pyenv global "${PYTHON_VERSION}"
     pyenv rehash
     changed=true
+    python_version_changed=true
 else
     echo "[INFO] pyenv global はすでに ${PYTHON_VERSION} に設定されています"
 fi
@@ -66,6 +68,18 @@ if ! command -v pipx &> /dev/null; then
     changed=true
 else
     echo "[INFO] pipx はすでにインストールされています"
+fi
+
+# Pythonバージョンが変更された場合、pipxツールをすべて再インストール
+if [ "$python_version_changed" = true ] && command -v pipx &> /dev/null; then
+    echo "[INFO] Pythonバージョンが変更されたため、pipxツールを再インストールします"
+    if pipx list --short 2>/dev/null | grep -q .; then
+        echo "[REINSTALL] pipxツールを新しいPythonバージョンで再インストール中..."
+        pipx reinstall-all --python "$(pyenv which python)"
+        changed=true
+    else
+        echo "[INFO] 再インストールするpipxツールがありません"
+    fi
 fi
 
 # pipxで管理するツールをインストール
