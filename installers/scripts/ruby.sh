@@ -2,13 +2,11 @@
 
 set -euo pipefail
 
+unset RBENV_VERSION
+
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
-
-# 使用するRubyのバージョンを定数として定義
-readonly RUBY_VERSION="3.3.0"
-
+REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: rbenv, ruby-build"
@@ -22,6 +20,16 @@ echo "==== Start: Ruby環境のセットアップを開始します..."
 
 # rbenvを初期化して、以降のコマンドでrbenvのRubyが使われるようにする
 eval "$(rbenv init -)"
+
+# 最新の安定版Rubyのバージョンを取得
+echo "[INFO] 最新の安定版Rubyのバージョンを確認しています..."
+LATEST_RUBY_VERSION=$(rbenv install -l | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
+if [ -z "$LATEST_RUBY_VERSION" ]; then
+    echo "[ERROR] 最新の安定版Rubyのバージョンが取得できませんでした。"
+    exit 1
+fi
+readonly RUBY_VERSION="$LATEST_RUBY_VERSION"
+echo "[INFO] 最新の安定版Rubyのバージョンは ${RUBY_VERSION} です。"
 
 # Ruby 3.3.0がインストールされていなければインストール
 if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
@@ -48,17 +56,25 @@ else
 fi
 
 # gemのインストール処理
-gem_file="${REPO_ROOT:-.}/config/gems/global-gems.rb"
+gem_file="${REPO_ROOT:-.}/installers/config/gems/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
-    echo "[INFO] Bundlerを最新バージョンに更新・インストールします..."
-    gem_install_output=$(gem install --no-document bundler)
-    if echo "$gem_install_output" | grep -q "gem installed"; then
-        changed=true
-    fi
-    rbenv rehash
+    echo "[INFO] Bundlerのバージョンを確認しています..."
+    latest_version_info=$(gem list --remote bundler | grep "^bundler ")
+    latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+    current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*' || echo "not-installed")
 
+    if [ "$current_version" != "$latest_version" ]; then
+        echo "[INSTALL] Bundlerを最新バージョンに更新・インストールします..."
+        gem_install_output=$(gem install --no-document bundler)
+        if echo "$gem_install_output" | grep -q "gem installed"; then
+            changed=true
+        fi
+        rbenv rehash
+    else
+        echo "[INFO] Bundlerはすでに最新バージョンです"
+    fi
 fi
 
 # 最終的な環境情報を表示
@@ -105,7 +121,7 @@ if ! command -v bundle >/dev/null 2>&1; then
 fi
 
 # bundlerのバージョンが最新であることを確認
-latest_version_info=$(gem list --remote bundler --all | sort -V | tail -n 1)
+latest_version_info=$(gem list --remote bundler | grep "^bundler ")
 latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
 current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
 

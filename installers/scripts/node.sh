@@ -6,8 +6,7 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-# 使用するNode.jsのバージョンを定数として定義
-readonly NODE_VERSION="22.17.1"
+
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: nvm, jq"
@@ -38,36 +37,40 @@ echo "[Start] Node.js のセットアップを開始します..."
 
 # nvm経由でNode.jsをインストール・設定
 node_changed=false
-if ! nvm ls "$NODE_VERSION" | grep -q "$NODE_VERSION"; then
-    if nvm install "$NODE_VERSION"; then
-        echo "[SUCCESS] Node.js $NODE_VERSION のインストールが完了しました"
-        node_changed=true
-    else
-        echo "[ERROR] Node.js $NODE_VERSION のインストールに失敗しました"
-        exit 1
-    fi
+echo "[INFO] 最新の安定版Node.jsをインストールします..."
+
+# `nvm install stable` は冪等性があり、最新版がなければインストールする
+if nvm install stable; then
+    echo "[SUCCESS] 最新の安定版Node.jsのインストール/確認が完了しました。"
 else
-    echo "[INSTALLED] Node.js $NODE_VERSION はすでにインストールされています"
+    echo "[ERROR] 最新の安定版Node.jsのインストールに失敗しました。"
+    exit 1
 fi
-current_default=$(nvm alias default 2>/dev/null || true)
-if [[ "$current_default" != *"$NODE_VERSION"* ]]; then
-    echo "[CONFIGURING] Node.js $NODE_VERSION をデフォルトバージョンに設定します"
-    if nvm alias default "$NODE_VERSION"; then
-        echo "[SUCCESS] デフォルトバージョンを $NODE_VERSION に設定しました"
+
+# デフォルトエイリアスが 'stable' になっているか確認
+current_default_target="$(nvm alias default 2>/dev/null | awk -F'->' 'NR==1{gsub(/^[ \t]+|[ \t]+$/,"",$2); print $2}' | awk '{print $1}')"
+if [[ "$current_default_target" != "stable" ]]; then
+    echo "[CONFIGURING] Node.js stable をデフォルトバージョンに設定します"
+    if nvm alias default stable; then
+        echo "[SUCCESS] デフォルトバージョンを stable に設定しました"
         node_changed=true
     else
         echo "[ERROR] デフォルトバージョンの設定に失敗しました"
         exit 1
     fi
 else
-    echo "[CONFIGURED] Node.js $NODE_VERSION はすでにデフォルトバージョンです"
+    echo "[CONFIGURED] Node.js stable はすでにデフォルトバージョンです"
 fi
+
 if [ "$node_changed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
 # 現在のシェルで指定バージョンを使用
-nvm use "$NODE_VERSION" > /dev/null
+if ! nvm use stable > /dev/null; then
+    echo "[ERROR] Node.js stable への切り替えに失敗しました"
+    exit 1
+fi
 
 # npm のインストール確認
 if ! command -v npm &> /dev/null; then
