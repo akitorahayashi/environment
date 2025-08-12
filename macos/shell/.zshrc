@@ -1,5 +1,6 @@
 # Python
-alias poet-init="poetry init"
+alias poet-n="poetry new"
+alias poet-ini="poetry init"
 alias poet-i="poetry install"
 alias poet-a="poetry add"
 alias poet-rm="poetry remove"
@@ -16,7 +17,7 @@ alias pi="pip install"
 alias pu="python -m pip install --upgrade pip"
 alias pui="pip uninstall"
 alias pir="pip install -r requirements.txt"
-alias pif="pip freeze > requirements-lock.txt"
+alias pif="pip freeze > requirements.txt"
 
 # Ollama
 alias ol="ollama"
@@ -33,7 +34,7 @@ aid-set() {
   export OLLAMA_API_BASE="$1"
 }
 aid-lch() {
-  aider --model "ollama/$1" --no-auto-commit
+  aider --model "ollama/$1" --no-auto-commit --no-gitignore
 }
 
 # Ruby

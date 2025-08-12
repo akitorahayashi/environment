@@ -12,5 +12,6 @@
   "terminal.integrated.enableMultiLinePasteWarning": "never",
   "github.copilot.nextEditSuggestions.enabled": true,
   "vscode-office.openOutline": true,
-  "editor.minimap.enabled": false
+  "editor.minimap.enabled": false,
+  "python.analysis.typeCheckingMode": "basic"
 }

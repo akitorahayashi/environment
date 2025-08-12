@@ -2,12 +2,14 @@
 	defaultBranch = main
 
 [alias]
+    ini = init
     cl = clone
     co = checkout
     b = branch
     br = branch
-    mr = merge
 
+    pl = pull
+    a = add
     ad = add
     df = diff
     ts = status
@@ -16,7 +18,7 @@
 
     cm = commit
     ps = push
-    pl = pull
+    mr = merge
 
     lg = log --oneline --graph --decorate --all
 
