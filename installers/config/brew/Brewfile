@@ -26,6 +26,7 @@ brew "poppler"
 brew "pandoc"
 brew "openssl"
 brew "ollama"
+brew "gemini-cli"
 # brew "displayplacer" # installed by scripts/macos.sh
 
 ## Cask
