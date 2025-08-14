@@ -6,11 +6,6 @@
 environment/
 ├── .github/
 │   └── workflows/
-├── macos/
-│   ├── config/
-│   │   ├── settings/
-│   │   └── shell/
-│   └── scripts/
 ├── installers/
 │   ├── config/
 │   │   ├── brew/
@@ -28,6 +23,14 @@ environment/
 │       ├── python.sh
 │       ├── ruby.sh
 │       └── vscode.sh
+├── macos/
+│   ├── config/
+│   │   ├── settings/
+│   │   └── shell/
+│   └── scripts/
+│       ├── backup_settings.sh
+│       ├── apply-settings.sh
+│       └── link-shell.sh
 ├── .gitignore
 ├── Makefile
 └── README.md
