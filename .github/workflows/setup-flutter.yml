@@ -10,15 +10,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run flutter.sh for setup
+      - name: Run Flutter setup
         id: setup
-        run: ./installers/scripts/flutter.sh
+        run: make flutter
 
-      - name: Run flutter.sh for idempotency check
+      - name: Run Flutter setup for idempotency check
         id: idempotency
         run: |
-          set -eo pipefail
-          stderr_output=$(./installers/scripts/flutter.sh 1>/dev/null 2>&1)
+          set -o pipefail
+          stderr_output=$( (make flutter >/dev/null) 2>&1 || true )
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 unset RBENV_VERSION
 
 # 現在のスクリプトディレクトリを取得

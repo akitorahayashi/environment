@@ -20,6 +20,6 @@ jobs:
           echo "✅ GitHub認証の設定が完了しました"
         shell: bash
 
-      - name: Run homebrew.sh for setup
+      - name: Run Homebrew setup
         id: setup
-        run: ./installers/scripts/homebrew.sh
+        run: make brew
