@@ -8,13 +8,7 @@ environment/
 │   └── workflows/
 ├── macos/
 │   ├── config/
-│   │   ├── settings/
-│   │   │   └── macos-settings.sh
-│   │   └── shell/
-│   │       ├── .zprofile
-│   │       └── .zshrc
 │   └── scripts/
-│       └── backup_settings.sh
 ├── installers/
 │   ├── config/
 │   │   ├── brew/
