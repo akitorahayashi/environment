@@ -15,10 +15,10 @@ jobs:
         run: brew install shellcheck
 
       - name: Grant execution permission
-        run: chmod +x macos/settings/backup_settings.sh
+        run: chmod +x macos/scripts/backup_settings.sh
 
       - name: Run backup script
-        run: ./macos/settings/backup_settings.sh
+        run: ./macos/scripts/backup_settings.sh
 
       - name: Check if settings.sh is generated
         run: test -f /tmp/macos-settings.sh
