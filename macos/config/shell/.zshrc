@@ -61,6 +61,7 @@ alias doc-r="docker run"
 alias doc-i="docker images"
 alias doc-ps="docker ps"
 alias doc-st="docker stop"
+alias doc-rm="docker rm"
 
 # Mint
 alias mr="mint run"
@@ -72,6 +73,7 @@ alias mk="make"
 alias as="osascript"
 
 # Utility
+alias rel="source ~/.zshrc"
 alias op="open"
 alias op-f="open ."
 alias op-s="open -a 'System Preferences'"
@@ -94,3 +96,4 @@ md2pdf() {
     -V geometry:a4paper \
     -V geometry:margin=2.5cm
 }
+

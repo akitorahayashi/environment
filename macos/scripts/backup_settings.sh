@@ -22,11 +22,10 @@ set -euo pipefail
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ "${CI:-false}" = "true" ]; then
-  OUTPUT_FILE="/tmp/macos-settings.sh"
-else
-  OUTPUT_FILE="$SCRIPT_DIR/macos-settings.sh"
-fi
+OUTPUT_FILE="$SCRIPT_DIR/../config/settings/macos-settings.sh"
+
+OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
+mkdir -p "$OUTPUT_DIR"
 
 echo "現在の macOS の設定を取得し、$OUTPUT_FILE を生成します..."
 
@@ -84,7 +83,9 @@ CRASH_REPORTER_DIALOG=$(get_default_value "com.apple.CrashReporter" "DialogType"
 ACCENT_COLOR=$(get_default_value "NSGlobalDomain" "AppleHighlightColor" "0.764700 0.976500 0.568600")
 SCROLL_BARS=$(get_default_value "NSGlobalDomain" "AppleShowScrollBars" "Automatic")
 SAVE_PANEL_EXPANDED=$(get_default_value "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode" "false")
+SAVE_PANEL_EXPANDED2=$(get_default_value "NSGlobalDomain" "NSNavPanelExpandedStateForSaveMode2" "false")
 PRINT_PANEL_EXPANDED=$(get_default_value "NSGlobalDomain" "PMPrintingExpandedStateForPrint" "false")
+PRINT_PANEL_EXPANDED2=$(get_default_value "NSGlobalDomain" "PMPrintingExpandedStateForPrint2" "false")
 SAVE_TO_ICLOUD=$(get_default_value "NSGlobalDomain" "NSDocumentSaveNewDocumentsToCloud" "true")
 QUIT_ALWAYS_KEEPS_WINDOWS=$(get_default_value "com.apple.systempreferences" "NSQuitAlwaysKeepsWindows" "false")
 DISABLE_AUTO_TERMINATION=$(get_default_value "NSGlobalDomain" "NSDisableAutomaticTermination" "false")
@@ -198,7 +199,9 @@ SYSTEM_COMMANDS=$(cat << EOF
 defaults write NSGlobalDomain AppleHighlightColor -string "$ACCENT_COLOR"
 defaults write NSGlobalDomain AppleShowScrollBars -string "$SCROLL_BARS"
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool $(format_bool_value $SAVE_PANEL_EXPANDED)
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool $(format_bool_value $SAVE_PANEL_EXPANDED2)
 defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool $(format_bool_value $PRINT_PANEL_EXPANDED)
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool $(format_bool_value $PRINT_PANEL_EXPANDED2)
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool $(format_bool_value $SAVE_TO_ICLOUD)
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool $(format_bool_value $QUIT_ALWAYS_KEEPS_WINDOWS)
 defaults write NSGlobalDomain NSDisableAutomaticTermination -bool $(format_bool_value $DISABLE_AUTO_TERMINATION)

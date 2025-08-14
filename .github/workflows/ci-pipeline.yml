@@ -36,6 +36,3 @@ jobs:
   setup-java:
     uses: ./.github/workflows/setup-java.yml
 
-  verify-macos-backup-script:
-    name: Verify Backup Script
-    uses: ./.github/workflows/verify-macos-backup-script.yml

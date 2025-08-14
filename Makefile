@@ -6,6 +6,7 @@ SHELL := /bin/bash
 
 # Define script directory
 SCRIPT_DIR := $(CURDIR)/installers/scripts
+MACOS_SCRIPT_DIR := $(CURDIR)/macos/scripts
 
 # Default target
 .DEFAULT_GOAL := help
@@ -20,7 +21,7 @@ help: ## Show this help message
 
 # Main setup target
 .PHONY: macbook
-macbook: ## Run all setup scripts
+macbook: ## Run all setup scripts including macOS configuration
 	@$(MAKE) brew
 	@$(MAKE) git
 	@$(MAKE) vscode
@@ -29,6 +30,8 @@ macbook: ## Run all setup scripts
 	@$(MAKE) java
 	@$(MAKE) flutter
 	@$(MAKE) node
+	@$(MAKE) link-shell
+	@$(MAKE) apply-settings
 	@echo "✅ All setup scripts completed successfully."
 
 # Individual setup targets
@@ -71,3 +74,20 @@ flutter: ## Setup Flutter environment
 node: ## Setup Node.js environment with nvm
 	@echo "🚀 Running Node.js setup..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node.sh"
+
+# macOS-specific targets
+.PHONY: link-shell
+link-shell: ## Create symbolic links for shell configuration files
+	@echo "🚀 Creating symbolic links for shell configuration files..."
+	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/link-shell.sh"
+
+.PHONY: apply-settings
+apply-settings: ## Apply macOS system settings
+	@echo "🚀 Applying macOS system settings..."
+	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/apply-settings.sh"
+
+.PHONY: backup-settings
+backup-settings: ## Backup current macOS settings to generate configuration script
+	@echo "🚀 Backing up current macOS settings..."
+	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/backup_settings.sh"
+	@echo "✅ macOS settings backup completed."
