@@ -8,6 +8,8 @@ environment/
 │   └── workflows/
 ├── macos/
 │   ├── config/
+│   │   ├── settings/
+│   │   └── shell/
 │   └── scripts/
 ├── installers/
 │   ├── config/
