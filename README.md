@@ -27,8 +27,8 @@ environment/
 │       ├── ruby.sh
 │       └── vscode.sh
 ├── .gitignore
+├── Makefile
 ├── apply.sh
-├── install.sh
 └── README.md
 ```
 
@@ -80,6 +80,14 @@ environment/
     -   SSHキーの存在確認
     -   SSHエージェントの設定
 
+## How to Use
+
+`make` コマンドを使用して、セットアップを実行します。
+
+- **`make` or `make help`**: 利用可能なすべてのコマンドとその説明を表示します。
+- **`make macbook`**: すべてのセットアップスクリプトを順番に実行します。
+- **`make <command>`**: 個別のセットアップスクリプト（例: `make homebrew`, `make git`）を実行します。
+
 ## Setup Instructions
 
 1.  **Xcode Command Line Tools のインストール**
@@ -126,9 +134,11 @@ environment/
 3.  **インストールスクリプトの実行**
 
     ```sh
-    chmod +x ./install.sh
-    ./install.sh
+    make macbook
     ```
+
+    個別の設定のみを実行したい場合は、`make <ターゲット名>` を使用します (例: `make homebrew`)。
+    利用可能なターゲットは `make` または `make help` で確認できます。
 
 4.  **Gitの個人設定**
 
@@ -140,7 +150,7 @@ environment/
     # .env ファイルを編集して、username と email を設定します
     ```
 
-    `./install.sh` または `./installers/scripts/git.sh` を実行すると、`.env`ファイルの情報が自動的にGitのグローバル設定に反映されます。
+    `make macbook` または `make git` を実行すると、`.env`ファイルの情報が自動的にGitのグローバル設定に反映されます。
 
 5.  **macOSとシェルの設定を適用**
 
@@ -164,41 +174,3 @@ environment/
 7.  **macOSの再起動**
 
     設定を完全に適用するために、macOSを再起動してください。
-
-## Individual Setup Scripts
-
-### Main setup
-
-`installers/scripts/`内の各セットアップスクリプトは個別に実行できます
-
-```sh
-# Homebrewのセットアップ
-$ ./installers/scripts/homebrew.sh
-
-# Gitの設定
-$ ./installers/scripts/git.sh
-
-# Ruby環境のセットアップ
-$ ./installers/scripts/ruby.sh
-
-# Python環境のセットアップ
-$ ./installers/scripts/python.sh
-
-# Java環境のセットアップ
-$ ./installers/scripts/java.sh
-
-# Node.js環境のセットアップ
-$ ./installers/scripts/node.sh
-
-# Flutterのセットアップ
-$ ./installers/scripts/flutter.sh
-
-# VSCodeの設定
-$ ./installers/scripts/vscode.sh
-```
-
-各スクリプトは以下のように動作します
-1. コンポーネントが既にインストール/設定されているかチェック
-2. 必要な場合のみインストールまたは設定を実行
-3. セットアップを検証
-
