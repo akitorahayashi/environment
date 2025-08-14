@@ -20,12 +20,12 @@ help: ## Show this help message
 
 # Main setup target
 .PHONY: macbook
-macbook: homebrew git vscode ruby python java flutter node ## Run all setup scripts
+macbook: brew git vscode ruby python java flutter node ## Run all setup scripts
 	@echo "✅ All setup scripts completed successfully."
 
 # Individual setup targets
-.PHONY: homebrew
-homebrew: ## Setup Homebrew and install packages from Brewfile
+.PHONY: brew
+brew: ## Setup Homebrew and install packages from Brewfile
 	@echo "🚀 Running Homebrew setup..."
 	@$(SCRIPT_DIR)/homebrew.sh
 

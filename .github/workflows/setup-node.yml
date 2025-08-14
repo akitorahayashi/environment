@@ -10,15 +10,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run node.sh for setup
+      - name: Run Node.js setup
         id: setup
-        run: ./installers/scripts/node.sh
+        run: make node
 
-      - name: Run node.sh for idempotency check
+      - name: Run Node.js setup for idempotency check
         id: idempotency
         run: |
           set -eo pipefail
-          stderr_output=$(./installers/scripts/node.sh 1>/dev/null 2>&1)
+          stderr_output=$(make node 1>/dev/null 2>&1)
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"
