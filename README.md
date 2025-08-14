@@ -136,16 +136,7 @@ environment/
 
     "successfully authenticated" というメッセージが表示されれば成功です。
 
-3.  **インストールスクリプトの実行**
-
-    ```sh
-    make macbook
-    ```
-
-    個別の設定のみを実行したい場合は、`make <ターゲット名>` を使用します (例: `make homebrew`)。
-    利用可能なターゲットは `make` または `make help` で確認できます。
-
-4.  **Gitの個人設定**
+3.  **Gitの個人設定**
 
     リポジトリのルートにある`.env.example`をコピーして`.env`ファイルを作成します。
     その後、`.env`ファイル内の`username`と`email`をご自身のものに編集してください。
@@ -155,7 +146,16 @@ environment/
     # .env ファイルを編集して、username と email を設定します
     ```
 
-    `make macbook` または `make git` を実行すると、`.env`ファイルの情報が自動的にGitのグローバル設定に反映されます。
+    この`.env`ファイルは、次のステップで実行される `make macbook` または `make git` によって自動的に読み込まれ、Gitのグローバル設定に反映されます。
+
+4.  **インストールスクリプトの実行**
+
+    ```sh
+    make macbook
+    ```
+
+    個別の設定のみを実行したい場合は、`make <ターゲット名>` を使用します (例: `make homebrew`)。
+    利用可能なターゲットは `make` または `make help` で確認できます。
 
 5.  **macOSとシェルの設定を適用**
 

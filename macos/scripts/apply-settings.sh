@@ -38,7 +38,7 @@ if [[ ! -f "${SETTINGS_FILE}" ]]; then
 else
     echo "[INFO] Sourcing settings file: ${SETTINGS_FILE}"
     # `source` を使用して設定を適用するが、エラーが発生しても続行
-    if ! source "${SETTINGS_FILE}" 2>/dev/null; then
+    if ! source "${SETTINGS_FILE}"; then
         echo "[WARN] Some errors occurred while applying macOS settings, but continuing."
     else
         echo "[SUCCESS] macOS system settings have been applied."

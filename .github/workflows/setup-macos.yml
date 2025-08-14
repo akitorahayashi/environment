@@ -15,3 +15,10 @@ jobs:
 
       - name: Apply macOS system settings
         run: make apply-settings
+
+      - name: Re-run backup to check for idempotency
+        run: make backup-settings
+
+      - name: Verify that settings file is unchanged
+        run: |
+          git diff --exit-code -- macos/config/settings/macos-settings.sh

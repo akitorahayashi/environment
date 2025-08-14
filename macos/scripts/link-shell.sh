@@ -35,20 +35,20 @@ echo "==== Start: Verifying shell configuration links... ===="
 verification_failed=false
 
 # .zprofile の検証
-if [ ! -L "${ZPROFILE_DEST}" ] || [ "$(readlink "${ZPROFILE_DEST}")" != "${ZPROFILE_SOURCE}" ]; then
+if [ ! -L "${ZPROFILE_DEST}" ] || [ ! "${ZPROFILE_DEST}" -ef "${ZPROFILE_SOURCE}" ]; then
     echo "[ERROR] .zprofile symbolic link is incorrect."
     echo "  Expected: ${ZPROFILE_DEST} -> ${ZPROFILE_SOURCE}"
-    echo "  Actual: $(readlink "${ZPROFILE_DEST}")"
+    echo "  Actual: $(readlink "${ZPROFILE_DEST}" 2>/dev/null || echo 'N/A')"
     verification_failed=true
 else
     echo "[SUCCESS] .zprofile symbolic link is correct."
 fi
 
 # .zshrc の検証
-if [ ! -L "${ZSHRC_DEST}" ] || [ "$(readlink "${ZSHRC_DEST}")" != "${ZSHRC_SOURCE}" ]; then
+if [ ! -L "${ZSHRC_DEST}" ] || [ ! "${ZSHRC_DEST}" -ef "${ZSHRC_SOURCE}" ]; then
     echo "[ERROR] .zshrc symbolic link is incorrect."
     echo "  Expected: ${ZSHRC_DEST} -> ${ZSHRC_SOURCE}"
-    echo "  Actual: $(readlink "${ZSHRC_DEST}")"
+    echo "  Actual: $(readlink "${ZSHRC_DEST}" 2>/dev/null || echo 'N/A')"
     verification_failed=true
 else
     echo "[SUCCESS] .zshrc symbolic link is correct."

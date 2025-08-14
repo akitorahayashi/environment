@@ -28,6 +28,9 @@ else
   OUTPUT_FILE="$SCRIPT_DIR/../config/settings/macos-settings.sh"
 fi
 
+OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
+mkdir -p "$OUTPUT_DIR"
+
 echo "現在の macOS の設定を取得し、$OUTPUT_FILE を生成します..."
 
 # 既存の設定ファイルを削除
