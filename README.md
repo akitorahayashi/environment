@@ -7,8 +7,14 @@ environment/
 ├── .github/
 │   └── workflows/
 ├── macos/
-│   ├── settings/
-│   └── shell/
+│   ├── config/
+│   │   ├── settings/
+│   │   │   └── macos-settings.sh
+│   │   └── shell/
+│   │       ├── .zprofile
+│   │       └── .zshrc
+│   └── scripts/
+│       └── backup_settings.sh
 ├── installers/
 │   ├── config/
 │   │   ├── brew/
@@ -28,7 +34,6 @@ environment/
 │       └── vscode.sh
 ├── .gitignore
 ├── Makefile
-├── apply.sh
 └── README.md
 ```
 
@@ -155,8 +160,11 @@ environment/
 5.  **macOSとシェルの設定を適用**
 
     ```sh
-    chmod +x ./apply.sh
-    ./apply.sh
+    # シェル設定のシンボリックリンクを作成
+    make link-shell
+
+    # macOS システム設定を適用
+    make apply-settings
     ```
 
 6.  **GitHub CLIの認証**
