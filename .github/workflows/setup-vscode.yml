@@ -31,8 +31,8 @@ jobs:
       - name: Run VS Code setup for idempotency check
         id: idempotency
         run: |
-          set -eo pipefail
-          stderr_output=$(make vscode 1>/dev/null 2>&1)
+          set -o pipefail
+          stderr_output=$( (make vscode >/dev/null) 2>&1 || true )
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"

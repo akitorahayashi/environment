@@ -20,46 +20,54 @@ help: ## Show this help message
 
 # Main setup target
 .PHONY: macbook
-macbook: brew git vscode ruby python java flutter node ## Run all setup scripts
+macbook: ## Run all setup scripts
+	@$(MAKE) brew
+	@$(MAKE) git
+	@$(MAKE) vscode
+	@$(MAKE) ruby
+	@$(MAKE) python
+	@$(MAKE) java
+	@$(MAKE) flutter
+	@$(MAKE) node
 	@echo "✅ All setup scripts completed successfully."
 
 # Individual setup targets
 .PHONY: brew
 brew: ## Setup Homebrew and install packages from Brewfile
 	@echo "🚀 Running Homebrew setup..."
-	@$(SCRIPT_DIR)/homebrew.sh
+	@$(SHELL) "$(SCRIPT_DIR)/homebrew.sh"
 
 .PHONY: git
 git: ## Configure Git settings
 	@echo "🚀 Running Git setup..."
-	@$(SCRIPT_DIR)/git.sh
+	@$(SHELL) "$(SCRIPT_DIR)/git.sh"
 
 .PHONY: vscode
 vscode: ## Setup VS Code settings and extensions
 	@echo "🚀 Running VS Code setup..."
-	@$(SCRIPT_DIR)/vscode.sh
+	@$(SHELL) "$(SCRIPT_DIR)/vscode.sh"
 
 .PHONY: ruby
 ruby: ## Setup Ruby environment with rbenv
 	@echo "🚀 Running Ruby setup..."
-	@$(SCRIPT_DIR)/ruby.sh
+	@$(SHELL) "$(SCRIPT_DIR)/ruby.sh"
 
 .PHONY: python
 python: ## Setup Python environment with pyenv
 	@echo "🚀 Running Python setup..."
-	@$(SCRIPT_DIR)/python.sh
+	@$(SHELL) "$(SCRIPT_DIR)/python.sh"
 
 .PHONY: java
 java: ## Setup Java environment
 	@echo "🚀 Running Java setup..."
-	@$(SCRIPT_DIR)/java.sh
+	@$(SHELL) "$(SCRIPT_DIR)/java.sh"
 
 .PHONY: flutter
 flutter: ## Setup Flutter environment
 	@echo "🚀 Running Flutter setup..."
-	@$(SCRIPT_DIR)/flutter.sh
+	@$(SHELL) "$(SCRIPT_DIR)/flutter.sh"
 
 .PHONY: node
 node: ## Setup Node.js environment with nvm
 	@echo "🚀 Running Node.js setup..."
-	@$(SCRIPT_DIR)/node.sh
+	@$(SHELL) "$(SCRIPT_DIR)/node.sh"
