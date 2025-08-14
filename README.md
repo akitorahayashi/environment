@@ -43,16 +43,15 @@ environment/
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
-    -   `macos/shell/`から`$HOME`への`.zprofile`と`.zshrc`のシンボリックリンクを作成
-    -   既存の`.zshrc`は上書きされます
+    -   `make link-shell` を実行することで、`macos/config/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
 
 3.  **Git Configuration**
     -   `installers/config/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   `macos/settings/`配下のスクリプトでトラックパッド、マウス、キーボード、Dock、Finder、スクリーンショットなどの設定を適用
-    -   `macos/settings/`配下のバックアップ用スクリプトで現在の設定をバックアップして設定ファイルを生成可能
+    -   `make apply-settings` を実行することで、`macos/config/settings/macos-settings.sh` に基づいてシステム設定が適用されます。
+    -   `make backup-settings` を実行することで、現在のmacOS設定を `macos-settings.sh` にバックアップできます。
 
 5.  **Package Installation from Brewfile**
     -   `installers/config/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
@@ -136,7 +135,7 @@ environment/
 
     "successfully authenticated" というメッセージが表示されれば成功です。
 
-3.  **Gitの個人設定**
+3.  **Gitの個人設定 (`.env`ファイル作成)**
 
     リポジトリのルートにある`.env.example`をコピーして`.env`ファイルを作成します。
     その後、`.env`ファイル内の`username`と`email`をご自身のものに編集してください。
@@ -145,17 +144,14 @@ environment/
     cp .env.example .env
     # .env ファイルを編集して、username と email を設定します
     ```
-
     この`.env`ファイルは、次のステップで実行される `make macbook` または `make git` によって自動的に読み込まれ、Gitのグローバル設定に反映されます。
 
-4.  **インストールスクリプトの実行**
+4.  **各種ツールとパッケージのインストール**
 
     ```sh
     make macbook
     ```
-
-    個別の設定のみを実行したい場合は、`make <ターゲット名>` を使用します (例: `make homebrew`)。
-    利用可能なターゲットは `make` または `make help` で確認できます。
+    このコマンドは、Homebrew、Git、Ruby、Python、Node.jsなど、開発に必要なツールを一括でインストールします。
 
 5.  **macOSとシェルの設定を適用**
 
@@ -169,7 +165,7 @@ environment/
 
 6.  **GitHub CLIの認証**
 
-    GitHub CLIを認証してください。
+    `make macbook`でGitHub CLI (`gh`) がインストールされた後、以下のコマンドで認証を行ってください。
 
     ```sh
     # GitHub.comの認証を追加
@@ -181,4 +177,4 @@ environment/
 
 7.  **macOSの再起動**
 
-    設定を完全に適用するために、macOSを再起動してください。
+    すべての設定を完全に適用するために、macOSを再起動してください。

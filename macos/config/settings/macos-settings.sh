@@ -107,4 +107,3 @@ defaults write com.apple.screencapture disable-shadow -bool false
 defaults write com.apple.screencapture include-date -bool false
 defaults write com.apple.screencapture show-thumbnail -bool true
 defaults write com.apple.screencapture type -string "png"
-
