@@ -355,30 +355,6 @@ add_setting "トラックパッド" "$TRACKPAD_COMMANDS"
 add_setting "サウンド" "$SOUND_COMMANDS"
 add_setting "スクリーンショット" "$SCREENSHOT_COMMANDS"
 
-# ディスプレイ設定を取得
-DISPLAY_COMMAND=""
-if command -v displayplacer >/dev/null 2>&1; then
-    # displayplacerの出力から現在の設定を抽出（解像度、リフレッシュレート、配置など）
-    DISPLAY_OUTPUT=$(displayplacer list 2>/dev/null | grep "^displayplacer")
-    if [[ -n "$DISPLAY_OUTPUT" ]]; then
-        DISPLAY_COMMAND=$(echo "$DISPLAY_OUTPUT" | sed 's/displayplacer //')
-    fi
-fi
-
-if [[ -n "$DISPLAY_COMMAND" ]]; then
-    # ヒアドキュメントを使い、CI判定のif文を追記する
-    # catのEOFをシングルクォートで囲まないことで、$DISPLAY_COMMANDを展開させる
-    # ${CI}の$はエスケープし、生成後のファイルで変数が評価されるようにする
-    DISPLAY_SETTINGS_COMMANDS=$(cat <<EOF
-if [ "\${CI:-false}" = "false" ]; then
-    displayplacer $DISPLAY_COMMAND
-fi
-EOF
-)
-    add_setting "ディスプレイ" "$DISPLAY_SETTINGS_COMMANDS"
-fi
-
-
 # 実行権限を付与
 chmod +x "$OUTPUT_FILE"
 
