@@ -137,11 +137,11 @@ environment/
 3.  **Gitの個人設定 (`.env`ファイル作成)**
 
     リポジトリのルートにある`.env.example`をコピーして`.env`ファイルを作成します。
-    その後、`.env`ファイル内の`username`と`email`をご自身のものに編集してください。
+    その後、`.env`ファイル内の`GIT_USERNAME`と`GIT_EMAIL`をご自身のものに編集してください。
 
     ```sh
     cp .env.example .env
-    # .env ファイルを編集して、username と email を設定します
+    # .env ファイルを編集して、GIT_USERNAME と GIT_EMAIL を設定します
     ```
     この`.env`ファイルは、次のステップで実行される `make macbook` または `make git` によって自動的に読み込まれ、Gitのグローバル設定に反映されます。
 
@@ -150,19 +150,9 @@ environment/
     ```sh
     make macbook
     ```
-    このコマンドは、Homebrew、Git、Ruby、Python、Node.jsなど、開発に必要なツールを一括でインストールします。
+    このコマンドは、Homebrew、Git、Ruby、Python、Node.jsなど、開発に必要なツールを一括でインストールし、macOSとシェルの設定も適用します。
 
-5.  **macOSとシェルの設定を適用**
-
-    ```sh
-    # シェル設定のシンボリックリンクを作成
-    make link-shell
-
-    # macOS システム設定を適用
-    make apply-settings
-    ```
-
-6.  **GitHub CLIの認証**
+5.  **GitHub CLIの認証**
 
     `make macbook`でGitHub CLI (`gh`) がインストールされた後、以下のコマンドで認証を行ってください。
 
@@ -174,6 +164,6 @@ environment/
     gh auth login --hostname your-enterprise-hostname.com
     ```
 
-7.  **macOSの再起動**
+6.  **macOSの再起動**
 
     すべての設定を完全に適用するために、macOSを再起動してください。
