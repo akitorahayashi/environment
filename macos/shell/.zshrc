@@ -12,6 +12,14 @@ alias poet-e="poetry export -f requirements.txt --output requirements.txt --with
 alias poet-env="poetry env list"
 alias poet-env-d="poetry env remove"
 
+# pipx
+alias px="pipx"
+alias px-ls="pipx list"
+alias px-i="pipx install"
+alias px-ui="pipx uninstall"
+alias px-r="pipx run"
+
+# pip
 alias pl="pip list"
 alias pi="pip install"
 alias pu="python -m pip install --upgrade pip"
@@ -45,6 +53,14 @@ alias bi="bundle install"
 # Node.js
 alias ni="npm install"
 alias nr="npm run"
+
+# Docker
+alias doc="docker"
+alias doc-b="docker build"
+alias doc-r="docker run"
+alias doc-i="docker images"
+alias doc-ps="docker ps"
+alias doc-st="docker stop"
 
 # Mint
 alias mr="mint run"

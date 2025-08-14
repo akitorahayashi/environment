@@ -1,4 +1,2 @@
 poetry
 aider-chat
-uvicorn
-black
