@@ -12,27 +12,9 @@ jobs:
     uses: ./.github/workflows/setup-homebrew.yml
     secrets: inherit
 
-  setup-git:
-    uses: ./.github/workflows/setup-git.yml
-
-  setup-node:
-    uses: ./.github/workflows/setup-node.yml
-
-  setup-ruby:
-    uses: ./.github/workflows/setup-ruby.yml
-
-  setup-python:
-    uses: ./.github/workflows/setup-python.yml
-
-  setup-flutter:
-    uses: ./.github/workflows/setup-flutter.yml
-
-  setup-vscode:
-    uses: ./.github/workflows/setup-vscode.yml
+  setup-installers:
+    uses: ./.github/workflows/setup-installers.yml
 
   setup-macos:
     uses: ./.github/workflows/setup-macos.yml
-
-  setup-java:
-    uses: ./.github/workflows/setup-java.yml
 

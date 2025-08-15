@@ -1,24 +1,35 @@
-name: Setup Git
+name: Setup Installers
 
 on:
   workflow_call:
 
 jobs:
-  setup-git:
+  setup-installer:
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        installer:
+          - git
+          - node
+          - ruby
+          - python
+          - flutter
+          - java
+          - vscode
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Git setup
+      - name: Run ${{ matrix.installer }} setup
         id: setup
-        run: make git
+        run: make -C installers ${{ matrix.installer }}
 
-      - name: Run Git setup for idempotency check
+      - name: Run ${{ matrix.installer }} setup for idempotency check
         id: idempotency
         run: |
           set -o pipefail
-          stderr_output=$( (make git >/dev/null) 2>&1 || true )
+          stderr_output=$( (make -C installers ${{ matrix.installer }} >/dev/null) 2>&1 || true )
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"
@@ -28,7 +39,7 @@ jobs:
       - name: Verify idempotency
         if: contains(steps.idempotency.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
         run: |
-          echo "Idempotency check failed for git.sh"
+          echo "Idempotency check failed for ${{ matrix.installer }}"
           echo "Error output:"
           echo "${{ steps.idempotency.outputs.stderr_output }}"
           exit 1
