@@ -4,7 +4,7 @@ unset PYENV_VERSION
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
 
 changed=false
  # 依存関係をインストール
@@ -26,7 +26,8 @@ if [ ! -f "$PYTHON_VERSION_FILE" ]; then
     echo "[ERROR] .python-versionファイルが見つかりません: $PYTHON_VERSION_FILE"
     exit 1
 fi
-readonly PYTHON_VERSION=$(cat "$PYTHON_VERSION_FILE" | tr -d '[:space:]')
+PYTHON_VERSION="$(tr -d '[:space:]' < "$PYTHON_VERSION_FILE")"
+readonly PYTHON_VERSION
 if [ -z "$PYTHON_VERSION" ]; then
     echo "[ERROR] .python-versionファイルからバージョンの読み込みに失敗しました。"
     exit 1
@@ -45,7 +46,7 @@ else
     echo "[INFO] Python ${PYTHON_VERSION} はすでにインストールされています"
 fi
 
-# グローバルバージョンをPython の最新の安定版に設定
+# .python-version で指定されたバージョンを pyenv global に設定
 python_version_changed=false
 if [ "$(pyenv global)" != "${PYTHON_VERSION}" ]; then
     echo "[CONFIG] pyenv global を ${PYTHON_VERSION} に設定します"
@@ -60,7 +61,7 @@ fi
 # pipxのインストール
 if ! command -v pipx &> /dev/null; then
     echo "[INSTALL] pipx"
-    python -m pip install --user pipx
+    "$(pyenv which python)" -m pip install --user pipx
     # ensurepath は次回シェルから有効になるため、当該シェルでも即座に反映
     export PATH="$HOME/.local/bin:$PATH"
     hash -r  # コマンドキャッシュをクリア
@@ -107,6 +108,7 @@ if [ -f "$PIPX_TOOLS_FILE" ]; then
                 echo "[ERROR] $tool_package のインストールに失敗しました" >&2
                 exit 1
             fi
+            changed=true
             echo "IDEMPOTENCY_VIOLATION" >&2
         fi
     done < "$PIPX_TOOLS_FILE"

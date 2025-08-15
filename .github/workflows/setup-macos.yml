@@ -13,12 +13,12 @@ jobs:
       - name: Create symbolic links for shell configuration
         run: make link-shell
 
-      - name: Apply macOS system settings
-        run: make apply-settings
+      - name: Apply macOS system defaults
+        run: make apply-defaults
 
       - name: Re-run backup to check for idempotency
-        run: make backup-settings
+        run: make backup-defaults
 
-      - name: Verify that settings file is unchanged
+      - name: Verify that system defaults file is unchanged
         run: |
-          git diff --exit-code -- macos/config/settings/macos-settings.sh
+          git diff --exit-code -- macos/config/system-defaults/system-defaults.sh

@@ -61,20 +61,21 @@ gem_file="${REPO_ROOT:-.}/installers/config/ruby/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
-    echo "[INFO] Bundlerのバージョンを確認しています..."
-    latest_version_info=$(gem list --remote bundler | grep "^bundler ")
-    latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+    readonly BUNDLER_VERSION="2.5.22"
+    echo "[INFO] Bundlerのバージョンを確認しています... (必須: ${BUNDLER_VERSION})"
     current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*' || echo "not-installed")
 
-    if [ "$current_version" != "$latest_version" ]; then
-        echo "[INSTALL] Bundlerを最新バージョンに更新・インストールします..."
-        gem_install_output=$(gem install --no-document bundler)
-        if echo "$gem_install_output" | grep -q "gem installed"; then
+    if [ "$current_version" != "$BUNDLER_VERSION" ]; then
+        echo "[INSTALL] Bundler v${BUNDLER_VERSION} をインストールします..."
+        if gem install bundler -v "${BUNDLER_VERSION}" --no-document; then
             changed=true
+        else
+            echo "[ERROR] Bundler v${BUNDLER_VERSION} のインストールに失敗しました"
+            exit 1
         fi
         rbenv rehash
     else
-        echo "[INFO] Bundlerはすでに最新バージョンです"
+        echo "[INFO] Bundlerはすでにバージョン ${BUNDLER_VERSION} です"
     fi
 fi
 
@@ -103,8 +104,14 @@ echo "[SUCCESS] rbenv: $(rbenv --version)"
 if rbenv install --version >/dev/null 2>&1 || command -v ruby-build >/dev/null 2>&1 || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
     echo "[SUCCESS] ruby-buildが使用可能です"
 else
-    echo "[ERROR] ruby-buildが見つかりません"
-    exit 1
+    echo "[WARN] ruby-buildが見つかりません。インストールを試みます..."
+    if brew install ruby-build; then
+        echo "[SUCCESS] ruby-buildをインストールしました"
+        changed=true
+    else
+        echo "[ERROR] ruby-build のインストールに失敗しました"
+        exit 1
+    fi
 fi
 
 # Rubyバージョンチェック
@@ -121,13 +128,13 @@ if ! command -v bundle >/dev/null 2>&1; then
     exit 1
 fi
 
-# bundlerのバージョンが最新であることを確認
-latest_version_info=$(gem list --remote bundler | grep "^bundler ")
-latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
-current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+# bundlerのバージョンが指定通りであることを確認
+readonly BUNDLER_VERSION_VERIFY="2.5.22"
+current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*' || echo "not-installed")
 
-if [ "$current_version" != "$latest_version" ]; then
-    echo "[WARN] bundlerのバージョンが最新ではありません。最新: ${latest_version}, 現在: ${current_version}"
+if [ "$current_version" != "$BUNDLER_VERSION_VERIFY" ]; then
+    echo "[ERROR] bundlerのバージョンが異なります。期待: ${BUNDLER_VERSION_VERIFY}, 現在: ${current_version}"
+    exit 1
 else
     echo "[SUCCESS] bundler: $(bundle -v)"
 fi

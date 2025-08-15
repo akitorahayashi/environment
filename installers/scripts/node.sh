@@ -2,7 +2,7 @@
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
 
 
 
@@ -39,7 +39,13 @@ if [ ! -f "$NODE_VERSION_FILE" ]; then
     echo "[ERROR] .nvmrcファイルが見つかりません: $NODE_VERSION_FILE"
     exit 1
 fi
-readonly NODE_VERSION=$(cat "$NODE_VERSION_FILE" | tr -d '[:space:]')
+NODE_VERSION=""
+if ! read -r NODE_VERSION < "$NODE_VERSION_FILE"; then
+    echo "[ERROR] .nvmrcファイルからバージョンの読み込みに失敗しました。"
+    exit 1
+fi
+NODE_VERSION="${NODE_VERSION//[[:space:]]/}"
+readonly NODE_VERSION
 if [ -z "$NODE_VERSION" ]; then
     echo "[ERROR] .nvmrcファイルからバージョンの読み込みに失敗しました。"
     exit 1
@@ -90,6 +96,12 @@ if ! command -v npm &> /dev/null; then
 fi
 echo "[OK] npm は利用可能です"
 
+# Node.jsのバージョンが変更された場合、パッケージが再インストールされることをユーザーに通知
+if [ "$node_changed" = true ]; then
+    echo "[INFO] Node.jsのグローバルバージョンが変更されたため、グローバルパッケージを新しいバージョン用にインストールします。"
+    echo "[INFO] nvmはバージョンごとにパッケージを管理するため、古いバージョンのパッケージは削除されません。"
+fi
+
 # グローバルパッケージのインストール
 packages_file="$REPO_ROOT/config/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
@@ -101,7 +113,7 @@ else
         echo "[WARN] global-packages.json にパッケージが定義されていません"
     else
         packages_changed=false
-        echo "$packages_json" | while IFS= read -r entry; do
+        while IFS= read -r entry; do
             pkg_full="$entry"
             pkg_name="${entry%@*}"
             installed_version=$(npm list -g --depth=0 "$pkg_name" | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}' || true)
@@ -129,7 +141,7 @@ else
             else
                 echo "[INSTALLED] $pkg_name"
             fi
-        done
+        done <<< "$packages_json"
         if [ "$packages_changed" = true ]; then
             echo "IDEMPOTENCY_VIOLATION" >&2
         fi
@@ -149,7 +161,17 @@ if [ ! -f "$NODE_VERSION_FILE_VERIFY" ]; then
     echo "[ERROR] .nvmrcファイルが見つかりません: $NODE_VERSION_FILE_VERIFY"
     exit 1
 fi
-readonly EXPECTED_NODE_VERSION_VERIFY=$(cat "$NODE_VERSION_FILE_VERIFY" | tr -d '[:space:]')
+EXPECTED_NODE_VERSION_VERIFY=""
+if ! read -r EXPECTED_NODE_VERSION_VERIFY < "$NODE_VERSION_FILE_VERIFY"; then
+    echo "[ERROR] .nvmrcファイルからバージョンの読み込みに失敗しました: $NODE_VERSION_FILE_VERIFY"
+    exit 1
+fi
+EXPECTED_NODE_VERSION_VERIFY="${EXPECTED_NODE_VERSION_VERIFY//[[:space:]]/}"
+readonly EXPECTED_NODE_VERSION_VERIFY
+if [ -z "$EXPECTED_NODE_VERSION_VERIFY" ]; then
+    echo "[ERROR] .nvmrcファイルは空か、読み取りに失敗しました: $NODE_VERSION_FILE_VERIFY"
+    exit 1
+fi
 
 # nvmが示す現在のバージョンが期待通りか確認
 # 'nvm version'はエイリアスを解決してくれる
@@ -171,16 +193,16 @@ else
     packages_json=$(jq -r '.globalPackages | keys[]' "$packages_file" 2>/dev/null)
     missing=0
     if [ -n "$packages_json" ]; then
-        echo "$packages_json" | while IFS= read -r package; do
+        while IFS= read -r package; do
             if ! npm list -g "$package" &>/dev/null; then
                 echo "[ERROR] グローバルパッケージ $package がインストールされていません"
                 ((missing++))
             else
                 echo "[SUCCESS] グローバルパッケージ $package がインストールされています"
             fi
-        done
+        done <<< "$packages_json"
     fi
-    if [ $missing -gt 0 ]; then
+    if [ "$missing" -gt 0 ]; then
         verification_failed=true
     fi
 fi
