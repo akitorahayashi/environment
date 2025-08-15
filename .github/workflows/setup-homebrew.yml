@@ -22,4 +22,23 @@ jobs:
 
       - name: Run Homebrew setup
         id: setup
-        run: make brew
+        run: make -C installers brew
+
+      - name: Run Homebrew setup for idempotency check
+        id: idempotency
+        run: |
+          set -o pipefail
+          stderr_output=$( (make -C installers brew >/dev/null) 2>&1 || true )
+          {
+            echo "stderr_output<<EOF"
+            echo "${stderr_output}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Verify idempotency
+        if: contains(steps.idempotency.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
+        run: |
+          echo "Idempotency check failed for homebrew"
+          echo "Error output:"
+          echo "${{ steps.idempotency.outputs.stderr_output }}"
+          exit 1

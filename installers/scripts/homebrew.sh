@@ -47,7 +47,7 @@ fi
 # Brewfileのインストール
 echo ""
 echo "[Start] Homebrew パッケージのインストールを開始します..."
-brewfile_path="$REPO_ROOT/config/brew/Brewfile"
+brewfile_path="$REPO_ROOT/config/common/brew/Brewfile"
 
 if [ -f "$brewfile_path" ]; then
     if [ "${CI:-false}" = "true" ]; then
