@@ -20,17 +20,20 @@ if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
 
-# 3.12系で最新の安定版Pythonのバージョンを取得
-echo "[INFO] 3.12系の最新の安定版Pythonのバージョンを確認しています..."
-LATEST_PYTHON_VERSION=$(pyenv install --list | grep -E "^\s*3\.12\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
-if [ -z "$LATEST_PYTHON_VERSION" ]; then
-    echo "[ERROR] 3.12系の最新の安定版Pythonのバージョンが取得できませんでした。"
+# .python-versionファイルからPythonのバージョンを読み込む
+PYTHON_VERSION_FILE="$REPO_ROOT/installers/config/python/.python-version"
+if [ ! -f "$PYTHON_VERSION_FILE" ]; then
+    echo "[ERROR] .python-versionファイルが見つかりません: $PYTHON_VERSION_FILE"
     exit 1
 fi
-readonly PYTHON_VERSION="$LATEST_PYTHON_VERSION"
-echo "[INFO] 3.12系の最新の安定版Pythonのバージョンは ${PYTHON_VERSION} です。"
+readonly PYTHON_VERSION=$(cat "$PYTHON_VERSION_FILE" | tr -d '[:space:]')
+if [ -z "$PYTHON_VERSION" ]; then
+    echo "[ERROR] .python-versionファイルからバージョンの読み込みに失敗しました。"
+    exit 1
+fi
+echo "[INFO] .python-versionで指定されたPythonのバージョンは ${PYTHON_VERSION} です。"
 
-# Python の最新の安定版がインストールされていなければインストール
+# 指定されたバージョンのPythonがインストールされていなければインストール
 if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
     echo "[INSTALL] Python ${PYTHON_VERSION}"
     if ! pyenv install --skip-existing "${PYTHON_VERSION}"; then

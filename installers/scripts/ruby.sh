@@ -19,17 +19,20 @@ echo "==== Start: Ruby環境のセットアップを開始します..."
 # rbenvを初期化して、以降のコマンドでrbenvのRubyが使われるようにする
 eval "$(rbenv init -)"
 
-# 最新の安定版Rubyのバージョンを取得
-echo "[INFO] 最新の安定版Rubyのバージョンを確認しています..."
-LATEST_RUBY_VERSION=$(rbenv install -l | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
-if [ -z "$LATEST_RUBY_VERSION" ]; then
-    echo "[ERROR] 最新の安定版Rubyのバージョンが取得できませんでした。"
+# .ruby-versionファイルからRubyのバージョンを読み込む
+RUBY_VERSION_FILE="$REPO_ROOT/installers/config/ruby/.ruby-version"
+if [ ! -f "$RUBY_VERSION_FILE" ]; then
+    echo "[ERROR] .ruby-versionファイルが見つかりません: $RUBY_VERSION_FILE"
     exit 1
 fi
-readonly RUBY_VERSION="$LATEST_RUBY_VERSION"
-echo "[INFO] 最新の安定版Rubyのバージョンは ${RUBY_VERSION} です。"
+readonly RUBY_VERSION=$(cat "$RUBY_VERSION_FILE" | tr -d '[:space:]')
+if [ -z "$RUBY_VERSION" ]; then
+    echo "[ERROR] .ruby-versionファイルからバージョンの読み込みに失敗しました。"
+    exit 1
+fi
+echo "[INFO] .ruby-versionで指定されたRubyのバージョンは ${RUBY_VERSION} です。"
 
-# Ruby 3.3.0がインストールされていなければインストール
+# 指定されたバージョンのRubyがインストールされていなければインストール
 if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
     echo "[INSTALL] Ruby ${RUBY_VERSION}"
     export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl)"
@@ -43,7 +46,7 @@ else
     echo "[INFO] Ruby ${RUBY_VERSION} はすでにインストールされています"
 fi
 
-# グローバルバージョンを3.3.0に設定
+# グローバルバージョンを指定されたバージョンに設定
 if [ "$(rbenv global)" != "${RUBY_VERSION}" ]; then
     echo "[CONFIG] rbenv global を ${RUBY_VERSION} に設定します"
     rbenv global "${RUBY_VERSION}"
@@ -54,7 +57,7 @@ else
 fi
 
 # gemのインストール処理
-gem_file="${REPO_ROOT:-.}/installers/config/gems/global-gems.rb"
+gem_file="${REPO_ROOT:-.}/installers/config/ruby/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
