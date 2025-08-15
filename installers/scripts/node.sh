@@ -70,7 +70,7 @@ current_default_target="$(nvm alias default 2>/dev/null | awk -F'->' 'NR==1{gsub
 if [[ "$current_default_target" != "$expected_default_target" ]]; then
     echo "[CONFIGURING] Node.js ${expected_default_target} をデフォルトバージョンに設定します"
     if nvm alias default "$expected_default_target"; then
-        echo "[SUCCESS] デフォルトバージョンを ${NODE_VERSION} に設定しました"
+        echo "[SUCCESS] デフォルトバージョンを ${expected_default_target} に設定しました"
         node_changed=true
     else
         echo "[ERROR] デフォルトバージョンの設定に失敗しました"

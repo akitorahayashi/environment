@@ -24,7 +24,7 @@ brew "mint"
 ## Utility
 brew "poppler"
 brew "pandoc"
-brew "openssl"
+# brew "openssl" # ruby-build dependency, installed via scripts/ruby.sh
 brew "ollama"
 # brew "displayplacer" # installed by scripts/macos.sh
 
