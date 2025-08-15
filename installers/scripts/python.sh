@@ -85,36 +85,37 @@ if [ "$python_version_changed" = true ] && command -v pipx &> /dev/null; then
 fi
 
 # pipxで管理するツールをインストール
-PIPX_TOOLS_FILE="$REPO_ROOT/config/python/pipx-tools.txt"
-if [ -f "$PIPX_TOOLS_FILE" ]; then
-    echo "[INFO] $PIPX_TOOLS_FILE からツールをインストールします"
-    installed_tools_output=$(pipx list)
-
-    while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
-        # 行末コメントを除去し、前後空白をトリム
-        tool_package="${tool_package_raw%%#*}"
-        tool_package="$(echo "$tool_package" | xargs)"
-        # 空行はスキップ
-        if [[ -z "$tool_package" ]]; then
-            continue
-        fi
-
-        # すでにインストールされているかチェック
-        if echo "$installed_tools_output" | grep -q "package $tool_package "; then
-            echo "[INFO] $tool_package はすでにインストールされています"
-        else
-            echo "[INSTALL] $tool_package"
-            if ! pipx install "$tool_package" --python "$(pyenv which python)"; then
-                echo "[ERROR] $tool_package のインストールに失敗しました" >&2
-                exit 1
-            fi
-            changed=true
-            echo "IDEMPOTENCY_VIOLATION" >&2
-        fi
-    done < "$PIPX_TOOLS_FILE"
-else
-    echo "[WARN] $PIPX_TOOLS_FILE が見つかりません"
+PIPX_TOOLS_FILE="$REPO_ROOT/installers/config/python/pipx-tools.txt"
+if [ ! -f "$PIPX_TOOLS_FILE" ]; then
+    echo "[ERROR] pipx-tools.txt が見つかりません: $PIPX_TOOLS_FILE"
+    exit 1
 fi
+
+echo "[INFO] $PIPX_TOOLS_FILE からツールをインストールします"
+installed_tools_output=$(pipx list)
+
+while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
+    # 行末コメントを除去し、前後空白をトリム
+    tool_package="${tool_package_raw%%#*}"
+    tool_package="$(echo "$tool_package" | xargs)"
+    # 空行はスキップ
+    if [[ -z "$tool_package" ]]; then
+        continue
+    fi
+
+    # すでにインストールされているかチェック
+    if echo "$installed_tools_output" | grep -q "package $tool_package "; then
+        echo "[INFO] $tool_package はすでにインストールされています"
+    else
+        echo "[INSTALL] $tool_package"
+        if ! pipx install "$tool_package" --python "$(pyenv which python)"; then
+            echo "[ERROR] $tool_package のインストールに失敗しました" >&2
+            exit 1
+        fi
+        changed=true
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+done < "$PIPX_TOOLS_FILE"
 
 
 # 最終的な環境情報を表示
@@ -152,30 +153,31 @@ fi
 echo "[SUCCESS] pipx: $(pipx --version)"
 
 # pipxで管理するツールを検証
-if [ -f "$PIPX_TOOLS_FILE" ]; then
-    echo "[INFO] $PIPX_TOOLS_FILE に記載のツールを検証します"
-    # 検証のたびに最新のリストを取得
-    installed_tools_output_verify=$(pipx list)
-
-    while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
-        # 行末コメントを除去し、前後空白をトリム
-        tool_package="${tool_package_raw%%#*}"
-        tool_package="$(echo "$tool_package" | xargs)"
-        # 空行はスキップ
-        if [[ -z "$tool_package" ]]; then
-            continue
-        fi
-
-        # インストールされているかチェック
-        if echo "$installed_tools_output_verify" | grep -q "package $tool_package "; then
-            echo "[SUCCESS] $tool_package は正常にインストールされています"
-        else
-            echo "[ERROR] $tool_package がインストールされていません"
-            exit 1
-        fi
-    done < "$PIPX_TOOLS_FILE"
-else
-    echo "[WARN] $PIPX_TOOLS_FILE が見つかりません"
+if [ ! -f "$PIPX_TOOLS_FILE" ]; then
+    echo "[ERROR] pipx-tools.txt が見つかりません: $PIPX_TOOLS_FILE"
+    exit 1
 fi
+
+echo "[INFO] $PIPX_TOOLS_FILE に記載のツールを検証します"
+# 検証のたびに最新のリストを取得
+installed_tools_output_verify=$(pipx list)
+
+while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
+    # 行末コメントを除去し、前後空白をトリム
+    tool_package="${tool_package_raw%%#*}"
+    tool_package="$(echo "$tool_package" | xargs)"
+    # 空行はスキップ
+    if [[ -z "$tool_package" ]]; then
+        continue
+    fi
+
+    # インストールされているかチェック
+    if echo "$installed_tools_output_verify" | grep -q "package $tool_package "; then
+        echo "[SUCCESS] $tool_package は正常にインストールされています"
+    else
+        echo "[ERROR] $tool_package がインストールされていません"
+        exit 1
+    fi
+done < "$PIPX_TOOLS_FILE"
 
 echo "[SUCCESS] Python環境の検証が完了しました"

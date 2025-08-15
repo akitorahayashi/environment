@@ -37,9 +37,10 @@ if [[ ! -f "${SETTINGS_FILE}" ]]; then
     echo "[INFO] You can generate it by running 'make backup-defaults'."
 else
     echo "[INFO] Sourcing system defaults file: ${SETTINGS_FILE}"
-    # `source` を使用して設定を適用するが、エラーが発生しても続行
+    # shellcheck source=/dev/null
     if ! source "${SETTINGS_FILE}"; then
-        echo "[WARN] Some errors occurred while applying macOS system defaults, but continuing."
+        echo "[ERROR] Failed to apply macOS system defaults from ${SETTINGS_FILE}"
+        exit 1
     else
         echo "[SUCCESS] macOS system defaults have been applied."
     fi
