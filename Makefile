@@ -87,7 +87,7 @@ apply-defaults: ## Apply macOS system defaults
 	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/apply-system-defaults.sh"
 
 .PHONY: backup-defaults
-backup-defaults: ## Backup current macOS settings
-	@echo "🚀 Backing up current macOS settings..."
+backup-defaults: ## Backup current macOS system defaults
+	@echo "🚀 Backing up current macOS system defaults..."
 	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/backup-system-defaults.sh"
-	@echo "✅ macOS settings backup completed."
+	@echo "✅ macOS system defaults backup completed."

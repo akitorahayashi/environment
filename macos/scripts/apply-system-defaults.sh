@@ -33,25 +33,25 @@ fi
 
 # 設定ファイルの存在確認と実行
 if [[ ! -f "${SETTINGS_FILE}" ]]; then
-    echo "[WARN] Settings file not found: ${SETTINGS_FILE}"
+    echo "[WARN] System defaults file not found: ${SETTINGS_FILE}"
     echo "[INFO] You can generate it by running 'make backup-defaults'."
 else
-    echo "[INFO] Sourcing settings file: ${SETTINGS_FILE}"
+    echo "[INFO] Sourcing system defaults file: ${SETTINGS_FILE}"
     # `source` を使用して設定を適用するが、エラーが発生しても続行
     if ! source "${SETTINGS_FILE}"; then
-        echo "[WARN] Some errors occurred while applying macOS settings, but continuing."
+        echo "[WARN] Some errors occurred while applying macOS system defaults, but continuing."
     else
-        echo "[SUCCESS] macOS system settings have been applied."
+        echo "[SUCCESS] macOS system defaults have been applied."
     fi
 fi
 
 echo ""
-echo "==== Start: Verifying settings file... ===="
+echo "==== Start: Verifying system defaults file... ===="
 if [ ! -f "${SETTINGS_FILE}" ]; then
-    echo "[ERROR] macOS settings file not found: ${SETTINGS_FILE}"
-    echo "❌ Settings file verification failed."
+    echo "[ERROR] macOS system defaults file not found: ${SETTINGS_FILE}"
+    echo "❌ System defaults file verification failed."
     exit 1
 else
-    echo "[SUCCESS] macOS settings file exists."
-    echo "✅ macOS settings application and verification completed."
+    echo "[SUCCESS] macOS system defaults file exists."
+    echo "✅ macOS system defaults application and verification completed."
 fi

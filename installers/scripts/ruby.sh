@@ -19,17 +19,20 @@ echo "==== Start: Ruby環境のセットアップを開始します..."
 # rbenvを初期化して、以降のコマンドでrbenvのRubyが使われるようにする
 eval "$(rbenv init -)"
 
-# 最新の安定版Rubyのバージョンを取得
-echo "[INFO] 最新の安定版Rubyのバージョンを確認しています..."
-LATEST_RUBY_VERSION=$(rbenv install -l | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
-if [ -z "$LATEST_RUBY_VERSION" ]; then
-    echo "[ERROR] 最新の安定版Rubyのバージョンが取得できませんでした。"
+# .ruby-versionファイルからRubyのバージョンを読み込む
+RUBY_VERSION_FILE="$REPO_ROOT/installers/config/ruby/.ruby-version"
+if [ ! -f "$RUBY_VERSION_FILE" ]; then
+    echo "[ERROR] .ruby-versionファイルが見つかりません: $RUBY_VERSION_FILE"
     exit 1
 fi
-readonly RUBY_VERSION="$LATEST_RUBY_VERSION"
-echo "[INFO] 最新の安定版Rubyのバージョンは ${RUBY_VERSION} です。"
+readonly RUBY_VERSION=$(cat "$RUBY_VERSION_FILE" | tr -d '[:space:]')
+if [ -z "$RUBY_VERSION" ]; then
+    echo "[ERROR] .ruby-versionファイルからバージョンの読み込みに失敗しました。"
+    exit 1
+fi
+echo "[INFO] .ruby-versionで指定されたRubyのバージョンは ${RUBY_VERSION} です。"
 
-# Ruby 3.3.0がインストールされていなければインストール
+# 指定されたバージョンのRubyがインストールされていなければインストール
 if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
     echo "[INSTALL] Ruby ${RUBY_VERSION}"
     export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl)"
@@ -43,7 +46,7 @@ else
     echo "[INFO] Ruby ${RUBY_VERSION} はすでにインストールされています"
 fi
 
-# グローバルバージョンを3.3.0に設定
+# グローバルバージョンを指定されたバージョンに設定
 if [ "$(rbenv global)" != "${RUBY_VERSION}" ]; then
     echo "[CONFIG] rbenv global を ${RUBY_VERSION} に設定します"
     rbenv global "${RUBY_VERSION}"
@@ -54,24 +57,25 @@ else
 fi
 
 # gemのインストール処理
-gem_file="${REPO_ROOT:-.}/installers/config/gems/global-gems.rb"
+gem_file="${REPO_ROOT:-.}/installers/config/ruby/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
-    echo "[INFO] Bundlerのバージョンを確認しています..."
-    latest_version_info=$(gem list --remote bundler | grep "^bundler ")
-    latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+    readonly BUNDLER_VERSION="2.5.22"
+    echo "[INFO] Bundlerのバージョンを確認しています... (必須: ${BUNDLER_VERSION})"
     current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*' || echo "not-installed")
 
-    if [ "$current_version" != "$latest_version" ]; then
-        echo "[INSTALL] Bundlerを最新バージョンに更新・インストールします..."
-        gem_install_output=$(gem install --no-document bundler)
-        if echo "$gem_install_output" | grep -q "gem installed"; then
+    if [ "$current_version" != "$BUNDLER_VERSION" ]; then
+        echo "[INSTALL] Bundler v${BUNDLER_VERSION} をインストールします..."
+        if gem install bundler -v "${BUNDLER_VERSION}" --no-document; then
             changed=true
+        else
+            echo "[ERROR] Bundler v${BUNDLER_VERSION} のインストールに失敗しました"
+            exit 1
         fi
         rbenv rehash
     else
-        echo "[INFO] Bundlerはすでに最新バージョンです"
+        echo "[INFO] Bundlerはすでにバージョン ${BUNDLER_VERSION} です"
     fi
 fi
 
@@ -100,8 +104,14 @@ echo "[SUCCESS] rbenv: $(rbenv --version)"
 if rbenv install --version >/dev/null 2>&1 || command -v ruby-build >/dev/null 2>&1 || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
     echo "[SUCCESS] ruby-buildが使用可能です"
 else
-    echo "[ERROR] ruby-buildが見つかりません"
-    exit 1
+    echo "[WARN] ruby-buildが見つかりません。インストールを試みます..."
+    if brew install ruby-build; then
+        echo "[SUCCESS] ruby-buildをインストールしました"
+        changed=true
+    else
+        echo "[ERROR] ruby-build のインストールに失敗しました"
+        exit 1
+    fi
 fi
 
 # Rubyバージョンチェック
@@ -118,13 +128,13 @@ if ! command -v bundle >/dev/null 2>&1; then
     exit 1
 fi
 
-# bundlerのバージョンが最新であることを確認
-latest_version_info=$(gem list --remote bundler | grep "^bundler ")
-latest_version=$(echo "$latest_version_info" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
-current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*')
+# bundlerのバージョンが指定通りであることを確認
+readonly BUNDLER_VERSION_VERIFY="2.5.22"
+current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*' || echo "not-installed")
 
-if [ "$current_version" != "$latest_version" ]; then
-    echo "[WARN] bundlerのバージョンが最新ではありません。最新: ${latest_version}, 現在: ${current_version}"
+if [ "$current_version" != "$BUNDLER_VERSION_VERIFY" ]; then
+    echo "[ERROR] bundlerのバージョンが異なります。期待: ${BUNDLER_VERSION_VERIFY}, 現在: ${current_version}"
+    exit 1
 else
     echo "[SUCCESS] bundler: $(bundle -v)"
 fi

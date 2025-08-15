@@ -19,6 +19,6 @@ jobs:
       - name: Re-run backup to check for idempotency
         run: make backup-defaults
 
-      - name: Verify that settings file is unchanged
+      - name: Verify that system defaults file is unchanged
         run: |
           git diff --exit-code -- macos/config/system-defaults/system-defaults.sh

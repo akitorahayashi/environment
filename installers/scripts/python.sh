@@ -4,7 +4,7 @@ unset PYENV_VERSION
 
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
 
 changed=false
  # 依存関係をインストール
@@ -20,17 +20,21 @@ if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
 
-# 3.12系で最新の安定版Pythonのバージョンを取得
-echo "[INFO] 3.12系の最新の安定版Pythonのバージョンを確認しています..."
-LATEST_PYTHON_VERSION=$(pyenv install --list | grep -E "^\s*3\.12\.[0-9]+$" | sort -V | tail -n 1 | tr -d ' ')
-if [ -z "$LATEST_PYTHON_VERSION" ]; then
-    echo "[ERROR] 3.12系の最新の安定版Pythonのバージョンが取得できませんでした。"
+# .python-versionファイルからPythonのバージョンを読み込む
+PYTHON_VERSION_FILE="$REPO_ROOT/installers/config/python/.python-version"
+if [ ! -f "$PYTHON_VERSION_FILE" ]; then
+    echo "[ERROR] .python-versionファイルが見つかりません: $PYTHON_VERSION_FILE"
     exit 1
 fi
-readonly PYTHON_VERSION="$LATEST_PYTHON_VERSION"
-echo "[INFO] 3.12系の最新の安定版Pythonのバージョンは ${PYTHON_VERSION} です。"
+PYTHON_VERSION="$(tr -d '[:space:]' < "$PYTHON_VERSION_FILE")"
+readonly PYTHON_VERSION
+if [ -z "$PYTHON_VERSION" ]; then
+    echo "[ERROR] .python-versionファイルからバージョンの読み込みに失敗しました。"
+    exit 1
+fi
+echo "[INFO] .python-versionで指定されたPythonのバージョンは ${PYTHON_VERSION} です。"
 
-# Python の最新の安定版がインストールされていなければインストール
+# 指定されたバージョンのPythonがインストールされていなければインストール
 if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
     echo "[INSTALL] Python ${PYTHON_VERSION}"
     if ! pyenv install --skip-existing "${PYTHON_VERSION}"; then
@@ -42,7 +46,7 @@ else
     echo "[INFO] Python ${PYTHON_VERSION} はすでにインストールされています"
 fi
 
-# グローバルバージョンをPython の最新の安定版に設定
+# .python-version で指定されたバージョンを pyenv global に設定
 python_version_changed=false
 if [ "$(pyenv global)" != "${PYTHON_VERSION}" ]; then
     echo "[CONFIG] pyenv global を ${PYTHON_VERSION} に設定します"
@@ -57,7 +61,7 @@ fi
 # pipxのインストール
 if ! command -v pipx &> /dev/null; then
     echo "[INSTALL] pipx"
-    python -m pip install --user pipx
+    "$(pyenv which python)" -m pip install --user pipx
     # ensurepath は次回シェルから有効になるため、当該シェルでも即座に反映
     export PATH="$HOME/.local/bin:$PATH"
     hash -r  # コマンドキャッシュをクリア
@@ -104,6 +108,7 @@ if [ -f "$PIPX_TOOLS_FILE" ]; then
                 echo "[ERROR] $tool_package のインストールに失敗しました" >&2
                 exit 1
             fi
+            changed=true
             echo "IDEMPOTENCY_VIOLATION" >&2
         fi
     done < "$PIPX_TOOLS_FILE"

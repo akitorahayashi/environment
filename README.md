@@ -49,8 +49,8 @@ environment/
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   `make apply-defaults` を実行することで、`macos/config/system-defaults/apply-system-defaults.sh` に基づいてシステム設定が適用されます。
-    -   `make backup-defaults` を実行することで、現在のmacOS設定を `backup-system-defaults.sh` にバックアップできます。
+    -   `make apply-defaults` を実行することで、`macos/config/system-defaults/system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
+    -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `macos/scripts/backup-system-defaults.sh` を呼び出します）。
 
 5.  **Package Installation from Brewfile**
     -   `installers/config/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール

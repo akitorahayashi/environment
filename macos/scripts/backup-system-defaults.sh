@@ -27,12 +27,12 @@ OUTPUT_FILE="$SCRIPT_DIR/../config/system-defaults/system-defaults.sh"
 OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
 mkdir -p "$OUTPUT_DIR"
 
-echo "現在の macOS の設定を取得し、$OUTPUT_FILE を生成します..."
+echo "現在の macOS の system defaults を取得し、$OUTPUT_FILE を生成します..."
 
-# 既存の設定ファイルを削除
+# 既存の system defaults ファイルを削除
 if [ -f "$OUTPUT_FILE" ]; then
     rm "$OUTPUT_FILE"
-    echo "既存の設定ファイルを削除しました: $OUTPUT_FILE"
+    echo "既存の system defaults ファイルを削除しました: $OUTPUT_FILE"
 fi
 
 # 設定スクリプトのヘッダーを作成
@@ -361,4 +361,4 @@ add_setting "スクリーンショット" "$SCREENSHOT_COMMANDS"
 # 実行権限を付与
 chmod +x "$OUTPUT_FILE"
 
-echo "設定スクリプトを生成しました: $OUTPUT_FILE"
+echo "system defaults スクリプトを生成しました: $OUTPUT_FILE"
