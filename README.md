@@ -9,7 +9,7 @@ environment/
 ├── installers/
 │   ├── config/
 │   │   ├── brew/
-│   │   ├── gems/
+│   │   ├── ruby/
 │   │   ├── git/
 │   │   ├── node/
 │   │   ├── python/
