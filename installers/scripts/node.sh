@@ -65,10 +65,11 @@ else
 fi
 
 # デフォルトエイリアスが指定バージョンになっているか確認
+expected_default_target="$(nvm version "$NODE_VERSION")"
 current_default_target="$(nvm alias default 2>/dev/null | awk -F'->' 'NR==1{gsub(/^[ \t]+|[ \t]+$/,"",$2); print $2}' | awk '{print $1}')"
-if [[ "$current_default_target" != "$NODE_VERSION" ]]; then
-    echo "[CONFIGURING] Node.js ${NODE_VERSION} をデフォルトバージョンに設定します"
-    if nvm alias default "$NODE_VERSION"; then
+if [[ "$current_default_target" != "$expected_default_target" ]]; then
+    echo "[CONFIGURING] Node.js ${expected_default_target} をデフォルトバージョンに設定します"
+    if nvm alias default "$expected_default_target"; then
         echo "[SUCCESS] デフォルトバージョンを ${NODE_VERSION} に設定しました"
         node_changed=true
     else
@@ -76,7 +77,7 @@ if [[ "$current_default_target" != "$NODE_VERSION" ]]; then
         exit 1
     fi
 else
-    echo "[CONFIGURED] Node.js ${NODE_VERSION} はすでにデフォルトバージョンです"
+    echo "[CONFIGURED] Node.js ${expected_default_target} はすでにデフォルトバージョンです"
 fi
 
 if [ "$node_changed" = true ]; then
@@ -103,48 +104,49 @@ if [ "$node_changed" = true ]; then
 fi
 
 # グローバルパッケージのインストール
-packages_file="$REPO_ROOT/config/node/global-packages.json"
+packages_file="$REPO_ROOT/installers/config/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
-    echo "[WARN] global-packages.json が見つかりません。グローバルパッケージのインストールをスキップします"
+    echo "[ERROR] global-packages.json が見つかりません: $packages_file"
+    exit 1
+fi
+
+echo "[INFO] グローバルパッケージをチェック中..."
+packages_json=$(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null)
+if [ -z "$packages_json" ]; then
+    echo "[WARN] global-packages.json にパッケージが定義されていません"
 else
-    echo "[INFO] グローバルパッケージをチェック中..."
-    packages_json=$(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null)
-    if [ -z "$packages_json" ]; then
-        echo "[WARN] global-packages.json にパッケージが定義されていません"
-    else
-        packages_changed=false
-        while IFS= read -r entry; do
-            pkg_full="$entry"
-            pkg_name="${entry%@*}"
-            installed_version=$(npm list -g --depth=0 "$pkg_name" | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}' || true)
-            required_version=$(echo "$pkg_full" | awk -F'@' '{print $NF}')
-            if [ "$required_version" == "latest" ]; then
-                if [ -z "$installed_version" ]; then
-                    if npm install -g "$pkg_full"; then
-                        echo "[SUCCESS] $pkg_name のインストールが完了しました"
-                        packages_changed=true
-                    else
-                        echo "[ERROR] $pkg_name のインストールに失敗しました"
-                        exit 1
-                    fi
-                else
-                    echo "[INSTALLED] $pkg_name (latest)"
-                fi
-            elif [ "$installed_version" != "$required_version" ]; then
+    packages_changed=false
+    while IFS= read -r entry; do
+        pkg_full="$entry"
+        pkg_name="${entry%@*}"
+        installed_version=$(npm list -g --depth=0 "$pkg_name" | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}' || true)
+        required_version=$(echo "$pkg_full" | awk -F'@' '{print $NF}')
+        if [ "$required_version" == "latest" ]; then
+            if [ -z "$installed_version" ]; then
                 if npm install -g "$pkg_full"; then
-                    echo "[SUCCESS] $pkg_name の更新が完了しました"
+                    echo "[SUCCESS] $pkg_name のインストールが完了しました"
                     packages_changed=true
                 else
-                    echo "[ERROR] $pkg_name の更新に失敗しました"
+                    echo "[ERROR] $pkg_name のインストールに失敗しました"
                     exit 1
                 fi
             else
-                echo "[INSTALLED] $pkg_name"
+                echo "[INSTALLED] $pkg_name (latest)"
             fi
-        done <<< "$packages_json"
-        if [ "$packages_changed" = true ]; then
-            echo "IDEMPOTENCY_VIOLATION" >&2
+        elif [ "$installed_version" != "$required_version" ]; then
+            if npm install -g "$pkg_full"; then
+                echo "[SUCCESS] $pkg_name の更新が完了しました"
+                packages_changed=true
+            else
+                echo "[ERROR] $pkg_name の更新に失敗しました"
+                exit 1
+            fi
+        else
+            echo "[INSTALLED] $pkg_name"
         fi
+    done <<< "$packages_json"
+    if [ "$packages_changed" = true ]; then
+        echo "IDEMPOTENCY_VIOLATION" >&2
     fi
 fi
 
@@ -186,25 +188,26 @@ else
     echo "[SUCCESS] npm: $(npm --version)"
 fi
 
-packages_file="$REPO_ROOT/config/node/global-packages.json"
+packages_file="$REPO_ROOT/installers/config/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
-    echo "[WARN] global-packages.json が見つかりません"
-else
-    packages_json=$(jq -r '.globalPackages | keys[]' "$packages_file" 2>/dev/null)
-    missing=0
-    if [ -n "$packages_json" ]; then
-        while IFS= read -r package; do
-            if ! npm list -g "$package" &>/dev/null; then
-                echo "[ERROR] グローバルパッケージ $package がインストールされていません"
-                ((missing++))
-            else
-                echo "[SUCCESS] グローバルパッケージ $package がインストールされています"
-            fi
-        done <<< "$packages_json"
-    fi
-    if [ "$missing" -gt 0 ]; then
-        verification_failed=true
-    fi
+    echo "[ERROR] global-packages.json が見つかりません: $packages_file"
+    exit 1
+fi
+
+packages_json=$(jq -r '.globalPackages | keys[]' "$packages_file" 2>/dev/null)
+missing=0
+if [ -n "$packages_json" ]; then
+    while IFS= read -r package; do
+        if ! npm list -g "$package" &>/dev/null; then
+            echo "[ERROR] グローバルパッケージ $package がインストールされていません"
+            ((missing++))
+        else
+            echo "[SUCCESS] グローバルパッケージ $package がインストールされています"
+        fi
+    done <<< "$packages_json"
+fi
+if [ "$missing" -gt 0 ]; then
+    verification_failed=true
 fi
 
 if [ "$verification_failed" = "true" ]; then

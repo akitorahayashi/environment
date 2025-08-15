@@ -12,6 +12,8 @@ changed=false
 if ! command -v rbenv &> /dev/null; then
     brew install rbenv ruby-build
     changed=true
+    eval "$(rbenv init -)"
+    rbenv rehash
 fi
 
 echo "==== Start: Ruby環境のセットアップを開始します..."
@@ -25,7 +27,8 @@ if [ ! -f "$RUBY_VERSION_FILE" ]; then
     echo "[ERROR] .ruby-versionファイルが見つかりません: $RUBY_VERSION_FILE"
     exit 1
 fi
-readonly RUBY_VERSION=$(cat "$RUBY_VERSION_FILE" | tr -d '[:space:]')
+RUBY_VERSION="$(tr -d '[:space:]' < "$RUBY_VERSION_FILE")"
+readonly RUBY_VERSION
 if [ -z "$RUBY_VERSION" ]; then
     echo "[ERROR] .ruby-versionファイルからバージョンの読み込みに失敗しました。"
     exit 1
@@ -35,7 +38,12 @@ echo "[INFO] .ruby-versionで指定されたRubyのバージョンは ${RUBY_VER
 # 指定されたバージョンのRubyがインストールされていなければインストール
 if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
     echo "[INSTALL] Ruby ${RUBY_VERSION}"
-    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl)"
+    # openssl@3 を優先し、なければフォールバック
+    if brew list --versions openssl@3 >/dev/null 2>&1; then
+        export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)"
+    else
+        export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl)"
+    fi
     if ! rbenv install "${RUBY_VERSION}"; then
         echo "[ERROR] Ruby ${RUBY_VERSION} のインストールに失敗しました"
         exit 1
@@ -108,6 +116,8 @@ else
     if brew install ruby-build; then
         echo "[SUCCESS] ruby-buildをインストールしました"
         changed=true
+        eval "$(rbenv init -)"
+        rbenv rehash
     else
         echo "[ERROR] ruby-build のインストールに失敗しました"
         exit 1
@@ -129,11 +139,10 @@ if ! command -v bundle >/dev/null 2>&1; then
 fi
 
 # bundlerのバージョンが指定通りであることを確認
-readonly BUNDLER_VERSION_VERIFY="2.5.22"
 current_version=$(bundle -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[a-zA-Z0-9]+)*' || echo "not-installed")
 
-if [ "$current_version" != "$BUNDLER_VERSION_VERIFY" ]; then
-    echo "[ERROR] bundlerのバージョンが異なります。期待: ${BUNDLER_VERSION_VERIFY}, 現在: ${current_version}"
+if [ "$current_version" != "$BUNDLER_VERSION" ]; then
+    echo "[ERROR] bundlerのバージョンが異なります。期待: ${BUNDLER_VERSION}, 現在: ${current_version}"
     exit 1
 else
     echo "[SUCCESS] bundler: $(bundle -v)"

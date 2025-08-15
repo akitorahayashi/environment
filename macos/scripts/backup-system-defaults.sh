@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ================================================
-# 現在の macOS の設定を取得し、system-defaults.sh を生成
+# 現在の macOS の system defaults を取得し、system-defaults.sh を生成
 # ================================================
 #
 # Usage:
@@ -11,7 +11,7 @@ set -euo pipefail
 # 2. Run the script:
 #    $ ./macos/scripts/backup-system-defaults.sh
 #
-# The script will create/update macos/config/system-defaults/system-defaults.sh with current macOS settings.
+# The script will create/update macos/config/system-defaults/system-defaults.sh with current macOS system defaults.
 #
 # ================================================
 
