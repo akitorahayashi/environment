@@ -64,7 +64,7 @@ if ! rbenv versions --bare | grep -q "^${RUBY_VERSION}$"; then
     else
         export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl)"
     fi
-    if ! rbenv install "${RUBY_VERSION}"; then
+    if ! rbenv install -s "${RUBY_VERSION}"; then
         echo "[ERROR] Ruby ${RUBY_VERSION} のインストールに失敗しました"
         exit 1
     fi
