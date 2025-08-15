@@ -16,7 +16,7 @@ brew "mint"
 
 ## Ruby
 # brew "rbenv" # installed by scripts/ruby.sh
-# brew "ruby-build" # installed by scripts/ruby.sh
+# brew "openssl" # installed by scripts/ruby.sh
 
 ## Python
 # brew "pyenv" # installed by scripts/python.sh
@@ -24,7 +24,6 @@ brew "mint"
 ## Utility
 brew "poppler"
 brew "pandoc"
-# brew "openssl" # ruby-build dependency, installed via scripts/ruby.sh
 brew "ollama"
 # brew "displayplacer" # installed by scripts/macos.sh
 

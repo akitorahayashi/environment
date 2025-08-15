@@ -7,13 +7,33 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
 
 # 依存関係をインストール
-echo "[INFO] 依存関係をチェック・インストールします: rbenv, ruby-build"
+echo "[INFO] 依存関係をチェック・インストールします: openssl, rbenv"
 changed=false
+
+# Rubyのコンパイルエラーを防ぐため、opensslを先にインストール
+if ! brew list openssl >/dev/null 2>&1 && ! brew list openssl@3 >/dev/null 2>&1; then
+    echo "[INSTALL] openssl (for Ruby compilation)"
+    if brew install openssl; then
+        echo "[SUCCESS] openssl をインストールしました"
+        changed=true
+    else
+        echo "[ERROR] openssl のインストールに失敗しました"
+        exit 1
+    fi
+fi
+
+# rbenv をインストール (ruby-build は依存関係として自動でインストールされる)
 if ! command -v rbenv &> /dev/null; then
-    brew install rbenv ruby-build
-    changed=true
-    eval "$(rbenv init -)"
-    rbenv rehash
+    echo "[INSTALL] rbenv"
+    if brew install rbenv; then
+        echo "[SUCCESS] rbenv をインストールしました (ruby-build も自動でインストールされます)"
+        changed=true
+        eval "$(rbenv init -)"
+        rbenv rehash
+    else
+        echo "[ERROR] rbenv のインストールに失敗しました"
+        exit 1
+    fi
 fi
 
 echo "==== Start: Ruby環境のセットアップを開始します..."
@@ -108,21 +128,6 @@ if ! type rbenv | grep -q 'function'; then
 fi
 
 echo "[SUCCESS] rbenv: $(rbenv --version)"
-# ruby-buildの確認
-if rbenv install --version >/dev/null 2>&1 || command -v ruby-build >/dev/null 2>&1 || [ -d "$(rbenv root)/plugins/ruby-build" ]; then
-    echo "[SUCCESS] ruby-buildが使用可能です"
-else
-    echo "[WARN] ruby-buildが見つかりません。インストールを試みます..."
-    if brew install ruby-build; then
-        echo "[SUCCESS] ruby-buildをインストールしました"
-        changed=true
-        eval "$(rbenv init -)"
-        rbenv rehash
-    else
-        echo "[ERROR] ruby-build のインストールに失敗しました"
-        exit 1
-    fi
-fi
 
 # Rubyバージョンチェック
 if [ "$(rbenv version-name)" != "${RUBY_VERSION}" ]; then
