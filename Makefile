@@ -31,7 +31,7 @@ macbook: ## Run all setup scripts including macOS configuration
 	@$(MAKE) flutter
 	@$(MAKE) node
 	@$(MAKE) link-shell
-	@$(MAKE) apply-settings
+	@$(MAKE) apply-defaults
 	@echo "✅ All setup scripts completed successfully."
 
 # Individual setup targets
@@ -81,13 +81,13 @@ link-shell: ## Create symbolic links for shell configuration files
 	@echo "🚀 Creating symbolic links for shell configuration files..."
 	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/link-shell.sh"
 
-.PHONY: apply-settings
-apply-settings: ## Apply macOS system settings
-	@echo "🚀 Applying macOS system settings..."
-	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/apply-settings.sh"
+.PHONY: apply-defaults
+apply-defaults: ## Apply macOS system defaults
+	@echo "🚀 Applying macOS system defaults..."
+	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/apply-system-defaults.sh"
 
-.PHONY: backup-settings
-backup-settings: ## Backup current macOS settings to generate configuration script
+.PHONY: backup-defaults
+backup-defaults: ## Backup current macOS settings
 	@echo "🚀 Backing up current macOS settings..."
-	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/backup_settings.sh"
+	@$(SHELL) -euo pipefail "$(MACOS_SCRIPT_DIR)/backup-system-defaults.sh"
 	@echo "✅ macOS settings backup completed."

@@ -2,16 +2,16 @@
 set -euo pipefail
 
 # ================================================
-# 現在の macOS の設定を取得し、settings.sh を生成
+# 現在の macOS の設定を取得し、system-defaults.sh を生成
 # ================================================
 #
 # Usage:
 # 1. Grant execution permission:
-#    $ chmod +x config/macos/backup_settings.sh
+#    $ chmod +x macos/scripts/backup-system-defaults.sh
 # 2. Run the script:
-#    $ ./config/macos/backup_settings.sh
+#    $ ./macos/scripts/backup-system-defaults.sh
 #
-# The script will create/update config/macos/settings.sh with current macOS settings.
+# The script will create/update macos/config/system-defaults/system-defaults.sh with current macOS settings.
 #
 # ================================================
 
@@ -22,7 +22,7 @@ set -euo pipefail
 # 現在のスクリプトディレクトリを取得
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-OUTPUT_FILE="$SCRIPT_DIR/../config/settings/macos-settings.sh"
+OUTPUT_FILE="$SCRIPT_DIR/../config/system-defaults/system-defaults.sh"
 
 OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
 mkdir -p "$OUTPUT_DIR"

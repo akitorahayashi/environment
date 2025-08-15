@@ -5,16 +5,16 @@ set -euo pipefail
 # macOS システム設定を適用
 # ================================================
 #
-# このスクリプトは、生成された設定ファイル `macos-settings.sh` を
+# このスクリプトは、生成された設定ファイル `system-defaults.sh` を
 # 実行して、macOS のシステム設定を適用します。
 #
 # ================================================
 
 # スクリプトのベースディレクトリを決定
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SETTINGS_FILE="${BASE_DIR}/macos/config/system-defaults/macos-settings.sh"
+SETTINGS_FILE="${BASE_DIR}/macos/config/system-defaults/system-defaults.sh"
 
-echo "🚀 Applying macOS system settings..."
+echo "🚀 Applying macOS system defaults..."
 
 # 依存関係の確認とインストール: displayplacer
 echo "[INFO] Checking and installing dependencies: displayplacer"
@@ -34,7 +34,7 @@ fi
 # 設定ファイルの存在確認と実行
 if [[ ! -f "${SETTINGS_FILE}" ]]; then
     echo "[WARN] Settings file not found: ${SETTINGS_FILE}"
-    echo "[INFO] You can generate it by running 'make backup-settings'."
+    echo "[INFO] You can generate it by running 'make backup-defaults'."
 else
     echo "[INFO] Sourcing settings file: ${SETTINGS_FILE}"
     # `source` を使用して設定を適用するが、エラーが発生しても続行
