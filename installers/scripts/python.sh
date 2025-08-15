@@ -21,7 +21,7 @@ if command -v pyenv 1>/dev/null 2>&1; then
 fi
 
 # .python-versionファイルからPythonのバージョンを読み込む
-PYTHON_VERSION_FILE="$REPO_ROOT/installers/config/python/.python-version"
+PYTHON_VERSION_FILE="$REPO_ROOT/installers/config/common/python/.python-version"
 if [ ! -f "$PYTHON_VERSION_FILE" ]; then
     echo "[ERROR] .python-versionファイルが見つかりません: $PYTHON_VERSION_FILE"
     exit 1
@@ -85,7 +85,7 @@ if [ "$python_version_changed" = true ] && command -v pipx &> /dev/null; then
 fi
 
 # pipxで管理するツールをインストール
-PIPX_TOOLS_FILE="$REPO_ROOT/installers/config/python/pipx-tools.txt"
+PIPX_TOOLS_FILE="$REPO_ROOT/installers/config/common/python/pipx-tools.txt"
 if [ ! -f "$PIPX_TOOLS_FILE" ]; then
     echo "[ERROR] pipx-tools.txt が見つかりません: $PIPX_TOOLS_FILE"
     exit 1

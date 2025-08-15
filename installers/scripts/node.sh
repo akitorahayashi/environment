@@ -34,7 +34,7 @@ fi
 echo "[Start] Node.js のセットアップを開始します..."
 
 # .nvmrcファイルからNode.jsのバージョンを読み込む
-NODE_VERSION_FILE="$REPO_ROOT/installers/config/node/.nvmrc"
+NODE_VERSION_FILE="$REPO_ROOT/installers/config/common/node/.nvmrc"
 if [ ! -f "$NODE_VERSION_FILE" ]; then
     echo "[ERROR] .nvmrcファイルが見つかりません: $NODE_VERSION_FILE"
     exit 1
@@ -104,7 +104,7 @@ if [ "$node_changed" = true ]; then
 fi
 
 # グローバルパッケージのインストール
-packages_file="$REPO_ROOT/installers/config/node/global-packages.json"
+packages_file="$REPO_ROOT/installers/config/common/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
     echo "[ERROR] global-packages.json が見つかりません: $packages_file"
     exit 1
@@ -158,7 +158,7 @@ echo "==== Start: Node.js 環境を検証中... ===="
 verification_failed=false
 
 # .nvmrcから期待されるバージョンを再度読み込む
-NODE_VERSION_FILE_VERIFY="$REPO_ROOT/installers/config/node/.nvmrc"
+NODE_VERSION_FILE_VERIFY="$REPO_ROOT/installers/config/common/node/.nvmrc"
 if [ ! -f "$NODE_VERSION_FILE_VERIFY" ]; then
     echo "[ERROR] .nvmrcファイルが見つかりません: $NODE_VERSION_FILE_VERIFY"
     exit 1
@@ -188,7 +188,7 @@ else
     echo "[SUCCESS] npm: $(npm --version)"
 fi
 
-packages_file="$REPO_ROOT/installers/config/node/global-packages.json"
+packages_file="$REPO_ROOT/installers/config/common/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
     echo "[ERROR] global-packages.json が見つかりません: $packages_file"
     exit 1

@@ -19,61 +19,29 @@ help: ## Show this help message
 	@echo "Available targets:"
 	@awk 'BEGIN {FS=":.*## "; OFS=" "} /^[A-Za-z0-9_-]+:.*## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-# Main setup target
+# Main setup targets
+# The details of tool installation are delegated to the Makefile in the 'installers' directory.
+
+.PHONY: sync-common
+sync-common: ## Synchronize all common tools and configurations
+	@echo "🚀 Synchronizing common tools..."
+	@$(MAKE) -C installers all
+
 .PHONY: macbook
-macbook: ## Run all setup scripts including macOS configuration
-	@$(MAKE) brew
-	@$(MAKE) git
-	@$(MAKE) vscode
-	@$(MAKE) ruby
-	@$(MAKE) python
-	@$(MAKE) java
-	@$(MAKE) flutter
-	@$(MAKE) node
+macbook: ## Setup for MacBook
+	@echo "🚀 Setting up for MacBook..."
+	@$(MAKE) -C installers all
 	@$(MAKE) link-shell
 	@$(MAKE) apply-defaults
-	@echo "✅ All setup scripts completed successfully."
+	@echo "✅ MacBook setup completed successfully."
 
-# Individual setup targets
-.PHONY: brew
-brew: ## Setup Homebrew and install packages from Brewfile
-	@echo "🚀 Running Homebrew setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/homebrew.sh"
-
-.PHONY: git
-git: ## Configure Git settings
-	@echo "🚀 Running Git setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/git.sh"
-
-.PHONY: vscode
-vscode: ## Setup VS Code settings and extensions
-	@echo "🚀 Running VS Code setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/vscode.sh"
-
-.PHONY: ruby
-ruby: ## Setup Ruby environment with rbenv
-	@echo "🚀 Running Ruby setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/ruby.sh"
-
-.PHONY: python
-python: ## Setup Python environment with pyenv
-	@echo "🚀 Running Python setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python.sh"
-
-.PHONY: java
-java: ## Setup Java environment
-	@echo "🚀 Running Java setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/java.sh"
-
-.PHONY: flutter
-flutter: ## Setup Flutter environment
-	@echo "🚀 Running Flutter setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/flutter.sh"
-
-.PHONY: node
-node: ## Setup Node.js environment with nvm
-	@echo "🚀 Running Node.js setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node.sh"
+.PHONY: mac-mini
+mac-mini: ## Setup for Mac mini
+	@echo "🚀 Setting up for Mac mini..."
+	@$(MAKE) -C installers all
+	@$(MAKE) link-shell
+	@$(MAKE) apply-defaults
+	@echo "✅ Mac mini setup completed successfully."
 
 # macOS-specific targets
 .PHONY: link-shell

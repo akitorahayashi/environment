@@ -24,7 +24,7 @@ fi
 echo "[Start] Gitの設定ファイルのセットアップを開始します..."
 
 mkdir -p "$HOME/.config/git"
-src="$REPO_ROOT/installers/config/git/.gitconfig"
+src="$REPO_ROOT/installers/config/common/git/.gitconfig"
 dest="$HOME/.config/git/config"
 
 # Only apply if missing or different
@@ -74,7 +74,7 @@ ignore_file="$HOME/.gitignore_global"
 
 # シンボリックリンクの作成
 echo "[INFO] gitignore_global のシンボリックリンクを作成します..."
-if ln -sf "$REPO_ROOT/installers/config/git/.gitignore_global" "$ignore_file"; then
+if ln -sf "$REPO_ROOT/installers/config/common/git/.gitignore_global" "$ignore_file"; then
     echo "[SUCCESS] gitignore_global のシンボリックリンクを作成しました。"
 else
     echo "[ERROR] gitignore_global のシンボリックリンク作成に失敗しました。"
@@ -149,7 +149,7 @@ if [ ! -L "$ignore_file" ]; then
 fi
 
 link_target=$(readlink "$ignore_file")
-expected_target="$REPO_ROOT/installers/config/git/.gitignore_global"
+expected_target="$REPO_ROOT/installers/config/common/git/.gitignore_global"
 
 if [ "$link_target" = "$expected_target" ]; then
     echo "[SUCCESS] $ignore_file が期待される場所を指しています"

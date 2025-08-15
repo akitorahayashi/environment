@@ -42,7 +42,7 @@ echo "==== Start: Ruby環境のセットアップを開始します..."
 eval "$(rbenv init -)"
 
 # .ruby-versionファイルからRubyのバージョンを読み込む
-RUBY_VERSION_FILE="$REPO_ROOT/installers/config/ruby/.ruby-version"
+RUBY_VERSION_FILE="$REPO_ROOT/installers/config/common/ruby/.ruby-version"
 if [ ! -f "$RUBY_VERSION_FILE" ]; then
     echo "[ERROR] .ruby-versionファイルが見つかりません: $RUBY_VERSION_FILE"
     exit 1
@@ -85,7 +85,7 @@ else
 fi
 
 # gemのインストール処理
-gem_file="${REPO_ROOT:-.}/installers/config/ruby/global-gems.rb"
+gem_file="${REPO_ROOT:-.}/installers/config/common/ruby/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
