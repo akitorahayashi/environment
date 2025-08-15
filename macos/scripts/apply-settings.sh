@@ -12,7 +12,7 @@ set -euo pipefail
 
 # スクリプトのベースディレクトリを決定
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SETTINGS_FILE="${BASE_DIR}/macos/config/settings/macos-settings.sh"
+SETTINGS_FILE="${BASE_DIR}/macos/config/system-defaults/macos-settings.sh"
 
 echo "🚀 Applying macOS system settings..."
 

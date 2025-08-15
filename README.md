@@ -25,7 +25,7 @@ environment/
 │       └── vscode.sh
 ├── macos/
 │   ├── config/
-│   │   ├── settings/
+│   │   ├── system-defaults/
 │   │   └── shell/
 │   └── scripts/
 │       ├── backup_settings.sh
@@ -49,7 +49,7 @@ environment/
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   `make apply-settings` を実行することで、`macos/config/settings/macos-settings.sh` に基づいてシステム設定が適用されます。
+    -   `make apply-settings` を実行することで、`macos/config/system-defaults/macos-settings.sh` に基づいてシステム設定が適用されます。
     -   `make backup-settings` を実行することで、現在のmacOS設定を `macos-settings.sh` にバックアップできます。
 
 5.  **Package Installation from Brewfile**

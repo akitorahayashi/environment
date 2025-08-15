@@ -21,4 +21,4 @@ jobs:
 
       - name: Verify that settings file is unchanged
         run: |
-          git diff --exit-code -- macos/config/settings/macos-settings.sh
+          git diff --exit-code -- macos/config/system-defaults/macos-settings.sh
