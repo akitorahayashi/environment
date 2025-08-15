@@ -2,16 +2,16 @@
 set -euo pipefail
 
 # ================================================
-# 現在の macOS の設定を取得し、settings.sh を生成
+# 現在の macOS の設定を取得し、system-defaults.sh を生成
 # ================================================
 #
 # Usage:
 # 1. Grant execution permission:
-#    $ chmod +x config/macos/backup_settings.sh
+#    $ chmod +x macos/scripts/backup-system-defaults.sh
 # 2. Run the script:
-#    $ ./config/macos/backup_settings.sh
+#    $ ./macos/scripts/backup-system-defaults.sh
 #
-# The script will create/update config/macos/settings.sh with current macOS settings.
+# The script will create/update macos/config/system-defaults/system-defaults.sh with current macOS settings.
 #
 # ================================================
 
@@ -177,6 +177,7 @@ TRACKPAD_RIGHT_CLICK=$(get_default_value "com.apple.AppleMultitouchTrackpad" "Tr
 # --- サウンド ---
 UI_SOUND=$(get_default_value "com.apple.systemsound" "com.apple.sound.uiaudio.enabled" "1")
 VOLUME_FEEDBACK=$(get_default_value -g "com.apple.sound.beep.feedback" "1")
+STARTUP_SOUND=$(nvram SystemAudioVolume 2>/dev/null | awk '{print $NF}' || echo " ")
 ALERT_SOUND_PATH=$(get_default_value -g "com.apple.sound.beep.sound" "")
 BLUETOOTH_AUDIO_BITPOOL=$(get_default_value "com.apple.BluetoothAudioAgent" "Apple Bitpool Min (editable)" "40")
 
