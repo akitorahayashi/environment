@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# 現在のスクリプトディレクトリを取得
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+# Load utils
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
+# スクリプトの引数から設定ディレクトリのパスを取得
+# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
+CONFIG_DIR_PROPS="$1"
+if [ -z "$CONFIG_DIR_PROPS" ]; then
+    CONFIG_DIR_PROPS="config/common"
+fi
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: visual-studio-code"
@@ -12,7 +18,7 @@ if ! brew list --cask visual-studio-code &> /dev/null; then
 fi
 
 echo "[Start] VS Code のセットアップを開始します..."
-config_dir="$REPO_ROOT/config/common/vscode"
+config_dir="$REPO_ROOT/$CONFIG_DIR_PROPS/vscode"
 vscode_target_dir="$HOME/Library/Application Support/Code/User"
 
 # リポジトリに設定ファイルがあるか確認
@@ -55,7 +61,7 @@ echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 echo ""
 echo "==== Start: VS Code環境を検証中... ===="
 verification_failed=false
-config_dir="$REPO_ROOT/config/common/vscode"
+config_dir="$REPO_ROOT/$CONFIG_DIR_PROPS/vscode"
 vscode_target_dir="$HOME/Library/Application Support/Code/User"
 
 # リポジトリに設定ファイルがない場合はスキップ

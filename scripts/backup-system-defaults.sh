@@ -1,17 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
+# Load utils
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
+# スクリプトの引数から設定ディレクトリのパスを取得
+# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
+CONFIG_DIR_PROPS="$1"
+if [ -z "$CONFIG_DIR_PROPS" ]; then
+    CONFIG_DIR_PROPS="config/common"
+fi
+
 # ================================================
 # 現在の macOS の system defaults を取得し、system-defaults.sh を生成
 # ================================================
 #
 # Usage:
 # 1. Grant execution permission:
-#    $ chmod +x macos/scripts/backup-system-defaults.sh
+#    $ chmod +x scripts/backup-system-defaults.sh
 # 2. Run the script:
-#    $ ./macos/scripts/backup-system-defaults.sh
+#    $ ./scripts/backup-system-defaults.sh
 #
-# The script will create/update macos/config/system-defaults/system-defaults.sh with current macOS system defaults.
+# The script will create/update config/common/system-defaults/system-defaults.sh with current macOS system defaults.
 #
 # ================================================
 
@@ -19,10 +29,7 @@ set -euo pipefail
 # 初期設定・ファイルパスの設定
 # ================================================
 
-# 現在のスクリプトディレクトリを取得
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-OUTPUT_FILE="$SCRIPT_DIR/../config/system-defaults/system-defaults.sh"
+OUTPUT_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/system-defaults/system-defaults.sh"
 
 OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
 mkdir -p "$OUTPUT_DIR"

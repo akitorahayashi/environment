@@ -1,6 +1,16 @@
 #!/bin/bash
 set -euo pipefail
 
+# Load utils
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
+# スクリプトの引数から設定ディレクトリのパスを取得
+# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
+CONFIG_DIR_PROPS="$1"
+if [ -z "$CONFIG_DIR_PROPS" ]; then
+    CONFIG_DIR_PROPS="config/common"
+fi
+
 # ================================================
 # macOS システム設定を適用
 # ================================================
@@ -10,9 +20,7 @@ set -euo pipefail
 #
 # ================================================
 
-# スクリプトのベースディレクトリを決定
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SETTINGS_FILE="${BASE_DIR}/macos/config/system-defaults/system-defaults.sh"
+SETTINGS_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/system-defaults/system-defaults.sh"
 
 echo "🚀 Applying macOS system defaults..."
 

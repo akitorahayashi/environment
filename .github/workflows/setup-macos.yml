@@ -21,4 +21,4 @@ jobs:
 
       - name: Verify that system defaults file is unchanged
         run: |
-          git diff --exit-code -- macos/config/system-defaults/system-defaults.sh
+          git diff --exit-code -- config/common/system-defaults/system-defaults.sh

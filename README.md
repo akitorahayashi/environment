@@ -6,31 +6,30 @@
 environment/
 ├── .github/
 │   └── workflows/
-├── installers/
-│   ├── config/
+├── config/
+│   ├── common/
 │   │   ├── brew/
-│   │   ├── ruby/
 │   │   ├── git/
 │   │   ├── node/
 │   │   ├── python/
-│   │   └── vscode/
-│   └── scripts/
-│       ├── flutter.sh
-│       ├── git.sh
-│       ├── homebrew.sh
-│       ├── java.sh
-│       ├── node.sh
-│       ├── python.sh
-│       ├── ruby.sh
-│       └── vscode.sh
-├── macos/
-│   ├── config/
+│   │   ├── ruby/
+│   │   ├── shell/
 │   │   ├── system-defaults/
-│   │   └── shell/
-│   └── scripts/
-│       ├── backup-system-defaults.sh
-│       ├── apply-system-defaults.sh
-│       └── link-shell.sh
+│   │   └── vscode/
+│   ├── mac-mini-only/
+│   └── macbook-only/
+├── scripts/
+│   ├── apply-system-defaults.sh
+│   ├── backup-system-defaults.sh
+│   ├── flutter.sh
+│   ├── git.sh
+│   ├── homebrew.sh
+│   ├── java.sh
+│   ├── link-shell.sh
+│   ├── node.sh
+│   ├── python.sh
+│   ├── ruby.sh
+│   └── vscode.sh
 ├── .gitignore
 ├── Makefile
 └── README.md
@@ -42,26 +41,26 @@ environment/
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
-    -   `make link-shell` を実行することで、`macos/config/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
+    -   `make link-shell` を実行することで、`config/common/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
 
 3.  **Git Configuration**
-    -   `installers/config/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
+    -   `config/common/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   `make apply-defaults` を実行することで、`macos/config/system-defaults/system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
-    -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `macos/scripts/backup-system-defaults.sh` を呼び出します）。
+    -   `make apply-defaults` を実行することで、`config/common/system-defaults/system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
+    -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `scripts/backup-system-defaults.sh` を呼び出します）。
 
 5.  **Package Installation from Brewfile**
-    -   `installers/config/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
+    -   `config/common/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
 
 6.  **Ruby Environment Setup**
     -   `rbenv`と`ruby-build`をインストール
     -   特定のバージョンのRubyをインストールし、グローバルに設定
-    -   `installers/config/gems/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
+    -   `config/common/ruby/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
 
 7.  **VS Code Configuration**
-    -   `installers/config/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
+    -   `config/common/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
 8.  **Python Environment Setup**
     -   `pyenv`をインストール
@@ -73,7 +72,7 @@ environment/
 10. **Node.js Environment Setup**
     -   `nvm`と`jq`をHomebrewでインストール
     -   特定のバージョンのNode.jsをインストールし、デフォルトとして設定
-    -   `installers/config/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
+    -   `config/common/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
 
 11. **Flutter Setup**
 
@@ -88,8 +87,10 @@ environment/
 `make` コマンドを使用して、セットアップを実行します。
 
 - **`make` or `make help`**: 利用可能なすべてのコマンドとその説明を表示します。
-- **`make macbook`**: すべてのセットアップスクリプトを順番に実行します。
-- **`make <command>`**: 個別のセットアップスクリプト（例: `make homebrew`, `make git`）を実行します。
+- **`make macbook`**: MacBook用のすべてのセットアップスクリプトを順番に実行します。
+- **`make mac-mini`**: Mac mini用のすべてのセットアップスクリプトを順番に実行します。
+- **`make sync-common`**: 共通設定ですべてのセットアップスクリプトを順番に実行します。
+- **`make <command>`**: 個別のセットアップスクリプト（例: `make brew`, `make git`）を実行します。
 
 ## Setup Instructions
 
@@ -147,14 +148,22 @@ environment/
 
 4.  **各種ツールとパッケージのインストール**
 
+    お使いのMacに合わせて、以下のいずれかのコマンドを実行してください。
+
+    **MacBookの場合:**
     ```sh
     make macbook
+    ```
+
+    **Mac miniの場合:**
+    ```sh
+    make mac-mini
     ```
     このコマンドは、Homebrew、Git、Ruby、Python、Node.jsなど、開発に必要なツールを一括でインストールし、macOSとシェルの設定も適用します。
 
 5.  **GitHub CLIの認証**
 
-    `make macbook`でGitHub CLI (`gh`) がインストールされた後、以下のコマンドで認証を行ってください。
+    `make macbook` または `make mac-mini` でGitHub CLI (`gh`) がインストールされた後、以下のコマンドで認証を行ってください。
 
     ```sh
     # GitHub.comの認証を追加

@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# 現在のスクリプトディレクトリを取得
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+# Load utils
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
+# スクリプトの引数から設定ディレクトリのパスを取得
+# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
+CONFIG_DIR_PROPS="$1"
+if [ -z "$CONFIG_DIR_PROPS" ]; then
+    CONFIG_DIR_PROPS="config/common"
+fi
 
 # Function to verify brew/cask items
 verify_items() {
@@ -47,7 +53,7 @@ fi
 # Brewfileのインストール
 echo ""
 echo "[Start] Homebrew パッケージのインストールを開始します..."
-brewfile_path="$REPO_ROOT/config/common/brew/Brewfile"
+brewfile_path="$REPO_ROOT/$CONFIG_DIR_PROPS/brew/Brewfile"
 
 if [ -f "$brewfile_path" ]; then
     if [ "${CI:-false}" = "true" ]; then

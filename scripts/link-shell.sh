@@ -1,6 +1,16 @@
 #!/bin/bash
 set -euo pipefail
 
+# Load utils
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
+# スクリプトの引数から設定ディレクトリのパスを取得
+# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
+CONFIG_DIR_PROPS="$1"
+if [ -z "$CONFIG_DIR_PROPS" ]; then
+    CONFIG_DIR_PROPS="config/common"
+fi
+
 # ================================================
 # シェル設定ファイルのシンボリックリンクを作成
 # ================================================
@@ -10,14 +20,11 @@ set -euo pipefail
 #
 # ================================================
 
-# スクリプトのベースディレクトリを決定
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-
 # ターゲットファイルとリンク先
-ZPROFILE_SOURCE="${BASE_DIR}/macos/config/shell/.zprofile"
+ZPROFILE_SOURCE="$REPO_ROOT/$CONFIG_DIR_PROPS/shell/.zprofile"
 ZPROFILE_DEST="${HOME}/.zprofile"
 
-ZSHRC_SOURCE="${BASE_DIR}/macos/config/shell/.zshrc"
+ZSHRC_SOURCE="$REPO_ROOT/$CONFIG_DIR_PROPS/shell/.zshrc"
 ZSHRC_DEST="${HOME}/.zshrc"
 
 # .zprofile のシンボリックリンクを作成

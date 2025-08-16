@@ -22,13 +22,13 @@ jobs:
 
       - name: Run Homebrew setup
         id: setup
-        run: make -C installers brew
+        run: make brew
 
       - name: Run Homebrew setup for idempotency check
         id: idempotency
         run: |
           set -o pipefail
-          stderr_output=$( (make -C installers brew >/dev/null) 2>&1 || true )
+          stderr_output=$( (make brew >/dev/null) 2>&1 || true )
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"
