@@ -2,9 +2,15 @@
 
 unset PYENV_VERSION
 
-# 現在のスクリプトディレクトリを取得
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+# Load utils
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
+# スクリプトの引数から設定ディレクトリのパスを取得
+# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
+CONFIG_DIR_PROPS="$1"
+if [ -z "$CONFIG_DIR_PROPS" ]; then
+    CONFIG_DIR_PROPS="config/common"
+fi
 
 changed=false
  # 依存関係をインストール
@@ -21,7 +27,7 @@ if command -v pyenv 1>/dev/null 2>&1; then
 fi
 
 # .python-versionファイルからPythonのバージョンを読み込む
-PYTHON_VERSION_FILE="$REPO_ROOT/installers/config/common/python/.python-version"
+PYTHON_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/python/.python-version"
 if [ ! -f "$PYTHON_VERSION_FILE" ]; then
     echo "[ERROR] .python-versionファイルが見つかりません: $PYTHON_VERSION_FILE"
     exit 1
@@ -85,7 +91,7 @@ if [ "$python_version_changed" = true ] && command -v pipx &> /dev/null; then
 fi
 
 # pipxで管理するツールをインストール
-PIPX_TOOLS_FILE="$REPO_ROOT/installers/config/common/python/pipx-tools.txt"
+PIPX_TOOLS_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/python/pipx-tools.txt"
 if [ ! -f "$PIPX_TOOLS_FILE" ]; then
     echo "[ERROR] pipx-tools.txt が見つかりません: $PIPX_TOOLS_FILE"
     exit 1

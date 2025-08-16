@@ -2,9 +2,15 @@
 
 unset RBENV_VERSION
 
-# 現在のスクリプトディレクトリを取得
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+# Load utils
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
+# スクリプトの引数から設定ディレクトリのパスを取得
+# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
+CONFIG_DIR_PROPS="$1"
+if [ -z "$CONFIG_DIR_PROPS" ]; then
+    CONFIG_DIR_PROPS="config/common"
+fi
 
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: openssl, rbenv"
@@ -42,7 +48,7 @@ echo "==== Start: Ruby環境のセットアップを開始します..."
 eval "$(rbenv init -)"
 
 # .ruby-versionファイルからRubyのバージョンを読み込む
-RUBY_VERSION_FILE="$REPO_ROOT/installers/config/common/ruby/.ruby-version"
+RUBY_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/ruby/.ruby-version"
 if [ ! -f "$RUBY_VERSION_FILE" ]; then
     echo "[ERROR] .ruby-versionファイルが見つかりません: $RUBY_VERSION_FILE"
     exit 1
@@ -85,7 +91,7 @@ else
 fi
 
 # gemのインストール処理
-gem_file="${REPO_ROOT:-.}/installers/config/common/ruby/global-gems.rb"
+gem_file="$REPO_ROOT/$CONFIG_DIR_PROPS/ruby/global-gems.rb"
 if [ ! -f "$gem_file" ]; then
     echo "[INFO] global-gems.rbが見つかりません。gemのインストールをスキップします"
 else
