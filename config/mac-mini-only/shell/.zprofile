@@ -4,11 +4,6 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # poppler のパス
 export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
 
-# ユーザーローカルの bin ディレクトリ
-if [ -d "$HOME/bin" ] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
-    export PATH="$HOME/bin:$PATH"
-fi
-
 # pipx/poetry 用のパス
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -56,10 +51,15 @@ else
   echo "Warning: /usr/libexec/java_home not available. Skipping JAVA_HOME setup." >&2
 fi
 
-# Android SDK
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/platform-tools
+# Android SDK (追加PATHのみ)
+if [ -n "$ANDROID_HOME" ]; then
+  if [ -d "$ANDROID_HOME/emulator" ] && [[ ":$PATH:" != *":$ANDROID_HOME/emulator:"* ]]; then
+    export PATH="$PATH:$ANDROID_HOME/emulator"
+  fi
+  if [ -d "$ANDROID_HOME/platform-tools" ] && [[ ":$PATH:" != *":$ANDROID_HOME/platform-tools:"* ]]; then
+    export PATH="$PATH:$ANDROID_HOME/platform-tools"
+  fi
+fi
 
 # FVM 用 PATH 設定
 if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"* ]]; then

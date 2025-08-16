@@ -11,7 +11,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create symbolic links for MacBook shell configuration
-        run: make link-shell CONFIG_DIR=config/macbook-only
+        env:
+          HOME: ${{ runner.temp }}/home-macbook
+        run: |
+          mkdir -p "$HOME"
+          make link-shell CONFIG_DIR=config/macbook-only
 
       - name: Create symbolic links for Mac mini shell configuration
-        run: make link-shell CONFIG_DIR=config/mac-mini-only
+        env:
+          HOME: ${{ runner.temp }}/home-mac-mini
+        run: |
+          mkdir -p "$HOME"
+          make link-shell CONFIG_DIR=config/mac-mini-only

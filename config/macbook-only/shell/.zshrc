@@ -76,7 +76,7 @@ alias as="osascript"
 alias rel="source ~/.zshrc"
 alias op="open"
 alias op-f="open ."
-alias op-s="open -a 'System Preferences'"
+alias op-s="open -b com.apple.systempreferences"
 alias op-st="open -a 'Stickies'"
 alias op-o="open -a 'Obsidian'"
 alias op-as="open -a 'Android Studio'"
@@ -88,6 +88,14 @@ alias op-cg="open -a 'Google Chrome' 'https://github.com/akitorahayashi'"
 alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
 
 md2pdf() {
+  if ! command -v pandoc >/dev/null 2>&1; then
+    echo "Error: pandoc is not installed." >&2
+    return 1
+  fi
+  if ! command -v lualatex >/dev/null 2>&1; then
+    echo "Error: lualatex (TeX Live) is not installed." >&2
+    return 1
+  fi
   pandoc "$1" -o "$2" --pdf-engine=lualatex \
     -V documentclass=ltjarticle \
     -V mainfont="Hiragino Mincho ProN" \
