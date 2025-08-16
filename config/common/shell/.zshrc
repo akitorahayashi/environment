@@ -1,3 +1,7 @@
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+
 # Python
 alias poet-n="poetry new"
 alias poet-ini="poetry init"
@@ -42,7 +46,9 @@ aid-set() {
   export OLLAMA_API_BASE="$1"
 }
 aid-lch() {
-  aider --model "ollama/$1" --no-auto-commit --no-gitignore
+  local model="${1:?usage: aid-lch <model> [aider-args...]}"
+  shift
+  aider --model "ollama/$model" --no-auto-commit --no-gitignore "$@"
 }
 
 # Ruby
@@ -97,6 +103,15 @@ md2pdf() {
   if ! command -v lualatex >/dev/null 2>&1; then
     echo "Error: lualatex (TeX Live) is not installed." >&2
     return 1
+  fi
+  # 引数チェック
+  if [ $# -ne 2 ]; then
+    echo "Usage: md2pdf <input.md> <output.pdf>" >&2
+    return 2
+  fi
+  if [ ! -f "$1" ]; then
+    echo "Error: input file not found: $1" >&2
+    return 2
   fi
   pandoc "$1" -o "$2" --pdf-engine=lualatex \
     -V documentclass=ltjarticle \

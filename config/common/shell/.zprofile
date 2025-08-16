@@ -27,7 +27,6 @@ if command -v pyenv 1>/dev/null 2>&1; then
   export PYENV_ROOT="$HOME/.pyenv"
   export PATH="$PYENV_ROOT/bin:$PATH"
   eval "$(pyenv init --path)"
-  eval "$(pyenv init -)"
 fi
 
 # ollama models のパス設定
@@ -40,8 +39,8 @@ if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
 fi
 
 # JAVA_HOME の設定
-if command -v /usr/libexec/java_home >/dev/null 2>&1; then
-  JAVA_21="$(/usr/libexec/java_home -v "21" 2>/dev/null || true)"
+if [ -x /usr/libexec/java_home ]; then
+  JAVA_21=$(/usr/libexec/java_home -v 21 2>/dev/null)
   if [ -n "$JAVA_21" ]; then
     export JAVA_HOME="$JAVA_21"
   else

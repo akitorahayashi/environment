@@ -21,10 +21,14 @@ REPO_ROOT=$(cd "$SOURCE_DIR/../../.."; pwd)
 
 # Source the common .zshrc from the repository.
 COMMON_ZSHRC="$REPO_ROOT/config/common/shell/.zshrc"
-if [ -f "$COMMON_ZSHRC" ]; then
-  source "$COMMON_ZSHRC"
+if [[ -f "$COMMON_ZSHRC" ]]; then
+  # Avoid double-loading when re-sourcing .zshrc.
+  if [[ -z "${__ENV_COMMON_ZSHRC_SOURCED-}" ]]; then
+    typeset -g __ENV_COMMON_ZSHRC_SOURCED=1
+    source "$COMMON_ZSHRC"
+  fi
 else
-  echo "Error: Common .zshrc not found at $COMMON_ZSHRC" >&2
+  print -ru2 -- "Error: Common .zshrc not found at $COMMON_ZSHRC"
 fi
 
 # Add any machine-specific zshrc settings below this line.
