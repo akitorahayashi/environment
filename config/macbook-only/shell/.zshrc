@@ -74,6 +74,8 @@ alias as="osascript"
 
 # Utility
 alias rel="source ~/.zshrc"
+alias gi="git"
+alias cl="clear"
 alias op="open"
 alias op-f="open ."
 alias op-s="open -b com.apple.systempreferences"

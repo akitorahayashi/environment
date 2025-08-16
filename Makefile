@@ -21,7 +21,7 @@ help: ## Show this help message
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Available targets:"
-	@awk 'BEGIN {FS=":.*## "; OFS=" "} /^[A-Za-z0-9_-]+:.*## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS=":.*## "; OFS=" "} /^[A-Za-z0-9_-]+:.*## / {printf "\033[36m%-30s\033[0m %s\n", $1, $2}' $(MAKEFILE_LIST)
 
 # Main setup targets
 .PHONY: all
@@ -131,13 +131,14 @@ link-shell: ## Create symbolic links for shell configuration files
 	@echo "🚀 Creating symbolic links for shell configuration files with config: $(CONFIG_DIR)"
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/link-shell.sh" "$(CONFIG_DIR)"
 
+
 .PHONY: apply-defaults
 apply-defaults: ## Apply macOS system defaults
 	@echo "🚀 Applying macOS system defaults with config: $(CONFIG_DIR)"
-	@$(SHELL) -euo pipefail "$(REPO_ROOT)/system-defaults/apply-system-defaults.sh" "$(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/system-defaults/apply-system-defaults.sh" "$(CONFIG_DIR)"
 
 .PHONY: backup-defaults
 backup-defaults: ## Backup current macOS system defaults
 	@echo "🚀 Backing up current macOS system defaults with config: $(CONFIG_DIR)"
-	@$(SHELL) -euo pipefail "$(REPO_ROOT)/system-defaults/backup-system-defaults.sh" "$(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/system-defaults/backup-system-defaults.sh" "$(CONFIG_DIR)"
 	@echo "✅ macOS system defaults backup completed."
