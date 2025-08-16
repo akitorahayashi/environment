@@ -2,8 +2,6 @@
 
 unset PYENV_VERSION
 
-# Load utils
-source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
 
 # スクリプトの引数から設定ディレクトリのパスを取得
 # 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
