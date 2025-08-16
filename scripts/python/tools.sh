@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# REPO_ROOT is injected by the Makefile.
-
 # This script is meant to be called from the Makefile, which passes the config dir.
 CONFIG_DIR_PROPS="$1"
 if [ -z "$CONFIG_DIR_PROPS" ]; then
-    echo "[ERROR] This script requires a configuration directory path as an argument."
+    echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
     exit 1
 fi
 

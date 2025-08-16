@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# REPO_ROOT is injected by the Makefile.
-
 # スクリプトの引数から設定ディレクトリのパスを取得
-# 引数が提供されない場合は、デフォルトの共通設定ディレクトリを使用
 CONFIG_DIR_PROPS="$1"
 if [ -z "$CONFIG_DIR_PROPS" ]; then
-    CONFIG_DIR_PROPS="config/common"
+    echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
+    exit 1
 fi
 
 # 依存関係をインストール
