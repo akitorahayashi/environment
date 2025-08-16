@@ -22,19 +22,6 @@ if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 fi
 
-# SSH Agent 設定
-if [ -z "$SSH_AUTH_SOCK" ]; then
-   # ssh-agent が実行されていない場合に起動
-   if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-       eval "$(ssh-agent -s)"
-   fi
-fi
-
-# SSH キーを ssh-agent に追加 (まだ追加されていない場合)
-if ! ssh-add -l > /dev/null 2>&1; then
-    ssh-add ~/.ssh/id_ed25519 2>/dev/null
-fi
-
 # rbenv の初期化
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
