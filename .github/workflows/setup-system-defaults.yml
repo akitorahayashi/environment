@@ -10,14 +10,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create symbolic links for shell configuration
-        run: make link-shell
-
       - name: Apply macOS system defaults
-        run: make apply-defaults
+        run: make apply-defaults CONFIG_DIR=config/common
 
       - name: Re-run backup to check for idempotency
-        run: make backup-defaults
+        run: make backup-defaults CONFIG_DIR=config/common
 
       - name: Verify that system defaults file is unchanged
         run: |

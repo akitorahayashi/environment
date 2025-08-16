@@ -7,6 +7,11 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
+if [ -z "${REPO_ROOT:-}" ]; then
+    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
+    exit 1
+fi
+
 echo "==== Start: Python Global Tools Setup ===="
 
 # Initialize pyenv for the current shell, in case it's not already.
