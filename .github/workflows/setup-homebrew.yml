@@ -22,5 +22,5 @@ jobs:
 
       - name: Run Homebrew setup
         id: setup
-        run: make brew
+        run: make brew CONFIG_DIR=config/common
 

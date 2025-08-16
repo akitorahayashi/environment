@@ -15,6 +15,9 @@ jobs:
   setup-installers:
     uses: ./.github/workflows/setup-installers.yml
 
-  setup-macos:
-    uses: ./.github/workflows/setup-macos.yml
+  setup-shell:
+    uses: ./.github/workflows/setup-shell.yml
+
+  setup-system-defaults:
+    uses: ./.github/workflows/setup-system-defaults.yml
 

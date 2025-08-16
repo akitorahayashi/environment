@@ -1,0 +1,14 @@
+name: Setup Shell Links
+
+on:
+  workflow_call:
+
+jobs:
+  link-shell:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create symbolic links for shell configuration
+        run: make link-shell CONFIG_DIR=config/common
