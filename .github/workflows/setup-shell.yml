@@ -10,5 +10,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create symbolic links for shell configuration
-        run: make link-shell CONFIG_DIR=config/common
+      - name: Create symbolic links for MacBook shell configuration
+        run: make link-shell CONFIG_DIR=config/macbook-only
+
+      - name: Create symbolic links for Mac mini shell configuration
+        run: make link-shell CONFIG_DIR=config/mac-mini-only
