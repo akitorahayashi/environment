@@ -1,108 +1,31 @@
-# Python
-alias poet-n="poetry new"
-alias poet-ini="poetry init"
-alias poet-i="poetry install"
-alias poet-a="poetry add"
-alias poet-rm="poetry remove"
-alias poet-r="poetry run python"
-alias poet-u="poetry update"
-alias poet-ls="poetry list"
-alias poet-lock="poetry lock"
-alias poet-e="poetry export -f requirements.txt --output requirements.txt --without-hashes"
-alias poet-env="poetry env list"
-alias poet-env-d="poetry env remove"
+# This file is for machine-specific settings.
+# It sources the common .zshrc file.
 
-# pipx
-alias px="pipx"
-alias px-ls="pipx list"
-alias px-i="pipx install"
-alias px-ui="pipx uninstall"
-alias px-r="pipx run"
+# When sourced, Zsh sets ${(%):-%N} to the path of the script.
+# This works even for symlinks.
+SOURCE_PATH=${(%):-%N}
 
-# pip
-alias pl="pip list"
-alias pi="pip install"
-alias pu="python -m pip install --upgrade pip"
-alias pui="pip uninstall"
-alias pir="pip install -r requirements.txt"
-alias pif="pip freeze > requirements.txt"
+# If it's a symlink, resolve it to the actual file path in the repo.
+# $HOME/.zshrc -> /path/to/repo/config/macbook-only/shell/.zshrc
+if [[ -L "$SOURCE_PATH" ]]; then
+  SOURCE_PATH=$(readlink "$SOURCE_PATH")
+fi
 
-# Ollama
-alias ol="ollama"
-alias ol-ls="ollama list"
-alias ol-pl="ollama pull"
-alias ol-r="ollama run"
-alias ol-s="ollama serve"
-alias ol-sp="ollama stop"
-alias ol-c="ollama create"
-alias ol-d="ollama delete"
+# Get the directory of the source file.
+# e.g., /path/to/repo/config/macbook-only/shell
+SOURCE_DIR=$(dirname "$SOURCE_PATH")
 
-# Aider
-aid-set() {
-  export OLLAMA_API_BASE="$1"
-}
-aid-lch() {
-  aider --model "ollama/$1" --no-auto-commit --no-gitignore
-}
+# The REPO_ROOT is three directories up from this script's original location.
+# e.g., from /path/to/repo/config/macbook-only/shell
+REPO_ROOT=$(cd "$SOURCE_DIR/../../.."; pwd)
 
-# Ruby
-alias be="bundle exec"
-alias be-f="bundle exec fastlane"
-alias bi="bundle install"
+# Source the common .zshrc from the repository.
+COMMON_ZSHRC="$REPO_ROOT/config/common/shell/.zshrc"
+if [ -f "$COMMON_ZSHRC" ]; then
+  source "$COMMON_ZSHRC"
+else
+  echo "Error: Common .zshrc not found at $COMMON_ZSHRC" >&2
+fi
 
-# Node.js
-alias ni="npm install"
-alias nr="npm run"
-
-# Docker
-alias doc="docker"
-alias doc-b="docker build"
-alias doc-r="docker run"
-alias doc-i="docker images"
-alias doc-ps="docker ps"
-alias doc-st="docker stop"
-alias doc-rm="docker rm"
-
-# Mint
-alias mr="mint run"
-
-# Makefile
-alias mk="make"
-
-# AppleScript
-alias as="osascript"
-
-# Utility
-alias rel="source ~/.zshrc"
-alias gi="git"
-alias cl="clear"
-alias op="open"
-alias op-f="open ."
-alias op-s="open -b com.apple.systempreferences"
-alias op-st="open -a 'Stickies'"
-alias op-o="open -a 'Obsidian'"
-alias op-as="open -a 'Android Studio'"
-alias op-a="open -a 'Automator'"
-alias op-sc="open -a 'Script Editor'"
-alias op-t="open -na Terminal"
-alias op-c="open -a 'Google Chrome'"
-alias op-cg="open -a 'Google Chrome' 'https://github.com/akitorahayashi'"
-alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
-
-md2pdf() {
-  if ! command -v pandoc >/dev/null 2>&1; then
-    echo "Error: pandoc is not installed." >&2
-    return 1
-  fi
-  if ! command -v lualatex >/dev/null 2>&1; then
-    echo "Error: lualatex (TeX Live) is not installed." >&2
-    return 1
-  fi
-  pandoc "$1" -o "$2" --pdf-engine=lualatex \
-    -V documentclass=ltjarticle \
-    -V mainfont="Hiragino Mincho ProN" \
-    -V sansfont="Hiragino Sans" \
-    -V monofont="Hiragino Kaku Gothic ProN" \
-    -V geometry:a4paper \
-    -V geometry:margin=2.5cm
-}
+# Add any machine-specific zshrc settings below this line.
+# Example: alias myalias="echo 'hello'"
