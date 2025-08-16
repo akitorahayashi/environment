@@ -41,7 +41,11 @@ if [ ! -f "$packages_file" ]; then
 fi
 
 echo "[INFO] Checking and installing global packages from $packages_file..."
-packages_json=$(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file" 2>/dev/null)
+if ! command -v jq >/dev/null 2>&1; then
+  echo "[ERROR] 'jq' is required but not found. Run 'make node-platform' first or install jq." >&2
+  exit 1
+fi
+packages_json=$(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file")
 if [ -z "$packages_json" ]; then
     echo "[WARN] No packages defined in global-packages.json"
 else
@@ -93,7 +97,7 @@ if [ ! -f "$packages_file" ]; then
     exit 1
 fi
 
-packages_to_verify=$(jq -r '.globalPackages | keys[]' "$packages_file" 2>/dev/null)
+packages_to_verify=$(jq -r '.globalPackages | keys[]' "$packages_file")
 if [ -n "$packages_to_verify" ]; then
     echo "[INFO] Verifying packages listed in $packages_file..."
     missing_packages=0
