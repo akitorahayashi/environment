@@ -19,8 +19,7 @@ export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
     # shellcheck source=/dev/null
     . "$(brew --prefix nvm)/nvm.sh"
-    # Use the version specified in the project
-    nvm use >/dev/null
+    # Sourcing nvm.sh is enough to activate the default version.
 else
     echo "[ERROR] nvm.sh not found. Please run the platform setup first."
     exit 1
