@@ -38,7 +38,6 @@ sync-common: ## Synchronize all common tools and configurations
 	@$(MAKE) java CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) flutter CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) node CONFIG_DIR=$(CONFIG_DIR_COMMON)
-	@$(MAKE) link-shell CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) apply-defaults CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@echo "✅ All common setup completed successfully."
 
@@ -46,12 +45,14 @@ sync-common: ## Synchronize all common tools and configurations
 macbook-only: ## Run setup for MacBook only configurations
 	@echo "🚀 Setting up for MacBook only..."
 	@$(MAKE) brew CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
+	@$(MAKE) link-shell CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 	@echo "✅ MacBook only setup completed successfully."
 
 .PHONY: mac-mini-only
 mac-mini-only: ## Run setup for Mac mini only configurations
 	@echo "🚀 Setting up for Mac mini only..."
 	@$(MAKE) brew CONFIG_DIR=$(CONFIG_DIR_MAC_MINI)
+	@$(MAKE) link-shell CONFIG_DIR=$(CONFIG_DIR_MAC_MINI)
 	@echo "✅ Mac mini only setup completed successfully."
 
 .PHONY: macbook
@@ -133,10 +134,10 @@ link-shell: ## Create symbolic links for shell configuration files
 .PHONY: apply-defaults
 apply-defaults: ## Apply macOS system defaults
 	@echo "🚀 Applying macOS system defaults with config: $(CONFIG_DIR)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/apply-system-defaults.sh" "$(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(REPO_ROOT)/system-defaults/apply-system-defaults.sh" "$(CONFIG_DIR)"
 
 .PHONY: backup-defaults
 backup-defaults: ## Backup current macOS system defaults
 	@echo "🚀 Backing up current macOS system defaults with config: $(CONFIG_DIR)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/backup-system-defaults.sh" "$(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(REPO_ROOT)/system-defaults/backup-system-defaults.sh" "$(CONFIG_DIR)"
 	@echo "✅ macOS system defaults backup completed."

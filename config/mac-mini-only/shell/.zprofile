@@ -22,29 +22,18 @@ if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 fi
 
-# SSH Agent 設定
-if [ -z "$SSH_AUTH_SOCK" ]; then
-   # ssh-agent が実行されていない場合に起動
-   if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-       eval "$(ssh-agent -s)"
-   fi
-fi
-
-# SSH キーを ssh-agent に追加 (まだ追加されていない場合)
-if ! ssh-add -l > /dev/null 2>&1; then
-    ssh-add ~/.ssh/id_ed25519 2>/dev/null
-fi
-
 # rbenv の初期化
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
 # pyenv の初期化
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
+if command -v pyenv 1>/dev/null 2>&1; then
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+fi
 
 # ollama models のパス設定
 export OLLAMA_MODELS="$HOME/.ollama/models"
@@ -56,11 +45,16 @@ if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
 fi
 
 # JAVA_HOME の設定
-if ! command -v /usr/libexec/java_home >/dev/null 2>&1; then
-    echo "Error: /usr/libexec/java_home is not installed." >&2
-    exit 1
+if command -v /usr/libexec/java_home >/dev/null 2>&1; then
+  JAVA_21="$(/usr/libexec/java_home -v "21" 2>/dev/null || true)"
+  if [ -n "$JAVA_21" ]; then
+    export JAVA_HOME="$JAVA_21"
+  else
+    echo "Warning: Java 21 not found. Skipping JAVA_HOME setup." >&2
+  fi
+else
+  echo "Warning: /usr/libexec/java_home not available. Skipping JAVA_HOME setup." >&2
 fi
-export JAVA_HOME="$(/usr/libexec/java_home -v "21")"
 
 # Android SDK
 export ANDROID_HOME=$HOME/Library/Android/sdk
