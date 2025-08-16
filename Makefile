@@ -4,9 +4,6 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-# Get the root directory of the repository
-export REPO_ROOT := $(CURDIR)
-
 # Define script and config directories
 SCRIPT_DIR := $(CURDIR)/scripts
 CONFIG_DIR_COMMON := config/common
