@@ -4,8 +4,10 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-# Define script and config directories
-SCRIPT_DIR := $(CURDIR)/scripts
+# Define project root and script/config directories
+REPO_ROOT := $(CURDIR)
+export REPO_ROOT
+SCRIPT_DIR := $(REPO_ROOT)/scripts
 CONFIG_DIR_COMMON := config/common
 CONFIG_DIR_MACBOOK := config/macbook-only
 CONFIG_DIR_MAC_MINI := config/mac-mini-only
@@ -83,8 +85,19 @@ ruby: ## Setup Ruby environment with rbenv
 
 .PHONY: python
 python: ## Setup Python environment with pyenv
-	@echo "🚀 Running Python setup with config: $(CONFIG_DIR)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python.sh" "$(CONFIG_DIR)"
+	@$(MAKE) python-platform CONFIG_DIR=$(CONFIG_DIR)
+	@$(MAKE) python-tools CONFIG_DIR=$(CONFIG_DIR)
+	@echo "✅ Python setup completed successfully."
+
+.PHONY: python-platform
+python-platform: ## Setup Python platform (pyenv, python, pipx)
+	@echo "🚀 Running Python platform setup with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python/platform.sh" "$(CONFIG_DIR)"
+
+.PHONY: python-tools
+python-tools: ## Install global Python tools
+	@echo "🚀 Running Python tools setup with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python/tools.sh" "$(CONFIG_DIR)"
 
 .PHONY: java
 java: ## Setup Java environment
@@ -98,8 +111,19 @@ flutter: ## Setup Flutter environment
 
 .PHONY: node
 node: ## Setup Node.js environment with nvm
-	@echo "🚀 Running Node.js setup with config: $(CONFIG_DIR)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node.sh" "$(CONFIG_DIR)"
+	@$(MAKE) node-platform CONFIG_DIR=$(CONFIG_DIR)
+	@$(MAKE) node-packages CONFIG_DIR=$(CONFIG_DIR)
+	@echo "✅ Node.js setup completed successfully."
+
+.PHONY: node-platform
+node-platform: ## Setup Node.js platform (nvm, node)
+	@echo "🚀 Running Node.js platform setup with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/platform.sh" "$(CONFIG_DIR)"
+
+.PHONY: node-packages
+node-packages: ## Install global Node.js packages
+	@echo "🚀 Running Node.js packages setup with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/packages.sh" "$(CONFIG_DIR)"
 
 .PHONY: link-shell
 link-shell: ## Create symbolic links for shell configuration files
