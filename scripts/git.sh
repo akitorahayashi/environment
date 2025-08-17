@@ -96,35 +96,6 @@ echo "[SUCCESS] Git の core.excludesfile に global gitignore を設定しま�
 
 echo "[SUCCESS] gitignore_global の設定完了"
 
-# SSH エージェントとキーの確認
-echo ""
-echo "==== Start: SSH エージェントとキーの確認中... ===="
-
-# SSH キーが存在するかチェック
-if [[ -f "$HOME/.ssh/id_ed25519" ]]; then
-    echo "[SUCCESS] SSH キー (id_ed25519) が存在します"
-
-    # SSH エージェントが既に動いているかチェック
-    if ! ssh-add -l >/dev/null 2>&1; then
-        echo "[INFO] SSH エージェントを起動中..."
-        eval "$(ssh-agent -s)"
-    else
-        echo "[INFO] SSH エージェントは既に動作中です"
-    fi
-
-    # SSH キーをエージェントに追加
-    echo "[INFO] SSH キーを SSH エージェントに追加中..."
-    if ssh-add "$HOME/.ssh/id_ed25519"; then
-        echo "[SUCCESS] SSH キーが正常に追加されました"
-    else
-        echo "[WARN] SSH キーの追加に失敗しました。手動でパスフレーズを入力する必要があります"
-    fi
-else
-    echo "[WARN] SSH キー (id_ed25519) が見つかりません"
-    echo "[INFO] 手動でSSHキーを生成してください："
-    echo "[INFO] ssh-keygen -t ed25519 -C \"your_email@example.com\""
-fi
-
 echo "[SUCCESS] Git環境のセットアップが完了しました"
 
 # Git設定の検証
@@ -142,12 +113,6 @@ echo "[SUCCESS] gitコマンドが使用可能です: $(git --version)"
 # 設定ファイルの存在確認
 echo "[SUCCESS] $HOME/.config/git/config が存在します。"
 
-# SSHキーの検証
-if [ -f "$HOME/.ssh/id_ed25519" ]; then
-    echo "[SUCCESS] SSH鍵ファイル(id_ed25519)が存在します"
-else
-    echo "[WARN] SSH鍵ファイル(id_ed25519)が見つかりません"
-fi
 
 # gitignore_global の検証
 ignore_file="$HOME/.gitignore_global"
