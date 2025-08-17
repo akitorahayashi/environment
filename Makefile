@@ -43,7 +43,7 @@ macbook: ## Setup for MacBook (common + specific)
 	@$(MAKE) node-platform
 	@$(MAKE) node-tools
 	@$(MAKE) macbook-node-tools
-	@$(MAKE) macbook-shell
+	@$(MAKE) shell
 	@$(MAKE) apply-defaults
 	@echo "✅ MacBook full setup completed successfully."
 
@@ -60,7 +60,7 @@ mac-mini: ## Setup for Mac mini (common + specific)
 	@$(MAKE) flutter
 	@$(MAKE) node-platform
 	@$(MAKE) node-tools
-	@$(MAKE) mac-mini-shell
+	@$(MAKE) shell
 	@$(MAKE) apply-defaults
 	@echo "✅ Mac mini full setup completed successfully."
 
@@ -77,6 +77,7 @@ common: ## Run all common setup tasks
 	@$(MAKE) flutter
 	@$(MAKE) node-platform
 	@$(MAKE) node-tools
+	@$(MAKE) shell
 	@$(MAKE) apply-defaults
 	@echo "✅ All common setup tasks completed successfully."
 
@@ -149,10 +150,10 @@ macbook-brew: ## [MacBook] Setup Homebrew and install packages
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 
-.PHONY: macbook-shell
-macbook-shell: ## [MacBook] Link shell configuration files
-	@echo "🚀 [MacBook] Linking shell configuration..."
-	@$(MAKE) _link-shell CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
+.PHONY: shell
+shell: ## Link common shell configuration files
+	@echo "🚀 Linking common shell configuration..."
+	@$(MAKE) _link-shell CONFIG_DIR=$(CONFIG_DIR_COMMON)
 
 # --- Individual Setup Targets for Mac mini ---
 .PHONY: mac-mini-brew
@@ -160,11 +161,6 @@ mac-mini-brew: ## [Mac mini] Setup Homebrew and install packages
 	@echo "🚀 [Mac mini] Running Homebrew setup..."
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_MAC_MINI)
-
-.PHONY: mac-mini-shell
-mac-mini-shell: ## [Mac mini] Link shell configuration files
-	@echo "🚀 [Mac mini] Linking shell configuration..."
-	@$(MAKE) _link-shell CONFIG_DIR=$(CONFIG_DIR_MAC_MINI)
 
 # --- Other User-Facing Commands ---
 .PHONY: backup-defaults

@@ -111,3 +111,13 @@ md2pdf() {
     -V geometry:a4paper \
     -V geometry:margin=2.5cm
 }
+
+# Aider
+aid-set() {
+  export OLLAMA_API_BASE="$1"
+}
+aid-lch() {
+  local model="${1:?usage: aid-lch <model> [aider-args...]}"
+  shift
+  aider --model "ollama/$model" --no-auto-commit --no-gitignore "$@"
+}
