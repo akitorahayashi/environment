@@ -1,0 +1,5 @@
+{
+    "globalPackages": {
+        "@google/gemini-cli": "latest"
+    }
+}

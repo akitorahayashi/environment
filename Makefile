@@ -35,10 +35,14 @@ macbook: ## Setup for MacBook (common + specific)
 	@$(MAKE) git
 	@$(MAKE) vscode
 	@$(MAKE) ruby
-	@$(MAKE) python
+	@$(MAKE) python-platform
+	@$(MAKE) python-tools
+	@$(MAKE) macbook-python-tools
 	@$(MAKE) java
 	@$(MAKE) flutter
-	@$(MAKE) node
+	@$(MAKE) node-platform
+	@$(MAKE) node-tools
+	@$(MAKE) macbook-node-tools
 	@$(MAKE) macbook-shell
 	@$(MAKE) apply-defaults
 	@echo "✅ MacBook full setup completed successfully."
@@ -50,10 +54,12 @@ mac-mini: ## Setup for Mac mini (common + specific)
 	@$(MAKE) git
 	@$(MAKE) vscode
 	@$(MAKE) ruby
-	@$(MAKE) python
+	@$(MAKE) python-platform
+	@$(MAKE) python-tools
 	@$(MAKE) java
 	@$(MAKE) flutter
-	@$(MAKE) node
+	@$(MAKE) node-platform
+	@$(MAKE) node-tools
 	@$(MAKE) mac-mini-shell
 	@$(MAKE) apply-defaults
 	@echo "✅ Mac mini full setup completed successfully."
@@ -65,10 +71,12 @@ common: ## Run all common setup tasks
 	@$(MAKE) git
 	@$(MAKE) vscode
 	@$(MAKE) ruby
-	@$(MAKE) python
+	@$(MAKE) python-platform
+	@$(MAKE) python-tools
 	@$(MAKE) java
 	@$(MAKE) flutter
-	@$(MAKE) node
+	@$(MAKE) node-platform
+	@$(MAKE) node-tools
 	@$(MAKE) apply-defaults
 	@echo "✅ All common setup tasks completed successfully."
 
@@ -87,11 +95,21 @@ ruby: ## Setup Ruby environment with rbenv (common)
 	@echo "🚀 Running common Ruby setup..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/ruby.sh" "$(CONFIG_DIR_COMMON)"
 
-.PHONY: python
-python: ## Setup Python environment with pyenv (common)
-	@echo "🚀 Running common Python setup..."
+.PHONY: python-platform
+python-platform: ## Setup Python platform (common)
+	@echo "🚀 Running common Python platform setup..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python/platform.sh" "$(CONFIG_DIR_COMMON)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python/tools.sh" "$(CONFIG_DIR_COMMON)"
+
+.PHONY: python-tools
+python-tools: ## Install common Python tools (common)
+	@echo "🚀 Installing common Python tools..."
+	@$(MAKE) _python-tools CONFIG_DIR=$(CONFIG_DIR_COMMON)
+
+.PHONY: macbook-python-tools
+macbook-python-tools: ## Install MacBook-specific Python tools
+	@echo "🚀 Installing MacBook-specific Python tools..."
+	@$(MAKE) _python-tools CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
+
 
 .PHONY: java
 java: ## Setup Java environment (common)
@@ -103,11 +121,21 @@ flutter: ## Setup Flutter environment (common)
 	@echo "🚀 Running common Flutter setup..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/flutter.sh" "$(CONFIG_DIR_COMMON)"
 
-.PHONY: node
-node: ## Setup Node.js environment with nvm (common)
-	@echo "🚀 Running common Node.js setup..."
+.PHONY: node-platform
+node-platform: ## Setup Node.js platform (common)
+	@echo "🚀 Running common Node.js platform setup..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/platform.sh" "$(CONFIG_DIR_COMMON)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/packages.sh" "$(CONFIG_DIR_COMMON)"
+
+.PHONY: node-tools
+node-tools: ## Install common Node.js tools (common)
+	@echo "🚀 Installing common Node.js tools..."
+	@$(MAKE) _node-tools CONFIG_DIR=$(CONFIG_DIR_COMMON)
+
+.PHONY: macbook-node-tools
+macbook-node-tools: ## Install MacBook-specific Node.js tools
+	@echo "🚀 Installing MacBook-specific Node.js tools..."
+	@$(MAKE) _node-tools CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
+
 
 .PHONY: apply-defaults
 apply-defaults: ## Apply macOS system defaults (common)
@@ -146,14 +174,24 @@ backup-defaults: ## Backup current macOS system defaults
 	@echo "✅ macOS system defaults backup completed."
 
 # ------------------------------------------------------------------------------
-# Internal (Hidden) Commands for CI
+# Internal Commands
 # ------------------------------------------------------------------------------
 .PHONY: _brew
 _brew: ## @hidden
 	@echo "  -> Running Homebrew setup with config: $(CONFIG_DIR)"
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/homebrew.sh" "$(CONFIG_DIR)"
 
+.PHONY: _python-tools
+_python-tools: ## @hidden
+	@echo "  -> Installing python tools with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python/tools.sh" "$(CONFIG_DIR)"
+
 .PHONY: _link-shell
 _link-shell: ## @hidden
 	@echo "  -> Linking shell configuration files from: $(CONFIG_DIR)"
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/link-shell.sh" "$(CONFIG_DIR)"
+
+.PHONY: _node-tools
+_node-tools: ## @hidden
+	@echo "  -> Installing node tools with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/tools.sh" "$(CONFIG_DIR)"

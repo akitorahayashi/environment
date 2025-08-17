@@ -21,6 +21,8 @@
 │   │   └── shell/
 │   └── macbook-only/
 │       ├── brew/
+│       ├── node/
+│       ├── python/
 │       └── shell/
 ├── scripts/
 │   ├── node/
@@ -50,15 +52,18 @@
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
-    -   `make link-shell` を実行することで、`config/common/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
+    -   シェル設定のリンクはマシン固有ターゲットで実行します。
+        -   MacBook: `make macbook-shell`
+        -   Mac mini: `make mac-mini-shell`
+    -   これにより `config/<machine>-only/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
 
 3.  **Git Configuration**
     -   `config/common/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   `make apply-defaults` を実行することで、`config/common/system-defaults/system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
-    -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `scripts/backup-system-defaults.sh` を呼び出します）。
+    -   `make apply-defaults` を実行することで、`scripts/system-defaults/apply-system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
+    -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `scripts/system-defaults/backup-system-defaults.sh` を呼び出します）。
 
 5.  **Package Installation from Brewfile**
     -   `config/common/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
