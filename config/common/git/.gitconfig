@@ -7,6 +7,7 @@
     co = checkout
     b = branch
     br = branch
+    cln = git remote prune origin
 
     pl = pull
     a = add
