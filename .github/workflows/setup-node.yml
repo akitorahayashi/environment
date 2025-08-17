@@ -1,0 +1,67 @@
+name: Setup Node.js Environment
+
+on:
+  workflow_call:
+
+jobs:
+  setup-node-platform:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run node-platform setup
+        run: make node-platform
+
+      - name: Run node-platform setup for idempotency check
+        id: idempotency-platform
+        run: |
+          set -o pipefail
+          stderr_output=$( (make node-platform >/dev/null) 2>&1 || true )
+          {
+            echo "stderr_output<<EOF"
+            echo "${stderr_output}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Verify idempotency for node-platform
+        if: contains(steps.idempotency-platform.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
+        run: |
+          echo "Idempotency check failed for node-platform"
+          echo "Error output:"
+          echo "${{ steps.idempotency-platform.outputs.stderr_output }}"
+          exit 1
+
+  setup-node-packages:
+    needs: setup-node-platform
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - npm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install package ${{ matrix.package }}
+        run: make node-install-package package=${{ matrix.package }}
+
+      - name: Run package install for idempotency check
+        id: idempotency-package
+        run: |
+          set -o pipefail
+          stderr_output=$( (make node-install-package package=${{ matrix.package }} >/dev/null) 2>&1 || true )
+          {
+            echo "stderr_output<<EOF"
+            echo "${stderr_output}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Verify idempotency for package install
+        if: contains(steps.idempotency-package.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
+        run: |
+          echo "Idempotency check failed for ${{ matrix.package }}"
+          echo "Error output:"
+          echo "${{ steps.idempotency-package.outputs.stderr_output }}"
+          exit 1

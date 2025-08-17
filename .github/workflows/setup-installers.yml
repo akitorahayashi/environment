@@ -11,9 +11,7 @@ jobs:
       matrix:
         installer:
           - git
-          - node
           - ruby
-          - python
           - flutter
           - java
           - vscode
@@ -23,13 +21,13 @@ jobs:
 
       - name: Run ${{ matrix.installer }} setup
         id: setup
-        run: make ${{ matrix.installer }} CONFIG_DIR=config/common
+        run: make ${{ matrix.installer }}
 
       - name: Run ${{ matrix.installer }} setup for idempotency check
         id: idempotency
         run: |
           set -o pipefail
-          stderr_output=$( (make ${{ matrix.installer }} CONFIG_DIR=config/common >/dev/null) 2>&1 || true )
+          stderr_output=$( (make ${{ matrix.installer }} >/dev/null) 2>&1 || true )
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"

@@ -15,6 +15,12 @@ jobs:
   setup-installers:
     uses: ./.github/workflows/setup-installers.yml
 
+  setup-python:
+    uses: ./.github/workflows/setup-python.yml
+
+  setup-node:
+    uses: ./.github/workflows/setup-node.yml
+
   setup-shell:
     uses: ./.github/workflows/setup-shell.yml
 

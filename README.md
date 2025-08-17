@@ -21,6 +21,8 @@
 │   │   └── shell/
 │   └── macbook-only/
 │       ├── brew/
+│       ├── node/
+│       ├── python/
 │       └── shell/
 ├── scripts/
 │   ├── node/
@@ -57,8 +59,8 @@
     -   Gitのエイリアスなどの設定を適用
 
 4.  **macOS Settings**
-    -   `make apply-defaults` を実行することで、`config/common/system-defaults/system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
-    -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `scripts/backup-system-defaults.sh` を呼び出します）。
+    -   `make apply-defaults` を実行することで、`scripts/system-defaults/apply-system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
+    -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `scripts/system-defaults/backup-system-defaults.sh` を呼び出します）。
 
 5.  **Package Installation from Brewfile**
     -   `config/common/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
