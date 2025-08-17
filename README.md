@@ -90,10 +90,18 @@
 `make` コマンドを使用して、セットアップを実行します。
 
 - **`make` or `make help`**: 利用可能なすべてのコマンドとその説明を表示します。
+
+### フルセットアップ
+
 - **`make macbook`**: MacBook用のすべてのセットアップスクリプトを順番に実行します。
 - **`make mac-mini`**: Mac mini用のすべてのセットアップスクリプトを順番に実行します。
-- **`make common`**: 共通設定ですべてのセットアップスクリプトを順番に実行します。
-- **`make <command>`**: 個別のセットアップスクリプト（例: `make brew`, `make git`）を実行します。
+
+### 個別・共通タスクの実行
+
+- **`make common`**: 共通設定のみ（Git, VS Code, Ruby, Python, Java, Flutter, Node.js, System Defaults）をすべて実行します。
+- **`make <task>`**: 個別のセットアップを実行します。
+  - **共通タスク**: `make git`, `make ruby`, `make java` など、特定の共通タスクを実行できます。
+  - **マシン固有タスク**: `make macbook-brew`, `make mac-mini-shell` など、マシン固有のタスクも個別に実行可能です。
 
 ## Setup Instructions
 
