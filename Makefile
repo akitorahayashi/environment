@@ -118,31 +118,25 @@ apply-defaults: ## Apply macOS system defaults (common)
 .PHONY: macbook-brew
 macbook-brew: ## [MacBook] Setup Homebrew and install packages
 	@echo "🚀 [MacBook] Running Homebrew setup..."
-	@echo "  -> Running Homebrew setup with config: $(CONFIG_DIR_COMMON)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/homebrew.sh" "$(CONFIG_DIR_COMMON)"
-	@echo "  -> Running Homebrew setup with config: $(CONFIG_DIR_MACBOOK)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/homebrew.sh" "$(CONFIG_DIR_MACBOOK)"
+	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_COMMON)
+	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 
 .PHONY: macbook-shell
 macbook-shell: ## [MacBook] Link shell configuration files
 	@echo "🚀 [MacBook] Linking shell configuration..."
-	@echo "  -> Linking shell configuration files from: $(CONFIG_DIR_MACBOOK)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/link-shell.sh" "$(CONFIG_DIR_MACBOOK)"
+	@$(MAKE) _link-shell CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 
 # --- Individual Setup Targets for Mac mini ---
 .PHONY: mac-mini-brew
 mac-mini-brew: ## [Mac mini] Setup Homebrew and install packages
 	@echo "🚀 [Mac mini] Running Homebrew setup..."
-	@echo "  -> Running Homebrew setup with config: $(CONFIG_DIR_COMMON)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/homebrew.sh" "$(CONFIG_DIR_COMMON)"
-	@echo "  -> Running Homebrew setup with config: $(CONFIG_DIR_MAC_MINI)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/homebrew.sh" "$(CONFIG_DIR_MAC_MINI)"
+	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_COMMON)
+	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_MAC_MINI)
 
 .PHONY: mac-mini-shell
 mac-mini-shell: ## [Mac mini] Link shell configuration files
 	@echo "🚀 [Mac mini] Linking shell configuration..."
-	@echo "  -> Linking shell configuration files from: $(CONFIG_DIR_MAC_MINI)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/link-shell.sh" "$(CONFIG_DIR_MAC_MINI)"
+	@$(MAKE) _link-shell CONFIG_DIR=$(CONFIG_DIR_MAC_MINI)
 
 # --- Other User-Facing Commands ---
 .PHONY: backup-defaults
@@ -150,3 +144,16 @@ backup-defaults: ## Backup current macOS system defaults
 	@echo "🚀 Backing up current macOS system defaults..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/system-defaults/backup-system-defaults.sh" "config/common"
 	@echo "✅ macOS system defaults backup completed."
+
+# ------------------------------------------------------------------------------
+# Internal (Hidden) Commands for CI
+# ------------------------------------------------------------------------------
+.PHONY: _brew
+_brew: ## @hidden
+	@echo "  -> Running Homebrew setup with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/homebrew.sh" "$(CONFIG_DIR)"
+
+.PHONY: _link-shell
+_link-shell: ## @hidden
+	@echo "  -> Linking shell configuration files from: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/link-shell.sh" "$(CONFIG_DIR)"

@@ -6,6 +6,13 @@ on:
 jobs:
   setup-homebrew:
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        config_dir:
+          - config/common
+          - config/macbook-only
+          - config/mac-mini-only
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,7 +27,7 @@ jobs:
           echo "✅ GitHub認証の設定が完了しました"
         shell: bash
 
-      - name: Run Homebrew setup
+      - name: Run Homebrew setup for ${{ matrix.config_dir }}
         id: setup
-        run: make brew CONFIG_DIR=config/common
+        run: make _brew CONFIG_DIR=${{ matrix.config_dir }}
 
