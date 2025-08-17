@@ -3,9 +3,7 @@
 ## Directory Structure
 
 ```
-environment/
-├── .github/
-│   └── workflows/
+.
 ├── config/
 │   ├── common/
 │   │   ├── brew/
@@ -17,17 +15,26 @@ environment/
 │   │   ├── system-defaults/
 │   │   └── vscode/
 │   ├── mac-mini-only/
+│   │   ├── brew/
+│   │   └── shell/
 │   └── macbook-only/
+│       ├── brew/
+│       └── shell/
 ├── scripts/
-│   ├── apply-system-defaults.sh
-│   ├── backup-system-defaults.sh
+│   ├── node/
+│   │   ├── packages.sh
+│   │   └── platform.sh
+│   ├── python/
+│   │   ├── platform.sh
+│   │   └── tools.sh
+│   ├── system-defaults/
+│   │   ├── apply-system-defaults.sh
+│   │   └── backup-system-defaults.sh
 │   ├── flutter.sh
 │   ├── git.sh
 │   ├── homebrew.sh
 │   ├── java.sh
 │   ├── link-shell.sh
-│   ├── node.sh
-│   ├── python.sh
 │   ├── ruby.sh
 │   └── vscode.sh
 ├── .gitignore
@@ -78,10 +85,6 @@ environment/
 
 12. **GitHub CLI Configuration**
 
-13. **SSH Key Management**
-    -   SSHキーの存在確認
-    -   SSHエージェントの設定
-
 ## How to Use
 
 `make` コマンドを使用して、セットアップを実行します。
@@ -89,7 +92,7 @@ environment/
 - **`make` or `make help`**: 利用可能なすべてのコマンドとその説明を表示します。
 - **`make macbook`**: MacBook用のすべてのセットアップスクリプトを順番に実行します。
 - **`make mac-mini`**: Mac mini用のすべてのセットアップスクリプトを順番に実行します。
-- **`make sync-common`**: 共通設定ですべてのセットアップスクリプトを順番に実行します。
+- **`make common`**: 共通設定ですべてのセットアップスクリプトを順番に実行します。
 - **`make <command>`**: 個別のセットアップスクリプト（例: `make brew`, `make git`）を実行します。
 
 ## Setup Instructions
