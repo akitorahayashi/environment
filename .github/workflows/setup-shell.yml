@@ -15,11 +15,11 @@ jobs:
           HOME: ${{ runner.temp }}/home-macbook
         run: |
           mkdir -p "$HOME"
-          make link-shell CONFIG_DIR=config/macbook-only
+          make _link-shell CONFIG_DIR=config/macbook-only
 
       - name: Create symbolic links for Mac mini shell configuration
         env:
           HOME: ${{ runner.temp }}/home-mac-mini
         run: |
           mkdir -p "$HOME"
-          make link-shell CONFIG_DIR=config/mac-mini-only
+          make _link-shell CONFIG_DIR=config/mac-mini-only
