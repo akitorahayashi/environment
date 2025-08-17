@@ -1,17 +1,21 @@
 # This file is for machine-specific settings.
 # It sources the common .zprofile file.
 
-# When sourced, Zsh sets ${(%):-%N} to the path of the script (zsh).
-# :A で絶対パス化+リンク解決
-SOURCE_PATH=${(%):-%N:A}
+# If REPO_ROOT is not set, determine it from the script's location.
+if [ -z "$REPO_ROOT" ]; then
+  # When sourced, Zsh sets ${(%):-%x} to the path of the sourced script.
+  # :A resolves the absolute path, including any symlinks.
+  SOURCE_PATH=${(%):-%x:A}
 
-# Get the directory of the source file.
-# e.g., /path/to/repo/config/macbook-only/shell
-SOURCE_DIR=${SOURCE_PATH:h}
+  # Get the directory of the source file.
+  # e.g., /path/to/repo/config/macbook-only/shell
+  SOURCE_DIR=${SOURCE_PATH:h}
 
-# The REPO_ROOT is three directories up from this script's original location.
-# e.g., from /path/to/repo/config/macbook-only/shell
-export REPO_ROOT="${SOURCE_DIR:h:h:h}"
+  # The REPO_ROOT is three directories up from this script's original location.
+  # e.g., from /path/to/repo/config/macbook-only/shell
+  export REPO_ROOT="${SOURCE_DIR:h:h:h}"
+fi
+
 
 # Source the common .zprofile from the repository.
 COMMON_ZPROFILE="$REPO_ROOT/config/common/shell/.zprofile"
