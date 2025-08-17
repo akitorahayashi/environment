@@ -41,8 +41,8 @@ macbook: ## Setup for MacBook (common + specific)
 	@$(MAKE) java
 	@$(MAKE) flutter
 	@$(MAKE) node-platform
-	@$(MAKE) node-packages
-	@$(MAKE) macbook-node-packages
+	@$(MAKE) node-tools
+	@$(MAKE) macbook-node-tools
 	@$(MAKE) macbook-shell
 	@$(MAKE) apply-defaults
 	@echo "✅ MacBook full setup completed successfully."
@@ -59,7 +59,7 @@ mac-mini: ## Setup for Mac mini (common + specific)
 	@$(MAKE) java
 	@$(MAKE) flutter
 	@$(MAKE) node-platform
-	@$(MAKE) node-packages
+	@$(MAKE) node-tools
 	@$(MAKE) mac-mini-shell
 	@$(MAKE) apply-defaults
 	@echo "✅ Mac mini full setup completed successfully."
@@ -76,7 +76,7 @@ common: ## Run all common setup tasks
 	@$(MAKE) java
 	@$(MAKE) flutter
 	@$(MAKE) node-platform
-	@$(MAKE) node-packages
+	@$(MAKE) node-tools
 	@$(MAKE) apply-defaults
 	@echo "✅ All common setup tasks completed successfully."
 
@@ -110,10 +110,6 @@ macbook-python-tools: ## Install MacBook-specific Python tools
 	@echo "🚀 Installing MacBook-specific Python tools..."
 	@$(MAKE) _python-tools CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 
-.PHONY: python-install-tool
-python-install-tool: ## @hidden Install a single Python tool
-	@echo "🚀 Installing Python tool: $(tool)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/python/install_tool.sh" "$(CONFIG_DIR_COMMON)" "$(tool)"
 
 .PHONY: java
 java: ## Setup Java environment (common)
@@ -130,20 +126,16 @@ node-platform: ## Setup Node.js platform (common)
 	@echo "🚀 Running common Node.js platform setup..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/platform.sh" "$(CONFIG_DIR_COMMON)"
 
-.PHONY: node-packages
-node-packages: ## Install common Node.js packages (common)
-	@echo "🚀 Installing common Node.js packages..."
-	@$(MAKE) _node-packages CONFIG_DIR=$(CONFIG_DIR_COMMON)
+.PHONY: node-tools
+node-tools: ## Install common Node.js tools (common)
+	@echo "🚀 Installing common Node.js tools..."
+	@$(MAKE) _node-tools CONFIG_DIR=$(CONFIG_DIR_COMMON)
 
-.PHONY: macbook-node-packages
-macbook-node-packages: ## Install MacBook-specific Node.js packages
-	@echo "🚀 Installing MacBook-specific Node.js packages..."
-	@$(MAKE) _node-packages CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
+.PHONY: macbook-node-tools
+macbook-node-tools: ## Install MacBook-specific Node.js tools
+	@echo "🚀 Installing MacBook-specific Node.js tools..."
+	@$(MAKE) _node-tools CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 
-.PHONY: node-install-package
-node-install-package: ## @hidden Install a single Node.js package
-	@echo "🚀 Installing Node.js package: $(package)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/install_package.sh" "$(CONFIG_DIR_COMMON)" "$(package)"
 
 .PHONY: apply-defaults
 apply-defaults: ## Apply macOS system defaults (common)
@@ -199,7 +191,7 @@ _link-shell: ## @hidden
 	@echo "  -> Linking shell configuration files from: $(CONFIG_DIR)"
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/link-shell.sh" "$(CONFIG_DIR)"
 
-.PHONY: _node-packages
-_node-packages: ## @hidden
-	@echo "  -> Installing node packages with config: $(CONFIG_DIR)"
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/packages.sh" "$(CONFIG_DIR)"
+.PHONY: _node-tools
+_node-tools: ## @hidden
+	@echo "  -> Installing node tools with config: $(CONFIG_DIR)"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/node/tools.sh" "$(CONFIG_DIR)"

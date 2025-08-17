@@ -58,16 +58,29 @@ else
         required_version=$(echo "$pkg_full" | awk -F'@' '{print $NF}')
 
         if [ "$required_version" == "latest" ]; then
+            resolved_latest=$(npm view "$pkg_name" version 2>/dev/null || true)
+            if [ -z "$resolved_latest" ]; then
+                echo "[ERROR] Failed to resolve latest version for $pkg_name" >&2
+                exit 1
+            fi
             if [ -z "$installed_version" ]; then
-                echo "[INSTALL] $pkg_full"
-                if npm install -g "$pkg_full"; then
+                echo "[INSTALL] $pkg_name@latest (resolves to $resolved_latest)"
+                if npm install -g "$pkg_name@latest"; then
                     packages_changed=true
                 else
-                    echo "[ERROR] Failed to install $pkg_name"
+                    echo "[ERROR] Failed to install $pkg_name" >&2
+                    exit 1
+                fi
+            elif [ "$installed_version" != "$resolved_latest" ]; then
+                echo "[INSTALL] $pkg_name@latest (updating from $installed_version to $resolved_latest)"
+                if npm install -g "$pkg_name@latest"; then
+                    packages_changed=true
+                else
+                    echo "[ERROR] Failed to update $pkg_name" >&2
                     exit 1
                 fi
             else
-                echo "[INFO] $pkg_name is already installed (latest)."
+                echo "[INFO] $pkg_name is already at latest ($resolved_latest)."
             fi
         elif [ "$installed_version" != "$required_version" ]; then
             echo "[INSTALL] $pkg_full (updating from $installed_version)"
