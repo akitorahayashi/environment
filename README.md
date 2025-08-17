@@ -4,6 +4,8 @@
 
 ```
 .
+├── .github/
+│   └── workflows/
 ├── config/
 │   ├── common/
 │   │   ├── brew/
@@ -82,8 +84,6 @@
     -   `config/common/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
 
 11. **Flutter Setup**
-
-12. **GitHub CLI Configuration**
 
 ## How to Use
 
