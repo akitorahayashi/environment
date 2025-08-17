@@ -25,10 +25,10 @@ help: ## Show this help message
 
 # Main setup targets
 .PHONY: all
-all: sync-common ## Run all setup scripts with common configuration
+all: common ## Run all setup scripts with common configuration
 
-.PHONY: sync-common
-sync-common: ## Synchronize all common tools and configurations
+.PHONY: common
+common: ## Synchronize all common tools and configurations
 	@echo "🚀 Synchronizing common tools..."
 	@$(MAKE) brew CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) git CONFIG_DIR=$(CONFIG_DIR_COMMON)
@@ -56,11 +56,11 @@ mac-mini-only: ## Run setup for Mac mini only configurations
 	@echo "✅ Mac mini only setup completed successfully."
 
 .PHONY: macbook
-macbook: sync-common macbook-only ## Setup for MacBook (common + specific)
+macbook: common macbook-only ## Setup for MacBook (common + specific)
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
-mac-mini: sync-common mac-mini-only ## Setup for Mac mini (common + specific)
+mac-mini: common mac-mini-only ## Setup for Mac mini (common + specific)
 	@echo "✅ Mac mini full setup completed successfully."
 
 # Individual setup targets
