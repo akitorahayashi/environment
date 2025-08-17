@@ -41,16 +41,6 @@ alias ol-sp="ollama stop"
 alias ol-c="ollama create"
 alias ol-d="ollama delete"
 
-# Aider
-aid-set() {
-  export OLLAMA_API_BASE="$1"
-}
-aid-lch() {
-  local model="${1:?usage: aid-lch <model> [aider-args...]}"
-  shift
-  aider --model "ollama/$model" --no-auto-commit --no-gitignore "$@"
-}
-
 # Ruby
 alias be="bundle exec"
 alias be-f="bundle exec fastlane"

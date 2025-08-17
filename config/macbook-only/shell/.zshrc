@@ -16,3 +16,13 @@ else
 fi
 
 # Add any machine-specific zshrc settings below this line.
+
+# Aider
+aid-set() {
+  export OLLAMA_API_BASE="$1"
+}
+aid-lch() {
+  local model="${1:?usage: aid-lch <model> [aider-args...]}"
+  shift
+  aider --model "ollama/$model" --no-auto-commit --no-gitignore "$@"
+}
