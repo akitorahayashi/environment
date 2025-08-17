@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 jobs:
-  setup-python-platform:
+  setup-python:
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -12,6 +12,9 @@ jobs:
 
       - name: Run python-platform setup
         run: make python-platform
+
+      - name: Run python-tools setup
+        run: make python-tools
 
       - name: Run python-platform setup for idempotency check
         id: idempotency-platform
@@ -32,36 +35,21 @@ jobs:
           echo "${{ steps.idempotency-platform.outputs.stderr_output }}"
           exit 1
 
-  setup-python-tools:
-    needs: setup-python-platform
-    runs-on: macos-15
-    strategy:
-      fail-fast: false
-      matrix:
-        tool:
-          - poetry
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install tool ${{ matrix.tool }}
-        run: make python-install-tool tool=${{ matrix.tool }}
-
-      - name: Run tool install for idempotency check
-        id: idempotency-tool
+      - name: Run python-tools setup for idempotency check
+        id: idempotency-tools
         run: |
           set -o pipefail
-          stderr_output=$( (make python-install-tool tool=${{ matrix.tool }} >/dev/null) 2>&1 || true )
+          stderr_output=$( (make python-tools >/dev/null) 2>&1 || true )
           {
             echo "stderr_output<<EOF"
             echo "${stderr_output}"
             echo "EOF"
           } >> "${GITHUB_OUTPUT}"
 
-      - name: Verify idempotency for tool install
-        if: contains(steps.idempotency-tool.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
+      - name: Verify idempotency for python-tools
+        if: contains(steps.idempotency-tools.outputs.stderr_output, 'IDEMPOTENCY_VIOLATION')
         run: |
-          echo "Idempotency check failed for ${{ matrix.tool }}"
+          echo "Idempotency check failed for python-tools"
           echo "Error output:"
-          echo "${{ steps.idempotency-tool.outputs.stderr_output }}"
+          echo "${{ steps.idempotency-tools.outputs.stderr_output }}"
           exit 1

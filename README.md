@@ -52,7 +52,10 @@
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
-    -   `make link-shell` を実行することで、`config/common/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
+    -   シェル設定のリンクはマシン固有ターゲットで実行します。
+        -   MacBook: `make macbook-shell`
+        -   Mac mini: `make mac-mini-shell`
+    -   これにより `config/<machine>-only/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
 
 3.  **Git Configuration**
     -   `config/common/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
