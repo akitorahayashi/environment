@@ -17,13 +17,11 @@
 │   │   ├── system-defaults/
 │   │   └── vscode/
 │   ├── mac-mini-only/
-│   │   ├── brew/
-│   │   └── shell/
+│   │   └── brew/
 │   └── macbook-only/
 │       ├── brew/
 │       ├── node/
-│       ├── python/
-│       └── shell/
+│       └── python/
 ├── scripts/
 │   ├── node/
 │   │   ├── packages.sh
@@ -52,10 +50,8 @@
     -   Homebrewと必要なコマンドラインツールのインストール
 
 2.  **Shell Configuration**
-    -   シェル設定のリンクはマシン固有ターゲットで実行します。
-        -   MacBook: `make macbook-shell`
-        -   Mac mini: `make mac-mini-shell`
-    -   これにより `config/<machine>-only/shell/` 内の `.zprofile` と `.zshrc` がホームディレクトリにシンボリックリンクされます。
+    -   `make shell` を実行すると、共通のシェル設定（`.zprofile` と `.zshrc`）がホームディレクトリにシンボリックリンクされます。
+    -   この設定は `config/common/shell/` にあります。
 
 3.  **Git Configuration**
     -   `config/common/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
@@ -103,10 +99,10 @@
 
 ### 個別・共通タスクの実行
 
-- **`make common`**: 共通設定のみ（Git, VS Code, Ruby, Python, Java, Flutter, Node.js, System Defaults）をすべて実行します。
+- **`make common`**: 共通設定のみ（Git, VS Code, Ruby, Python, Java, Flutter, Node.js, Shell, System Defaults）をすべて実行します。
 - **`make <task>`**: 個別のセットアップを実行します。
-  - **共通タスク**: `make git`, `make ruby`, `make java` など、特定の共通タスクを実行できます。
-  - **マシン固有タスク**: `make macbook-brew`, `make mac-mini-shell` など、マシン固有のタスクも個別に実行可能です。
+  - **共通タスク**: `make git`, `make shell`, `make java` など、特定の共通タスクを実行できます。
+  - **マシン固有タスク**: `make macbook-brew`, `make mac-mini-brew` など、マシン固有のタスクも個別に実行可能です。
 
 ## Setup Instructions
 

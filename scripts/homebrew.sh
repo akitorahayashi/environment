@@ -46,6 +46,7 @@ if ! command -v brew &> /dev/null; then
         echo "[ERROR] Homebrewのインストールに失敗しました"
         exit 1
     fi
+    eval "$('/opt/homebrew/bin/brew' shellenv)"
     echo "[OK] Homebrewバイナリのインストールが完了しました。"
     echo "[SUCCESS] Homebrew のインストール完了"
 else

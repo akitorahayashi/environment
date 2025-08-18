@@ -10,16 +10,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create symbolic links for MacBook shell configuration
+      - name: Create symbolic links for common shell configuration
         env:
-          HOME: ${{ runner.temp }}/home-macbook
+          HOME: ${{ runner.temp }}/home
         run: |
           mkdir -p "$HOME"
-          make _link-shell CONFIG_DIR=config/macbook-only
-
-      - name: Create symbolic links for Mac mini shell configuration
-        env:
-          HOME: ${{ runner.temp }}/home-mac-mini
-        run: |
-          mkdir -p "$HOME"
-          make _link-shell CONFIG_DIR=config/mac-mini-only
+          make _link-shell CONFIG_DIR=config/common
