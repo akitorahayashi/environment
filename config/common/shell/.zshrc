@@ -2,19 +2,22 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
 
-# Python
-alias poet-n="poetry new"
-alias poet-ini="poetry init"
-alias poet-i="poetry install"
-alias poet-a="poetry add"
-alias poet-rm="poetry remove"
-alias poet-r="poetry run python"
-alias poet-u="poetry update"
-alias poet-ls="poetry list"
-alias poet-lock="poetry lock"
-alias poet-e="poetry export -f requirements.txt --output requirements.txt --without-hashes"
-alias poet-env="poetry env list"
-alias poet-env-d="poetry env remove"
+# Poetry
+alias pt-n="poetry new"
+alias pt-ini="poetry init --no-interaction"
+alias pt-i="poetry install"
+alias pt-a="poetry add"
+alias pt-rm="poetry remove"
+alias pt-r="poetry run"
+alias pt-r-p="poetry run python"
+alias pt-r-p-m="poetry run python -m"
+alias pt-r-p-mp="poetry run python manager.py"
+alias pt-u="poetry update"
+alias pt-ls="poetry list"
+alias pt-lock="poetry lock"
+alias pt-e="poetry export -f requirements.txt --output requirements.txt --without-hashes"
+alias pt-env="poetry env list"
+alias pt-env-d="poetry env remove"
 
 # pipx
 alias px="pipx"
@@ -26,10 +29,10 @@ alias px-r="pipx run"
 # pip
 alias pl="pip list"
 alias pi="pip install"
-alias pu="python -m pip install --upgrade pip"
-alias pui="pip uninstall"
-alias pir="pip install -r requirements.txt"
-alias pif="pip freeze > requirements.txt"
+alias pi-up="python -m pip install --upgrade pip"
+alias pi-ui="pip uninstall"
+alias pi-r-rq="pip install -r requirements.txt"
+alias pi-f="pip freeze > requirements.txt"
 
 # Ollama
 alias ol="ollama"
@@ -51,13 +54,13 @@ alias ni="npm install"
 alias nr="npm run"
 
 # Docker
-alias doc="docker"
-alias doc-b="docker build"
-alias doc-r="docker run"
-alias doc-i="docker images"
-alias doc-ps="docker ps"
-alias doc-st="docker stop"
-alias doc-rm="docker rm"
+alias dc="docker"
+alias dc-b="docker build"
+alias dc-r="docker run"
+alias dc-i="docker images"
+alias dc-ps="docker ps"
+alias dc-st="docker stop"
+alias dc-rm="docker rm"
 
 # Mint
 alias mr="mint run"
@@ -113,11 +116,11 @@ md2pdf() {
 }
 
 # Aider
-aid-set() {
+ai-st() {
   export OLLAMA_API_BASE="$1"
 }
-aid-lch() {
-  local model="${1:?usage: aid-lch <model> [aider-args...]}"
+ai-ch() {
+  local model="${1:?usage: ai-lch <model> [aider-args...]}"
   shift
   aider --model "ollama/$model" --no-auto-commit --no-gitignore "$@"
 }
