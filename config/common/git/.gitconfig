@@ -17,6 +17,7 @@
     sh = stash
     rs = reset
 
+    c = commit
     cm = commit
     ps = push
     mr = merge
