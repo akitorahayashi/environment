@@ -25,9 +25,16 @@ fi
 echo "[SUCCESS] Java環境のセットアップが完了しました"
 
 
-# .zprofileをsourceして環境変数を反映
-if [ -f "$HOME/.zprofile" ]; then
-    source "$HOME/.zprofile"
+# JAVA_HOME の設定
+if [ -x /usr/libexec/java_home ]; then
+  JAVA_HOME_PATH=$(/usr/libexec/java_home -v "${JDK_VERSION}" 2>/dev/null)
+  if [ -n "$JAVA_HOME_PATH" ]; then
+    export JAVA_HOME="$JAVA_HOME_PATH"
+  else
+    echo "[WARNING] Java ${JDK_VERSION} not found. Skipping JAVA_HOME setup." >&2
+  fi
+else
+  echo "[WARNING] /usr/libexec/java_home not available. Skipping JAVA_HOME setup." >&2
 fi
 
 echo "==== Start: Java環境を検証中..."
