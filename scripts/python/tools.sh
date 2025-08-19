@@ -52,6 +52,7 @@ fi
 
 echo "[INFO] Installing tools from $PIPX_TOOLS_FILE..."
 installed_tools_output=$(pipx list)
+poetry_in_tools=false
 
 while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
     # Remove comments and trim whitespace
@@ -74,6 +75,20 @@ while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
         fi
         changed=true
         echo "IDEMPOTENCY_VIOLATION" >&2
+    fi
+
+    # If the tool is poetry, configure it.
+    if [[ "$tool_package" == "poetry" ]]; then
+        poetry_in_tools=true
+        echo "[CONFIG] Setting poetry virtualenvs configurations globally."
+        if ! poetry config virtualenvs.create true; then
+            echo "[ERROR] Failed to configure poetry virtualenvs.create" >&2
+            exit 1
+        fi
+        if ! poetry config virtualenvs.in-project true; then
+            echo "[ERROR] Failed to configure poetry virtualenvs.in-project" >&2
+            exit 1
+        fi
     fi
 done < "$PIPX_TOOLS_FILE"
 
@@ -110,6 +125,26 @@ while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
         verification_failed=true
     fi
 done < "$PIPX_TOOLS_FILE"
+
+# Verify poetry config
+if [ "$poetry_in_tools" = "true" ]; then
+    echo "[INFO] Verifying poetry configuration..."
+    config_ok=true
+    if ! poetry config virtualenvs.create | grep -q "true"; then
+        echo "[ERROR] Poetry virtualenvs.create is not set to true."
+        config_ok=false
+    fi
+    if ! poetry config virtualenvs.in-project | grep -q "true"; then
+        echo "[ERROR] Poetry virtualenvs.in-project is not set to true."
+        config_ok=false
+    fi
+
+    if [ "$config_ok" = "true" ]; then
+        echo "[SUCCESS] Poetry is configured correctly."
+    else
+        verification_failed=true
+    fi
+fi
 
 if [ "$verification_failed" = "true" ]; then
     echo "[ERROR] Python global tools verification failed."

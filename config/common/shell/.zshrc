@@ -16,8 +16,8 @@ alias pt-u="poetry update"
 alias pt-ls="poetry list"
 alias pt-lock="poetry lock"
 alias pt-e="poetry export -f requirements.txt --output requirements.txt --without-hashes"
-alias pt-env="poetry env list"
-alias pt-env-d="poetry env remove"
+alias pt-v="poetry env list"
+alias pt-v-rm="poetry env remove"
 
 # pipx
 alias px="pipx"
@@ -33,6 +33,25 @@ alias pi-up="python -m pip install --upgrade pip"
 alias pi-ui="pip uninstall"
 alias pi-r-rq="pip install -r requirements.txt"
 alias pi-f="pip freeze > requirements.txt"
+
+# django
+alias dj-st-proj="poetry run django-admin startproject"
+alias dj-st-a="poetry run python manage.py startapp"
+alias dj-s="poetry run python manage.py runserver"
+alias dj-mk-m="poetry run python manage.py makemigrations"
+alias dj-m="poetry run python manage.py migrate"
+alias dj-sh="poetry run python manage.py shell"
+alias dj-chk="poetry run python manage.py check"
+alias dj-mchk="poetry run python manage.py makemigrations --check"
+alias dj-csu="poetry run python manage.py createsuperuser"
+alias dj-test="poetry run python manage.py test"
+
+# black
+alias bl="black ."
+alias bl-chk="black --check ."
+
+# ruff
+alias rf="ruff check ."
 
 # Ollama
 alias ol="ollama"
@@ -89,23 +108,10 @@ alias op-cg="open -a 'Google Chrome' 'https://github.com/akitorahayashi'"
 alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
 
 md2pdf() {
-  if ! command -v pandoc >/dev/null 2>&1; then
-    echo "Error: pandoc is not installed." >&2
-    return 1
-  fi
-  if ! command -v lualatex >/dev/null 2>&1; then
-    echo "Error: lualatex (TeX Live) is not installed." >&2
-    return 1
-  fi
-  # 引数チェック
-  if [ $# -ne 2 ]; then
-    echo "Usage: md2pdf <input.md> <output.pdf>" >&2
-    return 2
-  fi
-  if [ ! -f "$1" ]; then
-    echo "Error: input file not found: $1" >&2
-    return 2
-  fi
+  for cmd in pandoc lualatex; do
+    command -v $cmd >/dev/null 2>&1 || { echo "Error: $cmd is not installed." >&2; return 1; }
+  done
+  [[ $# -ne 2 || ! -f $1 ]] && { echo "Usage: md2pdf <input.md> <output.pdf> (input file must exist)" >&2; return 2; }
   pandoc "$1" -o "$2" --pdf-engine=lualatex \
     -V documentclass=ltjarticle \
     -V mainfont="Hiragino Mincho ProN" \
