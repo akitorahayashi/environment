@@ -19,6 +19,10 @@ alias pt-e="poetry export -f requirements.txt --output requirements.txt --withou
 alias pt-v="poetry env list"
 alias pt-v-rm="poetry env remove"
 
+# venv
+alias act='source ./.venv/bin/activate'
+alias deact='deactivate'
+
 # pipx
 alias px="pipx"
 alias px-ls="pipx list"
@@ -44,7 +48,7 @@ alias dj-sh="poetry run python manage.py shell"
 alias dj-chk="poetry run python manage.py check"
 alias dj-mchk="poetry run python manage.py makemigrations --check"
 alias dj-csu="poetry run python manage.py createsuperuser"
-alias dj-test="poetry run python manage.py test"
+alias dj-tst="poetry run python manage.py test"
 
 # black
 alias bl="black ."
