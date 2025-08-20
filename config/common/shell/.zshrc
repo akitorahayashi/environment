@@ -39,8 +39,9 @@ alias pi-r-rq="pip install -r requirements.txt"
 alias pi-f="pip freeze > requirements.txt"
 
 # django
-alias dj-st-proj="poetry run django-admin startproject"
-alias dj-st-a="poetry run python manage.py startapp"
+alias dj-stpj="poetry run django-admin startproject"
+alias dj-sta="poetry run django-admin startapp"
+alias dj-mp-sta="poetry run python manage.py startapp"
 alias dj-s="poetry run python manage.py runserver"
 alias dj-mk-m="poetry run python manage.py makemigrations"
 alias dj-m="poetry run python manage.py migrate"
@@ -51,11 +52,11 @@ alias dj-csu="poetry run python manage.py createsuperuser"
 alias dj-tst="poetry run python manage.py test"
 
 # black
-alias bl="black ."
-alias bl-chk="black --check ."
+alias bl="poetry run black ."
+alias bl-chk="poetry run black --check ."
 
 # ruff
-alias rf="ruff check ."
+alias rf="poetry run ruff check ."
 
 # Ollama
 alias ol="ollama"

@@ -70,7 +70,7 @@ defaults write com.apple.dock workspaces-auto-swoosh -bool false
 defaults write com.apple.spaces spans-displays -bool false
 
 # ホットコーナー
-defaults write com.apple.dock wvous-tl-corner -int 1
+defaults write com.apple.dock wvous-tl-corner -int 11
 defaults write com.apple.dock wvous-tr-corner -int 5
 defaults write com.apple.dock wvous-bl-corner -int 10
 defaults write com.apple.dock wvous-br-corner -int 10
