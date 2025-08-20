@@ -25,6 +25,7 @@ brew "mint"
 brew "poppler"
 brew "pandoc"
 brew "ollama"
+brew "postgresql"
 # brew "displayplacer" # installed by scripts/macos.sh
 
 ## Cask
