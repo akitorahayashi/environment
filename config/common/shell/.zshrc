@@ -105,11 +105,12 @@ alias mk="make"
 # AppleScript
 alias as="osascript"
 
-# Utility
-alias al="alias"
-alias rel="source ~/.zshrc"
+# git
 alias gi="git"
-alias cl="clear"
+alias gia="git add .;git"
+alias gic="git add .;git commit -m"
+
+# open
 alias op="open"
 alias op-f="open ."
 alias op-s="open -b com.apple.systempreferences"
@@ -122,6 +123,11 @@ alias op-t="open -na Terminal"
 alias op-c="open -a 'Google Chrome'"
 alias op-cg="open -a 'Google Chrome' 'https://github.com/akitorahayashi'"
 alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
+
+# Utility
+alias al="alias"
+alias rel="source ~/.zshrc"
+alias cl="clear"
 
 md2pdf() {
   for cmd in pandoc lualatex; do

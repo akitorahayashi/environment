@@ -25,7 +25,7 @@
 
     c = commit
     cm = commit
-    amd = commit --amend --no-edit
+    amd = !git add . && git commit --amend --no-edit
 
     ps = push
     ps-u-m = push --set-upstream origin main
