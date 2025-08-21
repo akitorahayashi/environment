@@ -4,27 +4,34 @@
 [alias]
     ini = init
     cl = clone
+
     co = checkout
     b = branch
     br = branch
     cln = remote prune origin
 
     pl = pull
+    pl-rb = pull --rebase
+
     a = add
     ad = add
     df = diff
     ts = status
+    
     sh = stash
     rs = reset
+    rs-h = reset --hard
+    rs-h-m = reset --hard origin/main
 
     c = commit
     cm = commit
     amd = commit --amend --no-edit
+
     ps = push
     ps-u-m = push --set-upstream origin main
     ps-f-l = push --force-with-lease
+    
     mr = merge
-
     lg = log --oneline --graph --decorate --all
 
 [core]
