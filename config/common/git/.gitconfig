@@ -10,6 +10,7 @@
     br = branch
     cln = remote prune origin
 
+    p = pull
     pl = pull
     pl-rb = pull --rebase
 

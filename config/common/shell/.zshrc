@@ -128,6 +128,7 @@ alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
 alias al="alias"
 alias rel="source ~/.zshrc"
 alias cl="clear"
+alias gip="ipconfig getifaddr"
 
 md2pdf() {
   for cmd in pandoc lualatex; do
