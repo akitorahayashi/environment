@@ -19,7 +19,10 @@
 
     c = commit
     cm = commit
+    amd = commit --amend --no-edit
     ps = push
+    ps-u-m = push --set-upstream origin main
+    ps-f-l = push --force-with-lease
     mr = merge
 
     lg = log --oneline --graph --decorate --all

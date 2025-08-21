@@ -106,6 +106,7 @@ alias mk="make"
 alias as="osascript"
 
 # Utility
+alias al="alias"
 alias rel="source ~/.zshrc"
 alias gi="git"
 alias cl="clear"
