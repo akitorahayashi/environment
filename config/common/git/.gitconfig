@@ -6,6 +6,7 @@
     cl = clone
 
     co = checkout
+    co-m = checkout main
     b = branch
     br = branch
     cln = remote prune origin

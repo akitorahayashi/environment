@@ -120,6 +120,9 @@ alias as="osascript"
 # git
 alias g="git"
 alias gi="git"
+alias gb="git branch"
+alias gp="git pull"
+alias gps="git push"
 alias gc="git add .;git commit -m"
 alias gic="git add .;git commit -m"
 

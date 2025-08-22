@@ -24,8 +24,8 @@
 │       └── python/
 ├── scripts/
 │   ├── node/
-│   │   ├── packages.sh
-│   │   └── platform.sh
+│   │   ├── platform.sh
+│   │   └── tools.sh
 │   ├── python/
 │   │   ├── platform.sh
 │   │   └── tools.sh
