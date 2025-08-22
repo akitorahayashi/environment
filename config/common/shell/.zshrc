@@ -35,7 +35,7 @@ alias px-ui="pipx uninstall"
 alias px-r="pipx run"
 
 # pytest
-alias pts="poetry run pytest"
+alias pt-r-ts="poetry run pytest"
 
 # django
 alias dj-stpj="poetry run django-admin startproject"
@@ -51,12 +51,12 @@ alias dj-csu="poetry run python manage.py createsuperuser"
 alias dj-ts="poetry run python manage.py test"
 
 # black
-alias bl="poetry run black ."
-alias bl-chk="poetry run black --check ."
+alias pt-bl="poetry run black ."
+alias pt-bl-chk="poetry run black --check ."
 
 # ruff
-alias rf="poetry run ruff check . --fix"
-alias rf-chk="poetry run ruff check ."
+alias pt-rf="poetry run ruff check . --fix"
+alias pt-rf-chk="poetry run ruff check ."
 
 # Ollama
 alias ol="ollama"
@@ -69,13 +69,14 @@ alias ol-c="ollama create"
 alias ol-d="ollama delete"
 
 # Ruby
-alias be="bundle exec"
-alias be-f="bundle exec fastlane"
-alias bi="bundle install"
+alias bd-e="bundle exec"
+alias bd-f="bundle exec fastlane"
+alias bd-i="bundle install"
 
 # Node.js
-alias ni="npm install"
-alias nr="npm run"
+alias np="npm"
+alias np-i="npm install"
+alias np-r="npm run"
 
 # Docker
 alias dc="docker"
@@ -85,10 +86,15 @@ alias dc-i="docker images"
 alias dc-ps="docker ps"
 alias dc-st="docker stop"
 alias dc-rm="docker rm"
+alias dc-c-r="docker-compose run"
 
 # brew
-alias b="brew"
-alias bs-ls="brew services list"
+alias br="brew"
+alias br-i="brew install"
+alias br-i-c="brew install --cask"
+alias br-ui="brew uninstall"
+alias br-ui-c="brew uninstall --cask"
+alias br-s-ls="brew services list"
 
 # postgresql
 alias pst-st="brew services start postgresql"
@@ -96,8 +102,14 @@ alias pst-stp="brew services stop postgresql"
 alias pst-rs="brew services restart postgresql"
 alias pst-r="psql"
 
+# redis
+alias rd-st="brew services start redis"
+alias rd-stp="brew services stop redis"
+alias rd-rs="brew services restart redis"
+alias rd-cli="redis-cli"
+
 # Mint
-alias mr="mint run"
+alias mi-r="mint run"
 
 # Makefile
 alias mk="make"
@@ -106,8 +118,9 @@ alias mk="make"
 alias as="osascript"
 
 # git
+alias g="git"
 alias gi="git"
-alias gia="git add .;git"
+alias gc="git add .;git commit -m"
 alias gic="git add .;git commit -m"
 
 # open

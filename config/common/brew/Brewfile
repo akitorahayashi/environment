@@ -22,6 +22,7 @@ brew "mint"
 # brew "pyenv" # installed by scripts/python.sh
 
 ## Utility
+brew "redis"
 brew "poppler"
 brew "pandoc"
 brew "ollama"
@@ -37,3 +38,4 @@ cask "slack"
 cask "zoom"
 cask "obsidian"
 cask "mactex"
+cask "docker"
