@@ -157,14 +157,43 @@ gh-pr-create() {
 }
 gh-pr-ls() {
   gh pr list --limit 20 --json number,title,author,headRefName,state \
-    --jq '.[] | {number, title, author: .author.login, branch: .headRefName, state}'
+    --jq '.[] | {number, title, author: .author.login, branch: .headRefName, state}' |
+  while read -r pr; do
+    num=$(echo "$pr" | jq -r '.number')
+    mergeable=$(gh pr view "$num" --json mergeable --jq '.mergeable')
+    echo "$pr" | jq --arg mergeable "$mergeable" '. + {mergeable: $mergeable}'
+  done
+}
+gh-pr-mr() {
+  local pr_id="$1"
+  if [ -z "$pr_id" ]; then
+    echo "Usage: gh-pr-mr <pr-number>" >&2
+    return 1
+  fi
+  local mergeable
+  mergeable=$(gh pr view "$pr_id" --json mergeable --jq '.mergeable')
+  if [ "$mergeable" = "MERGEABLE" ]; then
+    echo "PR #$pr_id is MERGEABLE. Merging..."
+    gh pr merge "$pr_id"
+  else
+    echo "PR #$pr_id is not mergeable: $mergeable"
+    return 2
+  fi
 }
 
 # gh run
-gh-r-ls() {
-  gh run list --limit 3 \
-    --json status,conclusion,headBranch,event,databaseId \
-    --jq '.[] | {status, conclusion, branch: .headBranch, event, id: .databaseId}'
+gh-pr-ls() {
+  gh pr list --limit 20 --json number,title,author,headRefName,state \
+    --jq '.[] | {number, title, author: .author.login, branch: .headRefName, state}' |
+  while read -r pr; do
+    num=$(echo "$pr" | jq -r '.number')
+    branch=$(echo "$pr" | jq -r '.branch')
+    mergeable=$(gh pr view "$num" --json mergeable --jq '.mergeable')
+    # actions 実行中チェック
+    running=$(gh run list --branch "$branch" --status in_progress --limit 1 --json databaseId | jq 'length')
+    has_running_actions=$([ "$running" -gt 0 ] && echo "true" || echo "false")
+    echo "$pr" | jq --arg mergeable "$mergeable" --arg has_running "$has_running_actions" '. + {mergeable: $mergeable, actions_in_progress: $has_running}'
+  done
 }
 alias gh-r-w="gh run watch"
 gh-r-w-f() {
