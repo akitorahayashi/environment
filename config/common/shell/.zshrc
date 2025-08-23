@@ -126,6 +126,69 @@ alias gps="git push"
 alias gc="git add .;git commit -m"
 alias gic="git add .;git commit -m"
 
+# gh repo
+alias gh-re-ls="gh repo list --json name | jq -r '.[].name'"
+alias gh-re-cl="gh repo clone"
+gh-re-cr() {
+  local name="$1"
+  local desc="$2"
+  local is_public="$3"
+  if [ -z "$name" ]; then
+    echo "Usage: gh-r-cr <repo-name> [description] [public(true/false)]" >&2
+    return 1
+  fi
+  if [ "$is_public" = "false" ]; then
+    gh repo create "$name" --description "${desc:-}" --private
+  else
+    gh repo create "$name" --description "${desc:-}" --public
+  fi
+}
+
+# gh pr
+gh-pr-create() {
+  local branch="$1"
+  local title="$2"
+  local body="$3"
+  if [ -z "$branch" ] || [ -z "$title" ]; then
+    echo "Usage: gh-pr-create <branch> <title> [body]" >&2
+    return 1
+  fi
+  gh pr create --head "$branch" --title "$title" --body "${body:-}" --fill
+}
+gh-pr-ls() {
+  gh pr list --limit 20 --json number,title,author,headRefName,state \
+    --jq '.[] | {number, title, author: .author.login, branch: .headRefName, state}'
+}
+
+# gh run
+gh-r-ls() {
+  gh run list --limit 3 \
+    --json status,conclusion,headBranch,event,databaseId \
+    --jq '.[] | {status, conclusion, branch: .headBranch, event, id: .databaseId}'
+}
+alias gh-r-w="gh run watch"
+gh-r-w-f() {
+  # 最新3件の中から in_progress のワークフローIDを取得
+  id=$(gh-r-ls | jq -r 'select(.status=="in_progress") | .id' | head -n1)
+
+  if [ -n "$id" ]; then
+    echo "Watching workflow run $id ..."
+    gh-r-w "$id"
+  else
+    echo "No in_progress workflow found."
+  fi
+}
+alias gh-r-ce="gh run cancel"
+
+# gh br
+gh-br-url() {
+  local remote_url branch repo_url
+  remote_url=$(git config --get remote.origin.url)
+  branch=$(git rev-parse --abbrev-ref HEAD)
+  repo_url=$(echo "$remote_url" | sed -E 's#git@github.com:(.*)\.git#https://github.com/\1#; s#https://github.com/#https://github.com/#; s#\.git$##')
+  echo "${repo_url}/tree/${branch}"
+}
+
 # open
 alias op="open"
 alias op-f="open ."
