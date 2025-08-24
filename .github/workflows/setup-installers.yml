@@ -11,6 +11,7 @@ jobs:
       matrix:
         installer:
           - git
+          - gh
           - ruby
           - flutter
           - java
