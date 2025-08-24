@@ -32,36 +32,16 @@ help: ## Show this help message
 macbook: ## Setup for MacBook (common + specific)
 	@echo "🚀 Starting full MacBook setup..."
 	@$(MAKE) macbook-brew
-	@$(MAKE) git
-	@$(MAKE) vscode
-	@$(MAKE) ruby
-	@$(MAKE) python-platform
-	@$(MAKE) python-tools
+	@$(MAKE) common
 	@$(MAKE) macbook-python-tools
-	@$(MAKE) java
-	@$(MAKE) flutter
-	@$(MAKE) node-platform
-	@$(MAKE) node-tools
 	@$(MAKE) macbook-node-tools
-	@$(MAKE) shell
-	@$(MAKE) apply-defaults
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
 mac-mini: ## Setup for Mac mini (common + specific)
 	@echo "🚀 Starting full Mac mini setup..."
 	@$(MAKE) mac-mini-brew
-	@$(MAKE) git
-	@$(MAKE) vscode
-	@$(MAKE) ruby
-	@$(MAKE) python-platform
-	@$(MAKE) python-tools
-	@$(MAKE) java
-	@$(MAKE) flutter
-	@$(MAKE) node-platform
-	@$(MAKE) node-tools
-	@$(MAKE) shell
-	@$(MAKE) apply-defaults
+	@$(MAKE) common
 	@echo "✅ Mac mini full setup completed successfully."
 
 # --- Common Setup Targets ---
@@ -69,6 +49,7 @@ mac-mini: ## Setup for Mac mini (common + specific)
 common: ## Run all common setup tasks
 	@echo "🚀 Starting all common setup tasks..."
 	@$(MAKE) git
+	@$(MAKE) gh
 	@$(MAKE) vscode
 	@$(MAKE) ruby
 	@$(MAKE) python-platform
@@ -85,6 +66,11 @@ common: ## Run all common setup tasks
 git: ## Configure Git settings (common)
 	@echo "🚀 Running common Git setup..."
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/git.sh" "$(CONFIG_DIR_COMMON)"
+
+.PHONY: gh
+gh: ## Configure GitHub CLI (gh) settings (common)
+	@echo "🚀 Running common GitHub CLI setup..."
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/gh.sh"
 
 .PHONY: vscode
 vscode: ## Setup VS Code settings and extensions (common)

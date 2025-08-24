@@ -1,6 +1,6 @@
 ## Version Control
 # brew "git" # installed by scripts/git.sh
-# brew "gh" # installed by scripts/git.sh
+# brew "gh" # installed by scripts/gh.sh
 
 ## Development Tools
 # brew "nvm" # installed by scripts/node.sh
