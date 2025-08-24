@@ -107,7 +107,12 @@ fi
 echo "[SUCCESS] gitコマンドが使用可能です: $(git --version)"
 
 # 設定ファイルの存在確認
-echo "[SUCCESS] $HOME/.config/git/config が存在します。"
+if [ -f "$HOME/.config/git/config" ]; then
+    echo "[SUCCESS] $HOME/.config/git/config が存在します。"
+else
+    echo "[ERROR] $HOME/.config/git/config が存在しません。" >&2
+    verification_failed=true
+fi
 
 
 # gitignore_global の検証

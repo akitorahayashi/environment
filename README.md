@@ -34,6 +34,7 @@
 │   │   └── backup-system-defaults.sh
 │   ├── flutter.sh
 │   ├── git.sh
+│   ├── gh.sh
 │   ├── homebrew.sh
 │   ├── java.sh
 │   ├── link-shell.sh
