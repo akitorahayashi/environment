@@ -218,6 +218,20 @@ gh-br-url() {
   echo "${repo_url}/tree/${branch}"
 }
 
+gh-cp-md() {
+    if [ -z "$1" ]; then
+        echo "Usage: gh-cp-md <GitHub markdown file URL>"
+        return 1
+    fi
+
+    # Convert GitHub URL to raw URL
+    raw_url=$(echo "$1" | sed -E 's#https://github.com/([^/]+)/([^/]+)/blob/([^/]+)/(.*)#https://raw.githubusercontent.com/\1/\2/\3/\4#')
+
+    # Fetch with curl and copy to clipboard
+    curl -sL "$raw_url" | pbcopy
+    echo "Markdown content copied to clipboard ✅"
+}
+
 # open
 alias op="open"
 alias op-f="open ."
