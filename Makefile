@@ -32,38 +32,16 @@ help: ## Show this help message
 macbook: ## Setup for MacBook (common + specific)
 	@echo "🚀 Starting full MacBook setup..."
 	@$(MAKE) macbook-brew
-	@$(MAKE) git
-	@$(MAKE) gh
-	@$(MAKE) vscode
-	@$(MAKE) ruby
-	@$(MAKE) python-platform
-	@$(MAKE) python-tools
+	@$(MAKE) common
 	@$(MAKE) macbook-python-tools
-	@$(MAKE) java
-	@$(MAKE) flutter
-	@$(MAKE) node-platform
-	@$(MAKE) node-tools
 	@$(MAKE) macbook-node-tools
-	@$(MAKE) shell
-	@$(MAKE) apply-defaults
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
 mac-mini: ## Setup for Mac mini (common + specific)
 	@echo "🚀 Starting full Mac mini setup..."
 	@$(MAKE) mac-mini-brew
-	@$(MAKE) git
-	@$(MAKE) gh
-	@$(MAKE) vscode
-	@$(MAKE) ruby
-	@$(MAKE) python-platform
-	@$(MAKE) python-tools
-	@$(MAKE) java
-	@$(MAKE) flutter
-	@$(MAKE) node-platform
-	@$(MAKE) node-tools
-	@$(MAKE) shell
-	@$(MAKE) apply-defaults
+	@$(MAKE) common
 	@echo "✅ Mac mini full setup completed successfully."
 
 # --- Common Setup Targets ---
