@@ -13,14 +13,10 @@ if [ -z "${REPO_ROOT:-}" ]; then
 fi
 
 # 依存関係をインストール
-echo "[INFO] 依存関係をチェック・インストールします: git, gh"
+echo "[INFO] 依存関係をチェック・インストールします: git"
 changed=false
 if ! command -v git &> /dev/null; then
     brew install git
-    changed=true
-fi
-if ! command -v gh &> /dev/null; then
-    brew install gh
     changed=true
 fi
 

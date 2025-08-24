@@ -54,37 +54,41 @@
     -   この設定は `config/common/shell/` にあります。
 
 3.  **Git Configuration**
-    -   `config/common/git/.gitconfig`から`~/.gitconfig`へのコピーを作成
-    -   Gitのエイリアスなどの設定を適用
+    -   `scripts/git.sh` を実行し、Gitの基本設定を行います。
+    -   これには `.gitconfig` のコピー、グローバルな `.gitignore` の設定、`.env` ファイルからのユーザー情報（名前、メールアドレス）の設定が含まれます。
 
-4.  **macOS Settings**
+4.  **GitHub CLI (gh) Configuration**
+    -   `scripts/gh.sh` を実行し、GitHub CLI (`gh`) の設定を行います。
+    -   これには `gh` のインストールと、コマンドエイリアスの設定が含まれます。エイリアスは `.zshrc` でのシェルエイリアスではなく、`gh alias set` コマンドで管理されます。
+
+5.  **macOS Settings**
     -   `make apply-defaults` を実行することで、`scripts/system-defaults/apply-system-defaults.sh` に基づいてシステム設定（system defaults）が適用されます。
     -   `make backup-defaults` を実行することで、現在のmacOSの system defaults を生成/更新します（内部的に `scripts/system-defaults/backup-system-defaults.sh` を呼び出します）。
 
-5.  **Package Installation from Brewfile**
+6.  **Package Installation from Brewfile**
     -   `config/common/brew/Brewfile`に記載されたパッケージを`brew bundle`を使用してインストール
 
-6.  **Ruby Environment Setup**
+7.  **Ruby Environment Setup**
     -   `rbenv`と`ruby-build`をインストール
     -   特定のバージョンのRubyをインストールし、グローバルに設定
     -   `config/common/ruby/global-gems.rb`に基づき、`bundler`を使用してgemをインストール
 
-7.  **VS Code Configuration**
+8.  **VS Code Configuration**
     -   `config/common/vscode/`から`$HOME/Library/Application Support/Code/User`への設定ファイルのシンボリックリンクを作成
 
-8.  **Python Environment Setup**
+9.  **Python Environment Setup**
     -   `pyenv`をインストール
     -   特定のバージョンのPythonをインストールし、グローバルに設定
 
-9. **Java Environment Setup**
+10. **Java Environment Setup**
     -   `Homebrew`を使用して特定のバージョンのJava (Temurin)をインストール
 
-10. **Node.js Environment Setup**
+11. **Node.js Environment Setup**
     -   `nvm`と`jq`をHomebrewでインストール
     -   特定のバージョンのNode.jsをインストールし、デフォルトとして設定
     -   `config/common/node/global-packages.json`に基づき、グローバルnpmパッケージをインストール
 
-11. **Flutter Setup**
+12. **Flutter Setup**
 
 ## How to Use
 
