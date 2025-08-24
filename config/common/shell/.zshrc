@@ -218,18 +218,18 @@ gh-br-url() {
   echo "${repo_url}/tree/${branch}"
 }
 
-gh-cp-md() {
+gh-cp-f() {
     if [ -z "$1" ]; then
-        echo "Usage: gh-cp-md <GitHub markdown file URL>"
+        echo "Usage: gh-cp-f <GitHub file URL>"
         return 1
     fi
 
-    # Convert GitHub URL to raw URL
+    # GitHub URLをraw URLに変換
     raw_url=$(echo "$1" | sed -E 's#https://github.com/([^/]+)/([^/]+)/blob/([^/]+)/(.*)#https://raw.githubusercontent.com/\1/\2/\3/\4#')
 
-    # Fetch with curl and copy to clipboard
+    # curlで取得してクリップボードにコピー
     curl -sL "$raw_url" | pbcopy
-    echo "Markdown content copied to clipboard ✅"
+    echo "File content copied to clipboard ✅"
 }
 
 # open
