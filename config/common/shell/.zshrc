@@ -114,6 +114,12 @@ alias mi-r="mint run"
 # Makefile
 alias mk="make"
 
+# xcode
+alias xc="xed"
+
+# vscode
+alias cde="code"
+
 # AppleScript
 alias as="osascript"
 

@@ -24,6 +24,7 @@
     rs = reset
     rs-h = reset --hard
     rs-h-m = reset --hard origin/main
+    rm-c = rm --cached
 
     c = commit
     cm = commit
