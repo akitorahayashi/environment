@@ -48,9 +48,9 @@ fi
 echo "[INFO] Creating gh config directory at ${GH_CONFIG_DIR}..."
 mkdir -p "${GH_CONFIG_DIR}"
 
-echo "[INFO] Copying config.yml to ${GH_CONFIG_FILE}..."
-cp "${SOURCE_CONFIG_FILE}" "${GH_CONFIG_FILE}"
-echo "[SUCCESS] gh config file copied."
+echo "[INFO] Creating symbolic link for config.yml at ${GH_CONFIG_FILE}..."
+ln -sf "${SOURCE_CONFIG_FILE}" "${GH_CONFIG_FILE}"
+echo "[SUCCESS] gh config file symlinked."
 
 
 # Verification step
