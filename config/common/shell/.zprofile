@@ -64,3 +64,27 @@ fi
 if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"* ]]; then
     export PATH="$HOME/fvm/default/bin:$PATH"
 fi
+
+# SSH Agent の自動起動・再利用
+SSH_AGENT_PID_FILE="$HOME/.ssh/ssh-agent.pid"
+SSH_AUTH_SOCK_FILE="$HOME/.ssh/ssh-agent.sock"
+
+# 既存のSSH agentプロセスをチェック
+if [ -f "$SSH_AGENT_PID_FILE" ]; then
+    SSH_AGENT_PID=$(cat "$SSH_AGENT_PID_FILE")
+    if kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
+        # プロセスが生きている場合、環境変数を設定
+        export SSH_AGENT_PID
+        export SSH_AUTH_SOCK=$(cat "$SSH_AUTH_SOCK_FILE")
+    else
+        # プロセスが死んでいる場合、ファイルを削除
+        rm -f "$SSH_AGENT_PID_FILE" "$SSH_AUTH_SOCK_FILE"
+    fi
+fi
+
+# SSH agentが起動していない場合、新規起動
+if [ -z "$SSH_AGENT_PID" ] || ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
+    eval "$(ssh-agent -s)"
+    echo "$SSH_AGENT_PID" > "$SSH_AGENT_PID_FILE"
+    echo "$SSH_AUTH_SOCK" > "$SSH_AUTH_SOCK_FILE"
+fi
