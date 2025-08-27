@@ -1,6 +1,7 @@
 {
     "globalPackages": {
         "npm": "latest",
-        "@google/gemini-cli": "latest"
+        "@google/gemini-cli": "latest",
+        "@anthropic-ai/claude-code": "latest"
     }
 }

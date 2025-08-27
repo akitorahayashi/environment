@@ -13,5 +13,6 @@
   "github.copilot.nextEditSuggestions.enabled": true,
   "vscode-office.openOutline": true,
   "editor.minimap.enabled": false,
-  "python.analysis.typeCheckingMode": "basic"
+  "python.analysis.typeCheckingMode": "basic",
+  "git.enableSmartCommit": true
 }
