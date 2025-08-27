@@ -6,12 +6,22 @@ if [ -z "${REPO_ROOT:-}" ]; then
     exit 1
 fi
 
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <config-dir>" >&2
+    exit 1
+fi
+
+CONFIG_DIR=$1
+GH_CONFIG_DIR="${HOME}/.config/gh"
+GH_CONFIG_FILE="${GH_CONFIG_DIR}/config.yml"
+SOURCE_CONFIG_FILE="${REPO_ROOT}/${CONFIG_DIR}/gh/config.yml"
+
 # ================================================
 # GitHub CLI (gh) のインストールと設定
 # ================================================
 #
 # 1. gh のインストール (Homebrew経由)
-# 2. gh のエイリアス設定
+# 2. gh の設定ファイル(config.yml)を配置
 #
 # ================================================
 
@@ -27,32 +37,21 @@ else
     echo "[INFO] gh is already installed."
 fi
 
-# 2. gh のエイリアス設定
-echo "[INFO] Setting up gh aliases..."
+# 2. gh の設定ファイル(config.yml)を配置
+echo "[INFO] Setting up gh config..."
 
-# gh repo aliases
-gh alias set re-ls "repo list --json name | jq -r '.[].name'" --clobber
-gh alias set re-cl 'repo clone' --clobber
-gh alias set re-cr '!f() { local name="$1"; local desc="$2"; local is_public="$3"; if [ -z "$name" ]; then echo "Usage: gh re-cr <repo-name> [description] [public(true/false)]" >&2; return 1; fi; if [ "$is_public" = "false" ]; then gh repo create "$name" --description "${desc:-}" --private; else gh repo create "$name" --description "${desc:-}" --public; fi; }; f "$@"' --clobber
+if [ ! -f "${SOURCE_CONFIG_FILE}" ]; then
+    echo "[ERROR] Source config file not found at ${SOURCE_CONFIG_FILE}" >&2
+    exit 1
+fi
 
-# gh pr aliases
-gh alias set pr-create '!f() { local branch="$1"; local title="$2"; local body="$3"; if [ -z "$branch" ] || [ -z "$title" ]; then echo "Usage: gh pr-create <branch> <title> [body]" >&2; return 1; fi; gh pr create --head "$branch" --title "$title" --body "${body:-}" --fill; }; f "$@"' --clobber
-gh alias set pr-ls '!f() { gh pr list --limit 20 --json number,title,author,headRefName,state --jq ".[] | {number, title, author: .author.login, branch: .headRefName, state}" | while read -r pr; do num=$(echo "$pr" | jq -r ".number"); branch=$(echo "$pr" | jq -r ".branch"); mergeable=$(gh pr view "$num" --json mergeable --jq ".mergeable"); running=$(gh run list --branch "$branch" --status in_progress --limit 1 --json databaseId | jq "length"); has_running_actions=$([ "$running" -gt 0 ] && echo "true" || echo "false"); echo "$pr" | jq --arg mergeable "$mergeable" --arg has_running "$has_running_actions" ". + {mergeable: $mergeable, actions_in_progress: $has_running}"; done; }; f' --clobber
-gh alias set pr-mr '!f() { local pr_id="$1"; if [ -z "$pr_id" ]; then echo "Usage: gh pr-mr <pr-number>" >&2; return 1; fi; local mergeable; mergeable=$(gh pr view "$pr_id" --json mergeable --jq ".mergeable"); if [ "$mergeable" = "MERGEABLE" ]; then echo "PR #$pr_id is MERGEABLE. Merging..."; gh pr merge "$pr_id"; else echo "PR #$pr_id is not mergeable: $mergeable"; return 2; fi; }; f "$@"' --clobber
+echo "[INFO] Creating gh config directory at ${GH_CONFIG_DIR}..."
+mkdir -p "${GH_CONFIG_DIR}"
 
-# gh run aliases
-gh alias set r-ls "run list" --clobber
-gh alias set r-w 'run watch' --clobber
-gh alias set r-ce 'run cancel' --clobber
-gh alias set r-w-f '!f() { id=$(gh run list --jq '\''select(.status=="in_progress") | .databaseId'\'' | head -n1); if [ -n "$id" ]; then echo "Watching workflow run $id ..."; gh run watch "$id"; else echo "No in_progress workflow found."; fi; }; f' --clobber
+echo "[INFO] Copying config.yml to ${GH_CONFIG_FILE}..."
+cp "${SOURCE_CONFIG_FILE}" "${GH_CONFIG_FILE}"
+echo "[SUCCESS] gh config file copied."
 
-# gh branch aliases
-gh alias set br-url '!f() { local remote_url branch repo_url; remote_url=$(git config --get remote.origin.url); branch=$(git rev-parse --abbrev-ref HEAD); repo_url=$(echo "$remote_url" | sed -E "s#git@github.com:(.*)\\.git#https://github.com/\\1#; s#https://github.com/#https://github.com/#; s#\\.git$##"); echo "${repo_url}/tree/${branch}"; }; f' --clobber
-
-# gh copy file content alias
-gh alias set cp-f '!f() { if [ -z "$1" ]; then echo "Usage: gh cp-f <GitHub file URL>"; return 1; fi; raw_url=$(echo "$1" | sed -E "s#https://github.com/([^/]+)/([^/]+)/blob/([^/]+)/(.*)#https://raw.githubusercontent.com/\\1/\\2/\\3/\\4#"); curl -sL "$raw_url" | pbcopy; echo "File content copied to clipboard ✅"; }; f "$@"' --clobber
-
-echo "[SUCCESS] gh aliases set up."
 
 # Verification step
 echo ""
@@ -68,8 +67,9 @@ else
 fi
 
 # Alias verification
+# We check for a specific alias that should exist in the new config file.
 if ! gh alias list | grep -q "re-ls"; then
-    echo "[ERROR] gh alias 're-ls' was not set correctly."
+    echo "[ERROR] gh alias 're-ls' was not set correctly. Check ${GH_CONFIG_FILE}."
     verification_failed=true
 else
     echo "[SUCCESS] gh alias 're-ls' is set."
