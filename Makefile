@@ -70,7 +70,7 @@ git: ## Configure Git settings (common)
 .PHONY: gh
 gh: ## Configure GitHub CLI (gh) settings (common)
 	@echo "🚀 Running common GitHub CLI setup..."
-	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/gh.sh"
+	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/gh.sh" "$(CONFIG_DIR_COMMON)"
 
 .PHONY: vscode
 vscode: ## Setup VS Code settings and extensions (common)

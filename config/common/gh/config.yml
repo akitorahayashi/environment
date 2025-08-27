@@ -1,0 +1,126 @@
+git_protocol: ssh
+prompt: disabled
+spinner: enabled
+aliases:
+    # gh repo aliases
+    re-ls: 'repo list --limit 10 --json name,url,pushedAt --jq "sort_by(.pushedAt) | reverse | .[] | \"\\(.name): \\(.url)\""'
+    re-cl: repo clone
+    re-br-ls: |
+        !f() {
+          local repo="$1"
+          if [ -z "$repo" ]; then
+            echo "Usage: gh re-br-ls <repo-name>" >&2
+            return 1
+          fi
+          gh api "repos/$repo/branches" --jq '.[] | "\(.name): https://github.com/'$repo'/tree/\(.name)"'
+        }; f "$@"
+    re-cr: |
+        !f() {
+          local name="$1"
+          local desc="$2"
+          local is_public="$3"
+          if [ -z "$name" ]; then
+            echo "Usage: gh re-cr <repo-name> [description] [public(true/false)]" >&2
+            return 1
+          fi
+          if [ "$is_public" = "false" ]; then
+            gh repo create "$name" --description "${desc:-}" --private
+          else
+            gh repo create "$name" --description "${desc:-}" --public
+          fi
+        }; f "$@"
+    # gh pr aliases
+    pr-cr: |
+        !f() {
+          local branch="$1"
+          if [ -z "$branch" ]; then
+            echo "Usage: gh pr-cr <branch>" >&2
+            return 1
+          fi
+          
+          # Get the base branch (usually main or master)
+          local base_branch
+          base_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+          
+          # Get diff between base and target branch
+          local diff_content
+          diff_content=$(git diff "${base_branch}...${branch}")
+          
+          if [ -z "$diff_content" ]; then
+            echo "No changes found between ${base_branch} and ${branch}" >&2
+            return 1
+          fi
+          
+          # Generate title and body using gh copilot
+          echo "Generating PR title and body using GitHub Copilot..."
+          local pr_content
+          pr_content=$(echo "$diff_content" | gh copilot suggest "Generate a concise PR title (max 72 chars) and detailed body based on this git diff. Format as 'TITLE: <title>' followed by 'BODY:' and the body content.")
+          
+          # Extract title and body from copilot response
+          local title body
+          title=$(echo "$pr_content" | grep "^TITLE:" | sed 's/^TITLE: //')
+          body=$(echo "$pr_content" | sed -n '/^BODY:/,$p' | sed '1d')
+          
+          if [ -z "$title" ]; then
+            echo "Failed to generate title. Creating PR with manual input required..." >&2
+            gh pr create --head "$branch"
+          else
+            echo "Generated Title: $title"
+            echo "Generated Body: $body"
+            gh pr create --head "$branch" --title "$title" --body "$body"
+          fi
+        }; f "$@"
+    pr-ls: |
+        !f() {
+          gh pr list --limit 20 --json number,title,author,headRefName,state --jq '.[] | {number, title, author: .author.login, branch: .headRefName, state}' | while read -r pr; do
+            num=$(echo "$pr" | jq -r ".number")
+            branch=$(echo "$pr" | jq -r ".branch")
+            mergeable=$(gh pr view "$num" --json mergeable --jq ".mergeable")
+            running=$(gh run list --branch "$branch" --status in_progress --limit 1 --json databaseId | jq "length")
+            has_running_actions=$([ "$running" -gt 0 ] && echo "true" || echo "false")
+            echo "$pr" | jq --arg mergeable "$mergeable" --arg has_running "$has_running_actions" '. + {mergeable: $mergeable, actions_in_progress: $has_running}'
+          done
+        }; f
+    pr-mr: |
+        !f() {
+          local pr_id="$1"
+          if [ -z "$pr_id" ]; then
+            echo "Usage: gh pr-mr <pr-number>" >&2
+            return 1
+          fi
+          local mergeable
+          mergeable=$(gh pr view "$pr_id" --json mergeable --jq ".mergeable")
+          if [ "$mergeable" = "MERGEABLE" ]; then
+            echo "PR #$pr_id is MERGEABLE. Merging..."
+            gh pr merge "$pr_id"
+          else
+            echo "PR #$pr_id is not mergeable: $mergeable"
+            return 2
+          fi
+        }; f "$@"
+    # gh run aliases
+    r-ls: run list
+    r-w: run watch
+    r-ce: run cancel
+    r-w-f: |
+        !f() {
+          id=$(gh run list --jq 'select(.status=="in_progress") | .databaseId' | head -n1)
+          if [ -n "$id" ]; then
+            echo "Watching workflow run $id ..."
+            gh run watch "$id"
+          else
+            echo "No in_progress workflow found."
+          fi
+        }; f
+    # gh copy file content alias
+    cp-f: |-
+        !f() {
+          if [ -z "$1" ]; then
+            echo "Usage: gh cp-f <GitHub file URL>"
+            return 1
+          fi
+          raw_url=$(echo "$1" | sed -E "s#https://github.com/([^/]+)/([^/]+)/blob/([^/]+)/(.*)#https://raw.githubusercontent.com/\\1/\\2/\\3/\\4#")
+          curl -sL "$raw_url" | pbcopy
+          echo "File content copied to clipboard ✅"
+        }; f "$@"
+version: "1"
