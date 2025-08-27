@@ -283,7 +283,11 @@ ssha-ls() {
 
 ssha-a() {
   local host="$1"
-  local key=$(grep -A 10 "Host $host" ~/.ssh/config | grep IdentityFile | awk '{print $2}')
+  local key=$(awk -v host="$host" '
+    $1 == "Host" && $2 == host { in_block=1; next }
+    in_block && /^Host / { exit }
+    in_block && /IdentityFile/ { print $2; exit }
+  ' ~/.ssh/config)
   if [ -n "$key" ]; then
     # ~ を $HOME に展開
     local key_expanded="${key/#\~/$HOME}"
@@ -295,7 +299,11 @@ ssha-a() {
 
 ssha-rm() {
   local host="$1"
-  local key=$(grep -A 10 "Host $host" ~/.ssh/config | grep IdentityFile | awk '{print $2}')
+  local key=$(awk -v host="$host" '
+    $1 == "Host" && $2 == host { in_block=1; next }
+    in_block && /^Host / { exit }
+    in_block && /IdentityFile/ { print $2; exit }
+  ' ~/.ssh/config)
   if [ -n "$key" ]; then
     # ~ を $HOME に展開
     local key_expanded="${key/#\~/$HOME}"
