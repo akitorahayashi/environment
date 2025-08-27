@@ -131,6 +131,7 @@ alias gp="git pull"
 alias gps="git push"
 alias gc="git add .;git commit -m"
 alias gic="git add .;git commit -m"
+alias glg="git log --oneline --graph --decorate --all"
 
 # open
 alias op="open"
