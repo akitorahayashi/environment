@@ -123,6 +123,12 @@ alias cde="code"
 # AppleScript
 alias as="osascript"
 
+# Gemini
+alias gmn="gemini"
+
+# Claude
+alias cld="claude"
+
 # git
 alias g="git"
 alias gi="git"
