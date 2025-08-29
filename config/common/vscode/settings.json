@@ -14,5 +14,6 @@
   "vscode-office.openOutline": true,
   "editor.minimap.enabled": false,
   "python.analysis.typeCheckingMode": "basic",
-  "git.enableSmartCommit": true
+  "git.enableSmartCommit": true,
+  "git.autofetch": true
 }

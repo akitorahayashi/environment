@@ -116,6 +116,7 @@ alias mk="make"
 alias mk-h="make help"
 alias mk-f="make format"
 alias mk-l="make lint"
+alias mk-fl="make format lint"
 alias mk-t="make test"
 
 # xcode
@@ -141,7 +142,8 @@ alias gp="git pull"
 alias gps="git push"
 alias gc="git add .;git commit -m"
 alias gic="git add .;git commit -m"
-alias glg="log --oneline --graph --decorate --all -n 10"
+alias gl="git lg"
+alias glg="git lg"
 
 # open
 alias op="open"
