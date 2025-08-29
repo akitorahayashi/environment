@@ -113,12 +113,16 @@ alias mi-r="mint run"
 
 # Makefile
 alias mk="make"
+alias mk-h="make help"
+alias mk-f="make format"
+alias mk-l="make lint"
+alias mk-t="make test"
 
 # xcode
 alias xc="xed"
 
 # vscode
-alias cde="code"
+alias co="code"
 
 # AppleScript
 alias as="osascript"
@@ -137,7 +141,7 @@ alias gp="git pull"
 alias gps="git push"
 alias gc="git add .;git commit -m"
 alias gic="git add .;git commit -m"
-alias glg="git log --oneline --graph --decorate --all"
+alias glg="log --oneline --graph --decorate --all -n 10"
 
 # open
 alias op="open"

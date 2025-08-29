@@ -35,7 +35,7 @@
     ps-f-l = push --force-with-lease
     
     mr = merge
-    lg = log --oneline --graph --decorate --all
+    lg = log --oneline --graph --decorate --all -n 10
 
 [core]
 	excludesfile = ~/.gitignore_global
