@@ -143,18 +143,6 @@
     ```
     このコマンドは、Homebrew、Git、Ruby、Python、Node.jsなど、開発に必要なツールを一括でインストールし、macOSとシェルの設定も適用します。
 
-4.  **GitHub CLIの認証**
-
-    `make macbook` または `make mac-mini` でGitHub CLI (`gh`) がインストールされた後、以下のコマンドで認証を行ってください。
-
-    ```sh
-    # GitHub.comの認証を追加
-    gh auth login
-
-    # GitHub Enterpriseの認証を追加（該当する場合）
-    gh auth login --hostname your-enterprise-hostname.com
-    ```
-
-5.  **macOSの再起動**
+4.  **macOSの再起動**
 
     すべての設定を完全に適用するために、macOSを再起動してください。
