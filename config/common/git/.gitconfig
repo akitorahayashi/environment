@@ -31,6 +31,8 @@
     amd = !git add . && git commit --amend --no-edit
 
     ps = push
+    ps-u-o = push -u origin
+    ps-o = push origin
     ps-u-m = push --set-upstream origin main
     ps-f-l = push --force-with-lease
     

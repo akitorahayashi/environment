@@ -58,6 +58,10 @@ alias pt-bl-chk="poetry run black --check ."
 alias pt-rf="poetry run ruff check . --fix"
 alias pt-rf-chk="poetry run ruff check ."
 
+# streamlit
+alias st="streamlit"
+alias st-r="streamlit run"
+
 # Ollama
 alias ol="ollama"
 alias ol-ls="ollama list"
@@ -114,9 +118,11 @@ alias mi-r="mint run"
 # Makefile
 alias mk="make"
 alias mk-h="make help"
+alias mk-s="make setup"
 alias mk-f="make format"
 alias mk-l="make lint"
 alias mk-fl="make format lint"
+alias mk-r="make run"
 alias mk-t="make test"
 
 # xcode
@@ -140,6 +146,9 @@ alias gi="git"
 alias gb="git branch"
 alias gp="git pull"
 alias gps="git push"
+alias gps-u-o="git push -u origin"
+alias gps-f-l="git push --force-with-lease"
+alias gps-o="git push origin"
 alias gc="git add .;git commit -m"
 alias gic="git add .;git commit -m"
 alias gl="git lg"
@@ -162,6 +171,7 @@ alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
 # Utility
 alias al="alias"
 alias ct="cat"
+alias tc="touch"
 alias rel="source ~/.zshrc"
 alias cl="clear"
 alias gip="ipconfig getifaddr"
