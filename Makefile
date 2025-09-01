@@ -31,10 +31,10 @@ help: ## Show this help message
 .PHONY: macbook
 macbook: ## Setup for MacBook (common + specific)
 	@echo "🚀 Starting full MacBook setup..."
-	@$(MAKE) mbk-brew
 	@$(MAKE) common
-	@$(MAKE) macbook-python-tools
-	@$(MAKE) macbook-node-tools
+	@$(MAKE) mbk-brew
+	@$(MAKE) mbk-python-tools
+	@$(MAKE) mbk-node-tools
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
@@ -92,8 +92,8 @@ python-tools: ## Install common Python tools (common)
 	@echo "🚀 Installing common Python tools..."
 	@$(MAKE) _python-tools CONFIG_DIR=$(CONFIG_DIR_COMMON)
 
-.PHONY: macbook-python-tools
-macbook-python-tools: ## Install MacBook-specific Python tools
+.PHONY: mbk-python-tools
+mbk-python-tools: ## Install MacBook-specific Python tools
 	@echo "🚀 Installing MacBook-specific Python tools..."
 	@$(MAKE) _python-tools CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 
@@ -118,8 +118,8 @@ node-tools: ## Install common Node.js tools (common)
 	@echo "🚀 Installing common Node.js tools..."
 	@$(MAKE) _node-tools CONFIG_DIR=$(CONFIG_DIR_COMMON)
 
-.PHONY: macbook-node-tools
-macbook-node-tools: ## Install MacBook-specific Node.js tools
+.PHONY: mbk-node-tools
+mbk-node-tools: ## Install MacBook-specific Node.js tools
 	@echo "🚀 Installing MacBook-specific Node.js tools..."
 	@$(MAKE) _node-tools CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
 

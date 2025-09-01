@@ -50,8 +50,7 @@ if [ ! -f "$PIPX_TOOLS_FILE" ]; then
     exit 1
 fi
 
-echo "[INFO] Installing tools from $PIPX_TOOLS_FILE..."
-installed_tools_output=$(pipx list)
+echo "[INFO] Installing/updating tools from $PIPX_TOOLS_FILE..."
 
 while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
     # Remove comments and trim whitespace
@@ -62,19 +61,14 @@ while IFS= read -r tool_package_raw || [ -n "$tool_package_raw" ]; do
         continue
     fi
 
-    # Check if the package is already installed
-    if echo "$installed_tools_output" | grep -q "package $tool_package "; then
-        echo "[INFO] $tool_package is already installed."
-    else
-        echo "[INSTALL] $tool_package"
-        # We need the current python version for the installation
-        if ! pipx install "$tool_package" --python "$(pyenv which python)"; then
-            echo "[ERROR] Failed to install $tool_package" >&2
-            exit 1
-        fi
-        changed=true
-        echo "IDEMPOTENCY_VIOLATION" >&2
+    echo "[INSTALL] $tool_package"
+    # We need the current python version for the installation
+    if ! pipx install "$tool_package" --python "$(pyenv which python)"; then
+        echo "[ERROR] Failed to install $tool_package" >&2
+        exit 1
     fi
+    changed=true
+    echo "IDEMPOTENCY_VIOLATION" >&2
 done < "$PIPX_TOOLS_FILE"
 
 echo "[SUCCESS] Python global tools setup complete."
