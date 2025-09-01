@@ -40,75 +40,27 @@ if [ ! -f "$packages_file" ]; then
     exit 1
 fi
 
-echo "[INFO] Checking and installing global packages from $packages_file..."
+echo "[INFO] Installing/updating global packages from $packages_file..."
 if ! command -v jq >/dev/null 2>&1; then
   echo "[ERROR] 'jq' is required but not found. Run 'make node-platform' first or install jq." >&2
   exit 1
 fi
-packages_json=$(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$packages_file")
+
+packages_json=$(jq -r '.globalPackages | keys[]' "$packages_file")
 if [ -z "$packages_json" ]; then
     echo "[WARN] No packages defined in global-packages.json"
 else
-    while IFS= read -r entry; do
-        pkg_full="$entry"
-        pkg_name="${entry%@*}"
-        # Check installed version. Note: `npm list` can be slow.
-        installed_version=$(npm list -g --depth=0 "$pkg_name" 2>/dev/null | grep -E "$pkg_name@[0-9]" | awk -F'@' '{print $NF}' || true)
-        required_version=$(echo "$pkg_full" | awk -F'@' '{print $NF}')
-
-        if [ "$required_version" == "latest" ]; then
-            resolved_latest=$(npm view "$pkg_name" version 2>/dev/null || true)
-            if [ -z "$resolved_latest" ]; then
-                echo "[ERROR] Failed to resolve latest version for $pkg_name" >&2
-                exit 1
-            fi
-            if [ -z "$installed_version" ]; then
-                echo "[INSTALL] $pkg_name@latest (resolves to $resolved_latest)"
-                npm install -g "$pkg_name@latest"
-            elif [ "$installed_version" != "$resolved_latest" ]; then
-                echo "[INSTALL] $pkg_name@latest (updating from $installed_version to $resolved_latest)"
-                if ! npm install -g "$pkg_name@latest"; then
-                    echo "[WARN] npm install failed, attempting to clean up and retry..."
-                    npm uninstall -g "$pkg_name" 2>/dev/null || true
-                    # Force remove any remaining directories that might cause ENOTEMPTY errors
-                    npm_prefix=$(npm config get prefix 2>/dev/null || echo "$HOME/.nvm/versions/node/$(node -v)")
-                    pkg_dir="$npm_prefix/lib/node_modules/$pkg_name"
-                    if [ -d "$pkg_dir" ]; then
-                        echo "[INFO] Force removing $pkg_dir"
-                        rm -rf "$pkg_dir" || true
-                    fi
-                    if npm install -g "$pkg_name@latest"; then
-                        echo "[SUCCESS] Retry successful for $pkg_name"
-                    else
-                        echo "[ERROR] Failed to update $pkg_name after cleanup" >&2
-                        exit 1
-                    fi
-                fi
-            else
-                echo "[INFO] $pkg_name is already at latest ($resolved_latest)."
-            fi
-        elif [ "$installed_version" != "$required_version" ]; then
-            echo "[INSTALL] $pkg_full (updating from $installed_version)"
-            if ! npm install -g "$pkg_full"; then
-                echo "[WARN] npm install failed, attempting to clean up and retry..."
-                npm uninstall -g "$pkg_name" 2>/dev/null || true
-                # Force remove any remaining directories that might cause ENOTEMPTY errors
-                npm_prefix=$(npm config get prefix 2>/dev/null || echo "$HOME/.nvm/versions/node/$(node -v)")
-                pkg_dir="$npm_prefix/lib/node_modules/$pkg_name"
-                if [ -d "$pkg_dir" ]; then
-                    echo "[INFO] Force removing $pkg_dir"
-                    rm -rf "$pkg_dir" || true
-                fi
-                if npm install -g "$pkg_full"; then
-                    echo "[SUCCESS] Retry successful for $pkg_name"
-                else
-                    echo "[ERROR] Failed to update $pkg_name after cleanup" >&2
-                    exit 1
-                fi
-            fi
+    while IFS= read -r pkg_name; do
+        # Check if package is installed
+        if npm list -g "$pkg_name" &>/dev/null; then
+            echo "[INFO] $pkg_name is already installed, checking for updates..."
         else
-            echo "[INFO] $pkg_name@$required_version is already installed."
+            echo "[INSTALL] $pkg_name@latest"
+            echo "IDEMPOTENCY_VIOLATION" >&2
         fi
+        
+        # Install/update the package (npm handles existing packages gracefully)
+        npm install -g "$pkg_name@latest"
     done <<< "$packages_json"
 fi
 
