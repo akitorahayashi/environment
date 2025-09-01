@@ -27,11 +27,35 @@ u-v() {
 alias u-a="uv add"
 alias u-r="uv run"
 u-s() {
-  if [[ $# -eq 1 ]]; then
-    uv sync --extra "$1"
-  else
-    uv sync
+  local extra=""
+  local venv_path=""
+  
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -e|--extra)
+        extra="$2"
+        shift 2
+        ;;
+      -v|--venv)
+        venv_path="$2"
+        shift 2
+        ;;
+      *)
+        echo "Usage: u-s [-e|--extra <extra_name>] [-v|--venv <venv_path>]"
+        return 1
+        ;;
+    esac
+  done
+  
+  local cmd="uv sync"
+  if [[ -n "$extra" ]]; then
+    cmd+=" --extra $extra"
   fi
+  if [[ -n "$venv_path" ]]; then
+    cmd+=" --python $venv_path/bin/python"
+  fi
+  
+  eval "$cmd"
 }
 alias u-s-nd="uv sync --no-dev"
 alias u-lk="uv lock"
