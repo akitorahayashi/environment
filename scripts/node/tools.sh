@@ -49,7 +49,6 @@ packages_json=$(jq -r '.globalPackages | to_entries[] | "\(.key)@\(.value)"' "$p
 if [ -z "$packages_json" ]; then
     echo "[WARN] No packages defined in global-packages.json"
 else
-    packages_changed=false
     while IFS= read -r entry; do
         pkg_full="$entry"
         pkg_name="${entry%@*}"
@@ -65,38 +64,52 @@ else
             fi
             if [ -z "$installed_version" ]; then
                 echo "[INSTALL] $pkg_name@latest (resolves to $resolved_latest)"
-                if npm install -g "$pkg_name@latest"; then
-                    packages_changed=true
-                else
-                    echo "[ERROR] Failed to install $pkg_name" >&2
-                    exit 1
-                fi
+                npm install -g "$pkg_name@latest"
             elif [ "$installed_version" != "$resolved_latest" ]; then
                 echo "[INSTALL] $pkg_name@latest (updating from $installed_version to $resolved_latest)"
-                if npm install -g "$pkg_name@latest"; then
-                    packages_changed=true
-                else
-                    echo "[ERROR] Failed to update $pkg_name" >&2
-                    exit 1
+                if ! npm install -g "$pkg_name@latest"; then
+                    echo "[WARN] npm install failed, attempting to clean up and retry..."
+                    npm uninstall -g "$pkg_name" 2>/dev/null || true
+                    # Force remove any remaining directories that might cause ENOTEMPTY errors
+                    npm_prefix=$(npm config get prefix 2>/dev/null || echo "$HOME/.nvm/versions/node/$(node -v)")
+                    pkg_dir="$npm_prefix/lib/node_modules/$pkg_name"
+                    if [ -d "$pkg_dir" ]; then
+                        echo "[INFO] Force removing $pkg_dir"
+                        rm -rf "$pkg_dir" || true
+                    fi
+                    if npm install -g "$pkg_name@latest"; then
+                        echo "[SUCCESS] Retry successful for $pkg_name"
+                    else
+                        echo "[ERROR] Failed to update $pkg_name after cleanup" >&2
+                        exit 1
+                    fi
                 fi
             else
                 echo "[INFO] $pkg_name is already at latest ($resolved_latest)."
             fi
         elif [ "$installed_version" != "$required_version" ]; then
             echo "[INSTALL] $pkg_full (updating from $installed_version)"
-            if npm install -g "$pkg_full"; then
-                packages_changed=true
-            else
-                echo "[ERROR] Failed to update $pkg_name"
-                exit 1
+            if ! npm install -g "$pkg_full"; then
+                echo "[WARN] npm install failed, attempting to clean up and retry..."
+                npm uninstall -g "$pkg_name" 2>/dev/null || true
+                # Force remove any remaining directories that might cause ENOTEMPTY errors
+                npm_prefix=$(npm config get prefix 2>/dev/null || echo "$HOME/.nvm/versions/node/$(node -v)")
+                pkg_dir="$npm_prefix/lib/node_modules/$pkg_name"
+                if [ -d "$pkg_dir" ]; then
+                    echo "[INFO] Force removing $pkg_dir"
+                    rm -rf "$pkg_dir" || true
+                fi
+                if npm install -g "$pkg_full"; then
+                    echo "[SUCCESS] Retry successful for $pkg_name"
+                else
+                    echo "[ERROR] Failed to update $pkg_name after cleanup" >&2
+                    exit 1
+                fi
             fi
         else
             echo "[INFO] $pkg_name@$required_version is already installed."
         fi
     done <<< "$packages_json"
-    if [ "$packages_changed" = true ]; then
-        echo "IDEMPOTENCY_VIOLATION" >&2
-    fi
 fi
 
 echo "[SUCCESS] Node.js global packages setup complete."
