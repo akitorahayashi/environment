@@ -22,6 +22,13 @@ if ! command -v pyenv &> /dev/null; then
     changed=true
 fi
 
+# Install uv dependency
+echo "[INFO] Checking and installing dependency: uv"
+if ! command -v uv &> /dev/null; then
+    brew install uv
+    changed=true
+fi
+
 # Initialize pyenv for the current shell
 if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init --path)"
@@ -102,6 +109,14 @@ if ! command -v pyenv >/dev/null 2>&1; then
     verification_failed=true
 else
     echo "[SUCCESS] pyenv: $(pyenv --version)"
+fi
+
+# Verify uv
+if ! command -v uv >/dev/null 2>&1; then
+    echo "[ERROR] uv command not found."
+    verification_failed=true
+else
+    echo "[SUCCESS] uv: $(uv --version)"
 fi
 
 # Verify Python version
