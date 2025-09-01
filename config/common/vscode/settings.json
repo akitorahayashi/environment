@@ -15,5 +15,16 @@
   "editor.minimap.enabled": false,
   "python.analysis.typeCheckingMode": "basic",
   "git.enableSmartCommit": true,
-  "git.autofetch": true
+  "git.autofetch": true,
+  "claude.mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server"
+      ]
+    }
+  }
 }

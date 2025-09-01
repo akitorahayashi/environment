@@ -31,7 +31,7 @@ help: ## Show this help message
 .PHONY: macbook
 macbook: ## Setup for MacBook (common + specific)
 	@echo "🚀 Starting full MacBook setup..."
-	@$(MAKE) macbook-brew
+	@$(MAKE) mbk-brew
 	@$(MAKE) common
 	@$(MAKE) macbook-python-tools
 	@$(MAKE) macbook-node-tools
@@ -40,7 +40,7 @@ macbook: ## Setup for MacBook (common + specific)
 .PHONY: mac-mini
 mac-mini: ## Setup for Mac mini (common + specific)
 	@echo "🚀 Starting full Mac mini setup..."
-	@$(MAKE) mac-mini-brew
+	@$(MAKE) mmn-brew
 	@$(MAKE) common
 	@echo "✅ Mac mini full setup completed successfully."
 
@@ -130,8 +130,8 @@ apply-defaults: ## Apply macOS system defaults (common)
 	@$(SHELL) -euo pipefail "$(SCRIPT_DIR)/system-defaults/apply-system-defaults.sh" "$(CONFIG_DIR_COMMON)"
 
 # --- Individual Setup Targets for MacBook ---
-.PHONY: macbook-brew
-macbook-brew: ## [MacBook] Setup Homebrew and install packages
+.PHONY: mbk-brew
+mbk-brew: ## [MacBook] Setup Homebrew and install packages
 	@echo "🚀 [MacBook] Running Homebrew setup..."
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_MACBOOK)
@@ -142,8 +142,8 @@ shell: ## Link common shell configuration files
 	@$(MAKE) _link-shell CONFIG_DIR=$(CONFIG_DIR_COMMON)
 
 # --- Individual Setup Targets for Mac mini ---
-.PHONY: mac-mini-brew
-mac-mini-brew: ## [Mac mini] Setup Homebrew and install packages
+.PHONY: mmn-brew
+mmn-brew: ## [Mac mini] Setup Homebrew and install packages
 	@echo "🚀 [Mac mini] Running Homebrew setup..."
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_COMMON)
 	@$(MAKE) _brew CONFIG_DIR=$(CONFIG_DIR_MAC_MINI)

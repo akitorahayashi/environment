@@ -107,7 +107,7 @@ Use the `make` command to run the setup.
 - **`make common`**: Executes all common settings only (Git, VS Code, Ruby, Python, Java, Flutter, Node.js, Shell, System Defaults).
 - **`make <task>`**: Executes an individual setup.
   - **Common Tasks**: You can run specific common tasks like `make git`, `make shell`, `make java`, etc.
-  - **Machine-Specific Tasks**: Machine-specific tasks like `make macbook-brew`, `make mac-mini-brew` can also be run individually.
+  - **Machine-Specific Tasks**: Machine-specific tasks like `make mbk-brew`, `make mmn-brew` can also be run individually.
 
 ## Setup Instructions
 
