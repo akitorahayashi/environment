@@ -19,7 +19,8 @@ brew "mint"
 # brew "openssl" # installed by scripts/ruby.sh
 
 ## Python
-# brew "pyenv" # installed by scripts/python.sh
+# brew "pyenv" # installed by scripts/python/platform.sh
+# brew "uv" # installed by scripts/python/platform.sh
 
 ## Utility
 brew "redis"

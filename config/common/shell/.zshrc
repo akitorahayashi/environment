@@ -2,30 +2,56 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
 
-# Poetry
-alias pt="poetry"
-alias pt-n="poetry new"
-alias pt-ini="poetry init --no-interaction"
-alias pt-i="poetry install"
-alias pt-a="poetry add"
-alias pt-rm="poetry remove"
-alias pt-r="poetry run"
-alias pt-r-p="poetry run python"
-alias pt-r-p-m="poetry run python -m"
-alias pt-r-p-mp="poetry run python manage.py"
-alias pt-u="poetry update"
-alias pt-ls="poetry list"
-alias pt-lk="poetry lock"
-alias pt-e="poetry export -f requirements.txt --output requirements.txt --without-hashes"
-alias pt-v="poetry env list"
-alias pt-v-rm="poetry env remove"
+# uv
+alias u="uv"
+alias u-ini="uv init"
+u-v() {
+  if [[ -f ".python-version" ]]; then
+    pyver=$(<.python-version)
+  else
+    echo ".python-version not found. Exiting."
+    return 1
+  fi
+
+  if ! pyenv versions --bare | grep -qx "$pyver"; then
+    echo "Python $pyver is not installed. Installing..."
+    pyenv install "$pyver"
+  fi
+
+  if [[ $# -eq 1 ]]; then
+    uv venv "$1" --python "$(pyenv which python)"
+  else
+    uv venv --python "$(pyenv which python)"
+  fi
+}
+alias u-a="uv add"
+alias u-r="uv run"
+u-s() {
+  if [[ $# -eq 1 ]]; then
+    uv sync --extra "$1"
+  else
+    uv sync
+  fi
+}
+alias u-s-nd="uv sync --no-dev"
+alias u-lk="uv lock"
 
 # venv
-alias act='source ./.venv/bin/activate'
+act() {
+  if [[ $# -eq 1 ]]; then
+    source "./$1/bin/activate"
+  else
+    source "./.venv/bin/activate"
+  fi
+}
 alias deact='deactivate'
-
-# pip
-alias pi="pip"
+rm-vev() {
+  if [[ $# -eq 1 ]]; then
+    rm -rf "./$1"
+  else
+    rm -rf "./.venv"
+  fi
+}
 
 # pipx
 alias px="pipx"
@@ -34,29 +60,36 @@ alias px-i="pipx install"
 alias px-ui="pipx uninstall"
 alias px-r="pipx run"
 
+# pyenv
+alias pv="pyenv"
+alias pv-ls="pyenv versions"
+alias pv-s="pyenv shell"
+alias pv-g="pyenv global"
+alias pv-l="pyenv local"
+
 # pytest
-alias pt-r-ts="poetry run pytest"
+alias pts="pytest"
 
 # django
-alias dj-stpj="poetry run django-admin startproject"
-alias dj-sta="poetry run django-admin startapp"
-alias dj-mp-sta="poetry run python manage.py startapp"
-alias dj-s="poetry run python manage.py runserver"
-alias dj-mk-m="poetry run python manage.py makemigrations"
-alias dj-m="poetry run python manage.py migrate"
-alias dj-sh="poetry run python manage.py shell"
-alias dj-chk="poetry run python manage.py check"
-alias dj-chkm="poetry run python manage.py makemigrations --check"
-alias dj-csu="poetry run python manage.py createsuperuser"
-alias dj-ts="poetry run python manage.py test"
+alias dj-stpj="django-admin startproject"
+alias dj-sta="django-admin startapp"
+alias dj-mp-sta="python manage.py startapp"
+alias dj-s="python manage.py runserver"
+alias dj-mk-m="python manage.py makemigrations"
+alias dj-m="python manage.py migrate"
+alias dj-sh="python manage.py shell"
+alias dj-chk="python manage.py check"
+alias dj-chkm="python manage.py makemigrations --check"
+alias dj-csu="python manage.py createsuperuser"
+alias dj-ts="python manage.py test"
 
 # black
-alias pt-bl="poetry run black ."
-alias pt-bl-chk="poetry run black --check ."
+alias bl="black ."
+alias bl-chk="black --check ."
 
 # ruff
-alias pt-rf="poetry run ruff check . --fix"
-alias pt-rf-chk="poetry run ruff check ."
+alias rf="ruff check . --fix"
+alias rf-chk="ruff check ."
 
 # streamlit
 alias st="streamlit"
@@ -170,6 +203,7 @@ alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
 
 # Utility
 alias al="alias"
+alias sc="source"
 alias ct="cat"
 alias tc="touch"
 alias rel="source ~/.zshrc"
@@ -305,7 +339,7 @@ ssha-ls() {
 
 ssha-a() {
   local host="$1"
-  local key=$(awk -v host="$host" '
+  local key=$(awk -v host="$host" ' 
     $1 == "Host" && $2 == host { in_block=1; next }
     in_block && /^Host / { exit }
     in_block && /IdentityFile/ { print $2; exit }
@@ -321,7 +355,7 @@ ssha-a() {
 
 ssha-rm() {
   local host="$1"
-  local key=$(awk -v host="$host" '
+  local key=$(awk -v host="$host" ' 
     $1 == "Host" && $2 == host { in_block=1; next }
     in_block && /^Host / { exit }
     in_block && /IdentityFile/ { print $2; exit }
