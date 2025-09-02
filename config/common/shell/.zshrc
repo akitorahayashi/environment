@@ -28,7 +28,7 @@ alias u-a="uv add"
 alias u-r="uv run"
 u-s() {
   local extra=""
-  local venv_path=""
+  local active=false
   
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -36,12 +36,12 @@ u-s() {
         extra="$2"
         shift 2
         ;;
-      -v|--venv)
-        venv_path="$2"
-        shift 2
+      -act|--active)
+        active=true
+        shift
         ;;
       *)
-        echo "Usage: u-s [-e|--extra <extra_name>] [-v|--venv <venv_path>]"
+        echo "Usage: u-s [-e|--extra <extra_name>] [-act|--active]"
         return 1
         ;;
     esac
@@ -51,8 +51,8 @@ u-s() {
   if [[ -n "$extra" ]]; then
     cmd+=" --extra $extra"
   fi
-  if [[ -n "$venv_path" ]]; then
-    cmd+=" --python $venv_path/bin/python"
+  if [[ "$active" == true ]]; then
+    cmd+=" --active"
   fi
   
   eval "$cmd"
