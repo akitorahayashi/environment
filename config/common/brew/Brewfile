@@ -22,12 +22,15 @@ brew "mint"
 # brew "pyenv" # installed by scripts/python/platform.sh
 # brew "uv" # installed by scripts/python/platform.sh
 
+## PostgreSQL
+brew "postgresql"
+brew "pg_tmp"
+
 ## Utility
 brew "redis"
 brew "poppler"
 brew "pandoc"
 brew "ollama"
-brew "postgresql"
 # brew "displayplacer" # installed by scripts/macos.sh
 
 ## Cask

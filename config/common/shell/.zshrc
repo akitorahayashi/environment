@@ -26,38 +26,10 @@ u-v() {
 }
 alias u-a="uv add"
 alias u-r="uv run"
-u-s() {
-  local extra=""
-  local active=false
-  
-  while [[ $# -gt 0 ]]; do
-    case $1 in
-      -e|--extra)
-        extra="$2"
-        shift 2
-        ;;
-      -act|--active)
-        active=true
-        shift
-        ;;
-      *)
-        echo "Usage: u-s [-e|--extra <extra_name>] [-act|--active]"
-        return 1
-        ;;
-    esac
-  done
-  
-  local cmd="uv sync"
-  if [[ -n "$extra" ]]; then
-    cmd+=" --extra $extra"
-  fi
-  if [[ "$active" == true ]]; then
-    cmd+=" --active"
-  fi
-  
-  eval "$cmd"
-}
+alias u-s="uv sync"
+alias u-s-e="uv sync --extra"
 alias u-s-nd="uv sync --no-dev"
+alias u-s-og="uv sync --only-group"
 alias u-lk="uv lock"
 
 # uv tool
@@ -160,6 +132,7 @@ alias dc-c-r="docker-compose run"
 
 # brew
 alias br="brew"
+alias br-ls="brew list"
 alias br-i="brew install"
 alias br-i-c="brew install --cask"
 alias br-ui="brew uninstall"
@@ -190,6 +163,12 @@ alias mk-l="make lint"
 alias mk-fl="make format lint"
 alias mk-r="make run"
 alias mk-t="make test"
+alias mk-ut="make unit-test"
+alias mk-uit="make ui-test"
+alias mk-et="make e2e-test"
+alias mk-dt="make db-test"
+alias mk-pt="make perf-test"
+alias mk-it="make integration-test"
 
 # xcode
 alias xc="xed"
