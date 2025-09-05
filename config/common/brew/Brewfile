@@ -24,10 +24,10 @@ brew "mint"
 
 ## PostgreSQL
 brew "postgresql"
-brew "pg_tmp"
 
 ## Utility
 brew "redis"
+brew "marp-cli"
 brew "poppler"
 brew "pandoc"
 brew "ollama"

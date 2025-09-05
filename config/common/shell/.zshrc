@@ -25,12 +25,13 @@ u-v() {
   fi
 }
 alias u-a="uv add"
-alias u-r="uv run"
 alias u-s="uv sync"
 alias u-s-e="uv sync --extra"
 alias u-s-nd="uv sync --no-dev"
 alias u-s-og="uv sync --only-group"
 alias u-lk="uv lock"
+alias u-rv="rm-vev;u-v;u-s"
+alias u-r="uv run"
 
 # uv tool
 alias ut-r="uv tool run"
@@ -167,8 +168,9 @@ alias mk-ut="make unit-test"
 alias mk-uit="make ui-test"
 alias mk-et="make e2e-test"
 alias mk-dt="make db-test"
+alias mk-st="make sdk-test"
 alias mk-pt="make perf-test"
-alias mk-it="make integration-test"
+alias mk-it="make intg-test"
 
 # xcode
 alias xc="xed"
