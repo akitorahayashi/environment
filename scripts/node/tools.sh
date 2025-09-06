@@ -52,15 +52,15 @@ if [ -z "$packages_json" ]; then
 else
     while IFS= read -r pkg_name; do
         # Check if package is installed
-        if npm list -g "$pkg_name" &>/dev/null; then
+        if command -v npm >/dev/null 2>&1 && npm list -g "$pkg_name" &>/dev/null; then
             echo "[INFO] $pkg_name is already installed, checking for updates..."
         else
             echo "[INSTALL] $pkg_name@latest"
             echo "IDEMPOTENCY_VIOLATION" >&2
         fi
         
-        # Install/update the package (npm handles existing packages gracefully)
-        npm install -g "$pkg_name@latest"
+        # Install/update the package - always install to ensure latest version
+        npm install -g "$pkg_name@latest" --no-fund --no-audit
     done <<< "$packages_json"
 fi
 
