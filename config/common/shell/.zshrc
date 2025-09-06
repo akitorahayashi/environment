@@ -32,6 +32,7 @@ alias u-s-og="uv sync --only-group"
 alias u-lk="uv lock"
 alias u-rv="rm-vev;u-v;u-s"
 alias u-r="uv run"
+alias u-e="uv export --format requirements.txt > requirements.txt"
 
 # uv tool
 alias ut-r="uv tool run"
