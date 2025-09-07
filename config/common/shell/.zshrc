@@ -172,6 +172,7 @@ alias mk-dt="make db-test"
 alias mk-st="make sdk-test"
 alias mk-pt="make perf-test"
 alias mk-it="make intg-test"
+alias mk-cln="make clean"
 
 # xcode
 alias xc="xed"
