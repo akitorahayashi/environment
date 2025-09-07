@@ -21,6 +21,8 @@
     ts = status
     
     sh = stash
+    sh-p = stash pop
+    sh-d = stash drop
     rs = reset
     rs-h = reset --hard
     rs-h-m = reset --hard origin/main
