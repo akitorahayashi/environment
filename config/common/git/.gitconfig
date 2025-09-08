@@ -38,10 +38,11 @@
     ps-u-m = push --set-upstream origin main
     ps-f-l = push --force-with-lease
 
+    tg = tag
     tg-ls = tag -l -n
     tg-ls-rm = fetch --tags && git tag -l -n
     tg-d = tag -d
-    tg-d-rm = fetch --tags && git tag -d
+    tg-d-rm = push --delete origin
 
     mr = merge
     lg = log --oneline --graph --decorate --all -n 10
