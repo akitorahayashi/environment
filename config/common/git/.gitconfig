@@ -40,7 +40,7 @@
 
     tg = tag
     tg-ls = tag -l -n
-    tg-ls-rm = fetch --tags && git tag -l -n
+    tg-ls-rm = !git fetch --tags && git tag -l -n
     tg-d = tag -d
     tg-d-rm = push --delete origin
 
