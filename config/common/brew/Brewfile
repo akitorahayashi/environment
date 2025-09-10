@@ -28,6 +28,7 @@ brew "postgresql"
 ## Utility
 brew "redis"
 brew "marp-cli"
+brew "jj"
 brew "poppler"
 brew "pandoc"
 brew "ollama"
