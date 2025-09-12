@@ -67,19 +67,22 @@ echo "[INFO] Installing the specified Node.js version..."
 # Check if the specific version is already installed
 if ! nvm list | grep -q "$NODE_VERSION"; then
     node_installed=true
-fi
-
-# `nvm install` is idempotent; it installs only if the version is missing.
-if nvm install "$NODE_VERSION"; then
-    echo "[SUCCESS] Node.js ${NODE_VERSION} installation/check complete."
+    echo "[INFO] Node.js ${NODE_VERSION} not found, installing..."
 else
-    echo "[ERROR] Failed to install Node.js ${NODE_VERSION}."
-    exit 1
+    echo "[INFO] Node.js ${NODE_VERSION} is already installed."
 fi
 
-# Show idempotency violation only if we actually installed a new version
+# Install Node.js version if not already present
 if [ "$node_installed" = true ]; then
-    echo "IDEMPOTENCY_VIOLATION" >&2
+    if nvm install "$NODE_VERSION" 2>/dev/null; then
+        echo "[SUCCESS] Node.js ${NODE_VERSION} installed successfully."
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    else
+        echo "[ERROR] Failed to install Node.js ${NODE_VERSION}."
+        exit 1
+    fi
+else
+    echo "[SUCCESS] Node.js ${NODE_VERSION} installation/check complete."
 fi
 
 # Check if the default alias points to the specified version
@@ -95,12 +98,6 @@ if [[ "$current_default_target" != "$expected_default_target" ]]; then
     fi
 else
     echo "[CONFIGURED] Node.js ${expected_default_target} is already the default version."
-fi
-
-# Create a flag file if the version changed.
-NODE_VERSION_CHANGE_FLAG="/tmp/node_version_changed"
-if [ -f "$NODE_VERSION_CHANGE_FLAG" ]; then
-    rm "$NODE_VERSION_CHANGE_FLAG"
 fi
 
 # Use the specified version in the current shell
