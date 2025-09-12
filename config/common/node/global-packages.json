@@ -1,6 +1,5 @@
 {
     "globalPackages": {
-        "npm": "latest",
         "@google/gemini-cli": "latest",
         "@anthropic-ai/claude-code": "latest",
         "@marp-team/marp-cli": "latest"

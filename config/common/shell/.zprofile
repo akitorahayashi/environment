@@ -38,6 +38,13 @@ if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
   . "$(brew --prefix nvm)/nvm.sh"
 fi
 
+# pnpm の初期化
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
 # JAVA_HOME の設定
 if [ -x /usr/libexec/java_home ]; then
   JAVA_21=$(/usr/libexec/java_home -v 21 2>/dev/null)

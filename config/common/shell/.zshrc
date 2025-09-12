@@ -128,9 +128,9 @@ alias bd-f="bundle exec fastlane"
 alias bd-i="bundle install"
 
 # Node.js
-alias np="npm"
-alias np-i="npm install"
-alias np-r="npm run"
+alias np="pnpm"
+alias np-i="pnpm install"
+alias np-r="pnpm run"
 
 # Docker
 alias dc="docker"
@@ -395,3 +395,11 @@ ssha-rm() {
     echo "No IdentityFile found for host: $host" >&2
   fi
 }
+
+# pnpm
+export PNPM_HOME="/Users/akitorahayashi/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
