@@ -14,8 +14,8 @@ fi
 
 echo "==== Start: Node.js Platform Setup ===="
 
-# Install dependencies: nvm, jq
-echo "[INFO] Checking and installing dependencies: nvm, jq"
+# Install dependencies: nvm, jq, pnpm
+echo "[INFO] Checking and installing dependencies: nvm, jq, pnpm"
 dependencies_installed=false
 if ! brew list nvm &> /dev/null; then
     echo "[INFO] Installing nvm..."
@@ -25,6 +25,11 @@ fi
 if ! command -v jq &> /dev/null; then
     echo "[INFO] Installing jq..."
     brew install jq
+    dependencies_installed=true
+fi
+if ! brew list pnpm &> /dev/null; then
+    echo "[INFO] Installing pnpm..."
+    brew install pnpm
     dependencies_installed=true
 fi
 if [ "$dependencies_installed" = true ]; then
@@ -106,19 +111,6 @@ if ! nvm use "$NODE_VERSION" > /dev/null; then
     exit 1
 fi
 
-# Install pnpm
-if ! command -v pnpm &> /dev/null; then
-    echo "[INFO] Installing pnpm..."
-    if curl -fsSL https://get.pnpm.io/install.sh | sh -; then
-        echo "[SUCCESS] pnpm installed successfully."
-        echo "IDEMPOTENCY_VIOLATION" >&2
-    else
-        echo "[ERROR] Failed to install pnpm."
-        exit 1
-    fi
-else
-    echo "[CONFIGURED] pnpm is already installed: $(pnpm --version)"
-fi
 
 echo "[SUCCESS] Node.js platform setup complete."
 
