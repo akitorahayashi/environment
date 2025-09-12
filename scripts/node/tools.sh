@@ -14,7 +14,7 @@ fi
 
 echo "==== Start: Node.js Global Packages Setup ===="
 
-# Load nvm environment to ensure npm is available from the correct version
+# Load nvm environment and ensure pnpm is available
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
     # shellcheck source=/dev/null
@@ -22,6 +22,19 @@ if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
     # Sourcing nvm.sh is enough to activate the default version.
 else
     echo "[ERROR] nvm.sh not found. Please run the platform setup first."
+    exit 1
+fi
+
+# Ensure pnpm is in PATH
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Verify pnpm is available
+if ! command -v pnpm &> /dev/null; then
+    echo "[ERROR] pnpm not found. Please run 'make node-platform' first."
     exit 1
 fi
 
@@ -52,15 +65,16 @@ if [ -z "$packages_json" ]; then
 else
     while IFS= read -r pkg_name; do
         # Check if package is installed
-        if command -v npm >/dev/null 2>&1 && npm list -g "$pkg_name" &>/dev/null; then
+        if pnpm list -g "$pkg_name" &>/dev/null; then
             echo "[INFO] $pkg_name is already installed, checking for updates..."
+            # Install/update the package - this is just updating existing artifact
+            pnpm install -g "$pkg_name@latest"
         else
             echo "[INSTALL] $pkg_name@latest"
+            # Install new package - this creates new artifact
+            pnpm install -g "$pkg_name@latest"
             echo "IDEMPOTENCY_VIOLATION" >&2
         fi
-        
-        # Install/update the package - always install to ensure latest version
-        npm install -g "$pkg_name@latest" --no-fund --no-audit
     done <<< "$packages_json"
 fi
 
@@ -80,8 +94,8 @@ if [ -n "$packages_to_verify" ]; then
     echo "[INFO] Verifying packages listed in $packages_file..."
     missing_packages=0
     while IFS= read -r package; do
-        # Use `npm list -g` which returns a non-zero exit code if package is not found.
-        if ! npm list -g "$package" &>/dev/null; then
+        # Use `pnpm list -g` which returns a non-zero exit code if package is not found.
+        if ! pnpm list -g "$package" &>/dev/null; then
             echo "[ERROR] Global package '$package' is not installed."
             ((missing_packages++))
         else

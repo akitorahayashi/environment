@@ -14,18 +14,25 @@ fi
 
 echo "==== Start: Node.js Platform Setup ===="
 
-# Install dependencies: nvm, jq
-echo "[INFO] Checking and installing dependencies: nvm, jq"
-dependencies_changed=false
+# Install dependencies: nvm, jq, pnpm
+echo "[INFO] Checking and installing dependencies: nvm, jq, pnpm"
+dependencies_installed=false
 if ! brew list nvm &> /dev/null; then
+    echo "[INFO] Installing nvm..."
     brew install nvm
-    dependencies_changed=true
+    dependencies_installed=true
 fi
 if ! command -v jq &> /dev/null; then
+    echo "[INFO] Installing jq..."
     brew install jq
-    dependencies_changed=true
+    dependencies_installed=true
 fi
-if [ "$dependencies_changed" = true ]; then
+if ! brew list pnpm &> /dev/null; then
+    echo "[INFO] Installing pnpm..."
+    brew install pnpm
+    dependencies_installed=true
+fi
+if [ "$dependencies_installed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
@@ -59,15 +66,28 @@ fi
 echo "[INFO] Node.js version specified in .nvmrc is ${NODE_VERSION}"
 
 # Install and configure Node.js via nvm
-node_changed=false
+node_installed=false
 echo "[INFO] Installing the specified Node.js version..."
 
-# `nvm install` is idempotent; it installs only if the version is missing.
-if nvm install "$NODE_VERSION"; then
-    echo "[SUCCESS] Node.js ${NODE_VERSION} installation/check complete."
+# Check if the specific version is already installed
+if ! nvm list | grep -q "$NODE_VERSION"; then
+    node_installed=true
+    echo "[INFO] Node.js ${NODE_VERSION} not found, installing..."
 else
-    echo "[ERROR] Failed to install Node.js ${NODE_VERSION}."
-    exit 1
+    echo "[INFO] Node.js ${NODE_VERSION} is already installed."
+fi
+
+# Install Node.js version if not already present
+if [ "$node_installed" = true ]; then
+    if nvm install "$NODE_VERSION" 2>/dev/null; then
+        echo "[SUCCESS] Node.js ${NODE_VERSION} installed successfully."
+        echo "IDEMPOTENCY_VIOLATION" >&2
+    else
+        echo "[ERROR] Failed to install Node.js ${NODE_VERSION}."
+        exit 1
+    fi
+else
+    echo "[SUCCESS] Node.js ${NODE_VERSION} installation/check complete."
 fi
 
 # Check if the default alias points to the specified version
@@ -77,7 +97,6 @@ if [[ "$current_default_target" != "$expected_default_target" ]]; then
     echo "[CONFIGURING] Setting Node.js ${expected_default_target} as the default version."
     if nvm alias default "$expected_default_target"; then
         echo "[SUCCESS] Set default version to ${expected_default_target}."
-        node_changed=true
     else
         echo "[ERROR] Failed to set the default version."
         exit 1
@@ -86,21 +105,12 @@ else
     echo "[CONFIGURED] Node.js ${expected_default_target} is already the default version."
 fi
 
-# Create a flag file if the version changed.
-NODE_VERSION_CHANGE_FLAG="/tmp/node_version_changed"
-if [ -f "$NODE_VERSION_CHANGE_FLAG" ]; then
-    rm "$NODE_VERSION_CHANGE_FLAG"
-fi
-if [ "$node_changed" = true ]; then
-    touch "$NODE_VERSION_CHANGE_FLAG"
-    echo "IDEMPOTENCY_VIOLATION" >&2
-fi
-
 # Use the specified version in the current shell
 if ! nvm use "$NODE_VERSION" > /dev/null; then
     echo "[ERROR] Failed to switch to Node.js ${NODE_VERSION}."
     exit 1
 fi
+
 
 echo "[SUCCESS] Node.js platform setup complete."
 
@@ -130,7 +140,6 @@ if [ "$CURRENT_VERSION_STRING" != "$EXPECTED_VERSION_STRING" ]; then
     verification_failed=true
 else
     echo "[SUCCESS] Node.js version is correct: $(node --version)"
-    echo "[SUCCESS] npm is available: $(npm --version)"
 fi
 
 if [ "$verification_failed" = "true" ]; then
