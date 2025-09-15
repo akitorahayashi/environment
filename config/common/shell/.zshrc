@@ -51,7 +51,7 @@ act() {
     source "./.venv/bin/activate"
   fi
 }
-alias deact='deactivate'
+alias dct='deactivate'
 rm-vev() {
   if [[ $# -eq 1 ]]; then
     rm -rf "./$1"
@@ -69,6 +69,8 @@ alias px-r="pipx run"
 
 # pyenv
 alias pv="pyenv"
+alias pv-i="pyenv install"
+alias pv-ui="pyenv uninstall"
 alias pv-ls="pyenv versions"
 alias pv-s="pyenv shell"
 alias pv-g="pyenv global"
