@@ -10,6 +10,7 @@
     b = branch
     br = branch
     cln = remote prune origin
+    ft = fetch
 
     p = pull
     pl = pull
