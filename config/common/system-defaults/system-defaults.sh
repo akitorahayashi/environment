@@ -60,7 +60,7 @@ defaults write NSGlobalDomain com.apple.springing.enabled -bool false
 # デスクトップ
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
 defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool true
-defaults write com.apple.WindowManager GloballyEnabled -bool true
+defaults write com.apple.WindowManager GloballyEnabled -bool false
 
 # ミッションコントロール
 defaults write com.apple.dock expose-animation-duration -float 0.2
