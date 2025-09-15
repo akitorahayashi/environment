@@ -31,6 +31,7 @@
     c = commit
     cm = commit
     amd = !git add . && git commit --amend --no-edit
+    sb-u-r = submodule update --remote
 
     ps = push
     ps-u-o = push -u origin
