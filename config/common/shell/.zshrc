@@ -238,15 +238,19 @@ alias cl="clear"
 alias gip="ipconfig getifaddr"
 
 md2pdf() {
-  for cmd in pandoc lualatex; do
+  # 必要なコマンド（pandoc, typst）をチェック
+  for cmd in pandoc typst; do
     command -v $cmd >/dev/null 2>&1 || { echo "Error: $cmd is not installed." >&2; return 1; }
   done
+  
   [[ $# -ne 2 || ! -f $1 ]] && { echo "Usage: md2pdf <input.md> <output.pdf> (input file must exist)" >&2; return 2; }
-  pandoc "$1" -o "$2" --pdf-engine=lualatex \
-    -V documentclass=ltjarticle \
+  
+  # PDFエンジンとして typst を指定
+  pandoc "$1" -o "$2" --pdf-engine=typst \
+    -V lang=ja \
     -V mainfont="Hiragino Mincho ProN" \
     -V sansfont="Hiragino Sans" \
-    -V monofont="Hiragino Kaku Gothic ProN" \
+    -V monofont="Osaka-mono" \
     -V geometry:a4paper \
     -V geometry:margin=2.5cm
 }
