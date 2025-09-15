@@ -24,6 +24,7 @@
     sh-p = stash pop
     sh-d = stash drop
     rs = reset
+    rs-s = reset --soft
     rs-h = reset --hard
     rs-h-m = reset --hard origin/main
     rm-c = rm --cached
@@ -31,6 +32,8 @@
     c = commit
     cm = commit
     amd = !git add . && git commit --amend --no-edit
+    sb = submodule
+    sb-a = submodule add
     sb-u-r = submodule update --remote
 
     ps = push
@@ -38,6 +41,7 @@
     ps-o = push origin
     ps-u-m = push --set-upstream origin main
     ps-f-l = push --force-with-lease
+    ow = show
 
     tg = tag
     tg-ls = tag -l -n
@@ -46,7 +50,7 @@
     tg-d-rm = push --delete origin
 
     mr = merge
-    lg = log --oneline --graph --decorate --all -n 10
+    lg = log --oneline --graph --decorate --all -n 15
 
 [core]
 	excludesfile = ~/.gitignore_global
