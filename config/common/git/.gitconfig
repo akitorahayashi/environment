@@ -34,8 +34,10 @@
     cm = commit
     amd = !git add . && git commit --amend --no-edit
     sb = submodule
+    sb-ini = submodule init
+    sb-u = submodule update --init --remote --recursive
     sb-a = submodule add
-    sb-u-r = submodule update --remote
+    sb-d = submodule deinit
 
     ps = push
     ps-u-o = push -u origin
