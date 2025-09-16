@@ -1,12 +1,12 @@
 module.exports = {
-    pdf_options: {
-        format: 'a4',
-        margin: '30mm 20mm',
-        printBackground: true,
-        landscape: true,
-        scale: 1.0
-    },
-    css: `  
+  pdf_options: {
+    format: 'a4',
+    margin: '30mm 20mm',
+    printBackground: true,
+    landscape: false,
+    scale: 1.0
+  },
+  css: `  
     body {  
       font-family: 'Noto Sans CJK JP', 'Hiragino Sans', sans-serif;  
       line-height: 1.6;  
@@ -19,9 +19,9 @@ module.exports = {
       page-break-after: always;  
     }  
   `,
-    script: [
-        {
-            content: `  
+  script: [
+    {
+      content: `  
         window.MathJax = {  
           tex: {  
             inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],  
@@ -37,9 +37,9 @@ module.exports = {
           }  
         };  
       `
-        },
-        {
-            url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
-        }
-    ]
+    },
+    {
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    }
+  ]
 };

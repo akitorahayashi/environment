@@ -22,10 +22,11 @@ CONFIG_DIR_MAC_MINI := config/mac-mini-only
 
 .PHONY: help
 help: ## Show this help message
-	@echo "Usage: make [target]"
-	@echo ""
+	@echo "Usage: make [target] [VAR=value]"
+	@echo "Options:"
+	@echo "  \033[36m%-15s\033[0m %s" "SUDO=true" "Run docker commands with sudo (e.g., make up SUDO=true)"
 	@echo "Available targets:"
-	@awk 'BEGIN {FS=":.*## ";} /^[a-zA-Z0-9_-]+:.*##/ && !/## @/ {printf "%-25s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[^_][a-zA-Z0-9_-]*:.*?## / {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # --- Main Setup Targets ---
 .PHONY: macbook
