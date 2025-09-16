@@ -238,23 +238,8 @@ alias tc="touch"
 alias rel="source ~/.zshrc"
 alias cl="clear"
 alias gip="ipconfig getifaddr"
-
-md2pdf() {
-  # 必要なコマンド（pandoc, typst）をチェック
-  for cmd in pandoc typst; do
-    command -v $cmd >/dev/null 2>&1 || { echo "Error: $cmd is not installed." >&2; return 1; }
-  done
-  
-  [[ $# -ne 2 || ! -f $1 ]] && { echo "Usage: md2pdf <input.md> <output.pdf> (input file must exist)" >&2; return 2; }
-  
-  # PDFエンジンとして typst を指定
-  pandoc "$1" -o "$2" --pdf-engine=typst \
-    -V lang=ja \
-    -V mainfont="Hiragino Mincho ProN" \
-    -V sansfont="Hiragino Sans" \
-    -V monofont="Osaka-mono" \
-    -V geometry:a4paper \
-    -V geometry:margin=2.5cm
+md-pdf() {
+  md-to-pdf "$1" --config-file "$(pwd)/config/common/node/md-to-pdf-config.js"
 }
 
 # Aider
