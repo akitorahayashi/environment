@@ -233,13 +233,14 @@ alias op-cj="open -a 'Google Chrome' 'https://jules.google.com/task'"
 # Utility
 alias al="alias"
 alias sc="source"
+alias ec="echo"
 alias ct="cat"
 alias tc="touch"
 alias rel="source ~/.zshrc"
 alias cl="clear"
 alias gip="ipconfig getifaddr"
 md-pdf() {
-  md-to-pdf "$1" --config-file "$(pwd)/config/common/node/md-to-pdf-config.js"
+  md-to-pdf "$1" --config-file "$HOME/.md-to-pdf-config.js"
 }
 
 # Aider
@@ -251,7 +252,6 @@ ai-ch() {
   shift
   aider --model "ollama/$model" --no-auto-commit --no-gitignore "$@"
 }
-
 
 ssh-gk() {
     local type="$1"

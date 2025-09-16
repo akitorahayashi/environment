@@ -102,3 +102,21 @@ if [ -n "$packages_to_verify" ]; then
 fi
 
 echo "[SUCCESS] Node.js global packages verification complete."
+
+# --- Create symlink for md-to-pdf config ---
+echo "==== Creating symlink for md-to-pdf config ===="
+
+config_source="$REPO_ROOT/$CONFIG_DIR_PROPS/node/md-to-pdf-config.js"
+symlink_target="$HOME/.md-to-pdf-config.js"
+
+if [ -f "$config_source" ]; then
+    if [ -L "$symlink_target" ] || [ -f "$symlink_target" ]; then
+        echo "[INFO] Removing existing symlink/file at $symlink_target"
+        rm "$symlink_target"
+    fi
+    echo "[INFO] Creating symlink: $symlink_target -> $config_source"
+    ln -s "$config_source" "$symlink_target"
+    echo "[SUCCESS] Symlink created successfully."
+else
+    echo "[WARN] md-to-pdf-config.js not found at $config_source, skipping symlink creation."
+fi
