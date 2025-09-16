@@ -46,55 +46,47 @@ if [ -f "$NODE_VERSION_CHANGE_FLAG" ]; then
     rm "$NODE_VERSION_CHANGE_FLAG"
 fi
 
-# Install global packages
+# Install global packages from config
 packages_file="$REPO_ROOT/$CONFIG_DIR_PROPS/node/global-packages.json"
 if [ ! -f "$packages_file" ]; then
     echo "[ERROR] global-packages.json not found: $packages_file"
     exit 1
 fi
 
-echo "[INFO] Installing/updating global packages from $packages_file..."
+echo "[INFO] Installing global Node.js packages from $packages_file..."
+
 if ! command -v jq >/dev/null 2>&1; then
   echo "[ERROR] 'jq' is required but not found. Run 'make node-platform' first or install jq." >&2
   exit 1
 fi
 
-packages_json=$(jq -r '.globalPackages | keys[]' "$packages_file")
+packages_json=$(jq -r '.dependencies | keys[]' "$packages_file")
 if [ -z "$packages_json" ]; then
     echo "[WARN] No packages defined in global-packages.json"
 else
     while IFS= read -r pkg_name; do
-        # Check if package is installed
         if pnpm list -g "$pkg_name" &>/dev/null; then
             echo "[INFO] $pkg_name is already installed, checking for updates..."
-            # Install/update the package - this is just updating existing artifact
             pnpm install -g "$pkg_name@latest"
         else
             echo "[INSTALL] $pkg_name@latest"
-            # Install new package - this creates new artifact
             pnpm install -g "$pkg_name@latest"
             echo "IDEMPOTENCY_VIOLATION" >&2
         fi
     done <<< "$packages_json"
 fi
 
+
 echo "[SUCCESS] Node.js global packages setup complete."
 
 # --- Verification ---
 echo "==== Start: Verifying Node.js Global Packages..."
-verification_failed=false
 
-if [ ! -f "$packages_file" ]; then
-    echo "[ERROR] global-packages.json not found for verification: $packages_file"
-    exit 1
-fi
-
-packages_to_verify=$(jq -r '.globalPackages | keys[]' "$packages_file")
+packages_to_verify=$(jq -r '.dependencies | keys[]' "$packages_file")
 if [ -n "$packages_to_verify" ]; then
     echo "[INFO] Verifying packages listed in $packages_file..."
     missing_packages=0
     while IFS= read -r package; do
-        # Use `pnpm list -g` which returns a non-zero exit code if package is not found.
         if ! pnpm list -g "$package" &>/dev/null; then
             echo "[ERROR] Global package '$package' is not installed."
             ((missing_packages++))
@@ -102,14 +94,11 @@ if [ -n "$packages_to_verify" ]; then
             echo "[SUCCESS] Global package '$package' is installed."
         fi
     done <<< "$packages_to_verify"
+    
     if [ "$missing_packages" -gt 0 ]; then
-        verification_failed=true
+        echo "[ERROR] Node.js global packages verification failed."
+        exit 1
     fi
 fi
 
-if [ "$verification_failed" = "true" ]; then
-    echo "[ERROR] Node.js global packages verification failed."
-    exit 1
-else
-    echo "[SUCCESS] Node.js global packages verification complete."
-fi
+echo "[SUCCESS] Node.js global packages verification complete."
