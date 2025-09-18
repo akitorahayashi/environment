@@ -130,9 +130,21 @@ alias bd-f="bundle exec fastlane"
 alias bd-i="bundle install"
 
 # Node.js
-alias np="pnpm"
-alias np-i="pnpm install"
-alias np-r="pnpm run"
+alias np="npm"
+alias np-i="npm install"
+alias np-r="npm run"
+alias np-r-t="npm run test"
+alias np-r-l="npm run lint"
+alias np-r-f="npm run format"
+alias np-r-d="npm run dev"
+
+alias pnp="pnpm"
+alias pnp-i="pnpm install"
+alias pnp-r="pnpm run"
+alias pnp-r-t="pnpm run test"
+alias pnp-r-l="pnpm run lint"
+alias pnp-r-f="pnpm run format"
+alias pnp-r-d="pnpm run dev"
 
 # Docker
 alias dc="docker"
@@ -235,10 +247,13 @@ alias al="alias"
 alias sc="source"
 alias ec="echo"
 alias ct="cat"
+alias grp="grep"
+alias fd="find . -name"
 alias wch="which"
 alias tc="touch"
 alias rel="source ~/.zshrc"
 alias cl="clear"
+alias tmp="echo 'template'"
 alias gip="ipconfig getifaddr"
 md-pdf() {
   md-to-pdf "$1" --config-file "$HOME/.md-to-pdf-config.js"
@@ -387,11 +402,3 @@ ssha-rm() {
     echo "No IdentityFile found for host: $host" >&2
   fi
 }
-
-# pnpm
-export PNPM_HOME="/Users/akitorahayashi/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end

@@ -1,13 +1,13 @@
-# Apple Silicon 用 Homebrew の初期化
+# Homebrew initialization for Apple Silicon
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# poppler のパス
+# Path for poppler
 export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
 
-# pipx/poetry 用のパス
+# Path for pipx/poetry
 export PATH="$HOME/.local/bin:$PATH"
 
-# Android SDK 環境変数
+# Android SDK environment variables
 if [[ -z "$ANDROID_HOME" ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
@@ -17,35 +17,35 @@ if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 fi
 
-# rbenv の初期化
+# rbenv initialization
 if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
-# pyenv の初期化
+# pyenv initialization
 if command -v pyenv 1>/dev/null 2>&1; then
   export PYENV_ROOT="$HOME/.pyenv"
   export PATH="$PYENV_ROOT/bin:$PATH"
   eval "$(pyenv init --path)"
 fi
 
-# ollama models のパス設定
+# Path setting for ollama models
 export OLLAMA_MODELS="$HOME/.ollama/models"
 
-# nvm の初期化
+# nvm initialization
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
   . "$(brew --prefix nvm)/nvm.sh"
 fi
 
-# pnpm の初期化
+# pnpm initialization
 export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 
-# JAVA_HOME の設定
+# JAVA_HOME setup
 if [ -x /usr/libexec/java_home ]; then
   JAVA_21=$(/usr/libexec/java_home -v 21 2>/dev/null)
   if [ -n "$JAVA_21" ]; then
@@ -57,7 +57,7 @@ else
   echo "Warning: /usr/libexec/java_home not available. Skipping JAVA_HOME setup." >&2
 fi
 
-# Android SDK (追加PATHのみ)
+# Android SDK (additional PATH only)
 if [ -n "$ANDROID_HOME" ]; then
   if [ -d "$ANDROID_HOME/emulator" ] && [[ ":$PATH:" != *":$ANDROID_HOME/emulator:"* ]]; then
     export PATH="$PATH:$ANDROID_HOME/emulator"
@@ -67,29 +67,29 @@ if [ -n "$ANDROID_HOME" ]; then
   fi
 fi
 
-# FVM 用 PATH 設定
+# PATH setting for FVM
 if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"* ]]; then
     export PATH="$HOME/fvm/default/bin:$PATH"
 fi
 
-# SSH Agent の自動起動・再利用
+# Automatic startup and reuse of SSH Agent
 SSH_AGENT_PID_FILE="$HOME/.ssh/ssh-agent.pid"
 SSH_AUTH_SOCK_FILE="$HOME/.ssh/ssh-agent.sock"
 
-# 既存のSSH agentプロセスをチェック
+# Check existing SSH agent process
 if [ -f "$SSH_AGENT_PID_FILE" ]; then
     SSH_AGENT_PID=$(cat "$SSH_AGENT_PID_FILE")
     if kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
-        # プロセスが生きている場合、環境変数を設定
+        # If the process is alive, set environment variables
         export SSH_AGENT_PID
         export SSH_AUTH_SOCK=$(cat "$SSH_AUTH_SOCK_FILE")
     else
-        # プロセスが死んでいる場合、ファイルを削除
+        # If the process is dead, remove files
         rm -f "$SSH_AGENT_PID_FILE" "$SSH_AUTH_SOCK_FILE"
     fi
 fi
 
-# SSH agentが起動していない場合、新規起動
+# If SSH agent is not running, start a new one
 if [ -z "$SSH_AGENT_PID" ] || ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
     eval "$(ssh-agent -s)"
     echo "$SSH_AGENT_PID" > "$SSH_AGENT_PID_FILE"
