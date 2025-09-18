@@ -253,7 +253,7 @@ alias wch="which"
 alias tc="touch"
 alias rel="source ~/.zshrc"
 alias cl="clear"
-alias tmp="echo 'template'"
+alias tmp="echo 'template' | pbcopy && echo '✅ Copied \"template\" to clipboard'"
 alias gip="ipconfig getifaddr"
 md-pdf() {
   md-to-pdf "$1" --config-file "$HOME/.md-to-pdf-config.js"
