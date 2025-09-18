@@ -53,7 +53,7 @@ else
     echo "[SUCCESS] Homebrew はすでにインストールされています"
 fi
 
-# Brewfileのインストール
+# Brewfileを使ったインストール
 echo ""
 echo "[Start] Homebrew パッケージのインストールを開始します..."
 brewfile_path="$REPO_ROOT/$CONFIG_DIR_PROPS/brew/Brewfile"

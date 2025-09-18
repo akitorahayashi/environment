@@ -2,57 +2,93 @@
 
 # REPO_ROOT is not used in this script, but defined in Makefile for consistency.
 
-# 依存関係をインストール
-echo "[INFO] 依存関係をチェック・インストールします: fvm"
+# Function to log messages with consistent formatting
+log_info() { echo "[INFO] $1"; }
+log_success() { echo "[SUCCESS] $1"; }
+log_error() { echo "[ERROR] $1"; }
+
+# Function to check if FVM Flutter path is correct
+verify_flutter_path() {
+    local flutter_path=$(which flutter)
+    local expected_path="$HOME/fvm/default/bin/flutter"
+
+    log_info "Flutter PATH: $flutter_path"
+
+    if [[ "$flutter_path" != "$expected_path" ]]; then
+        log_error "Flutter path mismatch"
+        log_error "Expected: $expected_path"
+        log_error "Actual: $flutter_path"
+        return 1
+    fi
+
+    log_success "Flutter path is correctly configured"
+    return 0
+}
+
+# Function to verify Flutter installation
+verify_flutter() {
+    if ! command -v flutter >/dev/null 2>&1; then
+        log_error "Flutter command not found"
+        return 1
+    fi
+
+    if ! verify_flutter_path; then
+        return 1
+    fi
+
+    if ! flutter --version > /dev/null 2>&1; then
+        log_error "flutter --version failed"
+        log_info "Try running 'flutter doctor' for detailed diagnostics"
+        return 1
+    fi
+
+    log_success "Flutter is working correctly"
+    return 0
+}
+
+# Install FVM dependency
+log_info "Checking and installing dependency: fvm"
 if ! command -v fvm &> /dev/null; then
     brew tap leoafarias/fvm
     brew install leoafarias/fvm/fvm
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
-echo "[Start] fvm を使用してFlutter SDK のセットアップを開始します"
+log_info "Starting Flutter SDK setup using fvm"
 
 changed=false
-# 安定版 Flutter SDK のインストール (fvm install は冪等)
-echo "[INFO] 安定版 Flutter SDK をインストールします..."
-
-# 既にインストール済みかチェック
 fvm_stable_path="$HOME/fvm/versions/stable"
+fvm_default_link="$HOME/fvm/default"
+
+# Install stable Flutter SDK (fvm install is idempotent)
+log_info "Installing stable Flutter SDK..."
 was_already_installed=false
 if [ -d "$fvm_stable_path" ]; then
     was_already_installed=true
 fi
 
 if fvm install stable; then
-    # 新規インストールの場合のみフラグを設定
     if [ "$was_already_installed" = false ]; then
         changed=true
-        echo "[SUCCESS] Flutter SDK (stable) を新規インストールしました。"
+        log_success "Flutter SDK (stable) newly installed"
     else
-        echo "[SUCCESS] Flutter SDK (stable) は既にインストール済みです。"
+        log_success "Flutter SDK (stable) already installed"
     fi
 else
-    echo "[ERROR] fvm install stable に失敗しました。"
+    log_error "fvm install stable failed"
     exit 1
 fi
 
-# 現在のグローバル設定が stable か確認
-fvm_default_link="$HOME/fvm/default"
-is_global_already_stable=false
+# Set global Flutter version to stable if not already set
 if [ -L "$fvm_default_link" ] && [ "$(readlink "$fvm_default_link")" == "$fvm_stable_path" ]; then
-    is_global_already_stable=true
-fi
-
-# グローバル設定がまだ stable でなければ設定
-if [ "$is_global_already_stable" = true ]; then
-    echo "[SUCCESS] fvm global は既に stable に設定されています。スキップします。"
+    log_success "fvm global is already set to stable, skipping"
 else
-    echo "[INFO] fvm global stable を設定します..."
+    log_info "Setting fvm global stable..."
     if fvm global stable; then
-        echo "[SUCCESS] fvm global stable の設定が完了しました。"
+        log_success "fvm global stable configuration completed"
         changed=true
     else
-        echo "[ERROR] fvm global stable の設定に失敗しました。"
+        log_error "fvm global stable configuration failed"
         exit 1
     fi
 fi
@@ -61,77 +97,15 @@ if [ "$changed" = true ]; then
     echo "IDEMPOTENCY_VIOLATION" >&2
 fi
 
-# FVM管理下のFlutterを使うため、PATHを更新
+# Update PATH to use FVM-managed Flutter
 export PATH="$HOME/fvm/default/bin:$PATH"
-echo "[INFO] 現在のシェルセッションのPATHにfvmのパスを追加しました。"
+log_info "Added fvm path to current shell session PATH"
 
-# flutter コマンド存在確認 (fvm管理下のパスで)
-if ! command -v flutter >/dev/null 2>&1; then
-    echo "[ERROR] Flutter コマンド (fvm管理下) が見つかりません"
-    exit 1
-fi
-
-# Flutterのパスを確認 (fvm管理下のパス)
-FLUTTER_PATH=$(which flutter)
-echo "[INFO] Flutter PATH: $FLUTTER_PATH"
-
-# パスが正しいか確認（FVM管理下のパスを確認）
-expected_fvm_path="$HOME/fvm/default/bin/flutter"
-if [[ "$FLUTTER_PATH" != "$expected_fvm_path" ]]; then
-    echo "[ERROR] Flutter (fvm) が期待するパスにありません"
-    echo "[INFO] 現在のパス: $FLUTTER_PATH"
-    echo "[INFO] 期待するパス: $expected_fvm_path"
-    exit 1
+# Verify Flutter environment
+log_info "Verifying Flutter environment..."
+if verify_flutter; then
+    log_success "Flutter environment setup and verification completed"
 else
-    echo "[SUCCESS] Flutter (fvm) のパスが正しく設定されています"
-fi
-
-# Flutter環境の簡易確認 (バージョン表示)
-echo "==== Start: Flutter環境を確認中... ===="
-# IS_CI チェックを削除し、常に flutter --version を実行
-if flutter --version > /dev/null 2>&1; then
-    echo "[INFO] Flutter のバージョン確認を実行しました"
-else
-    # 失敗した場合はエラーとして処理し、終了する
-    echo "[ERROR] flutter --version の実行に失敗しました。"
-    echo "[INFO] 詳細な診断には 'flutter doctor' を実行してみてください。"
+    log_error "Flutter environment verification failed"
     exit 1
-fi
-
-echo "[SUCCESS] Flutter環境のセットアップが完了しました"
-
-echo "==== Start: Flutter環境を検証中... ===="
-verification_failed=false
-
-# インストール確認
-echo "[OK] Flutter"
-
-# パス確認
-FLUTTER_PATH=$(which flutter)
-echo "[INFO] Flutter PATH: $FLUTTER_PATH"
-
-# FVM管理下のパスを期待する
-expected_fvm_path="$HOME/fvm/default/bin/flutter"
-if [[ "$FLUTTER_PATH" != "$expected_fvm_path" ]]; then
-    echo "[ERROR] Flutterのパスが想定と異なります"
-    echo "[ERROR] 期待: $expected_fvm_path"
-    echo "[ERROR] 実際: $FLUTTER_PATH"
-    verification_failed=true
-else
-    echo "[SUCCESS] Flutterのパスが正しく設定されています"
-fi
-
-# 環境チェック
-echo "[INFO] Flutter環境チェック (flutter --version) を実行中..."
-if ! flutter --version > /dev/null 2>&1; then
-    echo "[ERROR] flutter --version の実行に失敗しました"
-    verification_failed=true
-fi
-echo "[SUCCESS] Flutterコマンドが正常に動作しています"
-
-if [ "$verification_failed" = "true" ]; then
-    echo "[ERROR] Flutter環境の検証に失敗しました"
-    exit 1
-else
-    echo "[SUCCESS] Flutter環境の検証が完了しました"
 fi
