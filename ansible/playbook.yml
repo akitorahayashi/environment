@@ -4,7 +4,6 @@
 
   vars:
     # This 'config_dir' variable is passed from the justfile
-    # e.g., 'config/common' or 'config/macbook-only'
     config_dir_abs_path: "{{ config_dir_abs_path }}"
 
   roles:
@@ -17,4 +16,3 @@
     - { role: shell, tags: ['shell'] }
     - { role: vscode, tags: ['vscode'] }
     - { role: system_defaults, tags: ['system_defaults'] }
-    # Add other roles as needed (e.g., flutter)
