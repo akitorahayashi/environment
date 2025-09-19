@@ -7,7 +7,7 @@ jobs:
   setup-gh:
     runs-on: macos-15
     env:
-      PATH: "$HOME/.local/bin:$PATH"
+      PATH: "$PATH:$HOME/.local/bin"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
