@@ -87,7 +87,6 @@
   # Desktop
 - { key: 'ShowExternalHardDrivesOnDesktop', domain: 'com.apple.finder', type: 'bool', value: true }
 - { key: 'EnableStandardClickToShowDesktop', domain: 'com.apple.WindowManager', type: 'bool', value: true }
-- { key: 'GloballyEnabled', domain: 'com.apple.WindowManager', type: 'bool', value: false }
   # Keyboard
 - { key: 'KeyRepeat', type: 'int', value: 6 }
 - { key: 'InitialKeyRepeat', type: 'int', value: 25 }
