@@ -47,7 +47,7 @@ else
 fi
 
 # Read Node.js version from .nvmrc file
-NODE_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/node/.nvmrc"
+NODE_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/.nvmrc"
 if [ ! -f "$NODE_VERSION_FILE" ]; then
     echo "[ERROR] .nvmrc file not found: $NODE_VERSION_FILE"
     exit 1
@@ -119,7 +119,7 @@ echo "==== Start: Verifying Node.js Platform..."
 verification_failed=false
 
 # Re-read the expected version from .nvmrc for verification
-NODE_VERSION_FILE_VERIFY="$REPO_ROOT/$CONFIG_DIR_PROPS/node/.nvmrc"
+NODE_VERSION_FILE_VERIFY="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/.nvmrc"
 if [ ! -f "$NODE_VERSION_FILE_VERIFY" ]; then
     echo "[ERROR] .nvmrc file not found for verification: $NODE_VERSION_FILE_VERIFY"
     exit 1

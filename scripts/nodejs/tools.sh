@@ -34,7 +34,7 @@ esac
 
 # Verify pnpm is available
 if ! command -v pnpm &> /dev/null; then
-    echo "[ERROR] pnpm not found. Please run 'make node-platform' first."
+    echo "[ERROR] pnpm not found. Please run 'make nodejs-platform' first."
     exit 1
 fi
 
@@ -47,7 +47,7 @@ if [ -f "$NODE_VERSION_CHANGE_FLAG" ]; then
 fi
 
 # Install global packages from config
-packages_file="$REPO_ROOT/$CONFIG_DIR_PROPS/node/global-packages.json"
+packages_file="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/global-packages.json"
 if [ ! -f "$packages_file" ]; then
     echo "[ERROR] global-packages.json not found: $packages_file"
     exit 1
@@ -56,7 +56,7 @@ fi
 echo "[INFO] Installing global Node.js packages from $packages_file..."
 
 if ! command -v jq >/dev/null 2>&1; then
-  echo "[ERROR] 'jq' is required but not found. Run 'make node-platform' first or install jq." >&2
+  echo "[ERROR] 'jq' is required but not found. Run 'make nodejs-platform' first or install jq." >&2
   exit 1
 fi
 
@@ -106,7 +106,7 @@ echo "[SUCCESS] Node.js global packages verification complete."
 # --- Create symlink for md-to-pdf config ---
 echo "==== Creating symlink for md-to-pdf config ===="
 
-config_source="$REPO_ROOT/$CONFIG_DIR_PROPS/node/md-to-pdf-config.js"
+config_source="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/md-to-pdf-config.js"
 symlink_target="$HOME/.md-to-pdf-config.js"
 
 if [ -f "$config_source" ]; then
