@@ -7,11 +7,6 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
-
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: visual-studio-code"
 if ! brew list --cask visual-studio-code &> /dev/null; then
@@ -20,7 +15,7 @@ if ! brew list --cask visual-studio-code &> /dev/null; then
 fi
 
 echo "[Start] VS Code のセットアップを開始します..."
-config_dir="$REPO_ROOT/$CONFIG_DIR_PROPS/vscode"
+config_dir="$CONFIG_DIR_PROPS/vscode"
 vscode_target_dir="$HOME/Library/Application Support/Code/User"
 
 # リポジトリに設定ファイルがあるか確認
@@ -63,7 +58,7 @@ echo "[SUCCESS] VS Code環境のセットアップが完了しました"
 echo ""
 echo "==== Start: VS Code環境を検証中... ===="
 verification_failed=false
-config_dir="$REPO_ROOT/$CONFIG_DIR_PROPS/vscode"
+config_dir="$CONFIG_DIR_PROPS/vscode"
 vscode_target_dir="$HOME/Library/Application Support/Code/User"
 
 # リポジトリに設定ファイルがない場合はスキップ

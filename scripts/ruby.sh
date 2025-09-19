@@ -9,11 +9,6 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
-
 # 依存関係をインストール
 echo "[INFO] 依存関係をチェック・インストールします: openssl, rbenv"
 changed=false
@@ -50,7 +45,7 @@ echo "==== Start: Ruby環境のセットアップを開始します..."
 eval "$(rbenv init -)"
 
 # .ruby-versionファイルからRubyのバージョンを読み込む
-RUBY_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/ruby/.ruby-version"
+RUBY_VERSION_FILE="$CONFIG_DIR_PROPS/ruby/.ruby-version"
 if [ ! -f "$RUBY_VERSION_FILE" ]; then
     echo "[ERROR] .ruby-versionファイルが見つかりません: $RUBY_VERSION_FILE"
     exit 1

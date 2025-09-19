@@ -1,11 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
-
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <config-dir>" >&2
     exit 1
@@ -14,7 +9,7 @@ fi
 CONFIG_DIR=$1
 GH_CONFIG_DIR="${HOME}/.config/gh"
 GH_CONFIG_FILE="${GH_CONFIG_DIR}/config.yml"
-SOURCE_CONFIG_FILE="${REPO_ROOT}/${CONFIG_DIR}/gh/config.yml"
+SOURCE_CONFIG_FILE="${CONFIG_DIR}/gh/config.yml"
 
 # ================================================
 # GitHub CLI (gh) のインストールと設定

@@ -7,11 +7,6 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
-
 # Function to verify brew/cask items
 verify_items() {
   local type=$1
@@ -56,7 +51,7 @@ fi
 # Brewfileを使ったインストール
 echo ""
 echo "[Start] Homebrew パッケージのインストールを開始します..."
-brewfile_path="$REPO_ROOT/$CONFIG_DIR_PROPS/brew/Brewfile"
+brewfile_path="$CONFIG_DIR_PROPS/brew/Brewfile"
 
 if [ -f "$brewfile_path" ]; then
     if [ "${CI:-false}" = "true" ]; then

@@ -61,7 +61,7 @@ cmn-gh:
 # Configure Git settings
 cmn-git:
   @echo "🚀 Running common Git setup..."
-  @just _run-script "git.sh" "{{config_common}}"
+  @just _run-script-with-env "git.sh" "{{config_common}}"
 
 # Setup Java environment
 cmn-java:
@@ -148,5 +148,9 @@ help:
 # Hidden Recipes
 # ------------------------------------------------------------------------------
 # @hidden
+_run-script-with-env script_path config_dir:
+  bash -euo pipefail "{{script_dir}}/{{script_path}}" "{{repo_root}}/{{config_dir}}" "{{repo_root}}/.env"
+
+# @hidden
 _run-script script_path config_dir:
-  bash -euo pipefail "{{script_dir}}/{{script_path}}" "{{config_dir}}"
+  bash -euo pipefail "{{script_dir}}/{{script_path}}" "{{repo_root}}/{{config_dir}}"

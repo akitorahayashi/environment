@@ -2,13 +2,9 @@
 
 # スクリプトの引数から設定ディレクトリのパスを取得
 CONFIG_DIR_PROPS="$1"
+ENV_FILE="$2"
 if [ -z "$CONFIG_DIR_PROPS" ]; then
     echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
-    exit 1
-fi
-
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
     exit 1
 fi
 
@@ -28,7 +24,7 @@ fi
 echo "[Start] Gitの設定ファイルのセットアップを開始します..."
 
 mkdir -p "$HOME/.config/git"
-src="$REPO_ROOT/$CONFIG_DIR_PROPS/git/.gitconfig"
+src="$CONFIG_DIR_PROPS/git/.gitconfig"
 dest="$HOME/.config/git/config"
 
 # Only apply if missing or different
@@ -49,7 +45,7 @@ else
 fi
 
 # .envファイルからGitユーザー情報を設定
-env_file="$REPO_ROOT/.env"
+env_file="$ENV_FILE"
 if [ -f "$env_file" ]; then
     echo "[INFO] .envファイルが見つかりました。Gitユーザー情報を読み込みます..."
 
@@ -78,7 +74,7 @@ ignore_file="$HOME/.gitignore_global"
 
 # シンボリックリンクの作成
 echo "[INFO] gitignore_global のシンボリックリンクを作成します..."
-if ln -sf "$REPO_ROOT/$CONFIG_DIR_PROPS/git/.gitignore_global" "$ignore_file"; then
+if ln -sf "$CONFIG_DIR_PROPS/git/.gitignore_global" "$ignore_file"; then
     echo "[SUCCESS] gitignore_global のシンボリックリンクを作成しました。"
 else
     echo "[ERROR] gitignore_global のシンボリックリンク作成に失敗しました。"
@@ -123,7 +119,7 @@ if [ ! -L "$ignore_file" ]; then
 fi
 
 link_target=$(readlink "$ignore_file")
-expected_target="$REPO_ROOT/$CONFIG_DIR_PROPS/git/.gitignore_global"
+expected_target="$CONFIG_DIR_PROPS/git/.gitignore_global"
 
 if [ "$link_target" = "$expected_target" ]; then
     echo "[SUCCESS] $ignore_file が期待される場所を指しています"

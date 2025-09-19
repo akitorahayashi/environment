@@ -8,11 +8,6 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
-
 # ================================================
 # シェル設定ファイルのシンボリックリンクを作成
 # ================================================
@@ -24,13 +19,13 @@ fi
 # ================================================
 
 # ターゲットファイルとリンク先
-ZPROFILE_SOURCE="$REPO_ROOT/$CONFIG_DIR_PROPS/shell/.zprofile"
+ZPROFILE_SOURCE="$CONFIG_DIR_PROPS/shell/.zprofile"
 ZPROFILE_DEST="${HOME}/.zprofile"
 
-ZSHRC_SOURCE="$REPO_ROOT/$CONFIG_DIR_PROPS/shell/.zshrc"
+ZSHRC_SOURCE="$CONFIG_DIR_PROPS/shell/.zshrc"
 ZSHRC_DEST="${HOME}/.zshrc"
 
-ZSH_CONFIG_SOURCE="$REPO_ROOT/$CONFIG_DIR_PROPS/shell/.zsh"
+ZSH_CONFIG_SOURCE="$CONFIG_DIR_PROPS/shell/.zsh"
 ZSH_CONFIG_DEST="${HOME}/.zsh"
 
 # ~/.zsh ディレクトリを削除して再作成
