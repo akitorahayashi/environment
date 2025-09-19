@@ -10,7 +10,7 @@
 │   ├── common/
 │   │   ├── brew/
 │   │   ├── git/
-│   │   ├── node/
+│   │   ├── nodejs/
 │   │   ├── python/
 │   │   ├── ruby/
 │   │   ├── shell/
@@ -23,7 +23,7 @@
 │       ├── node/
 │       └── python/
 ├── scripts/
-│   ├── node/
+│   ├── nodejs/
 │   │   ├── platform.sh
 │   │   └── tools.sh
 │   ├── python/
@@ -37,7 +37,7 @@
 │   ├── gh.sh
 │   ├── homebrew.sh
 │   ├── java.sh
-│   ├── link-shell.sh
+│   ├── shell.sh
 │   ├── ruby.sh
 │   └── vscode.sh
 ├── .gitignore
@@ -87,7 +87,7 @@
 11. **Node.js Environment Setup**
     -   Installs `nvm` and `jq` with Homebrew.
     -   Installs a specific version of Node.js and sets it as the default.
-    -   Installs global npm packages based on `config/common/node/global-packages.json`.
+    -   Installs global npm packages based on `config/common/nodejs/global-packages.json`.
 
 12. **Flutter Setup**
 

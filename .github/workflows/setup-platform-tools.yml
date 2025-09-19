@@ -11,7 +11,7 @@ jobs:
       matrix:
         component:
           - python
-          - node
+          - nodejs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
