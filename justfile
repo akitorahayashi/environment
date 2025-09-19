@@ -92,6 +92,11 @@ cmn-vscode:
   @echo "🚀 Running common VS Code setup..."
   @just _run_ansible "vscode" "{{config_common}}"
 
+# Install common GUI applications (casks)
+cmn-apps:
+  @echo "🚀 Installing common GUI applications..."
+  @brew install --cask android-studio android-commandlinetools google-chrome slack zoom obsidian docker pgadmin4 tailscale rectangle
+
 # ------------------------------------------------------------------------------
 # MacBook-Specific Recipes
 # ------------------------------------------------------------------------------
@@ -117,6 +122,11 @@ mbk-python-tools:
 mmn-brew-specific:
   @echo "  -> Running Homebrew setup with config: {{config_mac_mini}}"
   @just _run_ansible "brew" "{{config_mac_mini}}"
+
+# Install Mac Mini-specific GUI applications (casks)
+mmn-apps:
+  @echo "🚀 Installing Mac Mini-specific GUI applications..."
+  @brew install --cask ngrok
 
 # ------------------------------------------------------------------------------
 # Utility Recipes

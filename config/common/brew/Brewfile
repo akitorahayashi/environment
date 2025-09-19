@@ -38,13 +38,4 @@ brew "yq"
 
 ## Cask
 # cask "visual-studio-code" # installed by scripts/vscode.sh
-cask "android-studio"
-cask "android-commandlinetools"
-cask "google-chrome"
-cask "slack"
-cask "zoom"
-cask "obsidian"
-cask "docker"
-cask "pgadmin4"
-cask "tailscale"
-cask "rectangle"
+# Cask packages moved to justfile targets: cmn-apps, mmn-apps

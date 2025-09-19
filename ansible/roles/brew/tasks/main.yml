@@ -1,5 +1,6 @@
 ---
 - name: "Install packages from Brewfile"
-  community.general.homebrew:
-    state: present
-    brewfile: "{{ config_dir_abs_path }}/brew/Brewfile"
+  ansible.builtin.command:
+    cmd: brew bundle --file="{{ config_dir_abs_path }}/brew/Brewfile"
+  register: brew_bundle_result
+  changed_when: "'Installing' in brew_bundle_result.stdout"

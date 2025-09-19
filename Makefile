@@ -15,6 +15,8 @@ help: ## Show this help message
 .PHONY: setup
 setup: ## Installs Homebrew and the 'just' command runner
 	@echo "🚀 Starting bootstrap setup..."
+
+	# Create .env file from .env.example if it doesn't exist
 	@echo "  -> Creating .env file if it doesn't exist..."
 	@if [ ! -f .env ]; then \
 		cp .env.example .env && \
@@ -22,24 +24,40 @@ setup: ## Installs Homebrew and the 'just' command runner
 	else \
 		echo "    ✅ .env file already exists."; \
 	fi
+
+	# Install Homebrew if it's not already installed
 	@echo "  -> Ensuring Homebrew is installed..."
 	@if ! command -v brew &> /dev/null; then \
 		echo "    [INSTALL] Homebrew ..."; \
 		echo "    [INFO] Homebrewインストールスクリプトを実行します..."; \
-		/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
 		if ! command -v brew &> /dev/null; then \
 			echo "    [ERROR] Homebrewのインストールに失敗しました"; \
 			exit 1; \
 		fi; \
-		eval "$$('/opt/homebrew/bin/brew' shellenv)"; \
+		eval "$('/opt/homebrew/bin/brew' shellenv)"; \
 		echo "    [SUCCESS] Homebrew のインストール完了"; \
 	else \
 		echo "    [SUCCESS] Homebrew はすでにインストールされています"; \
 	fi
+
+	# Install just if it's not already installed
 	@echo "  -> Ensuring just is installed..."
-	@command -v just >/dev/null || brew install just
+	@if ! command -v just &> /dev/null; then \
+		echo "    [INSTALL] just..."; \
+		brew install just; \
+	else \
+		echo "    [SUCCESS] just is already installed."; \
+	fi
+	
+	# Install ansible if it's not already installed
 	@echo "  -> Ensuring ansible is installed..."
-	@command -v ansible >/dev/null || brew install ansible
+	@if ! command -v ansible &> /dev/null; then \
+		echo "    [INSTALL] ansible..."; \
+		brew install ansible; \
+	else \
+		echo "    [SUCCESS] ansible is already installed."; \
+	fi
 	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
 
 .PHONY: macbook
