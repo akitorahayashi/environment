@@ -4,4 +4,4 @@
     name: temurin@21
     state: present
     # The --no-quarantine logic from the original script
-    install_options: "{{ (ansible_env.CI | default('') == 'true') | ternary(['--no-quarantine'], omit) }}"
+    options: "{{ (ansible_env.CI | default('') == 'true') | ternary('--no-quarantine', omit) }}"
