@@ -9,16 +9,16 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
 fi
 
 # ================================================
-# シェル設定ファイルのシンボリックリンクを作成
+# Create symbolic links for shell configuration files
 # ================================================
 #
-# このスクリプトは、リポジトリ内の .zprofile と .zshrc を
-# ホームディレクトリにシンボリックリンクし、
-# ~/.zsh ディレクトリに分割された設定ファイルもリンクします。
+# This script creates symbolic links for .zprofile and .zshrc from the repository
+# to the home directory,
+# and also links the split configuration files in the ~/.zsh directory.
 #
 # ================================================
 
-# ターゲットファイルとリンク先
+# Target files and link destinations
 ZPROFILE_SOURCE="$CONFIG_DIR_PROPS/shell/.zprofile"
 ZPROFILE_DEST="${HOME}/.zprofile"
 
@@ -28,22 +28,22 @@ ZSHRC_DEST="${HOME}/.zshrc"
 ZSH_CONFIG_SOURCE="$CONFIG_DIR_PROPS/shell/.zsh"
 ZSH_CONFIG_DEST="${HOME}/.zsh"
 
-# ~/.zsh ディレクトリを削除して再作成
+# Remove and recreate the ~/.zsh directory
 echo "🧹 Cleaning ~/.zsh directory..."
 rm -rf "${ZSH_CONFIG_DEST}"
 mkdir -p "${ZSH_CONFIG_DEST}"
 
-# .zprofile のシンボリックリンクを作成
+# Create symbolic link for .zprofile
 echo "🚀 Creating symbolic link for .zprofile..."
 ln -sf "${ZPROFILE_SOURCE}" "${ZPROFILE_DEST}"
 echo "[SUCCESS] Created symbolic link for .zprofile: ${ZPROFILE_DEST} -> ${ZPROFILE_SOURCE}"
 
-# .zshrc のシンボリックリンクを作成
+# Create symbolic link for .zshrc
 echo "🚀 Creating symbolic link for .zshrc..."
 ln -sf "${ZSHRC_SOURCE}" "${ZSHRC_DEST}"
 echo "[SUCCESS] Created symbolic link for .zshrc: ${ZSHRC_DEST} -> ${ZSHRC_SOURCE}"
 
-# .zsh ディレクトリ内のファイルのシンボリックリンクを作成
+# Create symbolic links for files in the .zsh directory
 echo "🚀 Creating symbolic links for .zsh configuration files..."
 for config_file in "${ZSH_CONFIG_SOURCE}"/*.zsh; do
     if [ -f "$config_file" ]; then
