@@ -21,7 +21,7 @@ default: help
 # Run all common setup tasks
 common:
   @echo "🚀 Starting all common setup tasks (via Ansible)..."
-  @just _run_ansible "shell,system_defaults,git,gh,python,nodejs,vscode,ruby,brew,java,flutter" "{{config_common}}"
+  @just _run_ansible "shell,system_defaults,git,gh,python-platform,python-tools,nodejs-platform,nodejs-tools,vscode,ruby,brew,java,flutter" "{{config_common}}"
   @echo "✅ All common setup tasks completed successfully."
 
 # ------------------------------------------------------------------------------
@@ -60,22 +60,22 @@ cmn-java:
 # Setup Node.js platform
 cmn-nodejs-platform:
   @echo "🚀 Running common Node.js platform setup..."
-  @just _run_ansible "nodejs" "{{config_common}}"
+  @just _run_ansible "nodejs-platform" "{{config_common}}"
 
 # Install common Node.js tools
 cmn-nodejs-tools:
   @echo "🚀 Installing common Node.js tools from config: {{config_common}}"
-  @just _run_ansible "nodejs" "{{config_common}}"
+  @just _run_ansible "nodejs-tools" "{{config_common}}"
 
 # Setup Python platform
 cmn-python-platform:
   @echo "🚀 Running common Python platform setup..."
-  @just _run_ansible "python" "{{config_common}}"
+  @just _run_ansible "python-platform" "{{config_common}}"
 
 # Install common Python tools
 cmn-python-tools:
   @echo "🚀 Installing common Python tools from config: {{config_common}}"
-  @just _run_ansible "python" "{{config_common}}"
+  @just _run_ansible "python-tools" "{{config_common}}"
 
 # Setup Ruby environment with rbenv
 cmn-ruby:
@@ -103,12 +103,12 @@ mbk-brew-specific:
 # Install MacBook-specific Node.js tools
 mbk-nodejs-tools:
   @echo "🚀 Installing MacBook-specific Node.js tools from config: {{config_macbook}}"
-  @just _run_ansible "nodejs" "{{config_macbook}}"
+  @just _run_ansible "nodejs-tools" "{{config_macbook}}"
 
 # Install MacBook-specific Python tools
 mbk-python-tools:
   @echo "🚀 Installing MacBook-specific Python tools from config: {{config_macbook}}"
-  @just _run_ansible "python" "{{config_macbook}}"
+  @just _run_ansible "python-tools" "{{config_macbook}}"
 
 # ------------------------------------------------------------------------------
 # Mac Mini-Specific Recipes

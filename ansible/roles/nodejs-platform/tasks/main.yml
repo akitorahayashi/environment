@@ -32,20 +32,3 @@
   changed_when: false
   environment:
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-
-- name: "Install global Node.js packages"
-  ansible.builtin.shell:
-    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use {{ node_version }} && pnpm install -g {{ item }}@latest"
-  loop: "{{ lookup('file', config_dir_abs_path + '/nodejs/global-packages.json') | from_json | json_query('dependencies') | dict2items | map(attribute='key') | list }}"
-  changed_when: false
-  environment:
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
-    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
-
-- name: "Create symlink for md-to-pdf config"
-  ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/nodejs/md-to-pdf-config.js"
-    dest: "{{ ansible_env.HOME }}/.md-to-pdf-config.js"
-    state: link
-    force: true

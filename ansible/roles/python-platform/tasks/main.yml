@@ -25,26 +25,23 @@
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
 
-- name: "Set global Python version"
+- name: "Get current global Python version"
   ansible.builtin.shell:
-    cmd: "pyenv global {{ python_version }}"
+    cmd: "pyenv global"
+  register: current_py_global
   changed_when: false
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
 
-- name: "Install pipx"
+- name: "Set global Python version"
   ansible.builtin.shell:
-    cmd: "python -m pip install --user pipx"
-  args:
-    creates: "{{ ansible_env.HOME }}/.local/bin/pipx"
-  changed_when: false
+    cmd: "pyenv global {{ python_version }}"
+  register: py_global_set
+  changed_when: "current_py_global.stdout != python_version"
   environment:
-    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
 
-- name: "Install pipx tools"
-  community.general.pipx:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ lookup('file', config_dir_abs_path + '/python/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+- name: "Touch flag file if Python version changed"
+  ansible.builtin.command: "touch /tmp/python_version_changed"
+  when: py_global_set.changed
+  changed_when: false

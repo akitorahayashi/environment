@@ -1,0 +1,34 @@
+---
+- name: "Check for Python version change flag"
+  ansible.builtin.stat:
+    path: /tmp/python_version_changed
+  register: flag_file
+
+- name: "Reinstall pipx tools due to Python version change"
+  ansible.builtin.command: "pipx reinstall-all"
+  when: flag_file.stat.exists
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+
+- name: "Remove Python version change flag"
+  ansible.builtin.file:
+    path: /tmp/python_version_changed
+    state: absent
+  when: flag_file.stat.exists
+
+- name: "Install pipx"
+  ansible.builtin.shell:
+    cmd: "python -m pip install --user pipx"
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/pipx"
+  changed_when: false
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+
+- name: "Install pipx tools"
+  community.general.pipx:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ lookup('file', config_dir_abs_path + '/python/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"

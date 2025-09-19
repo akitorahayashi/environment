@@ -32,9 +32,9 @@
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
 
-- name: "Install bundler gem"
+- name: "Install bundler gem (version 2.5.22)"
   ansible.builtin.shell:
-    cmd: "gem install bundler --no-document"
+    cmd: "gem install bundler -v 2.5.22 --no-document"
   changed_when: false
   environment:
     PATH: "{{ ansible_env.HOME }}/.rbenv/shims:/opt/homebrew/bin:{{ ansible_env.PATH }}"
