@@ -50,7 +50,7 @@ cmn-gh:
 # Configure Git settings
 cmn-git:
   @echo "🚀 Running common Git setup..."
-  @just _run_ansible_with_env "git" "{{config_common}}"
+  @just _run_ansible "git" "{{config_common}}"
 
 # Setup Java environment
 cmn-java:
@@ -137,10 +137,7 @@ help:
 # Hidden Recipes
 # ------------------------------------------------------------------------------
 @hidden
-_run_ansible_with_env tags config_dir:
-  @export $(grep -v '^#' .env | xargs) && \
-  ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"
-
-@hidden
 _run_ansible tags config_dir:
-  @ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"
+  @export $(grep -v '^#' .env | xargs) && \
+  export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
+  ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"
