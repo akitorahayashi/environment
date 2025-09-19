@@ -16,11 +16,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Homebrew and just
+        run: make setup
+
       - name: Run ${{ matrix.component }}-platform setup
-        run: make ${{ matrix.component }}-platform
+        run: just cmn-${{ matrix.component }}-platform
 
       - name: Run ${{ matrix.component }}-tools setup
-        run: make ${{ matrix.component }}-tools
+        run: just cmn-${{ matrix.component }}-tools
 
       - name: Run ${{ matrix.component }}-platform setup for idempotency check
         id: idempotency-platform
@@ -28,7 +31,7 @@ jobs:
           set -o pipefail
           delim="EOF$(date +%s%N)"
           # Re-run and capture stderr and exit code
-          stderr_output=$( (make ${{ matrix.component }}-platform >/dev/null) 2>&1 ); exit_code=$?
+          stderr_output=$( (just cmn-${{ matrix.component }}-platform >/dev/null) 2>&1 ); exit_code=$?
           {
             echo "stderr_output<<${delim}"
             echo "${stderr_output}"
@@ -51,7 +54,7 @@ jobs:
           set -o pipefail
           delim="EOF$(date +%s%N)"
           # Re-run and capture stderr and exit code
-          stderr_output=$( (make ${{ matrix.component }}-tools >/dev/null) 2>&1 ); exit_code=$?
+          stderr_output=$( (just cmn-${{ matrix.component }}-tools >/dev/null) 2>&1 ); exit_code=$?
           {
             echo "stderr_output<<${delim}"
             echo "${stderr_output}"

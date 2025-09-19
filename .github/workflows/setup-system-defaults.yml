@@ -10,12 +10,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Homebrew and just
+        run: make setup
+
       - name: Apply macOS system defaults
-        run: make apply-defaults CONFIG_DIR=config/common
+        run: just cmn-apply-defaults
 
       - name: Re-run backup to check for idempotency
-        run: make backup-defaults CONFIG_DIR=config/common
+        run: just cmn-backup-defaults
 
       - name: Verify that system defaults file is unchanged
-        run: |
-          git diff --exit-code -- config/common/system-defaults/system-defaults.sh
+        run: git diff --exit-code -- config/common/system-defaults/system-defaults.sh

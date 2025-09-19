@@ -35,13 +35,14 @@
 │   ├── flutter.sh
 │   ├── git.sh
 │   ├── gh.sh
-│   ├── homebrew.sh
+│   ├── brew.sh
 │   ├── java.sh
 │   ├── shell.sh
 │   ├── ruby.sh
 │   └── vscode.sh
 ├── .gitignore
 ├── Makefile
+├── justfile
 └── README.md
 ```
 
@@ -93,21 +94,27 @@
 
 ## How to Use
 
-Use the `make` command to run the setup.
+This project uses a two-step approach:
+1. **Bootstrap Setup**: Use `make` to install Homebrew and the `just` command runner
+2. **Full Setup**: Use `make` to delegate to `just` for the actual environment setup
+
+### Bootstrap Commands
 
 - **`make` or `make help`**: Displays all available commands and their descriptions.
+- **`make setup`**: Installs Homebrew and the `just` command runner (required first step).
 
-### Full Setup
+### Full Setup Commands
 
-- **`make macbook`**: Sequentially executes all setup scripts for MacBook.
-- **`make mac-mini`**: Sequentially executes all setup scripts for Mac mini.
+- **`make macbook`**: Runs the full setup for MacBook (requires `make setup` first).
+- **`make mac-mini`**: Runs the full setup for Mac mini (requires `make setup` first).
 
-### Running Individual/Common Tasks
+### Running Individual Tasks with Just
 
-- **`make common`**: Executes all common settings only (Git, VS Code, Ruby, Python, Java, Flutter, Node.js, Shell, System Defaults).
-- **`make <task>`**: Executes an individual setup.
-  - **Common Tasks**: You can run specific common tasks like `make git`, `make shell`, `make java`, etc.
-  - **Machine-Specific Tasks**: Machine-specific tasks like `make mbk-brew`, `make mmn-brew` can also be run individually.
+After running `make setup`, you can use `just` directly for individual tasks:
+
+- **`just help`**: Shows all available just recipes
+- **Common Tasks**: Run specific tasks like `just cmn-git`, `just cmn-shell`, `just cmn-java`, etc.
+- **Machine-Specific Tasks**: Run machine-specific tasks like `just mbk-brew-specific`, `just mmn-brew-specific`, etc.
 
 ## Setup Instructions
 
@@ -117,16 +124,19 @@ Use the `make` command to run the setup.
     xcode-select --install
     ```
 
-2.  **Personal Git Configuration (Create `.env` file)**
+2.  **Bootstrap Setup**
 
-    Copy `.env.example` at the root of the repository to create an `.env` file.
-    Then, edit `GIT_USERNAME` and `GIT_EMAIL` in the `.env` file to your own.
-
+    Install Homebrew, the `just` command runner, and create the `.env` file:
     ```sh
-    cp .env.example .env
-    # Edit the .env file to set your GIT_USERNAME and GIT_EMAIL
+    make setup
     ```
-    This `.env` file will be automatically loaded by `make macbook` or `make git` in the next step and reflected in the global Git configuration.
+
+    This command will:
+    - Create a `.env` file from `.env.example` if it doesn't exist
+    - Install Homebrew if not already installed
+    - Install the `just` command runner
+
+    **Important**: After running `make setup`, edit the `.env` file to set your `GIT_USERNAME` and `GIT_EMAIL` before proceeding to the next step.
 
 3.  **Install Various Tools and Packages**
 
@@ -141,7 +151,7 @@ Use the `make` command to run the setup.
     ```sh
     make mac-mini
     ```
-    This command installs all the necessary development tools such as Homebrew, Git, Ruby, Python, Node.js, and also applies macOS and shell settings.
+    These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes.
 
 4.  **Restart macOS**
 
