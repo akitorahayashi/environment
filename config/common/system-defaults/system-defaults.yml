@@ -10,8 +10,8 @@
 - { key: 'FocusFollowsMouse', domain: 'com.apple.Terminal', type: 'bool', value: true }
   # Trackpad
 - { key: 'com.apple.trackpad.scaling', type: 'float', value: 1.5 }
-- { key: 'Clicking', domain: 'com.apple.AppleMultitouchTrackpad', type: 'bool', value: true }
-- { key: 'Dragging', domain: 'com.apple.AppleMultitouchTrackpad', type: 'bool', value: false }
+- { key: 'Clicking', domain: 'com.apple.AppleMultitouchTrackpad', type: 'int', value: 1 }
+- { key: 'Dragging', domain: 'com.apple.AppleMultitouchTrackpad', type: 'int', value: 0 }
 - { key: 'TrackpadThreeFingerDrag', domain: 'com.apple.AppleMultitouchTrackpad', type: 'bool', value: false }
 - { key: 'FirstClickThreshold', domain: 'com.apple.AppleMultitouchTrackpad', type: 'int', value: 1 }
 - { key: 'ForceSuppressed', domain: 'com.apple.AppleMultitouchTrackpad', type: 'bool', value: true }
