@@ -6,8 +6,6 @@ on:
 jobs:
   setup:
     runs-on: macos-15
-    env:
-      PATH: "$PATH:$HOME/.local/bin"
     strategy:
       fail-fast: false
       matrix:

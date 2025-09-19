@@ -6,8 +6,6 @@ on:
 jobs:
   setup-macos:
     runs-on: macos-15
-    env:
-      PATH: "$PATH:$HOME/.local/bin"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
