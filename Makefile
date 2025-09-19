@@ -76,3 +76,7 @@ mac-mini: ## Runs the full setup for a Mac mini (requires 'setup' to be run firs
 	@just common
 	@just mmn-brew-specific
 	@echo "✅ Mac mini full setup completed successfully."
+
+.PHONY: defaults
+defaults: ## Backup current macOS system defaults
+	@just cmn-backup-defaults

@@ -9,10 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config_dir:
-          - config/common
-          - config/macbook-only
-          - config/mac-mini-only
+        config: [cmn, mbk, mmn]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,7 +27,6 @@ jobs:
           echo "✅ GitHub認証の設定が完了しました"
         shell: bash
 
-      - name: Run Homebrew setup for ${{ matrix.config_dir }}
-        id: setup
-        run: ansible-playbook -i ansible/hosts ansible/playbook.yml --tags "brew" -e "config_dir_abs_path=${{ github.workspace }}/${{ matrix.config_dir }}"
+      - name: Run Homebrew setup for ${{ matrix.config }}
+        run: just ${{ matrix.config }}-brew
 

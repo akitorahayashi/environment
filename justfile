@@ -101,7 +101,7 @@ cmn-apps:
 # MacBook-Specific Recipes
 # ------------------------------------------------------------------------------
 # Install specific Homebrew packages
-mbk-brew-specific:
+mbk-brew:
   @echo "  -> Running Homebrew setup with config: {{config_macbook}}"
   @just _run_ansible "brew" "{{config_macbook}}"
 
@@ -119,7 +119,7 @@ mbk-python-tools:
 # Mac Mini-Specific Recipes
 # ------------------------------------------------------------------------------
 # Install specific Homebrew packages
-mmn-brew-specific:
+mmn-brew:
   @echo "  -> Running Homebrew setup with config: {{config_mac_mini}}"
   @just _run_ansible "brew" "{{config_mac_mini}}"
 
