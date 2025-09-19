@@ -139,10 +139,8 @@ help:
 @hidden
 _run_ansible_with_env tags config_dir:
   @export $(grep -v '^#' .env | xargs) && \
-  @env ANSIBLE_LOCAL_TEMP=/tmp \
   ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"
 
 @hidden
 _run_ansible tags config_dir:
-  @env ANSIBLE_LOCAL_TEMP=/tmp \
-  ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"
+  @ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"
