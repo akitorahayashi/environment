@@ -1,20 +1,25 @@
 ---
+# Configures the action for the top-left hot corner.
+# 0: No Action, 2: Mission Control, 3: Application Windows, 4: Desktop, 5: Start Screen Saver, 6: Disable Screen Saver, 7: Dashboard, 10: Put Display to Sleep, 11: Launchpad, 12: Notification Center, 13: Lock Screen
 - key: wvous-tl-corner
   domain: com.apple.dock
   type: int
   default: 11
   comment: "Hot Corners"
 
+# Configures the action for the top-right hot corner.
 - key: wvous-tr-corner
   domain: com.apple.dock
   type: int
   default: 5
 
+# Configures the action for the bottom-left hot corner.
 - key: wvous-bl-corner
   domain: com.apple.dock
   type: int
   default: 10
 
+# Configures the action for the bottom-right hot corner.
 - key: wvous-br-corner
   domain: com.apple.dock
   type: int
