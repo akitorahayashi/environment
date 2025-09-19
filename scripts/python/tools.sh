@@ -7,10 +7,7 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
+# CONFIG_DIR_PROPS is now passed as absolute path from just
 
 echo "==== Start: Python Global Tools Setup ===="
 
@@ -32,7 +29,7 @@ if [ -f "$PYTHON_VERSION_CHANGE_FLAG" ]; then
     if command -v pipx &> /dev/null && pipx list --short 2>/dev/null | grep -q .; then
         echo "[REINSTALL] Reinstalling pipx tools for the new Python version..."
         # We need to get the current python version to pass to reinstall-all
-        PYTHON_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/python/.python-version"
+        PYTHON_VERSION_FILE="$CONFIG_DIR_PROPS/python/.python-version"
         PYTHON_VERSION="$(tr -d '[:space:]' < "$PYTHON_VERSION_FILE")"
         pipx reinstall-all --python "$(pyenv which python)"
         changed=true
@@ -44,7 +41,7 @@ if [ -f "$PYTHON_VERSION_CHANGE_FLAG" ]; then
 fi
 
 # Install tools managed by pipx
-PIPX_TOOLS_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/python/pipx-tools.txt"
+PIPX_TOOLS_FILE="$CONFIG_DIR_PROPS/python/pipx-tools.txt"
 if [ ! -f "$PIPX_TOOLS_FILE" ]; then
     echo "[ERROR] pipx-tools.txt not found: $PIPX_TOOLS_FILE"
     exit 1

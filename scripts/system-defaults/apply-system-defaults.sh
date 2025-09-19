@@ -8,10 +8,7 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
+# CONFIG_DIR_PROPS is now passed as absolute path from just
 
 # ================================================
 # macOS システム設定を適用
@@ -22,7 +19,7 @@ fi
 #
 # ================================================
 
-SETTINGS_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/system-defaults/system-defaults.sh"
+SETTINGS_FILE="$CONFIG_DIR_PROPS/system-defaults/system-defaults.sh"
 
 echo "🚀 Applying macOS system defaults..."
 

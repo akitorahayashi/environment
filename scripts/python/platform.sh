@@ -7,10 +7,7 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
+# CONFIG_DIR_PROPS is now passed as absolute path from just
 
 echo "==== Start: Python Platform Setup ===="
 
@@ -36,7 +33,7 @@ if command -v pyenv 1>/dev/null 2>&1; then
 fi
 
 # Read the Python version from the .python-version file
-PYTHON_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/python/.python-version"
+PYTHON_VERSION_FILE="$CONFIG_DIR_PROPS/python/.python-version"
 if [ ! -f "$PYTHON_VERSION_FILE" ]; then
     echo "[ERROR] .python-version file not found: $PYTHON_VERSION_FILE"
     exit 1

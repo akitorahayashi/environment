@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# スクリプトの引数から設定ディレクトリのパスを取得
+# Get the configuration directory path from script arguments
 CONFIG_DIR_PROPS="$1"
 if [ -z "$CONFIG_DIR_PROPS" ]; then
     echo "[ERROR] This script requires a configuration directory path as its first argument." >&2

@@ -12,11 +12,11 @@ GH_CONFIG_FILE="${GH_CONFIG_DIR}/config.yml"
 SOURCE_CONFIG_FILE="${CONFIG_DIR}/gh/config.yml"
 
 # ================================================
-# GitHub CLI (gh) のインストールと設定
+# GitHub CLI (gh) installation and configuration
 # ================================================
 #
-# 1. gh のインストール (Homebrew経由)
-# 2. gh の設定ファイル(config.yml)を配置
+# 1. Install gh (via Homebrew)
+# 2. Place gh configuration file (config.yml)
 #
 # ================================================
 

@@ -7,10 +7,7 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
+# CONFIG_DIR_PROPS is now passed as absolute path from just
 
 echo "==== Start: Node.js Platform Setup ===="
 
@@ -47,7 +44,7 @@ else
 fi
 
 # Read Node.js version from .nvmrc file
-NODE_VERSION_FILE="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/.nvmrc"
+NODE_VERSION_FILE="$CONFIG_DIR_PROPS/nodejs/.nvmrc"
 if [ ! -f "$NODE_VERSION_FILE" ]; then
     echo "[ERROR] .nvmrc file not found: $NODE_VERSION_FILE"
     exit 1
@@ -119,7 +116,7 @@ echo "==== Start: Verifying Node.js Platform..."
 verification_failed=false
 
 # Re-read the expected version from .nvmrc for verification
-NODE_VERSION_FILE_VERIFY="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/.nvmrc"
+NODE_VERSION_FILE_VERIFY="$CONFIG_DIR_PROPS/nodejs/.nvmrc"
 if [ ! -f "$NODE_VERSION_FILE_VERIFY" ]; then
     echo "[ERROR] .nvmrc file not found for verification: $NODE_VERSION_FILE_VERIFY"
     exit 1

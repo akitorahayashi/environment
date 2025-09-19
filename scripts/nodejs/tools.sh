@@ -7,10 +7,7 @@ if [ -z "$CONFIG_DIR_PROPS" ]; then
     exit 1
 fi
 
-if [ -z "${REPO_ROOT:-}" ]; then
-    echo "[ERROR] REPO_ROOT environment variable is not set. This script should be run via 'make'." >&2
-    exit 1
-fi
+# CONFIG_DIR_PROPS is now passed as absolute path from just
 
 echo "==== Start: Node.js Global Packages Setup ===="
 
@@ -47,7 +44,7 @@ if [ -f "$NODE_VERSION_CHANGE_FLAG" ]; then
 fi
 
 # Install global packages from config
-packages_file="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/global-packages.json"
+packages_file="$CONFIG_DIR_PROPS/nodejs/global-packages.json"
 if [ ! -f "$packages_file" ]; then
     echo "[ERROR] global-packages.json not found: $packages_file"
     exit 1
@@ -106,7 +103,7 @@ echo "[SUCCESS] Node.js global packages verification complete."
 # --- Create symlink for md-to-pdf config ---
 echo "==== Creating symlink for md-to-pdf config ===="
 
-config_source="$REPO_ROOT/$CONFIG_DIR_PROPS/nodejs/md-to-pdf-config.js"
+config_source="$CONFIG_DIR_PROPS/nodejs/md-to-pdf-config.js"
 symlink_target="$HOME/.md-to-pdf-config.js"
 
 if [ -f "$config_source" ]; then

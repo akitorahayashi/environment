@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# 使用するJDKのバージョンを定数として定義
+# Define the JDK version to use as a constant
 readonly JDK_VERSION="21"
 
-echo "==== Start: Java環境のセットアップを開始します..."
+echo "==== Start: Starting Java environment setup..."
 
 # temurin@<バージョン>がインストールされていなければインストール
 if ! brew list --cask "temurin@${JDK_VERSION}" > /dev/null 2>&1; then
@@ -14,15 +14,15 @@ if ! brew list --cask "temurin@${JDK_VERSION}" > /dev/null 2>&1; then
     fi
 
     if ! "${brew_install_cmd[@]}" "temurin@${JDK_VERSION}"; then
-        echo "[ERROR] temurin@${JDK_VERSION} のインストールに失敗しました"
+        echo "[ERROR] temurin@${JDK_VERSION} installation failed"
         exit 1
     fi
     echo "IDEMPOTENCY_VIOLATION" >&2
 else
-    echo "[INFO] temurin@${JDK_VERSION} はすでにインストールされています"
+    echo "[INFO] temurin@${JDK_VERSION} is already installed"
 fi
 
-echo "[SUCCESS] Java環境のセットアップが完了しました"
+echo "[SUCCESS] Java environment setup completed"
 
 
 # JAVA_HOME の設定
@@ -37,30 +37,30 @@ else
   echo "[WARNING] /usr/libexec/java_home not available. Skipping JAVA_HOME setup." >&2
 fi
 
-echo "==== Start: Java環境を検証中..."
+echo "==== Start: Verifying Java environment..."
 
 # temurinがインストールされているか確認
 if ! brew list --cask "temurin@${JDK_VERSION}" > /dev/null 2>&1; then
-    echo "[ERROR] temurin@${JDK_VERSION} がインストールされていません"
+    echo "[ERROR] temurin@${JDK_VERSION} is not installed"
     exit 1
 else
-    echo "[SUCCESS] temurin@${JDK_VERSION} はインストールされています"
+    echo "[SUCCESS] temurin@${JDK_VERSION} is installed"
 fi
 
 # JAVA_HOMEが設定されているか確認
 if [ -z "${JAVA_HOME:-}" ]; then
-    echo "[ERROR] JAVA_HOME が設定されていません"
+    echo "[ERROR] JAVA_HOME is not set"
     exit 1
 else
-    echo "[SUCCESS] JAVA_HOME は設定されています: $JAVA_HOME"
+    echo "[SUCCESS] JAVA_HOME is set: $JAVA_HOME"
 fi
 
 # javaコマンドが実行できるか確認
 if ! java -version > /dev/null 2>&1; then
-    echo "[ERROR] java コマンドが実行できません"
+    echo "[ERROR] java command cannot be executed"
     exit 1
 else
-    echo "[SUCCESS] java コマンドは実行可能です: $(java -version 2>&1 | head -n 1)"
+    echo "[SUCCESS] java command is executable: $(java -version 2>&1 | head -n 1)"
 fi
 
-echo "[SUCCESS] Java環境の検証が完了しました"
+echo "[SUCCESS] Java environment verification completed"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# スクリプトの引数から設定ディレクトリのパスを取得
+# Get the configuration directory path from script arguments
 CONFIG_DIR_PROPS="$1"
 if [ -z "$CONFIG_DIR_PROPS" ]; then
     echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
@@ -15,22 +15,22 @@ verify_items() {
 
   while read -r item; do
     if ! "${cmd[@]}" "$item" &>/dev/null; then
-      echo "[ERROR] CI: ${type}パッケージ '$item' が見つかりません。"
+      echo "[ERROR] CI: ${type} package '$item' not found."
       verification_failed=true
     else
-      echo "[SUCCESS] CI: ${type}パッケージ '$item' はインストール可能です。"
+      echo "[SUCCESS] CI: ${type} package '$item' can be installed."
     fi
   done < <(grep "^$type " "$brewfile_path" | awk -F'"' '{print $2}')
 }
 
 # Homebrewのインストール
 if ! command -v brew &> /dev/null; then
-    echo "[INSTALL] Homebrew ..."
+    echo "    echo "[INSTALL] Installing Homebrew""
     
     install_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-    echo "[INFO] Homebrewインストールスクリプトを実行します..."
+    echo "[INFO] Executing Homebrew installation script..."
     if [ "${CI:-false}" = "true" ]; then
-        echo "[INFO] CI環境では非対話型でインストールします"
+        echo "[INFO] Installing non-interactively in CI environment"
         NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL "$install_url")"
     else
         /bin/bash -c "$(curl -fsSL "$install_url")"
@@ -38,25 +38,25 @@ if ! command -v brew &> /dev/null; then
     
     
     if ! command -v brew; then
-        echo "[ERROR] Homebrewのインストールに失敗しました"
+        echo "[ERROR] Homebrew installation failed"
         exit 1
     fi
     eval "$('/opt/homebrew/bin/brew' shellenv)"
-    echo "[OK] Homebrewバイナリのインストールが完了しました。"
-    echo "[SUCCESS] Homebrew のインストール完了"
+    echo "[OK] Homebrew binary installation completed."
+    echo "[SUCCESS] Homebrew installation completed"
 else
-    echo "[SUCCESS] Homebrew はすでにインストールされています"
+    echo "[SUCCESS] Homebrew is already installed"
 fi
 
 # Brewfileを使ったインストール
 echo ""
-echo "[Start] Homebrew パッケージのインストールを開始します..."
+echo "[Start] Starting Homebrew package installation..."
 brewfile_path="$CONFIG_DIR_PROPS/brew/Brewfile"
 
 if [ -f "$brewfile_path" ]; then
     if [ "${CI:-false}" = "true" ]; then
         # CI環境ではインストールせず存在確認のみ
-        echo "[INFO] CI: Brewfileのパッケージがインストール可能か確認します..."
+        echo "[INFO] CI: Checking if Brewfile packages can be installed..."
         verification_failed=false
 
         verify_items "brew"
@@ -70,48 +70,48 @@ if [ -f "$brewfile_path" ]; then
         fi
     else
         if ! brew bundle --file "$brewfile_path"; then
-            echo "[ERROR] Brewfileからのパッケージインストールに失敗しました"
+            echo "[ERROR] Package installation from Brewfile failed"
             exit 1
         fi
-        echo "[OK] Homebrew パッケージのインストール/アップグレードが完了しました"
+        echo "[OK] Homebrew package installation/upgrade completed"
     fi
 fi
 
-echo "[SUCCESS] Homebrewのセットアップが完了しました"
+echo "[SUCCESS] Homebrew setup completed"
 
 # CIでない場合のみHomebrew環境を検証
 if [ "${CI:-false}" != "true" ]; then
-    echo "[Start] Homebrew環境を検証中..."
+    echo "[Start] Verifying Homebrew environment..."
     verification_failed=false
 
     # Homebrew パスの確認
     BREW_PATH=$(command -v brew)
     expected_path="$(brew --prefix)/bin/brew"
     if [[ "$BREW_PATH" != "$expected_path" ]]; then
-        echo "[ERROR] Homebrewのパスが想定と異なります"
-        echo "[ERROR] 期待: $expected_path"
-        echo "[ERROR] 実際: $BREW_PATH"
+        echo "[ERROR] Homebrew path differs from expected"
+        echo "[ERROR] Expected: $expected_path"
+        echo "[ERROR] Actual: $BREW_PATH"
         verification_failed=true
     else
-        echo "[SUCCESS] Homebrewのパスが正しく設定されています: $BREW_PATH"
+        echo "[SUCCESS] Homebrew path is correctly set: $BREW_PATH"
     fi
 
     # パッケージの確認
     if [ -f "$brewfile_path" ]; then
         if ! brew bundle check --file="$brewfile_path"; then
-            echo "[ERROR] Brewfileで定義されたパッケージの一部がインストールされていません。"
+            echo "[ERROR] Some packages defined in Brewfile are not installed."
             verification_failed=true
         else
-            echo "[SUCCESS] すべてのパッケージがインストールされています"
+            echo "[SUCCESS] All packages are installed"
         fi
     else
-        echo "[WARN] Brewfileが見つかりません: $brewfile_path"
+        echo "[WARN] Brewfile not found: $brewfile_path"
     fi
 
     if [ "$verification_failed" = "true" ]; then
-        echo "[ERROR] Homebrew環境の検証に失敗しました"
+        echo "[ERROR] Homebrew environment verification failed"
         exit 1
     else
-        echo "[SUCCESS] Homebrew環境の検証が完了しました"
+        echo "[SUCCESS] Homebrew environment verification completed"
     fi
 fi
