@@ -139,5 +139,5 @@ help:
 @hidden
 _run_ansible tags config_dir:
   @export $(grep -v '^#' .env | xargs) && \
-  ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
+  @export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
   ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"

@@ -11,12 +11,9 @@ jobs:
       matrix:
         component:
           - git
-          - gh
           - ruby
           - java
           - vscode
-          - python
-          - nodejs
           - shell
     steps:
       - name: Checkout repository
@@ -25,16 +22,5 @@ jobs:
       - name: Setup Homebrew and just
         run: make setup
 
-      - name: Setup GitHub authentication (for gh component)
-        if: matrix.component == 'gh'
-        run: |
-          echo "🔑 CI環境用のGitHub認証を設定中..."
-          echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}"
-          echo "✅ GitHub認証の設定が完了しました"
-        shell: bash
-
       - name: Setup ${{ matrix.component }}
-        env:
-          HOME: ${{ matrix.component == 'shell' && format('{0}/home', runner.temp) || env.HOME }}
-        run: ansible-playbook -i ansible/hosts ansible/playbook.yml --tags "${{ matrix.component }}" -e "config_dir_abs_path=${{ github.workspace }}/config/common"
+        run: just cmn-${{ matrix.component }}

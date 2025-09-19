@@ -8,8 +8,15 @@ on:
   workflow_dispatch:
 
 jobs:
+  setup-platform-tools:
+    uses: ./.github/workflows/setup-platform-tools.yml
+
   setup-components:
     uses: ./.github/workflows/setup-components.yml
+
+  setup-gh:
+    uses: ./.github/workflows/setup-gh.yml
+    secrets: inherit
 
   setup-homebrew:
     uses: ./.github/workflows/setup-homebrew.yml

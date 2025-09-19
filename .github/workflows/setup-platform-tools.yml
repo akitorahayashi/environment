@@ -1,0 +1,26 @@
+name: Setup Platform Tools
+
+on:
+  workflow_call:
+
+jobs:
+  setup-platform-tools:
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [python, nodejs]
+        config: [cmn, mbk]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make setup
+
+      - name: Run ${{ matrix.component }}-platform setup
+        run: just cmn-${{ matrix.component }}-platform
+        if: matrix.config == 'cmn'
+
+      - name: Run ${{ matrix.config }}-${{ matrix.component }}-tools setup
+        run: just ${{ matrix.config }}-${{ matrix.component }}-tools
