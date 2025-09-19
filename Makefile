@@ -65,7 +65,7 @@ setup: ## Installs Homebrew and the 'just' command runner
 macbook: ## Runs the full setup for a MacBook (requires 'setup' to be run first)
 	@echo "🚀 Handing over to just for MacBook setup..."
 	@just common
-	@just mbk-brew-specific
+	@just mbk-brew
 	@just mbk-nodejs-tools
 	@just mbk-python-tools
 	@echo "✅ MacBook full setup completed successfully."
@@ -74,7 +74,9 @@ macbook: ## Runs the full setup for a MacBook (requires 'setup' to be run first)
 mac-mini: ## Runs the full setup for a Mac mini (requires 'setup' to be run first)
 	@echo "🚀 Handing over to just for Mac mini setup..."
 	@just common
-	@just mmn-brew-specific
+	@just mmn-brew
+	@just mmn-nodejs-tools
+	@just mmn-python-tools
 	@echo "✅ Mac mini full setup completed successfully."
 
 .PHONY: defaults

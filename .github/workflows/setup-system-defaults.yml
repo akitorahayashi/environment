@@ -15,9 +15,6 @@ jobs:
 
       - name: Apply macOS system defaults
         run: just cmn-apply-defaults
-
-      - name: Install yq
-        run: brew install yq
         
       - name: Backup current system defaults
         run: just cmn-backup-defaults
