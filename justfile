@@ -136,7 +136,7 @@ help:
 # ------------------------------------------------------------------------------
 # Hidden Recipes
 # ------------------------------------------------------------------------------
-@hidden
+# @hidden
 _run_ansible tags config_dir:
   @export $(grep -v '^#' .env | xargs) && \
   @export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
