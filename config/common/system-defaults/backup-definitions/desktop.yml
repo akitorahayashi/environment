@@ -10,7 +10,3 @@
   type: bool
   default: true
 
-- key: GloballyEnabled
-  domain: com.apple.WindowManager
-  type: bool
-  default: false

@@ -123,6 +123,16 @@ mmn-brew-specific:
   @echo "  -> Running Homebrew setup with config: {{config_mac_mini}}"
   @just _run_ansible "brew" "{{config_mac_mini}}"
 
+# Install Mac Mini-specific Node.js tools
+mmn-nodejs-tools:
+  @echo "🚀 Installing Mac Mini-specific Node.js tools from config: {{config_mac_mini}}"
+  @just _run_ansible "nodejs-tools" "{{config_mac_mini}}"
+
+# Install Mac Mini-specific Python tools
+mmn-python-tools:
+  @echo "🚀 Installing Mac Mini-specific Python tools from config: {{config_mac_mini}}"
+  @just _run_ansible "python-tools" "{{config_mac_mini}}"
+
 # Install Mac Mini-specific GUI applications (casks)
 mmn-apps:
   @echo "🚀 Installing Mac Mini-specific GUI applications..."
