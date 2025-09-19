@@ -1,0 +1,13 @@
+# git
+alias g="git"
+alias gi="git"
+alias gb="git branch"
+alias gp="git pull"
+alias gps="git push"
+alias gps-u-o="git push -u origin"
+alias gps-f-l="git push --force-with-lease"
+alias gps-o="git push origin"
+alias gc="git add .;git commit -m"
+alias gic="git add .;git commit -m"
+alias gl="git lg"
+alias glg="git lg"

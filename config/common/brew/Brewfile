@@ -3,9 +3,9 @@
 # brew "gh" # installed by scripts/gh.sh
 
 ## Development Tools
-# brew "nvm" # installed by scripts/node.sh
-# brew "jq"   # installed by scripts/node.sh
-# brew "pnpm" # installed by scripts/node/platform.sh
+# brew "nvm" # installed by scripts/nodejs.sh
+# brew "jq"   # installed by scripts/nodejs.sh
+# brew "pnpm" # installed by scripts/nodejs/platform.sh
 brew "go"
 # tap "leoafarias/fvm" # installed by scripts/flutter.sh
 # brew "leoafarias/fvm/fvm" # installed by scripts/flutter.sh
