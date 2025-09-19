@@ -131,7 +131,7 @@ mmn-nodejs-tools:
 # Install Mac Mini-specific Python tools
 mmn-python-tools:
   @echo "🚀 Installing Mac Mini-specific Python tools from config: {{config_mac_mini}}"
-  @just _run_ansible "python-tools" "{{config_mac_mini}}"
+  @just _run_ansible "python-toolsa" "{{config_mac_mini}}"
 
 # Install Mac Mini-specific GUI applications (casks)
 mmn-apps:

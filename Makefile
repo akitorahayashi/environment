@@ -49,12 +49,21 @@ setup: ## Installs Homebrew and the 'just' command runner
 	else \
 		echo "    [SUCCESS] just is already installed."; \
 	fi
-	
+
+	# Install pipx if it's not already installed
+	@echo "  -> Ensuring pipx is installed..."
+	@if ! command -v pipx &> /dev/null; then \
+		echo "    [INSTALL] pipx..."; \
+		brew install pipx; \
+	else \
+		echo "    [SUCCESS] pipx is already installed."; \
+	fi
+
 	# Install ansible if it's not already installed
 	@echo "  -> Ensuring ansible is installed..."
 	@if ! command -v ansible &> /dev/null; then \
 		echo "    [INSTALL] ansible..."; \
-		brew install ansible; \
+		pipx install ansible; \
 	else \
 		echo "    [SUCCESS] ansible is already installed."; \
 	fi

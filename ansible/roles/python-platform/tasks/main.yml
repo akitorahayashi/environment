@@ -8,13 +8,10 @@
   ansible.builtin.set_fact:
     python_version: "{{ python_version_file.content | b64decode | trim }}"
 
-- name: "Install pyenv and uv"
+- name: "Install pyenv"
   community.general.homebrew:
-    name: "{{ item }}"
+    name: pyenv
     state: present
-  loop:
-    - pyenv
-    - uv
 
 - name: "Install specified Python version with pyenv"
   ansible.builtin.shell:
@@ -41,7 +38,3 @@
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
 
-- name: "Touch flag file if Python version changed"
-  ansible.builtin.command: "touch /tmp/python_version_changed"
-  when: py_global_set.changed
-  changed_when: false

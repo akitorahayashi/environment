@@ -4,8 +4,9 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # Path for poppler
 export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
 
-# Path for pipx/poetry
+# Path for pipx tools
 export PATH="$HOME/.local/bin:$PATH"
+
 
 # Android SDK environment variables
 if [[ -z "$ANDROID_HOME" ]]; then

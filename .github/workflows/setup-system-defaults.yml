@@ -13,15 +13,15 @@ jobs:
       - name: Setup Homebrew and just
         run: make setup
 
+      - name: Apply macOS system defaults
+        run: just cmn-apply-defaults
+
       - name: Install yq
         run: brew install yq
         
       - name: Backup current system defaults
         run: just cmn-backup-defaults
-
-      - name: Apply macOS system defaults
-        run: just cmn-apply-defaults
-
+        
       - name: Verify system defaults application
         run: |
           just cmn-backup-defaults
