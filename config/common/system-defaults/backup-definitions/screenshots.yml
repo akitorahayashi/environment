@@ -1,0 +1,26 @@
+---
+- key: location
+  domain: com.apple.screencapture
+  type: string
+  default: "$HOME/Desktop"
+  comment: "Screenshots"
+
+- key: disable-shadow
+  domain: com.apple.screencapture
+  type: bool
+  default: false
+
+- key: include-date
+  domain: com.apple.screencapture
+  type: bool
+  default: false
+
+- key: show-thumbnail
+  domain: com.apple.screencapture
+  type: bool
+  default: true
+
+- key: type
+  domain: com.apple.screencapture
+  type: string
+  default: "png"

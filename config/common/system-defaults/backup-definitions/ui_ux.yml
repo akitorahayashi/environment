@@ -1,0 +1,51 @@
+---
+- key: _HIHideMenuBar
+  domain: NSGlobalDomain
+  type: bool
+  default: false
+  comment: "UI/UX"
+
+- key: NSTableViewDefaultSizeMode
+  domain: NSGlobalDomain
+  type: int
+  default: 2
+
+- key: NSWindowResizeTime
+  domain: NSGlobalDomain
+  type: float
+  default: 0.01
+
+- key: NSAutomaticCapitalizationEnabled
+  domain: NSGlobalDomain
+  type: bool
+  default: false
+
+- key: NSAutomaticDashSubstitutionEnabled
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: NSAutomaticPeriodSubstitutionEnabled
+  domain: NSGlobalDomain
+  type: bool
+  default: false
+
+- key: NSAutomaticQuoteSubstitutionEnabled
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: NSAutomaticSpellingCorrectionEnabled
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: WebKitDeveloperExtras
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: AppleEnableSwipeNavigateWithScrolls
+  domain: NSGlobalDomain
+  type: bool
+  default: false

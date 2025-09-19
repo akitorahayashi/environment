@@ -8,18 +8,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup-homebrew:
-    uses: ./.github/workflows/setup-homebrew.yml
-    secrets: inherit
-
-  setup-installers:
-    uses: ./.github/workflows/setup-installers.yml
-
   setup-platform-tools:
     uses: ./.github/workflows/setup-platform-tools.yml
 
-  setup-shell:
-    uses: ./.github/workflows/setup-shell.yml
+  setup-components:
+    uses: ./.github/workflows/setup-components.yml
+
+  setup-gh:
+    uses: ./.github/workflows/setup-gh.yml
+    secrets: inherit
+
+  setup-homebrew:
+    uses: ./.github/workflows/setup-homebrew.yml
+    secrets: inherit
 
   setup-system-defaults:
     uses: ./.github/workflows/setup-system-defaults.yml

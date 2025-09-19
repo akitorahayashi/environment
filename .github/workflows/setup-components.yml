@@ -1,0 +1,26 @@
+name: Setup Components
+
+on:
+  workflow_call:
+
+jobs:
+  setup:
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - git
+          - ruby
+          - java
+          - vscode
+          - shell
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make setup
+
+      - name: Setup ${{ matrix.component }}
+        run: just cmn-${{ matrix.component }}

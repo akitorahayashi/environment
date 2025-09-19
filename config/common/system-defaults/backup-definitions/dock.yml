@@ -1,0 +1,61 @@
+---
+- key: tilesize
+  domain: com.apple.dock
+  type: int
+  default: 50
+  comment: "Dock"
+
+- key: autohide
+  domain: com.apple.dock
+  type: bool
+  default: true
+
+- key: autohide-time-modifier
+  domain: com.apple.dock
+  type: float
+  default: 0.5
+
+- key: autohide-delay
+  domain: com.apple.dock
+  type: float
+  default: 0
+
+- key: show-recents
+  domain: com.apple.dock
+  type: bool
+  default: false
+
+- key: mineffect
+  domain: com.apple.dock
+  type: string
+  default: "genie"
+
+- key: minimize-to-application
+  domain: com.apple.dock
+  type: bool
+  default: false
+
+- key: static-only
+  domain: com.apple.dock
+  type: bool
+  default: false
+
+- key: scroll-to-open
+  domain: com.apple.dock
+  type: bool
+  default: false
+
+- key: launchanim
+  domain: com.apple.dock
+  type: bool
+  default: false
+
+- key: showhidden
+  domain: com.apple.dock
+  type: bool
+  default: false
+
+- key: no-bouncing
+  domain: com.apple.dock
+  type: bool
+  default: false

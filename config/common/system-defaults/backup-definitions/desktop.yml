@@ -1,0 +1,12 @@
+---
+- key: ShowExternalHardDrivesOnDesktop
+  domain: com.apple.finder
+  type: bool
+  default: true
+  comment: "Desktop"
+
+- key: EnableStandardClickToShowDesktop
+  domain: com.apple.WindowManager
+  type: bool
+  default: true
+

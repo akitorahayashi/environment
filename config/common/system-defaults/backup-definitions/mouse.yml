@@ -1,0 +1,11 @@
+---
+- key: com.apple.mouse.scaling
+  domain: .GlobalPreferences
+  type: float
+  default: 1
+  comment: "Mouse"
+
+- key: FocusFollowsMouse
+  domain: com.apple.Terminal
+  type: bool
+  default: true

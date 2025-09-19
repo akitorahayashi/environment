@@ -1,0 +1,37 @@
+---
+- name: "Symlink .zprofile"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/shell/.zprofile"
+    dest: "{{ ansible_env.HOME }}/.zprofile"
+    state: link
+    force: true
+
+- name: "Symlink .zshrc"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/shell/.zshrc"
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    state: link
+    force: true
+
+- name: "Clean and recreate ~/.zsh directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.zsh"
+    state: absent
+- ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.zsh"
+    state: directory
+    mode: '0755'
+
+- name: "Find .zsh config files"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/shell/.zsh"
+    patterns: "*.zsh"
+  register: zsh_files
+
+- name: "Symlink .zsh config files"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.zsh/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ zsh_files.files }}"

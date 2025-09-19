@@ -1,0 +1,41 @@
+---
+- key: com.apple.trackpad.scaling
+  domain: NSGlobalDomain
+  type: float
+  default: 1.5
+  comment: "Trackpad"
+
+- key: Clicking
+  domain: com.apple.AppleMultitouchTrackpad
+  type: int
+  default: 1
+
+- key: Dragging
+  domain: com.apple.AppleMultitouchTrackpad
+  type: int
+  default: 0
+
+- key: TrackpadThreeFingerDrag
+  domain: com.apple.AppleMultitouchTrackpad
+  type: bool
+  default: false
+
+- key: FirstClickThreshold
+  domain: com.apple.AppleMultitouchTrackpad
+  type: int
+  default: 1
+
+- key: ForceSuppressed
+  domain: com.apple.AppleMultitouchTrackpad
+  type: bool
+  default: true
+
+- key: TrackpadThreeFingerTapGesture
+  domain: com.apple.AppleMultitouchTrackpad
+  type: int
+  default: 0
+
+- key: TrackpadRightClick
+  domain: com.apple.AppleMultitouchTrackpad
+  type: bool
+  default: true

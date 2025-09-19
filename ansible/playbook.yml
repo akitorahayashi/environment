@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  connection: local
+
+  vars:
+    # This 'config_dir' variable is passed from the justfile
+    config_dir_abs_path: "{{ config_dir_abs_path }}"
+
+  roles:
+    - { role: brew, tags: ['brew'] }
+    - { role: java, tags: ['java'] }
+    - { role: python-platform, tags: ['python-platform'] }
+    - { role: python-tools, tags: ['python-tools'] }
+    - { role: nodejs-platform, tags: ['nodejs-platform'] }
+    - { role: nodejs-tools, tags: ['nodejs-tools'] }
+    - { role: ruby, tags: ['ruby'] }
+    - { role: git, tags: ['git', 'gh'] }
+    - { role: shell, tags: ['shell'] }
+    - { role: vscode, tags: ['vscode'] }
+    - { role: system_defaults, tags: ['system_defaults'] }

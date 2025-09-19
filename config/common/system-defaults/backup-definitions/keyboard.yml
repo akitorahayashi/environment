@@ -1,0 +1,31 @@
+---
+- key: KeyRepeat
+  domain: NSGlobalDomain
+  type: int
+  default: 6
+  comment: "Keyboard"
+
+- key: InitialKeyRepeat
+  domain: NSGlobalDomain
+  type: int
+  default: 25
+
+- key: ApplePressAndHoldEnabled
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: AppleKeyboardUIMode
+  domain: NSGlobalDomain
+  type: int
+  default: 1
+
+- key: com.apple.keyboard.fnState
+  domain: NSGlobalDomain
+  type: bool
+  default: false
+
+- key: com.apple.swipescrolldirection
+  domain: NSGlobalDomain
+  type: bool
+  default: true

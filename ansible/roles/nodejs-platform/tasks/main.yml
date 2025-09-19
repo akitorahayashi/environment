@@ -1,0 +1,34 @@
+---
+- name: "Set Node.js version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/nodejs/.nvmrc"
+  register: node_version_file
+
+- name: "Set Node.js version fact"
+  ansible.builtin.set_fact:
+    node_version: "{{ node_version_file.content | b64decode | trim }}"
+
+- name: "Install nvm, jq, and pnpm"
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - nvm
+    - jq
+    - pnpm
+
+- name: "Install specified Node.js version with nvm"
+  ansible.builtin.shell:
+    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm install {{ node_version }} --skip-existing"
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ node_version }}"
+  changed_when: false
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+
+- name: "Set default Node.js version"
+  ansible.builtin.shell:
+    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm alias default {{ node_version }}"
+  changed_when: false
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"

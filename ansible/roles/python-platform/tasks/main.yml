@@ -1,0 +1,40 @@
+---
+- name: "Set Python version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/python/.python-version"
+  register: python_version_file
+
+- name: "Set Python version fact"
+  ansible.builtin.set_fact:
+    python_version: "{{ python_version_file.content | b64decode | trim }}"
+
+- name: "Install pyenv"
+  community.general.homebrew:
+    name: pyenv
+    state: present
+
+- name: "Install specified Python version with pyenv"
+  ansible.builtin.shell:
+    cmd: "pyenv install {{ python_version }} --skip-existing"
+  args:
+    creates: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Get current global Python version"
+  ansible.builtin.shell:
+    cmd: "pyenv global"
+  register: current_py_global
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Set global Python version"
+  ansible.builtin.shell:
+    cmd: "pyenv global {{ python_version }}"
+  register: py_global_set
+  changed_when: "current_py_global.stdout != python_version"
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
