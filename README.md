@@ -6,6 +6,22 @@
 .
 ├── .github/
 │   └── workflows/
+├── ansible/
+│   ├── hosts
+│   ├── playbook.yml
+│   ├── roles/
+│   │   ├── brew/
+│   │   ├── git/
+│   │   ├── java/
+│   │   ├── nodejs/
+│   │   ├── python/
+│   │   ├── ruby/
+│   │   ├── shell/
+│   │   ├── system_defaults/
+│   │   ├── vscode/
+│   │   └── flutter/
+│   └── utils/
+│       └── backup-system-defaults.sh
 ├── config/
 │   ├── common/
 │   │   ├── brew/
@@ -22,24 +38,6 @@
 │       ├── brew/
 │       ├── node/
 │       └── python/
-├── scripts/
-│   ├── nodejs/
-│   │   ├── platform.sh
-│   │   └── tools.sh
-│   ├── python/
-│   │   ├── platform.sh
-│   │   └── tools.sh
-│   ├── system-defaults/
-│   │   ├── apply-system-defaults.sh
-│   │   └── backup-system-defaults.sh
-│   ├── flutter.sh
-│   ├── git.sh
-│   ├── gh.sh
-│   ├── brew.sh
-│   ├── java.sh
-│   ├── shell.sh
-│   ├── ruby.sh
-│   └── vscode.sh
 ├── .gitignore
 ├── Makefile
 ├── justfile
@@ -48,60 +46,63 @@
 
 ## Implemented Features
 
+This project has been refactored to use Ansible for improved idempotency and maintainability. All setup logic has been migrated from shell scripts to Ansible roles.
+
 1.  **Homebrew Setup**
-    -   Installs Homebrew and necessary command-line tools.
+    -   Installs Homebrew and necessary command-line tools using Ansible's `community.general.homebrew` module.
 
 2.  **Shell Configuration**
-    -   Running `make shell` creates symbolic links for common shell settings (`.zprofile` and `.zshrc`) in the home directory.
+    -   Running `just cmn-shell` creates symbolic links for common shell settings (`.zprofile` and `.zshrc`) in the home directory using Ansible's `file` module.
     -   These settings are located in `config/common/shell/`.
 
 3.  **Git Configuration**
-    -   Executes `scripts/git.sh` to perform basic Git setup.
-    -   This includes copying `.gitconfig`, setting up a global `.gitignore`, and configuring user information (name, email address) from the `.env` file.
+    -   Executes Ansible role `git` to perform basic Git setup.
+    -   This includes copying `.gitconfig`, setting up a global `.gitignore`, and configuring user information (name, email address) from environment variables using Ansible's `git_config` module.
 
 4.  **GitHub CLI (gh) Configuration**
-    -   Executes `scripts/gh.sh` to configure the GitHub CLI (`gh`).
-    -   This includes installing `gh` and setting up command aliases. Aliases are managed with the `gh alias set` command, not as shell aliases in `.zshrc`.
+    -   Executes Ansible role `git` to configure the GitHub CLI (`gh`).
+    -   This includes installing `gh` and creating symbolic links for configuration files.
 
 5.  **macOS Settings**
-    -   Running `make apply-defaults` applies system settings (system defaults) based on `scripts/system-defaults/apply-system-defaults.sh`.
-    -   Running `make backup-defaults` generates/updates the current macOS system defaults (internally calls `scripts/system-defaults/backup-system-defaults.sh`).
+    -   Running `just cmn-apply-defaults` applies system settings using Ansible's `community.general.osx_defaults` module.
+    -   Running `just cmn-backup-defaults` generates/updates the current macOS system defaults (calls the backup script in `ansible/utils/`).
 
 6.  **Package Installation from Brewfile**
-    -   Installs packages listed in `config/common/brew/Brewfile` using `brew bundle`.
+    -   Installs packages listed in `config/common/brew/Brewfile` using Ansible's `community.general.homebrew` module with `brewfile` parameter.
 
 7.  **Ruby Environment Setup**
-    -   Installs `rbenv` and `ruby-build`.
-    -   Installs a specific version of Ruby and sets it globally.
-    -   Installs gems using `bundler` based on `config/common/ruby/global-gems.rb`.
+    -   Installs `rbenv` and `ruby-build` using Ansible's `homebrew` module.
+    -   Installs a specific version of Ruby and sets it globally using shell commands with `creates` for idempotency.
+    -   Installs gems using `bundler`.
 
 8.  **VS Code Configuration**
-    -   Creates symbolic links for configuration files from `config/common/vscode/` to `$HOME/Library/Application Support/Code/User`.
+    -   Creates symbolic links for configuration files from `config/common/vscode/` to `$HOME/Library/Application Support/Code/User` using Ansible's `file` module.
 
 9.  **Python Environment Setup**
-    -   Installs `pyenv`.
+    -   Installs `pyenv` and `uv` using Ansible's `homebrew` module.
     -   Installs a specific version of Python and sets it globally.
+    -   Installs pipx tools from configuration files using Ansible's `pipx` module.
 
 10. **Java Environment Setup**
-    -   Installs a specific version of Java (Temurin) using `Homebrew`.
+    -   Installs a specific version of Java (Temurin) using Ansible's `community.general.homebrew_cask` module.
 
 11. **Node.js Environment Setup**
-    -   Installs `nvm` and `jq` with Homebrew.
-    -   Installs a specific version of Node.js and sets it as the default.
-    -   Installs global npm packages based on `config/common/nodejs/global-packages.json`.
+    -   Installs `nvm`, `jq`, and `pnpm` with Ansible's `homebrew` module.
+    -   Installs a specific version of Node.js and sets it as the default using shell commands.
+    -   Installs global npm packages based on `config/common/nodejs/global-packages.json` using Ansible's shell module.
 
 12. **Flutter Setup**
 
 ## How to Use
 
 This project uses a two-step approach:
-1. **Bootstrap Setup**: Use `make` to install Homebrew and the `just` command runner
-2. **Full Setup**: Use `make` to delegate to `just` for the actual environment setup
+1. **Bootstrap Setup**: Use `make` to install Homebrew, Ansible, and the `just` command runner
+2. **Full Setup**: Use `make` to delegate to `just` for the actual environment setup, which now runs Ansible playbooks
 
 ### Bootstrap Commands
 
 - **`make` or `make help`**: Displays all available commands and their descriptions.
-- **`make setup`**: Installs Homebrew and the `just` command runner (required first step).
+- **`make setup`**: Installs Homebrew, Ansible, and the `just` command runner (required first step).
 
 ### Full Setup Commands
 
@@ -126,7 +127,7 @@ After running `make setup`, you can use `just` directly for individual tasks:
 
 2.  **Bootstrap Setup**
 
-    Install Homebrew, the `just` command runner, and create the `.env` file:
+    Install Homebrew, Ansible, the `just` command runner, and create the `.env` file:
     ```sh
     make setup
     ```
@@ -134,6 +135,7 @@ After running `make setup`, you can use `just` directly for individual tasks:
     This command will:
     - Create a `.env` file from `.env.example` if it doesn't exist
     - Install Homebrew if not already installed
+    - Install Ansible if not already installed
     - Install the `just` command runner
 
     **Important**: After running `make setup`, edit the `.env` file to set your `GIT_USERNAME` and `GIT_EMAIL` before proceeding to the next step.
@@ -151,7 +153,7 @@ After running `make setup`, you can use `just` directly for individual tasks:
     ```sh
     make mac-mini
     ```
-    These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes.
+    These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes, which now execute Ansible playbooks for improved idempotency and maintainability.
 
 4.  **Restart macOS**
 

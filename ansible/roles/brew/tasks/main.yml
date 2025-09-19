@@ -1,0 +1,5 @@
+---
+- name: "Install packages from Brewfile"
+  community.general.homebrew:
+    state: present
+    brewfile: "{{ config_dir_abs_path }}/brew/Brewfile"

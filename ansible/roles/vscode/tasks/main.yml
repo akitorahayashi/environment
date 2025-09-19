@@ -1,0 +1,25 @@
+---
+- name: "Install Visual Studio Code"
+  community.general.homebrew_cask:
+    name: visual-studio-code
+    state: present
+
+- name: "Ensure VS Code User directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Library/Application Support/Code/User"
+    state: directory
+    mode: '0755'
+
+- name: "Find VS Code config files"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/vscode"
+    patterns: "*.json"
+  register: vscode_files
+
+- name: "Symlink VS Code config files"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Code/User/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ vscode_files.files }}"

@@ -28,7 +28,7 @@ fi
 # 初期設定・ファイルパスの設定
 # ================================================
 
-OUTPUT_FILE="$CONFIG_DIR_PROPS/system-defaults/system-defaults.sh"
+OUTPUT_FILE="$CONFIG_DIR_PROPS/system-defaults/system-defaults.yml"
 
 OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
 mkdir -p "$OUTPUT_DIR"
@@ -41,11 +41,9 @@ if [ -f "$OUTPUT_FILE" ]; then
     echo "既存の system defaults ファイルを削除しました: $OUTPUT_FILE"
 fi
 
-# 設定スクリプトのヘッダーを作成
+# YAML配列の開始
 cat <<EOF > "$OUTPUT_FILE"
-#!/bin/bash
-set -euo pipefail
-
+---
 EOF
 
 # ================================================
@@ -70,14 +68,23 @@ format_bool_value() {
     esac
 }
 
-# 設定をファイルに追加する関数
-add_setting() {
-    local section_name="$1"
-    local commands="$2"
-    
-    echo "# ${section_name}" >> "$OUTPUT_FILE"
-    echo "${commands}" >> "$OUTPUT_FILE"
-    echo "" >> "$OUTPUT_FILE"
+# YAML設定を追加する関数
+add_yaml_setting() {
+    local key="$1"
+    local domain="$2"
+    local type="$3"
+    local value="$4"
+    local comment="$5"
+
+    if [ -n "$comment" ]; then
+        echo "  # ${comment}" >> "$OUTPUT_FILE"
+    fi
+
+    if [ "$domain" = "NSGlobalDomain" ]; then
+        echo "- { key: '${key}', type: '${type}', value: ${value} }" >> "$OUTPUT_FILE"
+    else
+        echo "- { key: '${key}', domain: '${domain}', type: '${type}', value: ${value} }" >> "$OUTPUT_FILE"
+    fi
 }
 
 # ================================================
@@ -197,174 +204,116 @@ SCREENSHOT_SHOW_THUMBNAIL=$(get_default_value "com.apple.screencapture" "show-th
 SCREENSHOT_TYPE=$(get_default_value "com.apple.screencapture" "type" "png")
 
 # ================================================
-# リストアスクリプトの生成
+# YAML設定の生成
 # ================================================
 
-# --- システム ---
-SYSTEM_COMMANDS=$(cat << EOF
-defaults write NSGlobalDomain AppleHighlightColor -string "$ACCENT_COLOR"
-defaults write NSGlobalDomain AppleShowScrollBars -string "$SCROLL_BARS"
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool $(format_bool_value $SAVE_PANEL_EXPANDED)
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool $(format_bool_value $SAVE_PANEL_EXPANDED2)
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool $(format_bool_value $PRINT_PANEL_EXPANDED)
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool $(format_bool_value $PRINT_PANEL_EXPANDED2)
-defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool $(format_bool_value $SAVE_TO_ICLOUD)
-defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool $(format_bool_value $QUIT_ALWAYS_KEEPS_WINDOWS)
-defaults write NSGlobalDomain NSDisableAutomaticTermination -bool $(format_bool_value $DISABLE_AUTO_TERMINATION)
-defaults write com.apple.LaunchServices LSQuarantine -bool $(format_bool_value $LSQUARANTINE)
-defaults write com.apple.CrashReporter DialogType -string "$CRASH_REPORTER_DIALOG"
-EOF
-)
+# システム設定
+add_yaml_setting "AppleHighlightColor" "NSGlobalDomain" "string" "'$ACCENT_COLOR'" "System settings"
+add_yaml_setting "AppleShowScrollBars" "NSGlobalDomain" "string" "'$SCROLL_BARS'" ""
+add_yaml_setting "NSNavPanelExpandedStateForSaveMode" "NSGlobalDomain" "bool" "$(format_bool_value $SAVE_PANEL_EXPANDED)" ""
+add_yaml_setting "NSNavPanelExpandedStateForSaveMode2" "NSGlobalDomain" "bool" "$(format_bool_value $SAVE_PANEL_EXPANDED2)" ""
+add_yaml_setting "PMPrintingExpandedStateForPrint" "NSGlobalDomain" "bool" "$(format_bool_value $PRINT_PANEL_EXPANDED)" ""
+add_yaml_setting "PMPrintingExpandedStateForPrint2" "NSGlobalDomain" "bool" "$(format_bool_value $PRINT_PANEL_EXPANDED2)" ""
+add_yaml_setting "NSDocumentSaveNewDocumentsToCloud" "NSGlobalDomain" "bool" "$(format_bool_value $SAVE_TO_ICLOUD)" ""
+add_yaml_setting "NSQuitAlwaysKeepsWindows" "com.apple.systempreferences" "bool" "$(format_bool_value $QUIT_ALWAYS_KEEPS_WINDOWS)" ""
+add_yaml_setting "NSDisableAutomaticTermination" "NSGlobalDomain" "bool" "$(format_bool_value $DISABLE_AUTO_TERMINATION)" ""
+add_yaml_setting "LSQuarantine" "com.apple.LaunchServices" "bool" "$(format_bool_value $LSQUARANTINE)" ""
+add_yaml_setting "DialogType" "com.apple.CrashReporter" "string" "'$CRASH_REPORTER_DIALOG'" ""
 
 # --- UI/UX ---
-UIUX_COMMANDS=$(cat << EOF
-defaults write NSGlobalDomain _HIHideMenuBar -bool $(format_bool_value $HIDE_MENU_BAR)
-defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int $SIDEBAR_ICON_SIZE
-defaults write NSGlobalDomain NSWindowResizeTime -float $WINDOW_RESIZE_TIME
-defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool $(format_bool_value $AUTO_CAPITALIZATION)
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool $(format_bool_value $SMART_DASHES)
-defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool $(format_bool_value $AUTO_PERIOD_SUBSTITUTION)
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool $(format_bool_value $SMART_QUOTES)
-defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool $(format_bool_value $AUTO_SPELLING_CORRECTION)
-defaults write NSGlobalDomain WebKitDeveloperExtras -bool $(format_bool_value $WEBKIT_DEVELOPER_EXTRAS)
-defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool $(format_bool_value $SWIPE_NAVIGATE_WITH_SCROLLS)
-EOF
-)
-
-# ================================================
-# 設定の書き出し
-# ================================================
+add_yaml_setting "_HIHideMenuBar" "NSGlobalDomain" "bool" "$(format_bool_value $HIDE_MENU_BAR)" "UI/UX"
+add_yaml_setting "NSTableViewDefaultSizeMode" "NSGlobalDomain" "int" "$SIDEBAR_ICON_SIZE" ""
+add_yaml_setting "NSWindowResizeTime" "NSGlobalDomain" "float" "$WINDOW_RESIZE_TIME" ""
+add_yaml_setting "NSAutomaticCapitalizationEnabled" "NSGlobalDomain" "bool" "$(format_bool_value $AUTO_CAPITALIZATION)" ""
+add_yaml_setting "NSAutomaticDashSubstitutionEnabled" "NSGlobalDomain" "bool" "$(format_bool_value $SMART_DASHES)" ""
+add_yaml_setting "NSAutomaticPeriodSubstitutionEnabled" "NSGlobalDomain" "bool" "$(format_bool_value $AUTO_PERIOD_SUBSTITUTION)" ""
+add_yaml_setting "NSAutomaticQuoteSubstitutionEnabled" "NSGlobalDomain" "bool" "$(format_bool_value $SMART_QUOTES)" ""
+add_yaml_setting "NSAutomaticSpellingCorrectionEnabled" "NSGlobalDomain" "bool" "$(format_bool_value $AUTO_SPELLING_CORRECTION)" ""
+add_yaml_setting "WebKitDeveloperExtras" "NSGlobalDomain" "bool" "$(format_bool_value $WEBKIT_DEVELOPER_EXTRAS)" ""
+add_yaml_setting "AppleEnableSwipeNavigateWithScrolls" "NSGlobalDomain" "bool" "$(format_bool_value $SWIPE_NAVIGATE_WITH_SCROLLS)" ""
 
 # --- Dock ---
-DOCK_COMMANDS=$(cat << EOF
-defaults write com.apple.dock tilesize -int $DOCK_SIZE
-defaults write com.apple.dock autohide -bool $(format_bool_value $DOCK_AUTOHIDE)
-defaults write com.apple.dock autohide-time-modifier -float $DOCK_AUTOHIDE_TIME
-defaults write com.apple.dock autohide-delay -float $DOCK_AUTOHIDE_DELAY
-defaults write com.apple.dock show-recents -bool $(format_bool_value $DOCK_SHOW_RECENTS)
-defaults write com.apple.dock mineffect -string "$DOCK_MIN_EFFECT"
-defaults write com.apple.dock minimize-to-application -bool $(format_bool_value $DOCK_MIN_TO_APP)
-defaults write com.apple.dock static-only -bool $(format_bool_value $DOCK_STATIC_ONLY)
-defaults write com.apple.dock scroll-to-open -bool $(format_bool_value $DOCK_SCROLL_TO_OPEN)
-defaults write com.apple.dock launchanim -bool $(format_bool_value $DOCK_LAUNCH_ANIM)
-defaults write com.apple.dock showhidden -bool $(format_bool_value $DOCK_SHOW_HIDDEN)
-defaults write com.apple.dock no-bouncing -bool $(format_bool_value $DOCK_NO_BOUNCING)
-EOF
-)
+add_yaml_setting "tilesize" "com.apple.dock" "int" "$DOCK_SIZE" "Dock"
+add_yaml_setting "autohide" "com.apple.dock" "bool" "$(format_bool_value $DOCK_AUTOHIDE)" ""
+add_yaml_setting "autohide-time-modifier" "com.apple.dock" "float" "$DOCK_AUTOHIDE_TIME" ""
+add_yaml_setting "autohide-delay" "com.apple.dock" "float" "$DOCK_AUTOHIDE_DELAY" ""
+add_yaml_setting "show-recents" "com.apple.dock" "bool" "$(format_bool_value $DOCK_SHOW_RECENTS)" ""
+add_yaml_setting "mineffect" "com.apple.dock" "string" "'$DOCK_MIN_EFFECT'" ""
+add_yaml_setting "minimize-to-application" "com.apple.dock" "bool" "$(format_bool_value $DOCK_MIN_TO_APP)" ""
+add_yaml_setting "static-only" "com.apple.dock" "bool" "$(format_bool_value $DOCK_STATIC_ONLY)" ""
+add_yaml_setting "scroll-to-open" "com.apple.dock" "bool" "$(format_bool_value $DOCK_SCROLL_TO_OPEN)" ""
+add_yaml_setting "launchanim" "com.apple.dock" "bool" "$(format_bool_value $DOCK_LAUNCH_ANIM)" ""
+add_yaml_setting "showhidden" "com.apple.dock" "bool" "$(format_bool_value $DOCK_SHOW_HIDDEN)" ""
+add_yaml_setting "no-bouncing" "com.apple.dock" "bool" "$(format_bool_value $DOCK_NO_BOUNCING)" ""
 
 # --- Finder ---
-FINDER_COMMANDS=$(cat << EOF
-defaults write com.apple.finder ShowPathbar -bool $(format_bool_value $FINDER_SHOW_PATHBAR)
-defaults write com.apple.finder ShowStatusBar -bool $(format_bool_value $FINDER_SHOW_STATUSBAR)
-defaults write com.apple.finder AppleShowAllFiles -bool $(format_bool_value $FINDER_SHOW_HIDDEN_FILES)
-defaults write NSGlobalDomain AppleShowAllExtensions -bool $(format_bool_value $FINDER_SHOW_EXTENSIONS)
-defaults write com.apple.finder _FXShowPosixPathInTitle -bool $(format_bool_value $FINDER_SHOW_POSIX_PATH_IN_TITLE)
-defaults write com.apple.finder FXPreferredViewStyle -string "$FINDER_PREFERRED_VIEW_STYLE"
-defaults write com.apple.finder _FXSortFoldersFirst -bool $(format_bool_value $FINDER_SORT_FOLDERS_FIRST)
-defaults write com.apple.finder FXDefaultSearchScope -string "$FINDER_DEFAULT_SEARCH_SCOPE"
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool $(format_bool_value $FINDER_WARN_ON_EXT_CHANGE)
-defaults write com.apple.finder WarnOnEmptyTrash -bool $(format_bool_value $FINDER_WARN_ON_EMPTY_TRASH)
-defaults write com.apple.finder FXRemoveOldTrashItems -bool $(format_bool_value $FINDER_REMOVE_OLD_TRASH_ITEMS)
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool $(format_bool_value $FINDER_DONT_WRITE_NETWORK_STORES)
-defaults write com.apple.finder QuitMenuItem -bool $(format_bool_value $FINDER_QUIT_MENU)
-defaults write com.apple.finder DisableAllAnimations -bool $(format_bool_value $FINDER_DISABLE_ALL_ANIMATIONS)
-defaults write NSGlobalDomain com.apple.springing.enabled -bool $(format_bool_value $FINDER_SPRINGING_ENABLED)
-EOF
-)
-
-add_setting "システム" "$SYSTEM_COMMANDS"
-add_setting "UI/UX" "$UIUX_COMMANDS"
-add_setting "Dock" "$DOCK_COMMANDS"
-add_setting "Finder" "$FINDER_COMMANDS"
+add_yaml_setting "ShowPathbar" "com.apple.finder" "bool" "$(format_bool_value $FINDER_SHOW_PATHBAR)" "Finder"
+add_yaml_setting "ShowStatusBar" "com.apple.finder" "bool" "$(format_bool_value $FINDER_SHOW_STATUSBAR)" ""
+add_yaml_setting "AppleShowAllFiles" "com.apple.finder" "bool" "$(format_bool_value $FINDER_SHOW_HIDDEN_FILES)" ""
+add_yaml_setting "AppleShowAllExtensions" "NSGlobalDomain" "bool" "$(format_bool_value $FINDER_SHOW_EXTENSIONS)" ""
+add_yaml_setting "_FXShowPosixPathInTitle" "com.apple.finder" "bool" "$(format_bool_value $FINDER_SHOW_POSIX_PATH_IN_TITLE)" ""
+add_yaml_setting "FXPreferredViewStyle" "com.apple.finder" "string" "'$FINDER_PREFERRED_VIEW_STYLE'" ""
+add_yaml_setting "_FXSortFoldersFirst" "com.apple.finder" "bool" "$(format_bool_value $FINDER_SORT_FOLDERS_FIRST)" ""
+add_yaml_setting "FXDefaultSearchScope" "com.apple.finder" "string" "'$FINDER_DEFAULT_SEARCH_SCOPE'" ""
+add_yaml_setting "FXEnableExtensionChangeWarning" "com.apple.finder" "bool" "$(format_bool_value $FINDER_WARN_ON_EXT_CHANGE)" ""
+add_yaml_setting "WarnOnEmptyTrash" "com.apple.finder" "bool" "$(format_bool_value $FINDER_WARN_ON_EMPTY_TRASH)" ""
+add_yaml_setting "FXRemoveOldTrashItems" "com.apple.finder" "bool" "$(format_bool_value $FINDER_REMOVE_OLD_TRASH_ITEMS)" ""
+add_yaml_setting "DSDontWriteNetworkStores" "com.apple.desktopservices" "bool" "$(format_bool_value $FINDER_DONT_WRITE_NETWORK_STORES)" ""
+add_yaml_setting "QuitMenuItem" "com.apple.finder" "bool" "$(format_bool_value $FINDER_QUIT_MENU)" ""
+add_yaml_setting "DisableAllAnimations" "com.apple.finder" "bool" "$(format_bool_value $FINDER_DISABLE_ALL_ANIMATIONS)" ""
+add_yaml_setting "com.apple.springing.enabled" "NSGlobalDomain" "bool" "$(format_bool_value $FINDER_SPRINGING_ENABLED)" ""
 
 # --- デスクトップ ---
-DESKTOP_COMMANDS=$(cat << EOF
-defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool $(format_bool_value $SHOW_EXTERNAL_HD_ON_DESKTOP)
-defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool $(format_bool_value $CLICK_TO_SHOW_DESKTOP)
-defaults write com.apple.WindowManager GloballyEnabled -bool $(format_bool_value $STAGE_MANAGER_ENABLED)
-EOF
-)
+add_yaml_setting "ShowExternalHardDrivesOnDesktop" "com.apple.finder" "bool" "$(format_bool_value $SHOW_EXTERNAL_HD_ON_DESKTOP)" "Desktop"
+add_yaml_setting "EnableStandardClickToShowDesktop" "com.apple.WindowManager" "bool" "$(format_bool_value $CLICK_TO_SHOW_DESKTOP)" ""
+add_yaml_setting "GloballyEnabled" "com.apple.WindowManager" "bool" "$(format_bool_value $STAGE_MANAGER_ENABLED)" ""
 
 # --- ミッションコントロール ---
-MISSION_CONTROL_COMMANDS=$(cat << EOF
-defaults write com.apple.dock expose-animation-duration -float $MC_ANIMATION_DURATION
-defaults write com.apple.dock mru-spaces -bool $(format_bool_value $MC_AUTO_REARRANGE)
-defaults write com.apple.dock expose-group-by-app -bool $(format_bool_value $MC_GROUP_BY_APP)
-defaults write com.apple.dock workspaces-auto-swoosh -bool $(format_bool_value $MC_AUTO_SWOOSH)
-defaults write com.apple.spaces spans-displays -bool $(format_bool_value $MC_SPANS_DISPLAYS)
-EOF
-)
+add_yaml_setting "expose-animation-duration" "com.apple.dock" "float" "$MC_ANIMATION_DURATION" "Mission Control"
+add_yaml_setting "mru-spaces" "com.apple.dock" "bool" "$(format_bool_value $MC_AUTO_REARRANGE)" ""
+add_yaml_setting "expose-group-by-app" "com.apple.dock" "bool" "$(format_bool_value $MC_GROUP_BY_APP)" ""
+add_yaml_setting "workspaces-auto-swoosh" "com.apple.dock" "bool" "$(format_bool_value $MC_AUTO_SWOOSH)" ""
+add_yaml_setting "spans-displays" "com.apple.spaces" "bool" "$(format_bool_value $MC_SPANS_DISPLAYS)" ""
 
 # --- ホットコーナー ---
-HOT_CORNER_COMMANDS=$(cat << EOF
-defaults write com.apple.dock wvous-tl-corner -int $HOT_CORNER_TL
-defaults write com.apple.dock wvous-tr-corner -int $HOT_CORNER_TR
-defaults write com.apple.dock wvous-bl-corner -int $HOT_CORNER_BL
-defaults write com.apple.dock wvous-br-corner -int $HOT_CORNER_BR
-EOF
-)
-
-add_setting "デスクトップ" "$DESKTOP_COMMANDS"
-add_setting "ミッションコントロール" "$MISSION_CONTROL_COMMANDS"
-add_setting "ホットコーナー" "$HOT_CORNER_COMMANDS"
+add_yaml_setting "wvous-tl-corner" "com.apple.dock" "int" "$HOT_CORNER_TL" "Hot Corners"
+add_yaml_setting "wvous-tr-corner" "com.apple.dock" "int" "$HOT_CORNER_TR" ""
+add_yaml_setting "wvous-bl-corner" "com.apple.dock" "int" "$HOT_CORNER_BL" ""
+add_yaml_setting "wvous-br-corner" "com.apple.dock" "int" "$HOT_CORNER_BR" ""
 
 # --- キーボード ---
-KEYBOARD_COMMANDS=$(cat << EOF
-defaults write NSGlobalDomain KeyRepeat -int $KEY_REPEAT_RATE
-defaults write NSGlobalDomain InitialKeyRepeat -int $KEY_REPEAT_DELAY
-defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool $(format_bool_value $PRESS_AND_HOLD)
-defaults write NSGlobalDomain AppleKeyboardUIMode -int $KEYBOARD_UI_MODE
-defaults write -g com.apple.keyboard.fnState -bool $(format_bool_value $FN_STATE)
-defaults write NSGlobalDomain com.apple.swipescrolldirection -bool $(format_bool_value $NATURAL_SCROLLING)
-EOF
-)
+add_yaml_setting "KeyRepeat" "NSGlobalDomain" "int" "$KEY_REPEAT_RATE" "Keyboard"
+add_yaml_setting "InitialKeyRepeat" "NSGlobalDomain" "int" "$KEY_REPEAT_DELAY" ""
+add_yaml_setting "ApplePressAndHoldEnabled" "NSGlobalDomain" "bool" "$(format_bool_value $PRESS_AND_HOLD)" ""
+add_yaml_setting "AppleKeyboardUIMode" "NSGlobalDomain" "int" "$KEYBOARD_UI_MODE" ""
+add_yaml_setting "com.apple.keyboard.fnState" "NSGlobalDomain" "bool" "$(format_bool_value $FN_STATE)" ""
+add_yaml_setting "com.apple.swipescrolldirection" "NSGlobalDomain" "bool" "$(format_bool_value $NATURAL_SCROLLING)" ""
 
 # --- マウス ---
-MOUSE_COMMANDS=$(cat << EOF
-defaults write .GlobalPreferences com.apple.mouse.scaling -float $MOUSE_SCALING
-defaults write com.apple.Terminal FocusFollowsMouse -bool $(format_bool_value $FOCUS_FOLLOWS_MOUSE)
-EOF
-)
+add_yaml_setting "com.apple.mouse.scaling" ".GlobalPreferences" "float" "$MOUSE_SCALING" "Mouse"
+add_yaml_setting "FocusFollowsMouse" "com.apple.Terminal" "bool" "$(format_bool_value $FOCUS_FOLLOWS_MOUSE)" ""
 
 # --- トラックパッド ---
-TRACKPAD_COMMANDS=$(cat << EOF
-defaults write -g com.apple.trackpad.scaling -float $TRACKPAD_SCALING
-defaults write com.apple.AppleMultitouchTrackpad Clicking -bool $(format_bool_value $TRACKPAD_CLICKING)
-defaults write com.apple.AppleMultitouchTrackpad Dragging -bool $(format_bool_value $TRACKPAD_DRAGGING)
-defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool $(format_bool_value $TRACKPAD_3FINGER_DRAG)
-defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int $TRACKPAD_FIRST_CLICK_THRESHOLD
-defaults write com.apple.AppleMultitouchTrackpad ForceSuppressed -bool $(format_bool_value $TRACKPAD_FORCE_SUPPRESSED)
-defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int $TRACKPAD_3FINGER_TAP_GESTURE
-defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool $(format_bool_value $TRACKPAD_RIGHT_CLICK)
-EOF
-)
+add_yaml_setting "com.apple.trackpad.scaling" "NSGlobalDomain" "float" "$TRACKPAD_SCALING" "Trackpad"
+add_yaml_setting "Clicking" "com.apple.AppleMultitouchTrackpad" "bool" "$(format_bool_value $TRACKPAD_CLICKING)" ""
+add_yaml_setting "Dragging" "com.apple.AppleMultitouchTrackpad" "bool" "$(format_bool_value $TRACKPAD_DRAGGING)" ""
+add_yaml_setting "TrackpadThreeFingerDrag" "com.apple.AppleMultitouchTrackpad" "bool" "$(format_bool_value $TRACKPAD_3FINGER_DRAG)" ""
+add_yaml_setting "FirstClickThreshold" "com.apple.AppleMultitouchTrackpad" "int" "$TRACKPAD_FIRST_CLICK_THRESHOLD" ""
+add_yaml_setting "ForceSuppressed" "com.apple.AppleMultitouchTrackpad" "bool" "$(format_bool_value $TRACKPAD_FORCE_SUPPRESSED)" ""
+add_yaml_setting "TrackpadThreeFingerTapGesture" "com.apple.AppleMultitouchTrackpad" "int" "$TRACKPAD_3FINGER_TAP_GESTURE" ""
+add_yaml_setting "TrackpadRightClick" "com.apple.AppleMultitouchTrackpad" "bool" "$(format_bool_value $TRACKPAD_RIGHT_CLICK)" ""
 
 # --- サウンド ---
-SOUND_COMMANDS=$(cat << EOF
-defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int $UI_SOUND
-defaults write -g "com.apple.sound.beep.feedback" -int $VOLUME_FEEDBACK
-defaults write -g "com.apple.sound.beep.sound" -string "$ALERT_SOUND_PATH"
-defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int $BLUETOOTH_AUDIO_BITPOOL
-EOF
-)
+add_yaml_setting "com.apple.sound.uiaudio.enabled" "com.apple.systemsound" "int" "$UI_SOUND" "Sound"
+add_yaml_setting "com.apple.sound.beep.feedback" "NSGlobalDomain" "int" "$VOLUME_FEEDBACK" ""
+add_yaml_setting "com.apple.sound.beep.sound" "NSGlobalDomain" "string" "'$ALERT_SOUND_PATH'" ""
+add_yaml_setting "Apple Bitpool Min (editable)" "com.apple.BluetoothAudioAgent" "int" "$BLUETOOTH_AUDIO_BITPOOL" ""
 
 # --- スクリーンショット ---
-SCREENSHOT_COMMANDS=$(cat << EOF
-defaults write com.apple.screencapture location -string "$SCREENSHOT_LOCATION_ESCAPED"
-defaults write com.apple.screencapture disable-shadow -bool $(format_bool_value $SCREENSHOT_DISABLE_SHADOW)
-defaults write com.apple.screencapture include-date -bool $(format_bool_value $SCREENSHOT_INCLUDE_DATE)
-defaults write com.apple.screencapture show-thumbnail -bool $(format_bool_value $SCREENSHOT_SHOW_THUMBNAIL)
-defaults write com.apple.screencapture type -string "$SCREENSHOT_TYPE"
-EOF
-)
-
-add_setting "キーボード" "$KEYBOARD_COMMANDS"
-add_setting "マウス" "$MOUSE_COMMANDS"
-add_setting "トラックパッド" "$TRACKPAD_COMMANDS"
-add_setting "サウンド" "$SOUND_COMMANDS"
-add_setting "スクリーンショット" "$SCREENSHOT_COMMANDS"
-
-# 実行権限を付与
-chmod +x "$OUTPUT_FILE"
+add_yaml_setting "location" "com.apple.screencapture" "string" "'$SCREENSHOT_LOCATION_ESCAPED'" "Screenshots"
+add_yaml_setting "disable-shadow" "com.apple.screencapture" "bool" "$(format_bool_value $SCREENSHOT_DISABLE_SHADOW)" ""
+add_yaml_setting "include-date" "com.apple.screencapture" "bool" "$(format_bool_value $SCREENSHOT_INCLUDE_DATE)" ""
+add_yaml_setting "show-thumbnail" "com.apple.screencapture" "bool" "$(format_bool_value $SCREENSHOT_SHOW_THUMBNAIL)" ""
+add_yaml_setting "type" "com.apple.screencapture" "string" "'$SCREENSHOT_TYPE'" ""
 
 echo "system defaults スクリプトを生成しました: $OUTPUT_FILE"

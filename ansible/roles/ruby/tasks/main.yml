@@ -1,0 +1,40 @@
+---
+- name: "Set Ruby version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/ruby/.ruby-version"
+  register: ruby_version_file
+
+- name: "Set Ruby version fact"
+  ansible.builtin.set_fact:
+    ruby_version: "{{ ruby_version_file.content | b64decode | trim }}"
+
+- name: "Install openssl and rbenv"
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - openssl
+    - rbenv
+
+- name: "Install specified Ruby version with rbenv"
+  ansible.builtin.shell:
+    cmd: "rbenv install {{ ruby_version }} --skip-existing"
+  args:
+    creates: "{{ ansible_env.HOME }}/.rbenv/versions/{{ ruby_version }}"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Set global Ruby version"
+  ansible.builtin.shell:
+    cmd: "rbenv global {{ ruby_version }}"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Install bundler gem"
+  ansible.builtin.shell:
+    cmd: "gem install bundler --no-document"
+  changed_when: false
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.rbenv/shims:/opt/homebrew/bin:{{ ansible_env.PATH }}"

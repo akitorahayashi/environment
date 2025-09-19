@@ -1,0 +1,57 @@
+---
+- name: "Install git and gh"
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - git
+    - gh
+
+- name: "Ensure .config directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - git
+    - gh
+
+- name: "Copy .gitconfig"
+  ansible.builtin.copy:
+    src: "{{ config_dir_abs_path }}/git/.gitconfig"
+    dest: "{{ ansible_env.HOME }}/.config/git/config"
+    force: true
+
+- name: "Symlink .gitignore_global"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/git/.gitignore_global"
+    dest: "{{ ansible_env.HOME }}/.gitignore_global"
+    state: link
+    force: true
+
+- name: "Set global git config for excludesfile"
+  community.general.git_config:
+    name: core.excludesfile
+    scope: global
+    value: "{{ ansible_env.HOME }}/.gitignore_global"
+
+- name: "Set git user.name from environment"
+  community.general.git_config:
+    name: user.name
+    scope: global
+    value: "{{ lookup('env', 'GIT_USERNAME') }}"
+  when: "lookup('env', 'GIT_USERNAME')"
+
+- name: "Set git user.email from environment"
+  community.general.git_config:
+    name: user.email
+    scope: global
+    value: "{{ lookup('env', 'GIT_EMAIL') }}"
+  when: "lookup('env', 'GIT_EMAIL')"
+
+- name: "Symlink gh config.yml"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/gh/config.yml"
+    dest: "{{ ansible_env.HOME }}/.config/gh/config.yml"
+    state: link
+    force: true

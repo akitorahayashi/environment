@@ -1,0 +1,7 @@
+---
+- name: "Ensure Java (temurin@21) is installed"
+  community.general.homebrew_cask:
+    name: temurin@21
+    state: present
+    # The --no-quarantine logic from the original script
+    install_options: "{{ (ansible_env.CI == 'true') | ternary('--no-quarantine', omit) }}"

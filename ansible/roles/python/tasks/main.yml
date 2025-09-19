@@ -1,0 +1,50 @@
+---
+- name: "Set Python version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/python/.python-version"
+  register: python_version_file
+
+- name: "Set Python version fact"
+  ansible.builtin.set_fact:
+    python_version: "{{ python_version_file.content | b64decode | trim }}"
+
+- name: "Install pyenv and uv"
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - pyenv
+    - uv
+
+- name: "Install specified Python version with pyenv"
+  ansible.builtin.shell:
+    cmd: "pyenv install {{ python_version }} --skip-existing"
+  args:
+    creates: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Set global Python version"
+  ansible.builtin.shell:
+    cmd: "pyenv global {{ python_version }}"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Install pipx"
+  ansible.builtin.shell:
+    cmd: "python -m pip install --user pipx"
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/pipx"
+  changed_when: false
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+
+- name: "Install pipx tools"
+  community.general.pipx:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ lookup('file', config_dir_abs_path + '/python/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"

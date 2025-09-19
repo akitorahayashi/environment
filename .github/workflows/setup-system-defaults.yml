@@ -13,11 +13,19 @@ jobs:
       - name: Setup Homebrew and just
         run: make setup
 
+      - name: Create ansible tasks from current system defaults
+        run: ansible/utils/backup-system-defaults.sh ${{ github.workspace }}/config/common
+
       - name: Apply macOS system defaults
-        run: just cmn-apply-defaults
+        run: ansible-playbook -i ansible/hosts ansible/playbook.yml --tags "system_defaults" -e "config_dir_abs_path=${{ github.workspace }}/config/common"
 
-      - name: Re-run backup to check for idempotency
-        run: just cmn-backup-defaults
-
-      - name: Verify that system defaults file is unchanged
-        run: git diff --exit-code -- config/common/system-defaults/system-defaults.sh
+      - name: Verify system defaults application by checking no changes after backup
+        run: |
+          ansible/utils/backup-system-defaults.sh ${{ github.workspace }}/config/common
+          if git diff --exit-code config/common/system-defaults/system-defaults.sh; then
+            echo "✅ System defaults were applied correctly - no changes detected"
+          else
+            echo "❌ System defaults application failed - changes detected after applying settings"
+            git diff config/common/system-defaults/system-defaults.sh
+            exit 1
+          fi

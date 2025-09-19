@@ -1,18 +1,23 @@
-name: Setup Homebrew
+name: Setup Components
 
 on:
   workflow_call:
 
 jobs:
-  setup-homebrew:
+  setup:
     runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
-        config_dir:
-          - config/common
-          - config/macbook-only
-          - config/mac-mini-only
+        component:
+          - git
+          - gh
+          - ruby
+          - java
+          - vscode
+          - python
+          - nodejs
+          - shell
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,17 +25,16 @@ jobs:
       - name: Setup Homebrew and just
         run: make setup
 
-      - name: Setup GitHub authentication for Homebrew
+      - name: Setup GitHub authentication (for gh component)
+        if: matrix.component == 'gh'
         run: |
           echo "🔑 CI環境用のGitHub認証を設定中..."
-          # 認証情報を環境変数に設定
           echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          # Gitの認証設定
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}"
           echo "✅ GitHub認証の設定が完了しました"
         shell: bash
 
-      - name: Run Homebrew setup for ${{ matrix.config_dir }}
-        id: setup
-        run: ansible-playbook -i ansible/hosts ansible/playbook.yml --tags "brew" -e "config_dir_abs_path=${{ github.workspace }}/${{ matrix.config_dir }}"
-
+      - name: Setup ${{ matrix.component }}
+        env:
+          HOME: ${{ matrix.component == 'shell' && format('{0}/home', runner.temp) || env.HOME }}
+        run: ansible-playbook -i ansible/hosts ansible/playbook.yml --tags "${{ matrix.component }}" -e "config_dir_abs_path=${{ github.workspace }}/config/common"

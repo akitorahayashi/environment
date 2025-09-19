@@ -38,6 +38,8 @@ setup: ## Installs Homebrew and the 'just' command runner
 	fi
 	@echo "  -> Ensuring just is installed..."
 	@command -v just >/dev/null || brew install just
+	@echo "  -> Ensuring ansible is installed..."
+	@command -v ansible >/dev/null || brew install ansible
 	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
 
 .PHONY: macbook

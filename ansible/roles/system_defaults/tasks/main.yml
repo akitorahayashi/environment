@@ -1,0 +1,13 @@
+---
+- name: "Install displayplacer (dependency)"
+  community.general.homebrew:
+    name: displayplacer
+    state: present
+
+- name: "Apply macOS system defaults"
+  community.general.osx_defaults:
+    domain: "{{ item.domain | default('NSGlobalDomain') }}"
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop: "{{ lookup('file', config_dir_abs_path + '/system-defaults/system-defaults.yml') | from_yaml }}"
