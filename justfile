@@ -37,11 +37,6 @@ cmn-brew:
   @echo "  -> Running Homebrew setup with config: {{config_common}}"
   @just _run_ansible "brew" "{{config_common}}"
 
-# Setup Flutter environment
-cmn-flutter:
-  @echo "🚀 Running common Flutter setup..."
-  @just _run_ansible "flutter" "{{config_common}}" # (Assuming a 'flutter' role is created)
-
 # Configure GitHub CLI (gh) settings
 cmn-gh:
   @echo "🚀 Running common GitHub CLI setup..."
