@@ -55,6 +55,7 @@ setup: ## Installs Homebrew and the 'just' command runner
 	@if ! command -v pipx &> /dev/null; then \
 		echo "    [INSTALL] pipx..."; \
 		brew install pipx; \
+		export PATH="$$HOME/.local/bin:$$PATH"; \
 	else \
 		echo "    [SUCCESS] pipx is already installed."; \
 	fi
@@ -63,6 +64,7 @@ setup: ## Installs Homebrew and the 'just' command runner
 	@echo "  -> Ensuring ansible is installed..."
 	@if ! command -v ansible &> /dev/null; then \
 		echo "    [INSTALL] ansible..."; \
+		export PATH="$$HOME/.local/bin:$$PATH"; \
 		pipx install ansible; \
 	else \
 		echo "    [SUCCESS] ansible is already installed."; \
