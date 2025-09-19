@@ -25,10 +25,4 @@ jobs:
       - name: Verify system defaults application
         run: |
           just cmn-backup-defaults
-          if git diff --exit-code config/common/system-defaults/system-defaults.sh; then
-            echo "✅ System defaults were applied correctly - no changes detected"
-          else
-            echo "❌ System defaults application failed - changes detected after applying settings"
-            git diff config/common/system-defaults/system-defaults.sh
-            exit 1
-          fi
+          git diff --exit-code config/common/system-defaults/system-defaults.yml
