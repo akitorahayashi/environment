@@ -1,0 +1,21 @@
+---
+- key: wvous-tl-corner
+  domain: com.apple.dock
+  type: int
+  default: 11
+  comment: "Hot Corners"
+
+- key: wvous-tr-corner
+  domain: com.apple.dock
+  type: int
+  default: 5
+
+- key: wvous-bl-corner
+  domain: com.apple.dock
+  type: int
+  default: 10
+
+- key: wvous-br-corner
+  domain: com.apple.dock
+  type: int
+  default: 10

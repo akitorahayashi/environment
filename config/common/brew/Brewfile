@@ -32,6 +32,7 @@ brew "jj"
 brew "poppler"
 brew "pandoc"
 brew "ollama"
+brew "yq"
 # brew "just" # Installed via `make setup`
 # brew "displayplacer" # installed by scripts/macos.sh
 

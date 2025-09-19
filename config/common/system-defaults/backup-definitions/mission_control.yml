@@ -1,0 +1,26 @@
+---
+- key: expose-animation-duration
+  domain: com.apple.dock
+  type: float
+  default: 0.2
+  comment: "Mission Control"
+
+- key: mru-spaces
+  domain: com.apple.dock
+  type: bool
+  default: true
+
+- key: expose-group-by-app
+  domain: com.apple.dock
+  type: bool
+  default: true
+
+- key: workspaces-auto-swoosh
+  domain: com.apple.dock
+  type: bool
+  default: false
+
+- key: spans-displays
+  domain: com.apple.spaces
+  type: bool
+  default: false

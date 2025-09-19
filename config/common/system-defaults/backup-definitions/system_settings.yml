@@ -1,0 +1,56 @@
+---
+- key: AppleHighlightColor
+  domain: NSGlobalDomain
+  type: string
+  default: "0.709800 0.835300 1.000000"
+  comment: "System settings"
+
+- key: AppleShowScrollBars
+  domain: NSGlobalDomain
+  type: string
+  default: "Automatic"
+
+- key: NSNavPanelExpandedStateForSaveMode
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: NSNavPanelExpandedStateForSaveMode2
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: PMPrintingExpandedStateForPrint
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: PMPrintingExpandedStateForPrint2
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: NSDocumentSaveNewDocumentsToCloud
+  domain: NSGlobalDomain
+  type: bool
+  default: false
+
+- key: NSQuitAlwaysKeepsWindows
+  domain: com.apple.systempreferences
+  type: bool
+  default: false
+
+- key: NSDisableAutomaticTermination
+  domain: NSGlobalDomain
+  type: bool
+  default: false
+
+- key: LSQuarantine
+  domain: com.apple.LaunchServices
+  type: bool
+  default: false
+
+- key: DialogType
+  domain: com.apple.CrashReporter
+  type: string
+  default: "none"

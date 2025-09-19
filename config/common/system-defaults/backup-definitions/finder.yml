@@ -1,0 +1,76 @@
+---
+- key: ShowPathbar
+  domain: com.apple.finder
+  type: bool
+  default: true
+  comment: "Finder"
+
+- key: ShowStatusBar
+  domain: com.apple.finder
+  type: bool
+  default: false
+
+- key: AppleShowAllFiles
+  domain: com.apple.finder
+  type: bool
+  default: true
+
+- key: AppleShowAllExtensions
+  domain: NSGlobalDomain
+  type: bool
+  default: true
+
+- key: _FXShowPosixPathInTitle
+  domain: com.apple.finder
+  type: bool
+  default: false
+
+- key: FXPreferredViewStyle
+  domain: com.apple.finder
+  type: string
+  default: "icnv"
+
+- key: _FXSortFoldersFirst
+  domain: com.apple.finder
+  type: bool
+  default: true
+
+- key: FXDefaultSearchScope
+  domain: com.apple.finder
+  type: string
+  default: "SCev"
+
+- key: FXEnableExtensionChangeWarning
+  domain: com.apple.finder
+  type: bool
+  default: false
+
+- key: WarnOnEmptyTrash
+  domain: com.apple.finder
+  type: bool
+  default: true
+
+- key: FXRemoveOldTrashItems
+  domain: com.apple.finder
+  type: bool
+  default: true
+
+- key: DSDontWriteNetworkStores
+  domain: com.apple.desktopservices
+  type: bool
+  default: true
+
+- key: QuitMenuItem
+  domain: com.apple.finder
+  type: bool
+  default: false
+
+- key: DisableAllAnimations
+  domain: com.apple.finder
+  type: bool
+  default: false
+
+- key: com.apple.springing.enabled
+  domain: NSGlobalDomain
+  type: bool
+  default: false
