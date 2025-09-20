@@ -14,7 +14,7 @@
 
     p = pull
     pl = pull
-    pl-rb = pull --rebase
+    pl-r = pull --rebase
 
     a = add
     ad = add
