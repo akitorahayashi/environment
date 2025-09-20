@@ -67,6 +67,9 @@ alias px-i="pipx install"
 alias px-ui="pipx uninstall"
 alias px-r="pipx run"
 
+# jupyter
+alias jpl="jupyter lab"
+
 # pyenv
 alias pv="pyenv"
 alias pv-i="pyenv install"
