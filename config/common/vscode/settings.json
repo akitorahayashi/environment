@@ -1,8 +1,6 @@
 {
   "workbench.colorTheme": "Default Light+",
   "workbench.preferredDarkColorTheme": "Default Dark+",
-  "dart.flutterSdkPath": "/opt/homebrew/Caskroom/flutter/3.29.2/flutter",
-  "dart.openDevTools": "flutter",
   "editor.formatOnSave": true,
   "explorer.confirmDragAndDrop": false,
   "explorer.confirmDelete": false,
@@ -11,20 +9,9 @@
   "diffEditor.ignoreTrimWhitespace": false,
   "terminal.integrated.enableMultiLinePasteWarning": "never",
   "github.copilot.nextEditSuggestions.enabled": true,
-  "vscode-office.openOutline": true,
   "editor.minimap.enabled": false,
-  "python.analysis.typeCheckingMode": "basic",
   "git.enableSmartCommit": true,
   "git.autofetch": true,
-  "claude.mcpServers": {
-    "serena": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server"
-      ]
-    }
-  }
+  "workbench.settings.applyToAllProfiles": [],
+  "editor.tabSize": 2
 }

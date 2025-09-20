@@ -1,10 +1,5 @@
 [
     {
-        "key": "cmd+r",
-        "command": "renameFile",
-        "when": "explorerViewletVisible && filesExplorerFocus"
-    },
-    {
         "key": "ctrl+r",
         "command": "copyRelativeFilePath",
         "when": "explorerViewletVisible && filesExplorerFocus"
@@ -24,6 +19,16 @@
         "args": {
             "text": "\\\r\n"
         },
+        "when": "terminalFocus"
+    },
+    {
+        "key": "ctrl+cmd+n",
+        "command": "workbench.action.terminal.new",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "ctrl+cmd+s",
+        "command": "workbench.action.terminal.split",
         "when": "terminalFocus"
     }
 ]
