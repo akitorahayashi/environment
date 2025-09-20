@@ -1,0 +1,24 @@
+name: Setup Shell
+
+on:
+  workflow_call:
+
+jobs:
+  setup-shell:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make setup
+
+      - name: Setup shell configuration
+        run: just cmn-shell
+
+      - name: Test shell aliases functionality
+        shell: zsh {0}
+        run: |
+          set -euo pipefail
+          source ~/.zshrc
+          mk --version
