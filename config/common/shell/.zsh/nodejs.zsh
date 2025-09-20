@@ -1,19 +1,13 @@
-# Node.js
-alias np="npm"
-alias np-i="npm install"
-alias np-r="npm run"
-alias np-r-t="npm run test"
-alias np-r-l="npm run lint"
-alias np-r-f="npm run format"
-alias np-r-d="npm run dev"
+source ~/.zsh/dev.zsh
 
-alias pnp="pnpm"
+# Node.js
+dev_alias_as "npm" "np" "run"
+alias np-i="npm install"
+alias np-d="npm run dev"
+
+dev_alias_as "pnpm" "pnp" "run"
 alias pnp-i="pnpm install"
-alias pnp-r="pnpm run"
-alias pnp-r-t="pnpm run test"
-alias pnp-r-l="pnpm run lint"
-alias pnp-r-f="pnpm run format"
-alias pnp-r-d="pnpm run dev"
+alias pnp-d="pnpm run dev"
 
 md-pdf() {
   md-to-pdf "$1" --config-file "$HOME/.md-to-pdf-config.js"
