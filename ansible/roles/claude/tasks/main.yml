@@ -52,17 +52,33 @@
   ansible.builtin.set_fact:
     mcp_servers_config: "{{ (claude_mcp_config.content | b64decode | from_json).mcpServers }}"
 
-- name: "Install MCP servers for each Claude config"
-  ansible.builtin.command:
-    argv: "{{ ['claude','mcp','add', item, '-s','user','--', mcp_servers_config[item].command] + (mcp_servers_config[item].args | default([])) }}"
-  loop: "{{ mcp_servers_config.keys() | list }}"
-  register: mcp_install_result
-  failed_when: false
-  changed_when: rc == 0
+- name: "Check if ~/.claude.json exists"
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.claude.json"
+  register: claude_json_stat
 
-- name: "Display MCP server installation results"
-  ansible.builtin.debug:
-    msg: "{{ item.item }}: {{ 'Already installed' if item.rc != 0 else 'Newly installed' }}"
-  loop: "{{ mcp_install_result.results }}"
-  loop_control:
-    label: "{{ item.item }}"
+- name: "Read existing ~/.claude.json if it exists"
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/.claude.json"
+  register: existing_claude_json
+  when: claude_json_stat.stat.exists
+
+- name: "Parse existing ~/.claude.json"
+  ansible.builtin.set_fact:
+    existing_claude_config: "{{ (existing_claude_json.content | b64decode | from_json) if claude_json_stat.stat.exists else {} }}"
+
+- name: "Check if MCP servers need updating"
+  ansible.builtin.set_fact:
+    mcp_servers_need_update: "{{ existing_claude_config.mcpServers | default({}) != mcp_servers_config }}"
+
+- name: "Merge MCP servers into existing config"
+  ansible.builtin.set_fact:
+    updated_claude_config: "{{ existing_claude_config | combine({'mcpServers': mcp_servers_config}) }}"
+  when: mcp_servers_need_update
+
+- name: "Create or update ~/.claude.json"
+  ansible.builtin.copy:
+    content: "{{ updated_claude_config | to_nice_json }}"
+    dest: "{{ ansible_env.HOME }}/.claude.json"
+    mode: '0644'
+  when: mcp_servers_need_update

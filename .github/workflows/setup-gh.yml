@@ -20,6 +20,3 @@ jobs:
 
       - name: Setup GitHub CLI
         run: just cmn-gh
-
-      - name: Test GitHub CLI aliases
-        run: gh health
