@@ -17,9 +17,9 @@
 │   │   ├── system-defaults/
 │   │   └── vscode/
 │   ├── mac-mini-only/
-│       ├── brew/
-│       ├── nodejs/
-│       └── python/
+│   │   ├── brew/
+│   │   ├── nodejs/
+│   │   └── python/
 │   └── macbook-only/
 │       ├── brew/
 │       ├── nodejs/
@@ -39,7 +39,8 @@
 │   │   ├── vscode/
 │   │   └── flutter/
 │   └── utils/
-│       └── backup-system-defaults.sh
+│       ├── backup-system-defaults.sh
+│       └── backup-extensions.sh
 ├── .gitignore
 ├── Makefile
 ├── justfile
@@ -134,6 +135,7 @@ This project uses Ansible to automate the setup of a complete development enviro
 4.  **macOS System Settings (`system_defaults` role)**
     -   Applies system settings using the `community.general.osx_defaults` module based on the definitions in `config/common/system-defaults/system-defaults.yml`.
     -   A backup of the current system settings can be generated using the `ansible/utils/backup-system-defaults.sh` script, which uses `yq` and `defaults read` to create a backup based on definitions in `config/common/system-defaults/backup-definitions/`.
+    -   A backup of the current VSCode extensions can be generated using the `ansible/utils/backup-extensions.sh` script, which creates `config/common/vscode/extensions.json` with the list of installed extensions.
 
 5.  **Ruby Environment (`ruby` role)**
     -   Installs `rbenv` to manage Ruby versions.

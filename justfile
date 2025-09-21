@@ -170,6 +170,12 @@ cmn-backup-defaults:
   @{{repo_root}}/ansible/utils/backup-system-defaults.sh "{{config_common}}"
   @echo "✅ macOS system defaults backup completed."
 
+# Backup current VSCode extensions
+cmn-backup-vscode-extensions:
+  @echo "🚀 Backing up current VSCode extensions..."
+  @{{repo_root}}/ansible/utils/backup-extensions.sh "{{config_common}}"
+  @echo "✅ VSCode extensions backup completed."
+
 # Display help with all available recipes
 help:
   @echo "Usage: just [recipe]"

@@ -1,29 +1,36 @@
 #!/bin/bash
 set -euo pipefail
 
+# Get the configuration directory path from script arguments
+CONFIG_DIR="$1"
+if [ -z "$CONFIG_DIR" ]; then
+    echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
+    exit 1
+fi
+
 # ================================================
-# 現在の VSCode 拡張機能リストを取得し、extensions.txt を生成
+# 現在の VSCode 拡張機能リストを取得し、extensions.json を生成
 # ================================================
 #
 # Usage:
 # 1. Grant execution permission:
-#    $ chmod +x config/vscode/extensions/backup-extensions.sh
+#    $ chmod +x ansible/utils/backup-extensions.sh
 # 2. Run the script:
-#    $ ./config/vscode/extensions/backup-extensions.sh
+#    $ ./ansible/utils/backup-extensions.sh config/common
 #
-# The script will create/update config/vscode/extensions/extensions.txt with the current list of VSCode extensions.
+# The script will create/update config/common/vscode/extensions/extensions.json with the current list of VSCode extensions.
 #
 # ================================================
 
 # VSCode拡張機能のリストをバックアップするスクリプト
 # バックアップファイルのパス
-EXT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # CI環境かどうかで出力先を決定
 if [ "${CI:-false}" = "true" ]; then
-  EXT_FILE="/tmp/extensions.txt"
+  EXT_FILE="/tmp/extensions.json"
 else
-  EXT_FILE="$EXT_DIR/extensions.txt"
+  EXT_FILE="$CONFIG_DIR/vscode/extensions.json"
+  mkdir -p "$(dirname "$EXT_FILE")"
 fi
 
 # VSCodeコマンドの検出
@@ -39,5 +46,12 @@ else
 fi
 
 # 拡張機能リストの取得と保存
-$CODE_CMD --list-extensions > "$EXT_FILE"
+extensions=$($CODE_CMD --list-extensions)
+json="{\"recommendations\": ["
+for ext in $extensions; do
+  json+="\"$ext\","
+done
+json=${json%,}
+json+="]}"
+echo "$json" > "$EXT_FILE"
 echo "VSCode拡張機能のリストをバックアップしました: $EXT_FILE"

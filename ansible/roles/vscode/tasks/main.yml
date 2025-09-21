@@ -14,6 +14,7 @@
   ansible.builtin.find:
     paths: "{{ config_dir_abs_path }}/vscode"
     patterns: "*.json"
+    recurse: true
   register: vscode_files
 
 - name: "Symlink VS Code config files"

@@ -13,7 +13,6 @@ jobs:
           - git
           - ruby
           - java
-          - vscode
           - cursor
     steps:
       - name: Checkout repository

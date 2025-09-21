@@ -14,6 +14,9 @@ jobs:
   setup-components:
     uses: ./.github/workflows/setup-components.yml
 
+  setup-vscode:
+    uses: ./.github/workflows/setup-vscode.yml
+
   setup-gh:
     uses: ./.github/workflows/setup-gh.yml
     secrets: inherit
