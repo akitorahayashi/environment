@@ -5,7 +5,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@upstash/context7-mcp@1.2.x"
+        "@upstash/context7-mcp@latest"
       ]
     },
     "playwright": {
@@ -13,7 +13,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@playwright/mcp@0.5.x"
+        "@playwright/mcp@latest"
       ]
     },
     "serena": {
@@ -21,7 +21,7 @@
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/oraios/serena@main",
+        "git+https://github.com/oraios/serena",
         "serena",
         "start-mcp-server",
         "--context",

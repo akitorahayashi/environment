@@ -13,10 +13,12 @@
     state: link
     force: true
 
+# --- create symbolic links for all files in config/common/shell/.zsh/
 - name: "Clean and recreate ~/.zsh directory"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.zsh"
     state: absent
+
 - ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.zsh"
     state: directory
