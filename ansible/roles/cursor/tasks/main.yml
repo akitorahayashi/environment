@@ -1,0 +1,30 @@
+---
+- name: "Install Cursor"
+  community.general.homebrew_cask:
+    name: cursor
+    state: present
+
+- name: "Install Cursor CLI"
+  ansible.builtin.shell: curl https://cursor.com/install -fsS | bash
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/cursor-agent"
+
+- name: "Ensure Cursor User directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User"
+    state: directory
+    mode: '0755'
+
+- name: "Find Cursor config files"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/vscode"
+    patterns: "*.json"
+  register: cursor_files
+
+- name: "Symlink Cursor config files"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ cursor_files.files }}"
