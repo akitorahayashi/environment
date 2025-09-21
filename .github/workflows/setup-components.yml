@@ -14,6 +14,7 @@ jobs:
           - ruby
           - java
           - vscode
+          - cursor
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

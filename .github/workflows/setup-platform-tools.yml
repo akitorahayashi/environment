@@ -10,7 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         component: [python, nodejs]
-        config: [cmn, mbk, mmn]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,6 +20,12 @@ jobs:
       - name: Run ${{ matrix.component }}-platform setup
         run: just cmn-${{ matrix.component }}-platform
 
-      - name: Run ${{ matrix.config }}-${{ matrix.component }}-tools setup
-        run: just ${{ matrix.config }}-${{ matrix.component }}-tools
+      - name: Run cmn-${{ matrix.component }}-tools setup
+        run: just cmn-${{ matrix.component }}-tools
+
+      - name: Run mbk-${{ matrix.component }}-tools setup
+        run: just mbk-${{ matrix.component }}-tools
+
+      - name: Run mmn-${{ matrix.component }}-tools setup
+        run: just mmn-${{ matrix.component }}-tools
         
