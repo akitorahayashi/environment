@@ -4,8 +4,16 @@
     name: cursor
     state: present
 
+- name: "Download Cursor CLI installer"
+  # Checksum obtained via: curl -s https://cursor.com/install | shasum -a 256
+  ansible.builtin.get_url:
+    url: https://cursor.com/install
+    dest: "{{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh"
+    mode: '0755'
+    checksum: "sha256:a8779ed0e591d9af020684461419a3598e2f43f186e995eb1857fb11e7782270"
+
 - name: "Install Cursor CLI"
-  ansible.builtin.shell: curl https://cursor.com/install -fsS | bash
+  ansible.builtin.command: /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh
   args:
     creates: "{{ ansible_env.HOME }}/.local/bin/cursor-agent"
 
