@@ -1,0 +1,23 @@
+name: Setup VSCode
+
+on:
+  workflow_call:
+
+jobs:
+  setup-vscode:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make setup
+
+      - name: Setup VSCode configuration
+        run: just cmn-vscode
+
+      - name: Test VSCode extensions backup script
+        run: |
+          set -euo pipefail
+          just cmn-backup-vscode-extensions
+          ! git diff --exit-code config/common/vscode/extensions.json && echo "❌ extensions.json was not updated" || echo "✅ extensions.json was updated"

@@ -19,6 +19,7 @@
   ansible.builtin.find:
     paths: "{{ config_dir_abs_path }}/vscode"
     patterns: "*.json"
+    recurse: true
   register: cursor_files
 
 - name: "Symlink Cursor config files"
