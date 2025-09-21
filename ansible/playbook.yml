@@ -17,4 +17,5 @@
     - { role: git, tags: ['git', 'gh'] }
     - { role: shell, tags: ['shell'] }
     - { role: vscode, tags: ['vscode'] }
+    - { role: cursor, tags: ['cursor'] }
     - { role: system_defaults, tags: ['system_defaults'] }

@@ -20,8 +20,20 @@ default: help
 # ------------------------------------------------------------------------------
 # Run all common setup tasks
 common:
-  @echo "🚀 Starting all common setup tasks (via Ansible)..."
-  @just _run_ansible "shell,system_defaults,git,gh,python-platform,python-tools,nodejs-platform,nodejs-tools,vscode,ruby,brew,java,flutter" "{{config_common}}"
+  @echo "🚀 Starting all common setup tasks..."
+  @just cmn-shell
+  @just cmn-apply-defaults
+  @just cmn-git
+  @just cmn-gh
+  @just cmn-vscode
+  @just cmn-python-platform
+  @just cmn-python-tools
+  @just cmn-nodejs-platform
+  @just cmn-nodejs-tools
+  @just cmn-cursor
+  @just cmn-ruby
+  @just cmn-java
+  @just cmn-brew
   @echo "✅ All common setup tasks completed successfully."
 
 # ------------------------------------------------------------------------------
@@ -87,10 +99,26 @@ cmn-vscode:
   @echo "🚀 Running common VS Code setup..."
   @just _run_ansible "vscode" "{{config_common}}"
 
+# Setup Cursor settings and CLI
+cmn-cursor:
+  @echo "🚀 Running common Cursor setup..."
+  @just _run_ansible "cursor" "{{config_common}}"
+
 # Install common GUI applications (casks)
 cmn-apps:
   @echo "🚀 Installing common GUI applications..."
-  @brew install --cask android-studio android-commandlinetools google-chrome slack zoom obsidian docker pgadmin4 tailscale rectangle
+  @brew install --cask \
+    android-studio \
+    android-commandlinetools \
+    google-chrome \
+    slack \
+    zoom \
+    obsidian \
+    docker \
+    pgadmin4 \
+    tailscale \
+    rectangle \
+    cursor
 
 # ------------------------------------------------------------------------------
 # MacBook-Specific Recipes
