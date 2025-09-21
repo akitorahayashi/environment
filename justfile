@@ -30,9 +30,9 @@ common:
   @just cmn-python-tools
   @just cmn-nodejs-platform
   @just cmn-nodejs-tools
-  @just cmn-cursor
   @just cmn-claude
   @just cmn-gemini
+  @just cmn-cursor
   @just cmn-ruby
   @just cmn-java
   @just cmn-brew

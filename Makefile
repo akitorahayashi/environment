@@ -1,7 +1,7 @@
 # Makefile: The entrypoint for initial environment setup.
 #
 # This Makefile has two main steps:
-# 1. `make setup`: Installs Homebrew and Just.
+# 1. `make base`: Installs Homebrew and Just.
 # 2. `make macbook` or `make mac-mini`: Runs the actual setup using Just.
 
 .DEFAULT_GOAL := help
@@ -12,9 +12,16 @@ help: ## Show this help message
 	@echo "Available targets:"
 	@awk 'BEGIN {FS = ":.*?## "} /^[^_][a-zA-Z0-9_-]*:.*?## / {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: setup
-setup: ## Installs Homebrew and the 'just' command runner
+.PHONY: base
+base: ## Installs Homebrew and the 'just' command runner
 	@echo "🚀 Starting bootstrap setup..."
+
+	@if ! xcode-select -p &> /dev/null; then \
+		echo "[INSTALL] Xcode Command Line Tools ..."; \
+		xcode-select --install; \
+	else \
+		echo "[SUCCESS] Xcode Command Line Tools are already installed."; \
+	fi
 
 	@if [ ! -f .env ]; then \
 		cp .env.example .env && \
@@ -62,7 +69,7 @@ setup: ## Installs Homebrew and the 'just' command runner
 	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
 
 .PHONY: macbook
-macbook: ## Runs the full setup for a MacBook (requires 'setup' to be run first)
+macbook: ## Runs the full setup for a MacBook (requires 'base' to be run first)
 	@echo "🚀 Handing over to just for MacBook setup..."
 	@just common
 	@just mbk-brew
@@ -71,7 +78,7 @@ macbook: ## Runs the full setup for a MacBook (requires 'setup' to be run first)
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
-mac-mini: ## Runs the full setup for a Mac mini (requires 'setup' to be run first)
+mac-mini: ## Runs the full setup for a Mac mini (requires 'base' to be run first)
 	@echo "🚀 Handing over to just for Mac mini setup..."
 	@just common
 	@just mmn-brew
