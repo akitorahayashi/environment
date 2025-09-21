@@ -29,6 +29,7 @@
 │   ├── playbook.yml
 │   ├── roles/
 │   │   ├── brew/
+│   │   ├── cursor/
 │   │   ├── git/
 │   │   ├── java/
 │   │   ├── nodejs/
@@ -36,8 +37,7 @@
 │   │   ├── ruby/
 │   │   ├── shell/
 │   │   ├── system_defaults/
-│   │   ├── vscode/
-│   │   └── flutter/
+│   │   └── vscode/
 │   └── utils/
 │       ├── backup-system-defaults.sh
 │       └── backup-extensions.sh
@@ -147,13 +147,18 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs Visual Studio Code via Homebrew Cask.
     -   Symlinks user configuration files (`settings.json`, `keybindings.json`, etc.) from `config/common/vscode/` to the appropriate VS Code directory (`~/Library/Application Support/Code/User/`).
 
-7.  **Python Environment (`python-platform` and `python-tools` roles)**
+7.  **Cursor Environment (`cursor` role)**
+    -   Installs Cursor editor via Homebrew Cask.
+    -   Downloads and installs the Cursor CLI.
+    -   Symlinks user configuration files from `config/common/vscode/` to Cursor's User directory (`~/Library/Application Support/Cursor/User/`).
+
+8.  **Python Environment (`python-platform` and `python-tools` roles)**
     -   **Platform:** Installs `pyenv`, reads the target Python version from `.python-version`, installs it, and sets it as the global default.
     -   **Tools:** Installs a list of Python tools from `config/common/python/pipx-tools.txt` using `pipx install`.
 
-8.  **Java Environment (`java` role)**
+9.  **Java Environment (`java` role)**
     -   Installs the `temurin@21` JDK using `homebrew_cask`.
 
-9.  **Node.js Environment (`nodejs-platform` and `nodejs-tools` roles)**
-    -   **Platform:** Installs `nvm`, reads the target Node.js version from `.nvmrc`, installs it, and sets it as the default.
+10.  **Node.js Environment (`nodejs-platform` and `nodejs-tools` roles)**
+    -   **Platform:** Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `.nvmrc`, installs it, and sets it as the default.
     -   **Tools:** Reads the `global-packages.json` file, parses the list of dependencies, and installs them globally using `pnpm install -g`. It also symlinks the `md-to-pdf-config.js` file to the home directory.
