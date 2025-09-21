@@ -23,17 +23,17 @@
     state: directory
     mode: '0755'
 
-- name: "Find Cursor config files"
-  ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/vscode"
-    patterns: "*.json"
-    recurse: true
-  register: cursor_files
-
-- name: "Symlink Cursor config files"
+- name: "Symlink Cursor settings.json"
   ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item.path | basename }}"
+    src: "{{ config_dir_abs_path }}/vscode/settings.json"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/settings.json"
     state: link
     force: true
-  loop: "{{ cursor_files.files }}"
+
+- name: "Symlink Cursor keybindings.json"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/vscode/keybindings.json"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/keybindings.json"
+    state: link
+    force: true
+

@@ -136,7 +136,8 @@ This project uses Ansible to automate the setup of a complete development enviro
 7.  **Cursor Environment (`cursor` role)**
     -   Installs Cursor editor via Homebrew Cask.
     -   Downloads and installs the Cursor CLI.
-    -   Symlinks user configuration files from `config/common/vscode/` to Cursor's User directory (`~/Library/Application Support/Cursor/User/`).
+    -   Symlinks user configuration files (`settings.json`, `keybindings.json`) from `config/common/vscode/` to Cursor's User directory.
+    -   **Note**: Extensions are not automatically installed. Many VSCode extensions are not compatible with Cursor. Manually install compatible extensions using `cursor --install-extension <extension-id>`.
 
 8.  **Python Environment (`python-platform` and `python-tools` roles)**
     -   **Platform:** Installs `pyenv`, reads the target Python version from `.python-version`, installs it, and sets it as the global default.
