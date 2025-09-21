@@ -6,7 +6,46 @@ aliases:
     re-ls: 'repo list --limit 18 --json name,url,pushedAt --jq "sort_by(.pushedAt) | reverse | .[] | \"【\\(.name)】: \\(.url)\""'
     re-cl: repo clone
     # gh pr aliases
-    pr-cr: "!f() {\n  local branch=\"$1\"\n  if [ -z \"$branch\" ]; then\n    echo \"Usage: gh pr-cr <branch>\" >&2\n    return 1\n  fi\n  \n  # Get the base branch (usually main or master)\n  local base_branch\n  base_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo \"main\")\n  \n  # Get diff between base and target branch\n  local diff_content\n  diff_content=$(git diff \"${base_branch}...${branch}\")\n  \n  if [ -z \"$diff_content\" ]; then\n    echo \"No changes found between ${base_branch} and ${branch}\" >&2\n    return 1\n  fi\n  \n  # Generate title and body using gh copilot\n  echo \"Generating PR title and body using GitHub Copilot...\"\n  local pr_content\n  pr_content=$(echo \"$diff_content\" | gh copilot suggest \"Generate a concise PR title (max 72 chars) and detailed body based on this git diff. Format as 'TITLE: <title>' followed by 'BODY:' and the body content.\")\n  \n  # Extract title and body from copilot response\n  local title body\n  title=$(echo \"$pr_content\" | grep \"^TITLE:\" | sed 's/^TITLE: //')\n  body=$(echo \"$pr_content\" | sed -n '/^BODY:/,$p' | sed '1d')\n  \n  if [ -z \"$title\" ]; then\n    echo \"Failed to generate title. Creating PR with manual input required...\" >&2\n    gh pr create --head \"$branch\"\n  else\n    echo \"Generated Title: $title\"\n    echo \"Generated Body: $body\"\n    gh pr create --head \"$branch\" --title \"$title\" --body \"$body\"\n  fi\n}; f \"$@\"\n"
+    pr-cr: |
+        !f() {
+          local branch="$1"
+          if [ -z "$branch" ]; then
+            echo "Usage: gh pr-cr <branch>" >&2
+            return 1
+          fi
+          
+          # Get the base branch (usually main or master)
+          local base_branch
+          base_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+          
+          # Get diff between base and target branch
+          local diff_content
+          diff_content=$(git diff "${base_branch}...${branch}")
+          
+          if [ -z "$diff_content" ]; then
+            echo "No changes found between ${base_branch} and ${branch}" >&2
+            return 1
+          fi
+          
+          # Generate title and body using gh copilot
+          echo "Generating PR title and body using GitHub Copilot..."
+          local pr_content
+          pr_content=$(echo "$diff_content" | gh copilot suggest "Generate a concise PR title (max 72 chars) and detailed body based on this git diff. Format as 'TITLE: <title>' followed by 'BODY:' and the body content.")
+          
+          # Extract title and body from copilot response
+          local title body
+          title=$(echo "$pr_content" | grep "^TITLE:" | sed 's/^TITLE: //')
+          body=$(echo "$pr_content" | sed -n '/^BODY:/,$p' | sed '1d')
+          
+          if [ -z "$title" ]; then
+            echo "Failed to generate title. Creating PR with manual input required..." >&2
+            gh pr create --head "$branch"
+          else
+            echo "Generated Title: $title"
+            echo "Generated Body: $body"
+            gh pr create --head "$branch" --title "$title" --body "$body"
+          fi
+        }; f "$@"
     pr-ls: |
         !f() {
           gh pr list --limit 20 --json number,title,author,headRefName,state --jq '.[] | {number, title, author: .author.login, branch: .headRefName, state}' | while read -r pr; do

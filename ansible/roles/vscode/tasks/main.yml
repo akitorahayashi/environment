@@ -24,3 +24,19 @@
     state: link
     force: true
   loop: "{{ vscode_files.files }}"
+
+- name: "Read VS Code extensions list"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/vscode/extensions.json"
+  register: vscode_extensions_content
+
+- name: "Parse VS Code extensions JSON"
+  ansible.builtin.set_fact:
+    vscode_extensions: "{{ (vscode_extensions_content.content | b64decode | from_json).recommendations }}"
+
+- name: "Install VS Code extensions"
+  ansible.builtin.command: "code --install-extension {{ item }}"
+  loop: "{{ vscode_extensions }}"
+  ignore_errors: true
+  register: install_result
+  changed_when: "'was successfully installed' in install_result.stdout"
