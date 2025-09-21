@@ -1,0 +1,67 @@
+---
+- name: "Ensure Claude Code User directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude"
+    state: directory
+    mode: '0755'
+
+- name: "Find Claude config files (flat)"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/claude"
+    patterns: "*.json,*.md"
+    file_type: file
+    recurse: no
+  register: claude_files_flat
+
+- name: "Symlink Claude config files (flat)"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.claude/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ claude_files_flat.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: "item.path | basename != 'claude.json.template'"
+
+- name: "Find Claude config directories (recursive)"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/claude"
+    file_type: directory
+    recurse: no
+    patterns: "commands,templates"
+  register: claude_dirs
+
+- name: "Symlink Claude config directories (recursive)"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.claude/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ claude_dirs.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+
+- name: "Read Claude MCP configuration"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/claude/mcp-servers.json"
+  register: claude_mcp_config
+
+- name: "Parse MCP servers from configuration"
+  ansible.builtin.set_fact:
+    mcp_servers_config: "{{ (claude_mcp_config.content | b64decode | from_json).mcpServers }}"
+
+- name: "Install MCP servers for each Claude config"
+  ansible.builtin.shell: |
+    claude mcp add {{ item }} -s user -- {{ mcp_servers_config[item].command }} {{ mcp_servers_config[item].args | join(' ') }}
+  loop: "{{ mcp_servers_config.keys() | list }}"
+  register: mcp_install_result
+  failed_when: false
+  changed_when: mcp_install_result.rc == 0
+
+- name: "Display MCP server installation results"
+  ansible.builtin.debug:
+    msg: "{{ item.item }}: {{ 'Already installed' if item.rc != 0 else 'Newly installed' }}"
+  loop: "{{ mcp_install_result.results }}"
+  loop_control:
+    label: "{{ item.item }}"

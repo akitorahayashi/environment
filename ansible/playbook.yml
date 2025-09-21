@@ -18,4 +18,5 @@
     - { role: shell, tags: ['shell'] }
     - { role: vscode, tags: ['vscode'] }
     - { role: cursor, tags: ['cursor'] }
+    - { role: claude, tags: ['claude'] }
     - { role: system_defaults, tags: ['system_defaults'] }

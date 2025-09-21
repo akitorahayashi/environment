@@ -9,6 +9,8 @@
 ├── config/
 │   ├── common/
 │   │   ├── brew/
+│   │   ├── claude/
+│   │   ├── gh/
 │   │   ├── git/
 │   │   ├── nodejs/
 │   │   ├── python/
@@ -29,11 +31,14 @@
 │   ├── playbook.yml
 │   ├── roles/
 │   │   ├── brew/
+│   │   ├── claude/
 │   │   ├── cursor/
 │   │   ├── git/
 │   │   ├── java/
-│   │   ├── nodejs/
-│   │   ├── python/
+│   │   ├── nodejs-platform/
+│   │   ├── nodejs-tools/
+│   │   ├── python-platform/
+│   │   ├── python-tools/
 │   │   ├── ruby/
 │   │   ├── shell/
 │   │   ├── system_defaults/
@@ -162,3 +167,9 @@ This project uses Ansible to automate the setup of a complete development enviro
 10.  **Node.js Environment (`nodejs-platform` and `nodejs-tools` roles)**
     -   **Platform:** Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `.nvmrc`, installs it, and sets it as the default.
     -   **Tools:** Reads the `global-packages.json` file, parses the list of dependencies, and installs them globally using `pnpm install -g`. It also symlinks the `md-to-pdf-config.js` file to the home directory.
+
+11.  **Claude Code Environment (`claude` role)**
+    -   Creates the `~/.claude` directory for Claude Code configuration.
+    -   Symlinks configuration files (`CLAUDE.md`, `settings.json`) from `config/common/claude/` to `~/.claude/`.
+    -   Symlinks the `commands/` directory to `~/.claude/`.
+    -   Generates `~/claude.json` from template with MCP server configuration, using environment variables for API tokens (`GITHUB_PERSONAL_ACCESS_TOKEN`, `OBSIDIAN_API_KEY`).
