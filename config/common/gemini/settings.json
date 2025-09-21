@@ -1,0 +1,86 @@
+{
+  "general": {
+    "preferredEditor": "code",
+    "vimMode": false,
+    "checkpointing": {
+      "enabled": false
+    }
+  },
+  "ui": {
+    "theme": "GitHub",
+    "hideBanner": false,
+    "hideTips": false,
+    "showMemoryUsage": true,
+    "showLineNumbers": false,
+    "showCitations": true
+  },
+  "ide": {
+    "enabled": false,
+    "hasSeenNudge": true
+  },
+  "privacy": {
+    "usageStatisticsEnabled": false
+  },
+  "model": {
+    "name": "gemini-2.5-pro",
+    "maxSessionTurns": 20
+  },
+  "context": {
+    "fileName": [
+      "CLAUDE.md",
+      "AGENTS.md",
+      "GEMINI.md"
+    ],
+    "includeDirectories": [],
+    "loadFromIncludeDirectories": true,
+    "fileFiltering": {
+      "respectGitIgnore": true,
+      "respectGeminiIgnore": true,
+      "enableRecursiveFileSearch": true
+    }
+  },
+  "tools": {
+    "sandbox": false,
+    "exclude": []
+  },
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "advanced": {
+    "excludedEnvVars": []
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant"
+      ]
+    }
+  },
+  "telemetry": {
+    "enabled": false,
+    "target": "local",
+    "outfile": ".gemini/telemetry.log"
+  }
+}

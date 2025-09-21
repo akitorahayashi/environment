@@ -30,6 +30,8 @@ common:
   @just cmn-python-tools
   @just cmn-nodejs-platform
   @just cmn-nodejs-tools
+  @just cmn-claude
+  @just cmn-gemini
   @just cmn-cursor
   @just cmn-ruby
   @just cmn-java
@@ -103,6 +105,16 @@ cmn-vscode:
 cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
   @just _run_ansible "cursor" "{{config_common}}"
+
+# Setup Claude Code settings
+cmn-claude:
+  @echo "🚀 Running common Claude Code setup..."
+  @just _run_ansible "claude" "{{config_common}}"
+
+# Setup Gemini CLI settings
+cmn-gemini:
+  @echo "🚀 Running common Gemini CLI setup..."
+  @just _run_ansible "gemini" "{{config_common}}"
 
 # Install common GUI applications (casks)
 cmn-apps:

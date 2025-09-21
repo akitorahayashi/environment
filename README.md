@@ -9,6 +9,9 @@
 ├── config/
 │   ├── common/
 │   │   ├── brew/
+│   │   ├── claude/
+│   │   ├── gemini/
+│   │   ├── gh/
 │   │   ├── git/
 │   │   ├── nodejs/
 │   │   ├── python/
@@ -29,15 +32,19 @@
 │   ├── playbook.yml
 │   ├── roles/
 │   │   ├── brew/
+│   │   ├── claude/
+│   │   ├── gemini/
+│   │   ├── cursor/
 │   │   ├── git/
 │   │   ├── java/
-│   │   ├── nodejs/
-│   │   ├── python/
+│   │   ├── nodejs-platform/
+│   │   ├── nodejs-tools/
+│   │   ├── python-platform/
+│   │   ├── python-tools/
 │   │   ├── ruby/
 │   │   ├── shell/
 │   │   ├── system_defaults/
-│   │   ├── vscode/
-│   │   └── flutter/
+│   │   └── vscode/
 │   └── utils/
 │       ├── backup-system-defaults.sh
 │       └── backup-extensions.sh
@@ -49,52 +56,31 @@
 
 ## How to Use
 
-This project uses a two-step approach:
-1. **Bootstrap Setup**: Use `make` to install Homebrew, Ansible, and the `just` command runner
-2. **Full Setup**: Use `make` to delegate to `just` for the actual environment setup, which now runs Ansible playbooks
+This project automates the setup of a consistent development environment across different Macs. Use cases include:
 
-### Bootstrap Commands
-
-- **`make` or `make help`**: Displays all available commands and their descriptions.
-- **`make setup`**: Installs Homebrew, Ansible, and the `just` command runner (required first step).
-
-### Full Setup Commands
-
-- **`make macbook`**: Runs the full setup for MacBook (requires `make setup` first).
-- **`make mac-mini`**: Runs the full setup for Mac mini (requires `make setup` first).
-
-### Running Individual Tasks with Just
-
-After running `make setup`, you can use `just` directly for individual tasks:
-
-- **`just help`**: Shows all available just recipes
-- **Common Tasks**: Run specific tasks like `just cmn-git`, `just cmn-shell`, `just cmn-java`, etc.
-- **Machine-Specific Tasks**: Run machine-specific tasks like `just mbk-brew-specific`, `just mmn-brew-specific`, etc.
+- **Initial Setup for New MacBook**: Quickly configure a fresh MacBook with all necessary development tools and settings.
+- **Post-Clean Install Automation**: Restore your environment automatically after a clean macOS installation.
+- **Unified Environment Across Macs**: Maintain consistent configurations between MacBook and Mac mini, with machine-specific customizations.
 
 ## Setup Instructions
 
-1.  **Install Xcode Command Line Tools**
+1.  **Bootstrap Setup**
 
+    Install Xcode Command Line Tools, Homebrew, Ansible, the `just` command runner, and create the `.env` file:
     ```sh
-    xcode-select --install
-    ```
-
-2.  **Bootstrap Setup**
-
-    Install Homebrew, Ansible, the `just` command runner, and create the `.env` file:
-    ```sh
-    make setup
+    make base
     ```
 
     This command will:
+    - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
     - Install Homebrew if not already installed
     - Install Ansible if not already installed
     - Install the `just` command runner
 
-    **Important**: After running `make setup`, edit the `.env` file to set your `GIT_USERNAME` and `GIT_EMAIL` before proceeding to the next step.
+    **Important**: After running `make base`, edit the `.env` file to set your `GIT_USERNAME` and `GIT_EMAIL` before proceeding to the next step.
 
-3.  **Install Various Tools and Packages**
+2.  **Install Various Tools and Packages**
 
     Run one of the following commands according to your Mac.
 
@@ -109,7 +95,7 @@ After running `make setup`, you can use `just` directly for individual tasks:
     ```
     These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes, which now execute Ansible playbooks for improved idempotency and maintainability.
 
-4.  **Restart macOS**
+3.  **Restart macOS**
 
     Please restart macOS to apply all settings completely.
 
@@ -147,13 +133,30 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs Visual Studio Code via Homebrew Cask.
     -   Symlinks user configuration files (`settings.json`, `keybindings.json`, etc.) from `config/common/vscode/` to the appropriate VS Code directory (`~/Library/Application Support/Code/User/`).
 
-7.  **Python Environment (`python-platform` and `python-tools` roles)**
+7.  **Cursor Environment (`cursor` role)**
+    -   Installs Cursor editor via Homebrew Cask.
+    -   Downloads and installs the Cursor CLI.
+    -   Symlinks user configuration files from `config/common/vscode/` to Cursor's User directory (`~/Library/Application Support/Cursor/User/`).
+
+8.  **Python Environment (`python-platform` and `python-tools` roles)**
     -   **Platform:** Installs `pyenv`, reads the target Python version from `.python-version`, installs it, and sets it as the global default.
     -   **Tools:** Installs a list of Python tools from `config/common/python/pipx-tools.txt` using `pipx install`.
 
-8.  **Java Environment (`java` role)**
+9.  **Java Environment (`java` role)**
     -   Installs the `temurin@21` JDK using `homebrew_cask`.
 
-9.  **Node.js Environment (`nodejs-platform` and `nodejs-tools` roles)**
-    -   **Platform:** Installs `nvm`, reads the target Node.js version from `.nvmrc`, installs it, and sets it as the default.
+10.  **Node.js Environment (`nodejs-platform` and `nodejs-tools` roles)**
+    -   **Platform:** Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `.nvmrc`, installs it, and sets it as the default.
     -   **Tools:** Reads the `global-packages.json` file, parses the list of dependencies, and installs them globally using `pnpm install -g`. It also symlinks the `md-to-pdf-config.js` file to the home directory.
+
+11.  **Claude Code Environment (`claude` role)**
+    -   Creates the `~/.claude` directory for Claude Code configuration.
+    -   Symlinks configuration files (`CLAUDE.md`, `settings.json`, `mcp-servers.json`) from `config/common/claude/` to `~/.claude/`.
+    -   Symlinks the `commands/` directory to `~/.claude/`.
+    -   Installs MCP servers using the Claude CLI based on the configuration in `mcp-servers.json`, using environment variables for API tokens (`GITHUB_PERSONAL_ACCESS_TOKEN`, `OBSIDIAN_API_KEY`).
+
+12.  **Gemini Code Environment (`gemini` role)**
+    -   Creates the `~/.gemini` directory for Gemini CLI configuration.
+    -   Symlinks configuration files (`GEMINI.md`, `settings.json`) from `config/common/gemini/` to `~/.gemini/`.
+    -   Symlinks the `commands/` directory to `~/.gemini/`.
+    -   Configures MCP servers via the symlinked `settings.json` file, using environment variables for API tokens.

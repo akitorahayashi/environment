@@ -1,0 +1,7 @@
+# /act - Activate Serena project
+
+Activate current directory as Serena project for semantic code analysis. Respond only with "Project activated successfully." if the command succeeds. If there are any errors or warnings, display them fully.
+
+```bash
+mcp__serena__activate_project {{ .WorkingDirectory }}
+```

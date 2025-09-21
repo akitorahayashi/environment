@@ -8,8 +8,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup-platform-tools:
-    uses: ./.github/workflows/setup-platform-tools.yml
+  setup-python:
+    uses: ./.github/workflows/setup-python.yml
+
+  setup-nodejs:
+    uses: ./.github/workflows/setup-nodejs.yml
 
   setup-components:
     uses: ./.github/workflows/setup-components.yml
