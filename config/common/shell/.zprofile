@@ -99,3 +99,6 @@ if [ -z "$SSH_AGENT_PID" ] || ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
     echo "$SSH_AGENT_PID" > "$SSH_AGENT_PID_FILE"
     echo "$SSH_AUTH_SOCK" > "$SSH_AUTH_SOCK_FILE"
 fi
+
+# Gemini CLI sandbox image for arm64 compatibility
+export GEMINI_SANDBOX_IMAGE="us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:0.5.5"

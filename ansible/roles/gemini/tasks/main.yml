@@ -1,0 +1,98 @@
+---
+- name: "Ensure Gemini CLI User directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gemini"
+    state: directory
+    mode: '0755'
+
+- name: "Find Gemini config files (flat)"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/gemini"
+    patterns: "*.json,*.md"
+    file_type: file
+    recurse: no
+  register: gemini_files_flat
+
+- name: "Symlink Gemini config files (flat)"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.gemini/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ gemini_files_flat.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+
+- name: "Find Gemini config directories (recursive)"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/gemini"
+    file_type: directory
+    recurse: no
+  register: gemini_dirs
+
+- name: "Symlink Gemini config directories (recursive)"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.gemini/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ gemini_dirs.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: gemini_dirs.files is defined
+
+- name: "Check if Gemini CLI is available"
+  ansible.builtin.command: which gemini
+  register: gemini_cli_check
+  failed_when: false
+  changed_when: false
+
+- name: "Read Gemini settings configuration"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/gemini/settings.json"
+  register: gemini_settings_config
+  when: gemini_cli_check.rc == 0
+
+- name: "Parse MCP servers from Gemini configuration"
+  ansible.builtin.set_fact:
+    gemini_mcp_servers_config: "{{ (gemini_settings_config.content | b64decode | from_json).mcpServers }}"
+  when: gemini_cli_check.rc == 0 and gemini_settings_config is defined
+
+- name: "MCP servers configured via settings.json"
+  ansible.builtin.debug:
+    msg: "MCP servers ({{ gemini_mcp_servers_config.keys() | join(', ') }}) are configured via settings.json symlink"
+  when: gemini_cli_check.rc == 0 and gemini_mcp_servers_config is defined
+
+- name: "Warning if Gemini CLI not available"
+  ansible.builtin.debug:
+    msg: "Gemini CLI not found. Configuration files symlinked but MCP servers not installed via CLI."
+  when: gemini_cli_check.rc != 0
+
+- name: "Verify Gemini MCP server health"
+  ansible.builtin.shell: |
+    timeout 10 gemini mcp list | grep {{ item }} || echo "{{ item }}: unavailable"
+  loop: "{{ gemini_mcp_servers_config.keys() | list }}"
+  register: gemini_mcp_health_check
+  failed_when: false
+  changed_when: false
+  when: gemini_cli_check.rc == 0 and gemini_mcp_servers_config is defined
+
+- name: "Display Gemini MCP server health status"
+  ansible.builtin.debug:
+    msg: "{{ item.stdout }}"
+  loop: "{{ gemini_mcp_health_check.results }}"
+  loop_control:
+    label: "Health check for {{ item.item }}"
+  when: gemini_cli_check.rc == 0 and gemini_mcp_health_check is defined
+
+- name: "Build Gemini custom Docker image"
+  community.docker.docker_image:
+    name: gemini-sandbox
+    tag: latest
+    source: build
+    build:
+      path: "{{ config_dir_abs_path }}/gemini"
+      dockerfile: Dockerfile.gemini-sandbox
+      platform: linux/amd64
+    state: present
+  when: ansible_facts.services['docker'] is defined and ansible_facts.services['docker'].status == 'active'
