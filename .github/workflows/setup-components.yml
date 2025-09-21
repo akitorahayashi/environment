@@ -15,6 +15,7 @@ jobs:
           - java
           - cursor
           - claude
+          - gemini
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

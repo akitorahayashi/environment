@@ -8,7 +8,9 @@
 - name: "Find Gemini config files (flat)"
   ansible.builtin.find:
     paths: "{{ config_dir_abs_path }}/gemini"
-    patterns: "*.json,*.md"
+    patterns:
+      - "*.json"
+      - "*.md"
     file_type: file
     recurse: no
   register: gemini_files_flat

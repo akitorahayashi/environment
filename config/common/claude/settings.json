@@ -19,13 +19,10 @@
       "mcp__serena__find_symbol",
       "mcp__serena__get_current_config",
       "mcp__serena__get_symbols_overview",
-      "mcp__serena__insert_after_symbol",
-      "mcp__serena__insert_before_symbol",
       "mcp__serena__list_dir",
       "mcp__serena__list_memories",
       "mcp__serena__onboarding",
       "mcp__serena__read_memory",
-      "mcp__serena__replace_symbol_body",
       "mcp__serena__search_for_pattern",
       "mcp__serena__think_about_collected_information",
       "mcp__serena__think_about_task_adherence",
@@ -39,6 +36,10 @@
       "Bash(less:*)",
       "Bash(more:*)"
     ],
-    "ask": []
+    "ask": [
+      "mcp__serena__insert_after_symbol",
+      "mcp__serena__insert_before_symbol",
+      "mcp__serena__replace_symbol_body"
+    ]
   }
 }

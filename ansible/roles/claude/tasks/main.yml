@@ -8,7 +8,9 @@
 - name: "Find Claude config files (flat)"
   ansible.builtin.find:
     paths: "{{ config_dir_abs_path }}/claude"
-    patterns: "*.json,*.md"
+    patterns:
+      - "*.json"
+      - "*.md"
     file_type: file
     recurse: no
   register: claude_files_flat
@@ -22,7 +24,6 @@
   loop: "{{ claude_files_flat.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
-  when: "item.path | basename != 'claude.json.template'"
 
 - name: "Find Claude config directories (recursive)"
   ansible.builtin.find:
@@ -52,12 +53,12 @@
     mcp_servers_config: "{{ (claude_mcp_config.content | b64decode | from_json).mcpServers }}"
 
 - name: "Install MCP servers for each Claude config"
-  ansible.builtin.shell: |
-    claude mcp add {{ item }} -s user -- {{ mcp_servers_config[item].command }} {{ mcp_servers_config[item].args | join(' ') }}
+  ansible.builtin.command:
+    argv: "{{ ['claude','mcp','add', item, '-s','user','--', mcp_servers_config[item].command] + (mcp_servers_config[item].args | default([])) }}"
   loop: "{{ mcp_servers_config.keys() | list }}"
   register: mcp_install_result
   failed_when: false
-  changed_when: mcp_install_result.rc == 0
+  changed_when: rc == 0
 
 - name: "Display MCP server installation results"
   ansible.builtin.debug:
