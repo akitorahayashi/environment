@@ -1,0 +1,32 @@
+name: Setup Node.js and AI Tools
+
+on:
+  workflow_call:
+
+jobs:
+  setup-nodejs:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make base
+
+      - name: Run nodejs-platform setup
+        run: just cmn-nodejs-platform
+
+      - name: Run cmn-nodejs-tools setup
+        run: just cmn-nodejs-tools
+
+      - name: Run mbk-nodejs-tools setup
+        run: just mbk-nodejs-tools
+
+      - name: Run mmn-nodejs-tools setup
+        run: just mmn-nodejs-tools
+
+      - name: Run cmn-claude setup
+        run: just cmn-claude
+
+      - name: Run cmn-gemini setup
+        run: just cmn-gemini

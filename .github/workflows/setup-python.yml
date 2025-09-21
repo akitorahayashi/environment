@@ -1,0 +1,27 @@
+name: Setup Python
+
+on:
+  workflow_call:
+
+jobs:
+  setup-python:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make base
+
+      - name: Run python-platform setup
+        run: just cmn-python-platform
+
+      - name: Run cmn-python-tools setup
+        run: just cmn-python-tools
+
+      - name: Run mbk-python-tools setup
+        run: just mbk-python-tools
+
+      - name: Run mmn-python-tools setup
+        run: just mmn-python-tools
+        

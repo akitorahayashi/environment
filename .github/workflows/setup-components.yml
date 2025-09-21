@@ -14,14 +14,12 @@ jobs:
           - ruby
           - java
           - cursor
-          - claude
-          - gemini
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Homebrew and just
-        run: make setup
+        run: make base
 
       - name: Setup ${{ matrix.component }}
         run: just cmn-${{ matrix.component }}
