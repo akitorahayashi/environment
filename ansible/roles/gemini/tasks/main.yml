@@ -28,6 +28,7 @@
     paths: "{{ config_dir_abs_path }}/gemini"
     file_type: directory
     recurse: no
+    patterns: "commands"
   register: gemini_dirs
 
 - name: "Symlink Gemini config directories (recursive)"

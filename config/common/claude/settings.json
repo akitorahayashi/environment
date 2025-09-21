@@ -34,12 +34,8 @@
       "Bash(make:*)"
     ],
     "deny": [
-      "Read",
       "Glob",
       "Grep",
-      "Bash(cat:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
       "Bash(less:*)",
       "Bash(more:*)"
     ],
