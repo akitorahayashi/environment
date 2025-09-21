@@ -8,6 +8,8 @@ alias gmn-fl="gemini -m gemini-2.5-flash"
 
 # Want to use cheaply, fast, and in large quantities
 alias gmn-lt="gemini -m gemini-2.5-flash-lite"
+alias gmn-lt-p="gemini -m gemini-2.5-flash-lite -p"
+alias gmn-lt-a-p="gemini -a -m gemini-2.5-flash-lite -p"
 
 # When you want to generate images or have image-attached conversations
 alias gmn-i="gemini -m gemini-2.5-flash-image-preview"
