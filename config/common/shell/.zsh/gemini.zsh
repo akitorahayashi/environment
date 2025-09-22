@@ -1,46 +1,35 @@
 alias gm="gemini"
 
-# Function to generate gemini aliases automatically
-gm_alias() {
-    local model suffix prefix="gm"
-
-    while getopts "m:t:a:" opt; do
-        case $opt in
-            m) model="$OPTARG" ;;
-            t) suffix="$OPTARG" ;;
-            a) prefix="$OPTARG" ;;
-            *) echo "Invalid option: -$opt"; return 1 ;;
-        esac
-    done
-
-    if [[ -z "$model" || -z "$suffix" ]]; then
-        echo "Usage: gm_alias -m <model> -t <suffix> [-a <prefix>]"
-        return 1
-    fi
-
-    # Generate base alias if prefix is specified
-    if [[ -n "$prefix" ]]; then
-        alias ${prefix}="gemini"
-    fi
-
-    # Generate aliases
-    alias ${prefix}-${suffix}="gemini -m $model"
-    alias ${prefix}-${suffix}-y="gemini -m $model -y"
-    alias ${prefix}-${suffix}-p="gemini -m $model -p"
-    alias ${prefix}-${suffix}-a-p="gemini -a -m $model -p"
-}
-
 # Highest performance
-gm_alias -m "gemini-2.5-pro" -t "pr"
+alias gm-pr="gemini -m gemini-2.5-pro"
+alias gm-pr-y="gemini -m gemini-2.5-pro -y"
+alias gm-pr-p="gemini -m gemini-2.5-pro -p"
+alias gm-pr-a-p="gemini -a -m gemini-2.5-pro -p"
 
 # Cost-performance balance priority
-gm_alias -m "gemini-2.5-flash" -t "fl"
+alias gm-fl="gemini -m gemini-2.5-flash"
+alias gm-fl-y="gemini -m gemini-2.5-flash -y"
+alias gm-fl-p="gemini -m gemini-2.5-flash -p"
+alias gm-fl-a-p="gemini -a -m gemini-2.5-flash -p"
 
-# Lightweight 
-gm_alias -m "gemini-2.5-flash-lite" -t "lt" -a "gm"
+# Lightweight
+alias gm-lt="gemini -m gemini-2.5-flash-lite"
+alias gm-lt-y="gemini -m gemini-2.5-flash-lite -y"
+alias gm-lt-p="gemini -m gemini-2.5-flash-lite -p"
+alias gm-lt-a-p="gemini -a -m gemini-2.5-flash-lite -p"
 
-# When you want to generate images or have image-attached conversations
-gm_alias -m "gemini-2.5-flash-image-preview" -t "i"
+# Image generation
+alias gm-i="gemini -m gemini-2.5-flash-image-preview"
+alias gm-i-y="gemini -m gemini-2.5-flash-image-preview -y"
+alias gm-i-p="gemini -m gemini-2.5-flash-image-preview -p"
+alias gm-i-a-p="gemini -a -m gemini-2.5-flash-image-preview -p"
+
+# Image generation with live preview
+alias gm-il="gemini -m gemini-2.5-flash-image-live-preview"
+alias gm-il-y="gemini -m gemini-2.5-flash-image-live-preview -y"
+alias gm-il-p="gemini -m gemini-2.5-flash-image-live-preview -p"
+alias gm-il-a-p="gemini -a -m gemini-2.5-flash-image-live-preview -p"
+
 # gemini command options
 # -p, --prompt: Specify a prompt. Appended to input on stdin (if any). Used in non-interactive mode.
 # -a, --all-files: Include ALL files in context?

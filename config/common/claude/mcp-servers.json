@@ -26,8 +26,6 @@
         "start-mcp-server",
         "--context",
         "ide-assistant",
-        "--project",
-        "$(pwd)",
         "--enable-web-dashboard",
         "false",
         "--enable-gui-log-window",
