@@ -15,10 +15,10 @@ jobs:
       - name: Setup Homebrew and just
         run: make base
 
-      - name: Setup Docker Desktop
-        uses: crazy-max/ghaction-setup-docker@v3
-        with:
-          version: latest
+      - name: Install Colima + Docker
+        run: |
+          brew install colima docker
+          colima start --cpu 2 --memory 4 --disk 10
 
       - name: Pull Docker images
         run: just cmn-docker-images
