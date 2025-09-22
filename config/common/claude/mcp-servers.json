@@ -33,6 +33,25 @@
         "--log-level",
         "CRITICAL"
       ]
+    },
+    "youtube": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anaisbetts/mcp-youtube"
+      ]
+    },
+    "markitdown": {
+      "command": "uvx",
+      "args": [
+        "markitdown-mcp"
+      ]
+    },
+    "voicevox": {
+      "command": "npx",
+      "args": [
+        "@t09tanaka/mcp-simple-voicevox"
+      ]
     }
   }
 }

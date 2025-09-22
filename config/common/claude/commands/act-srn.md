@@ -1,3 +1,3 @@
-# /act - Activate Serena project
+# /act-srn - Activate Serena project
 
 Activate current directory as a project for semantic code analysis using the `activate_project` tool with the current working directory as the `project` argument. Respond only with "Project activated successfully." if the command succeeds. If there are any errors or warnings, display them fully.
