@@ -1,7 +1,10 @@
 {
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "context7",
     "serena"
   ],
-  "enableAllProjectMcpServers": true
+  "permissions": {
+    "allow": []
+  }
 }

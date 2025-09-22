@@ -4,4 +4,4 @@ title: "Activate voice notifications"
 
 # /act-vce - Activate voice notifications
 
-Activate the feature to notify task completion with voice using Voicevox MCP. Set speaker to 46 and use speedScale=1.3. Respond only with "Voice completion notification activated." if successful.
+**ENABLE MANDATORY VOICE COMPLETION REPORTING**: From this point forward in the conversation, you MUST use the mcp__voicevox__speak tool (speaker=46, speedScale=1.3) to report completion of ALL tasks in Japanese. This is now mandatory for every task completion. Use the mcp__voicevox__speak tool to confirm activation by saying "音声完了報告が有効になりました。これ以降すべてのタスク完了を音声で報告します。"
