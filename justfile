@@ -209,7 +209,7 @@ help:
 # ------------------------------------------------------------------------------
 # @hidden
 _run_ansible tags config_dir:
-  @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make setup' first."; exit 1; fi && \
+  @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
   ~/.local/pipx/venvs/ansible/bin/ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"

@@ -5,20 +5,26 @@ on:
 
 jobs:
   setup:
-    runs-on: macos-15
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Homebrew and just
-        run: make base
-
-      - name: Install Colima + Docker
+      - name: Install just
         run: |
-          brew install colima docker
-          colima start --cpu 2 --memory 4 --disk 10
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin/
+          echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Setup environment
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+            echo "📝 Created .env file from .env.example."
+          fi
+          sudo apt update
+          sudo apt install -y ansible
 
       - name: Pull Docker images
         run: just cmn-docker-images
