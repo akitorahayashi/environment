@@ -21,7 +21,6 @@
 - **Prompt**: Instructions for AI
 - **Argument Passing**: `{{args}}` placeholder
   - Raw replacement: Used directly in text
-  - Shell replacement: Executed with escaping using `!{{{args}}}`
 - **Usage Example**: `/cmd arg1 arg2` → args = "arg1 arg2"
 
 ## Common Patterns
