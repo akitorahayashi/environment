@@ -27,8 +27,6 @@
   },
   "context": {
     "fileName": [
-      "CLAUDE.md",
-      "AGENTS.md",
       "GEMINI.md"
     ],
     "includeDirectories": [],
@@ -74,7 +72,13 @@
         "serena",
         "start-mcp-server",
         "--context",
-        "ide-assistant"
+        "ide-assistant",
+        "--enable-web-dashboard",
+        "false",
+        "--enable-gui-log-window",
+        "false",
+        "--log-level",
+        "CRITICAL"
       ]
     }
   },
