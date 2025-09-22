@@ -6,8 +6,9 @@ Respond only with 'Project activated successfully.' if the command succeeds. If 
 
 ## Serena Usage Guidelines
 
-Use Serena MCP for cross-file analysis and investigation. 
-For single-file edits, use default tools for better precision. 
-Document long-term knowledge in static files (CLAUDE.md, README.md). 
+Use Serena MCP for cross-file analysis and investigation.
+For single-file edits, use default tools for better precision.
+Document long-term knowledge in static files (CLAUDE.md, README.md).
 Use Serena's memory for dynamic, project-specific information.
+All memory content must be written in English only, regardless of the user's language preference.
 """
