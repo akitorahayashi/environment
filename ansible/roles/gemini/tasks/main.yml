@@ -87,15 +87,3 @@
   loop_control:
     label: "Health check for {{ item.item }}"
   when: gemini_cli_check.rc == 0 and gemini_mcp_health_check is defined
-
-- name: "Build Gemini custom Docker image"
-  community.docker.docker_image:
-    name: gemini-sandbox
-    tag: latest
-    source: build
-    build:
-      path: "{{ config_dir_abs_path }}/gemini"
-      dockerfile: Dockerfile.gemini-sandbox
-      platform: linux/amd64
-    state: present
-  when: ansible_facts.services['docker'] is defined and ansible_facts.services['docker'].status == 'active'
