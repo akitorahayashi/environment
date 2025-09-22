@@ -22,3 +22,4 @@
     - { role: gemini, tags: ['gemini'] }
     - { role: mcp, tags: ['mcp'] }
     - { role: system, tags: ['system'] }
+    - { role: docker, tags: ['docker'] }

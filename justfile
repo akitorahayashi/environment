@@ -139,11 +139,8 @@ cmn-apps:
 
 # Pull Docker images
 cmn-docker-images:
-  @echo "🚀 Pulling Docker images..."
-  @for image in $$(cat config/common/docker/images.txt); do \
-    echo "Pulling $$image..."; \
-    docker pull $$image; \
-  done
+  @echo "🚀 Checking/verifying Docker images..."
+  @just _run_ansible "docker" "{{config_common}}"
 
 # ------------------------------------------------------------------------------
 # MacBook-Specific Recipes

@@ -1,0 +1,24 @@
+name: Setup Docker
+
+on:
+  workflow_call:
+
+jobs:
+  setup:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make base
+
+      - name: Setup Docker Desktop
+        uses: crazy-max/ghaction-setup-docker@v3
+        with:
+          version: latest
+
+      - name: Pull Docker images
+        run: just cmn-docker-images

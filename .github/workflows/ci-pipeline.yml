@@ -31,3 +31,6 @@ jobs:
   setup-system:
     uses: ./.github/workflows/setup-system.yml
 
+  setup-docker:
+    uses: ./.github/workflows/setup-docker.yml
+
