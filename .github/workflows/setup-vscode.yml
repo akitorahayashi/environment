@@ -6,6 +6,8 @@ on:
 jobs:
   setup-vscode:
     runs-on: macos-15
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
