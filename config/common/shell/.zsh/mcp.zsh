@@ -99,7 +99,7 @@ mcp-ls() {
                 full_command="$command $args"
             fi
 
-            echo "【$mcp_name】"
+            echo "[$mcp_name]"
             echo "$full_command"
 
             # Try to get description from servers.json
@@ -111,7 +111,7 @@ mcp-ls() {
             fi
             echo ""
         else
-            echo "【$mcp_name】: No command found"
+            echo "[$mcp_name]: No command found"
             echo ""
         fi
     done
