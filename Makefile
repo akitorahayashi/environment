@@ -86,9 +86,9 @@ mac-mini: ## Runs the full setup for a Mac mini (requires 'base' to be run first
 	@just mmn-python-tools
 	@echo "✅ Mac mini full setup completed successfully."
 
-.PHONY: defaults-backup
-defaults-backup: ## Backup current macOS system defaults
-	@just cmn-backup-defaults
+.PHONY: system-backup
+system-backup: ## Backup current macOS system defaults
+	@just cmn-backup-system
 
 .PHONY: vscode-extensions-backup
 vscode-extensions-backup: ## Backup current VSCode extensions
