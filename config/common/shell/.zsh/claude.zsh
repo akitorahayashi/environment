@@ -1,7 +1,7 @@
-alias cld="claude"
+alias cd="claude"
 
 # Update Claude MCP servers configuration
-cld-u-mcp() {
+cd-u-mcp() {
   local mcp_config_file="$1"
   local claude_config_file="${HOME}/.claude.json"
 
