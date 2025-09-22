@@ -161,3 +161,11 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Symlinks configuration files (`GEMINI.md`, `settings.json`) from `config/common/gemini/` to `~/.gemini/`.
     -   Symlinks the `commands/` directory to `~/.gemini/`.
     -   Configures MCP servers via the symlinked `settings.json` file, using environment variables for API tokens.
+
+### Manual Execution Options
+
+Some tasks can be run manually after the initial setup:
+
+- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
+- **Install common GUI applications**: `just cmn-apps` - Installs common GUI applications via Homebrew Cask.
+- **Install Mac Mini-specific GUI applications**: `just mmn-apps` - Installs Mac Mini-specific GUI applications via Homebrew Cask.

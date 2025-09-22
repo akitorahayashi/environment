@@ -132,6 +132,14 @@ cmn-apps:
     rectangle \
     cursor
 
+# Pull Docker images
+cmn-docker-images:
+  @echo "🚀 Pulling Docker images..."
+  @for image in $$(cat config/common/docker/images.txt); do \
+    echo "Pulling $$image..."; \
+    docker pull $$image; \
+  done
+
 # ------------------------------------------------------------------------------
 # MacBook-Specific Recipes
 # ------------------------------------------------------------------------------
