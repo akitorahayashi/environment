@@ -56,34 +56,7 @@
   register: gemini_settings_config
   when: gemini_cli_check.rc == 0
 
-- name: "Parse MCP servers from Gemini configuration"
-  ansible.builtin.set_fact:
-    gemini_mcp_servers_config: "{{ (gemini_settings_config.content | b64decode | from_json).mcpServers }}"
-  when: gemini_cli_check.rc == 0 and gemini_settings_config is defined
-
-- name: "MCP servers configured via settings.json"
-  ansible.builtin.debug:
-    msg: "MCP servers ({{ gemini_mcp_servers_config.keys() | join(', ') }}) are configured via settings.json symlink"
-  when: gemini_cli_check.rc == 0 and gemini_mcp_servers_config is defined
-
 - name: "Warning if Gemini CLI not available"
   ansible.builtin.debug:
     msg: "Gemini CLI not found. Configuration files symlinked but MCP servers not installed via CLI."
   when: gemini_cli_check.rc != 0
-
-- name: "Verify Gemini MCP server health"
-  ansible.builtin.shell: |
-    timeout 10 gemini mcp list | grep {{ item }} || echo "{{ item }}: unavailable"
-  loop: "{{ gemini_mcp_servers_config.keys() | list }}"
-  register: gemini_mcp_health_check
-  failed_when: false
-  changed_when: false
-  when: gemini_cli_check.rc == 0 and gemini_mcp_servers_config is defined
-
-- name: "Display Gemini MCP server health status"
-  ansible.builtin.debug:
-    msg: "{{ item.stdout }}"
-  loop: "{{ gemini_mcp_health_check.results }}"
-  loop_control:
-    label: "Health check for {{ item.item }}"
-  when: gemini_cli_check.rc == 0 and gemini_mcp_health_check is defined
