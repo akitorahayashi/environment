@@ -59,22 +59,18 @@ gm-ini() {
     # Copy project-specific files only
     if [ -f ~/.gemini/settings.json ]; then
         cp ~/.gemini/settings.json .gemini/settings.json
-        echo "✅ Copied settings.json"
     fi
 
     if [ -d ~/.gemini/commands ] && [ "$(ls -A ~/.gemini/commands)" ]; then
         cp ~/.gemini/commands/* .gemini/commands/
-        echo "✅ Copied custom commands"
     fi
 
     if [ -f ~/.gemini/GEMINI.md ]; then
         cp ~/.gemini/GEMINI.md .gemini/GEMINI.md
-        echo "✅ Copied GEMINI.md"
     fi
 
     if [ -f ~/.gemini/sandbox.Dockerfile ]; then
         cp ~/.gemini/sandbox.Dockerfile .gemini/sandbox.Dockerfile
-        echo "✅ Copied sandbox.Dockerfile"
     fi
 
     echo "✅ Initialized project-specific .gemini configuration"

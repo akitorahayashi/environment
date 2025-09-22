@@ -27,17 +27,14 @@ cld-ini() {
     # Copy project-specific files only
     if [ -d ~/.claude/commands ] && [ "$(ls -A ~/.claude/commands)" ]; then
         cp ~/.claude/commands/* .claude/commands/
-        echo "✅ Copied custom commands"
     fi
 
     if [ -f ~/.claude/settings.json ]; then
         cp ~/.claude/settings.json .claude/settings.json
-        echo "✅ Copied settings.json"
     fi
 
     if [ -f ~/.claude/CLAUDE.md ]; then
         cp ~/.claude/CLAUDE.md .claude/CLAUDE.md
-        echo "✅ Copied CLAUDE.md"
     fi
 
     echo "✅ Initialized project-specific .claude configuration"

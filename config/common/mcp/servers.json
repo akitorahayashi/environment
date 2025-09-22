@@ -38,6 +38,7 @@
       "description": "Professional coding agent with semantic tools for intelligent codebase analysis"
     },
     "youtube": {
+      "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
@@ -46,6 +47,7 @@
       "description": "Downloads YouTube subtitles and video content for analysis"
     },
     "markitdown": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "markitdown-mcp"
@@ -53,22 +55,26 @@
       "description": "Converts various file formats (PDF, Word, etc.) to markdown"
     },
     "voicevox": {
+      "type": "stdio",
       "command": "npx",
       "args": [
+        "-y",
         "@t09tanaka/mcp-simple-voicevox"
       ],
       "description": "Japanese text-to-speech synthesis using VOICEVOX engine"
     },
     "arxiv-mcp-server": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "arxiv-mcp-server",
         "--storage-path",
-        "/Users/akitorahayashi/envi/papers"
+        "/path/to/papers"
       ],
       "description": "Allows searching for and downloading papers. Downloaded papers are saved in Markdown format."
     },
     "sequentialthinking": {
+      "type": "stdio",
       "command": "docker",
       "args": [
         "run",
