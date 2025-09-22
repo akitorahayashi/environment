@@ -25,15 +25,6 @@
         "--log-level",
         "CRITICAL"
       ]
-    },
-    "voicevox": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@t09tanaka/mcp-simple-voicevox"
-      ],
-      "description": "Japanese text-to-speech synthesis using VOICEVOX engine"
     }
   },
   "general": {

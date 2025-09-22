@@ -30,8 +30,8 @@ common:
   @just cmn-python-tools
   @just cmn-nodejs-platform
   @just cmn-nodejs-tools
-  @just cmn-claude
-  @just cmn-gemini
+  @just cmn-cld
+  @just cmn-gm
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-ruby
@@ -108,12 +108,12 @@ cmn-cursor:
   @just _run_ansible "cursor" "{{config_common}}"
 
 # Setup Claude Code settings
-cmn-claude:
+cmn-cld:
   @echo "🚀 Running common Claude Code setup..."
   @just _run_ansible "claude" "{{config_common}}"
 
 # Setup Gemini CLI settings
-cmn-gemini:
+cmn-gm:
   @echo "🚀 Running common Gemini CLI setup..."
   @just _run_ansible "gemini" "{{config_common}}"
 
