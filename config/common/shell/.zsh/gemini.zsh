@@ -41,8 +41,8 @@ alias gm-il-a-p="gemini -a -m gemini-2.5-flash-image-live-preview -p"
 # -y, --yolo: Automatically accept all actions (aka YOLO mode).
 
 # Gemini Configuration Management
-# Copy ~/.gemini directory to current directory for local configuration
-gemini-lk() {
+# Initialize project-specific Gemini configuration
+gm-ini() {
     if [ ! -d ~/.gemini ]; then
         echo "Error: ~/.gemini directory not found"
         return 1
@@ -53,6 +53,29 @@ gemini-lk() {
         return 1
     fi
 
-    cp -r ~/.gemini .gemini
-    echo "✅ Created .gemini directory in current directory from ~/.gemini"
+    # Create .gemini directory
+    mkdir -p .gemini/commands
+
+    # Copy project-specific files only
+    if [ -f ~/.gemini/settings.json ]; then
+        cp ~/.gemini/settings.json .gemini/settings.json
+        echo "✅ Copied settings.json"
+    fi
+
+    if [ -d ~/.gemini/commands ] && [ "$(ls -A ~/.gemini/commands)" ]; then
+        cp ~/.gemini/commands/* .gemini/commands/
+        echo "✅ Copied custom commands"
+    fi
+
+    if [ -f ~/.gemini/GEMINI.md ]; then
+        cp ~/.gemini/GEMINI.md .gemini/GEMINI.md
+        echo "✅ Copied GEMINI.md"
+    fi
+
+    if [ -f ~/.gemini/sandbox.Dockerfile ]; then
+        cp ~/.gemini/sandbox.Dockerfile .gemini/sandbox.Dockerfile
+        echo "✅ Copied sandbox.Dockerfile"
+    fi
+
+    echo "✅ Initialized project-specific .gemini configuration"
 }

@@ -6,7 +6,8 @@
       "args": [
         "-y",
         "@upstash/context7-mcp@latest"
-      ]
+      ],
+      "description": "Retrieves up-to-date documentation and code examples for any library"
     },
     "playwright": {
       "type": "stdio",
@@ -14,7 +15,8 @@
       "args": [
         "-y",
         "@playwright/mcp@latest"
-      ]
+      ],
+      "description": "Web automation and testing framework for browser interactions"
     },
     "serena": {
       "type": "stdio",
@@ -32,26 +34,49 @@
         "false",
         "--log-level",
         "CRITICAL"
-      ]
+      ],
+      "description": "Professional coding agent with semantic tools for intelligent codebase analysis"
     },
     "youtube": {
       "command": "npx",
       "args": [
         "-y",
         "@anaisbetts/mcp-youtube"
-      ]
+      ],
+      "description": "Downloads YouTube subtitles and video content for analysis"
     },
     "markitdown": {
       "command": "uvx",
       "args": [
         "markitdown-mcp"
-      ]
+      ],
+      "description": "Converts various file formats (PDF, Word, etc.) to markdown"
     },
     "voicevox": {
       "command": "npx",
       "args": [
         "@t09tanaka/mcp-simple-voicevox"
-      ]
+      ],
+      "description": "Japanese text-to-speech synthesis using VOICEVOX engine"
+    },
+    "arxiv-mcp-server": {
+      "command": "uvx",
+      "args": [
+        "arxiv-mcp-server",
+        "--storage-path",
+        "/Users/akitorahayashi/envi/papers"
+      ],
+      "description": "Allows searching for and downloading papers. Downloaded papers are saved in Markdown format."
+    },
+    "sequentialthinking": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "mcp/sequentialthinking"
+      ],
+      "description": "Enables sequential thinking capabilities."
     }
   }
 }
