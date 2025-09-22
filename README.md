@@ -99,6 +99,14 @@ This project automates the setup of a consistent development environment across 
 
     Please restart macOS to apply all settings completely.
 
+### Manual Execution Options
+
+These commands are recommended to be run manually once after initial setup:
+
+- **Install common GUI applications**: `just cmn-apps` - Installs common GUI applications via Homebrew Cask.
+- **Install Mac Mini-specific GUI applications**: `just mmn-apps` - Installs Mac Mini-specific GUI applications via Homebrew Cask.
+- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
+
 ## Implemented Features
 
 This project uses Ansible to automate the setup of a complete development environment. The automation logic is organized into roles, each responsible for a specific component.
@@ -136,8 +144,9 @@ This project uses Ansible to automate the setup of a complete development enviro
 7.  **Cursor Environment (`cursor` role)**
     -   Installs Cursor editor via Homebrew Cask.
     -   Downloads and installs the Cursor CLI.
-    -   Symlinks user configuration files (`settings.json`, `keybindings.json`) from `config/common/vscode/` to Cursor's User directory.
-    -   **Note**: Extensions are not automatically installed. Many VSCode extensions are not compatible with Cursor. Manually install compatible extensions using `cursor --install-extension <extension-id>`.
+    -   Symlinks user configuration files (`settings.json`, `keybindings.json`) from `config/common/cursor/` to Cursor's User directory.
+    -   Installs extensions listed in `config/common/cursor/extensions.json` using the `cursor --install-extension` command. Note: Many VSCode extensions are not compatible with Cursor. Manually add compatible extension IDs to this file.
+    -   **Note**: `config/common/cursor/settings.json` and `keybindings.json` are symbolic links to the corresponding files in `config/common/vscode/` for shared configuration.
 
 8.  **Python Environment (`python-platform` and `python-tools` roles)**
     -   **Platform:** Installs `pyenv`, reads the target Python version from `.python-version`, installs it, and sets it as the global default.
@@ -161,11 +170,3 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Symlinks configuration files (`GEMINI.md`, `settings.json`) from `config/common/gemini/` to `~/.gemini/`.
     -   Symlinks the `commands/` directory to `~/.gemini/`.
     -   Configures MCP servers via the symlinked `settings.json` file, using environment variables for API tokens.
-
-### Manual Execution Options
-
-Some tasks can be run manually after the initial setup:
-
-- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
-- **Install common GUI applications**: `just cmn-apps` - Installs common GUI applications via Homebrew Cask.
-- **Install Mac Mini-specific GUI applications**: `just mmn-apps` - Installs Mac Mini-specific GUI applications via Homebrew Cask.

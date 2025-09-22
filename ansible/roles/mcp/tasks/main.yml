@@ -1,0 +1,6 @@
+---
+- name: "Copy config/common/mcp/servers.json to ~/.mcp.json"
+  ansible.builtin.copy:
+    src: "{{ config_dir_abs_path }}/mcp/servers.json"
+    dest: "{{ ansible_env.HOME }}/.mcp.json"
+    mode: '0644'

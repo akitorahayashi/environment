@@ -32,7 +32,7 @@
 
 - name: "Parse VS Code extensions JSON"
   ansible.builtin.set_fact:
-    vscode_extensions: "{{ (vscode_extensions_content.content | b64decode | from_json).recommendations }}"
+    vscode_extensions: "{{ (vscode_extensions_content.content | b64decode | from_json).extensions }}"
 
 - name: "Install VS Code extensions"
   ansible.builtin.command: "code --install-extension {{ item }}"

@@ -5,10 +5,6 @@
 ._*
 
 # Editor-specific files
-.vscode/
-.cursor/
-.claude/
-.serena/
 .aider*
 *.swp
 *.swo
