@@ -20,4 +20,4 @@
     - { role: cursor, tags: ['cursor'] }
     - { role: claude, tags: ['claude'] }
     - { role: gemini, tags: ['gemini'] }
-    - { role: system_defaults, tags: ['system_defaults'] }
+    - { role: system, tags: ['system'] }

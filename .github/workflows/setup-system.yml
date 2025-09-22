@@ -1,4 +1,4 @@
-name: Setup macOS and Shell
+name: Setup System
 
 on:
   workflow_call:
@@ -14,12 +14,12 @@ jobs:
         run: make base
 
       - name: Apply macOS system defaults
-        run: just cmn-apply-defaults
+        run: just cmn-apply-system
         
       - name: Backup current system defaults
-        run: just cmn-backup-defaults
+        run: just cmn-backup-system
         
       - name: Verify system defaults application
         run: |
-          just cmn-backup-defaults
-          git diff --exit-code config/common/system-defaults/system-defaults.yml
+          just cmn-backup-system
+          git diff --exit-code config/common/system/system.yml

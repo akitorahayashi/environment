@@ -22,7 +22,7 @@ default: help
 common:
   @echo "🚀 Starting all common setup tasks..."
   @just cmn-shell
-  @just cmn-apply-defaults
+  @just cmn-apply-system
   @just cmn-git
   @just cmn-gh
   @just cmn-vscode
@@ -42,9 +42,9 @@ common:
 # Common Setup Recipes
 # ------------------------------------------------------------------------------
 # Apply macOS system defaults
-cmn-apply-defaults:
+cmn-apply-system:
   @echo "🚀 Applying common system defaults..."
-  @just _run_ansible "system_defaults" "{{config_common}}"
+  @just _run_ansible "system" "{{config_common}}"
 
 # Setup common Homebrew packages
 cmn-brew:
@@ -177,9 +177,9 @@ mmn-apps:
 # Utility Recipes
 # ------------------------------------------------------------------------------
 # Backup current macOS system defaults
-cmn-backup-defaults:
+cmn-backup-system:
   @echo "🚀 Backing up current macOS system defaults..."
-  @{{repo_root}}/ansible/utils/backup-system-defaults.sh "{{config_common}}"
+  @{{repo_root}}/ansible/utils/backup-system.sh "{{config_common}}"
   @echo "✅ macOS system defaults backup completed."
 
 # Backup current VSCode extensions
