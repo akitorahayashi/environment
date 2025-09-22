@@ -28,6 +28,6 @@ jobs:
     uses: ./.github/workflows/setup-homebrew.yml
     secrets: inherit
 
-  setup-system-defaults:
-    uses: ./.github/workflows/setup-system-defaults.yml
+  setup-system:
+    uses: ./.github/workflows/setup-system.yml
 

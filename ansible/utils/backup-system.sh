@@ -12,8 +12,8 @@ fi
 # Initial setup and file path configuration
 # ================================================
 
-INPUT_DEFINITIONS_DIR="$CONFIG_DIR_PROPS/system-defaults/backup-definitions"
-OUTPUT_FILE="$CONFIG_DIR_PROPS/system-defaults/system-defaults.yml"
+INPUT_DEFINITIONS_DIR="$CONFIG_DIR_PROPS/system/definitions"
+OUTPUT_FILE="$CONFIG_DIR_PROPS/system/system.yml"
 
 # Check if yq is installed
 if ! command -v yq &> /dev/null; then

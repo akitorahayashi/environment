@@ -17,7 +17,7 @@
 │   │   ├── python/
 │   │   ├── ruby/
 │   │   ├── shell/
-│   │   ├── system-defaults/
+│   │   ├── system/
 │   │   └── vscode/
 │   ├── mac-mini-only/
 │   │   ├── brew/
@@ -43,10 +43,10 @@
 │   │   ├── python-tools/
 │   │   ├── ruby/
 │   │   ├── shell/
-│   │   ├── system_defaults/
+│   │   ├── system/
 │   │   └── vscode/
 │   └── utils/
-│       ├── backup-system-defaults.sh
+│       ├── backup-system.sh
 │       └── backup-extensions.sh
 ├── .gitignore
 ├── Makefile
@@ -118,9 +118,9 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Sets the `user.name` and `user.email` in the global Git configuration from environment variables (`GIT_USERNAME`, `GIT_EMAIL`).
     -   Configures the GitHub CLI by symlinking the `config.yml` from `config/common/gh/`.
 
-4.  **macOS System Settings (`system_defaults` role)**
-    -   Applies system settings using the `community.general.osx_defaults` module based on the definitions in `config/common/system-defaults/system-defaults.yml`.
-    -   A backup of the current system settings can be generated using the `ansible/utils/backup-system-defaults.sh` script, which uses `yq` and `defaults read` to create a backup based on definitions in `config/common/system-defaults/backup-definitions/`.
+4.  **macOS System Settings (`system` role)**
+    -   Applies system settings using the `community.general.osx_defaults` module based on the definitions in `config/common/system/system.yml`.
+    -   A backup of the current system settings can be generated using the `ansible/utils/backup-system.sh` script, which uses `yq` and `defaults read` to create a backup based on definitions in `config/common/system/definitions/`.
     -   A backup of the current VSCode extensions can be generated using the `ansible/utils/backup-extensions.sh` script, which creates `config/common/vscode/extensions.json` with the list of installed extensions.
 
 5.  **Ruby Environment (`ruby` role)**
