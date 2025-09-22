@@ -5,3 +5,5 @@ Activate current directory as a project for semantic code analysis using the `ac
 ## Serena Usage Guidelines
 
 To investigate existing files or code, prefer the Serena MCP for cross-file analysis and explanation. For single-file edits, use default tools, as Serena can be imprecise. When Serena tools are insufficient, use Read or Bash tools as needed.
+
+For long-term valuable knowledge, document it in static files like CLAUDE.md or README.md. Use Serena's memory system for dynamic, project-specific complements that may become technical debt if not managed.

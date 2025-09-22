@@ -1,7 +1,13 @@
 description = "Activate current directory as a project for semantic code analysis using the `activate_project` tool."
 
 prompt = """
-Activate current directory as a project for semantic code analysis using the `activate_project` tool with the current working directory as the `project` argument. Respond only with "Project activated successfully." if the command succeeds. If there are any errors or warnings, display them fully.
+Activate current directory as a project for semantic code analysis using the `activate_project` tool with the current working directory as the `project` argument. 
+Respond only with 'Project activated successfully.' if the command succeeds. If there are any errors or warnings, display them fully.
 
-To investigate existing files or code, prefer the Serena MCP for cross-file analysis and explanation. For single-file edits, use default tools, as Serena can be imprecise. When Serena tools are insufficient, use Read or Bash tools as needed.
+## Serena Usage Guidelines
+
+Use Serena MCP for cross-file analysis and investigation. 
+For single-file edits, use default tools for better precision. 
+Document long-term knowledge in static files (CLAUDE.md, README.md). 
+Use Serena's memory for dynamic, project-specific information.
 """
