@@ -144,7 +144,9 @@ mcp-a() {
     fi
 
     # Add server to local .mcp.json
-    jq ".mcpServers[\"$mcp_name\"] = $server_config" .mcp.json > .mcp.json.tmp && mv .mcp.json.tmp .mcp.json
+    jq --arg name "$mcp_name" --argjson cfg "$server_config" \
+       '.mcpServers[$name] = $cfg' \
+       .mcp.json > .mcp.json.tmp && mv .mcp.json.tmp .mcp.json
 
     echo "✅ Added MCP server '$mcp_name' to local .mcp.json"
 }
