@@ -49,58 +49,6 @@
   "advanced": {
     "excludedEnvVars": []
   },
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp@latest"
-      ]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest"
-      ]
-    },
-    "serena": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server",
-        "--context",
-        "ide-assistant",
-        "--enable-web-dashboard",
-        "false",
-        "--enable-gui-log-window",
-        "false",
-        "--log-level",
-        "CRITICAL"
-      ]
-    },
-    "youtube": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@anaisbetts/mcp-youtube"
-      ]
-    },
-    "markitdown": {
-      "command": "uvx",
-      "args": [
-        "markitdown-mcp"
-      ]
-    },
-    "voicevox": {
-      "command": "npx",
-      "args": [
-        "@t09tanaka/mcp-simple-voicevox"
-      ]
-    }
-  },
   "telemetry": {
     "enabled": false,
     "target": "local",

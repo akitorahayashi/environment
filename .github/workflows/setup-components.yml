@@ -16,6 +16,7 @@ jobs:
           - ruby
           - java
           - cursor
+          - mcp
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

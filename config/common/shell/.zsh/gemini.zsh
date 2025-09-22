@@ -1,5 +1,10 @@
 alias gm="gemini"
 
+# MCP
+alias gm-m-a="gemini mcp add"
+alias gm-m-rm="gemini mcp remove"
+alias gm-m-ls="gemini mcp list"
+
 # Highest performance
 alias gm-pr="gemini -m gemini-2.5-pro"
 alias gm-pr-y="gemini -m gemini-2.5-pro -y"
@@ -34,3 +39,20 @@ alias gm-il-a-p="gemini -a -m gemini-2.5-flash-image-live-preview -p"
 # -p, --prompt: Specify a prompt. Appended to input on stdin (if any). Used in non-interactive mode.
 # -a, --all-files: Include ALL files in context?
 # -y, --yolo: Automatically accept all actions (aka YOLO mode).
+
+# Gemini Configuration Management
+# Copy ~/.gemini directory to current directory for local configuration
+gemini-lk() {
+    if [ ! -d ~/.gemini ]; then
+        echo "Error: ~/.gemini directory not found"
+        return 1
+    fi
+
+    if [ -d .gemini ]; then
+        echo ".gemini directory already exists in current directory"
+        return 1
+    fi
+
+    cp -r ~/.gemini .gemini
+    echo "✅ Created .gemini directory in current directory from ~/.gemini"
+}

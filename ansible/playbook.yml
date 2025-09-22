@@ -20,4 +20,5 @@
     - { role: cursor, tags: ['cursor'] }
     - { role: claude, tags: ['claude'] }
     - { role: gemini, tags: ['gemini'] }
+    - { role: mcp, tags: ['mcp'] }
     - { role: system, tags: ['system'] }

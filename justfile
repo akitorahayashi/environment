@@ -32,6 +32,7 @@ common:
   @just cmn-nodejs-tools
   @just cmn-claude
   @just cmn-gemini
+  @just cmn-mcp
   @just cmn-cursor
   @just cmn-ruby
   @just cmn-java
@@ -116,6 +117,11 @@ cmn-gemini:
   @echo "🚀 Running common Gemini CLI setup..."
   @just _run_ansible "gemini" "{{config_common}}"
 
+# Setup MCP servers configuration
+cmn-mcp:
+  @echo "🚀 Running common MCP setup..."
+  @just _run_ansible "mcp" "{{config_common}}"
+
 # Install common GUI applications (casks)
 cmn-apps:
   @echo "🚀 Installing common GUI applications..."
@@ -129,8 +135,7 @@ cmn-apps:
     docker \
     pgadmin4 \
     tailscale \
-    rectangle \
-    cursor
+    rectangle
 
 # Pull Docker images
 cmn-docker-images:

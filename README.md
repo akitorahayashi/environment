@@ -99,6 +99,14 @@ This project automates the setup of a consistent development environment across 
 
     Please restart macOS to apply all settings completely.
 
+### Manual Execution Options
+
+These commands are recommended to be run manually once after initial setup:
+
+- **Install common GUI applications**: `just cmn-apps` - Installs common GUI applications via Homebrew Cask.
+- **Install Mac Mini-specific GUI applications**: `just mmn-apps` - Installs Mac Mini-specific GUI applications via Homebrew Cask.
+- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
+
 ## Implemented Features
 
 This project uses Ansible to automate the setup of a complete development environment. The automation logic is organized into roles, each responsible for a specific component.
@@ -162,11 +170,3 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Symlinks configuration files (`GEMINI.md`, `settings.json`) from `config/common/gemini/` to `~/.gemini/`.
     -   Symlinks the `commands/` directory to `~/.gemini/`.
     -   Configures MCP servers via the symlinked `settings.json` file, using environment variables for API tokens.
-
-### Manual Execution Options
-
-Some tasks can be run manually after the initial setup:
-
-- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
-- **Install common GUI applications**: `just cmn-apps` - Installs common GUI applications via Homebrew Cask.
-- **Install Mac Mini-specific GUI applications**: `just mmn-apps` - Installs Mac Mini-specific GUI applications via Homebrew Cask.
