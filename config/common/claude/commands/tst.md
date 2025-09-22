@@ -1,0 +1,23 @@
+---
+title: "Run Tests"
+argument-hint: "test-type (e2e, unit, ui) or full command (make e2e-test)"
+---
+
+# /tst - Run Tests
+
+## Step 1: Determine Test Command
+If user provides a full command (e.g., "make e2e-test"), use it directly.
+Otherwise, discover the appropriate test command for the given test type by:
+- Checking Makefile, justfile, package.json scripts
+- Looking for common patterns: `make $1-test`, `npm run test:$1`, `pytest tests/$1/`
+
+## Step 2: Test-Fix Cycle
+1. Execute the test command
+2. If tests fail:
+   - Analyze failure causes
+   - Determine if it's a test issue or implementation issue
+   - Apply appropriate fixes (test code or implementation)
+   - Re-run tests
+   - Repeat until tests pass and implementation is clean
+
+Use TodoWrite to track progress through the fix cycle.

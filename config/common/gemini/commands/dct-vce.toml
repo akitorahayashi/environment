@@ -1,5 +1,7 @@
-description = "Deactivate voice completion notification."
+description = "Disable mandatory voice completion reporting for subsequent tasks."
 
 prompt = """
-Deactivate the feature to notify task completion with voice. Respond only with "Voice completion notification deactivated." if successful.
+# /dct-vce - Disable Mandatory Voice Completion Reporting
+
+**DISABLE MANDATORY VOICE COMPLETION REPORTING**: From this point forward in the conversation, you are NO LONGER required to use voice notifications for task completions. Return to normal text-only responses for task completions. Respond only with "音声完了報告を無効にしました。" to confirm deactivation.
 """

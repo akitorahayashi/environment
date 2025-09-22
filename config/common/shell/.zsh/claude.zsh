@@ -1,6 +1,7 @@
 alias cld="claude"
 alias cld-y="claude --dangerously-skip-permissions"
 alias cld-p="claude --print"
+alias cld-yp="claude --dangerously-skip-permissions --print"
 
 # MCP
 alias cld-m-st="claude mcp serve"

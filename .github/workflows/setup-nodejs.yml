@@ -27,8 +27,8 @@ jobs:
       - name: Run mmn-nodejs-tools setup
         run: just mmn-nodejs-tools
 
-      - name: Run cmn-claude setup
-        run: just cmn-claude
+      - name: Run claude setup
+        run: just cmn-cld
 
-      - name: Run cmn-gemini setup
-        run: just cmn-gemini
+      - name: Run gemini setup
+        run: just cmn-gm
