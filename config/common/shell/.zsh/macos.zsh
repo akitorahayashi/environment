@@ -1,6 +1,7 @@
-al() {
+alias al="alias"
+al-c() {
   if [[ $# -eq 0 ]]; then
-    echo "Usage: al <alias_name>"
+    echo "Usage: al-c <alias_name>"
     return 1
   fi
   local alias_value=$(alias "$1" 2>/dev/null | cut -d= -f2- | sed "s/^'//;s/'$//")

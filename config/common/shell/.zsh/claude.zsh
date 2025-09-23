@@ -25,18 +25,8 @@ cld-ini() {
     # Create .claude directory
     mkdir -p .claude/commands
 
-    # Copy project-specific files only
-    if [ -d ~/.claude/commands ] && [ "$(ls -A ~/.claude/commands)" ]; then
-        cp ~/.claude/commands/* .claude/commands/
-    fi
-
-    if [ -f ~/.claude/settings.json ]; then
-        cp ~/.claude/settings.json .claude/settings.json
-    fi
-
-    if [ -f ~/.claude/CLAUDE.md ]; then
-        cp ~/.claude/CLAUDE.md .claude/CLAUDE.md
-    fi
+    # Create empty settings.json only
+    echo '{}' > .claude/settings.json
 
     echo "✅ Initialized project-specific .claude configuration"
 }
