@@ -85,9 +85,6 @@ mcp-ls() {
         return 1
     fi
 
-    # Define path to servers description file
-    local servers_desc_file="config/common/mcp/servers.json"
-
     # Loop through each MCP server and display its info
     echo "$mcp_names" | while read -r mcp_name; do
         local command=$(jq -r ".mcpServers[\"$mcp_name\"].command" ~/.mcp.json 2>/dev/null)
@@ -102,13 +99,9 @@ mcp-ls() {
             echo "[$mcp_name]"
             echo "$full_command"
 
-            # Try to get description from servers.json
-            if [ -f "$servers_desc_file" ]; then
-                local description=$(jq -r ".mcpServers[\"$mcp_name\"].description // \"No description available\"" "$servers_desc_file" 2>/dev/null)
-                echo "- $description"
-            else
-                echo "- No description available"
-            fi
+            # Try to get description from ~/.mcp.json
+            local description=$(jq -r ".mcpServers[\"$mcp_name\"].description // \"No description available\"" ~/.mcp.json 2>/dev/null)
+            echo "- $description"
             echo ""
         else
             echo "[$mcp_name]: No command found"
