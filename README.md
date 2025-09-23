@@ -131,7 +131,7 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Copies the `.gitconfig` file to `~/.config/git/config`.
     -   Symlinks the `.gitignore_global` file to the home directory.
     -   Sets the `user.name` and `user.email` in the global Git configuration from environment variables (`GIT_USERNAME`, `GIT_EMAIL`).
-    -   Configures the GitHub CLI by symlinking the `config.yml` from `config/common/gh/`.
+    -   Configures the GitHub CLI by symlinking the `ghconfig.yml` from `config/common/git/`.
 
 5.  **macOS System Settings (`system` role)**
     -   Applies system settings using the `community.general.osx_defaults` module based on the definitions in `config/common/system/system.yml`.
