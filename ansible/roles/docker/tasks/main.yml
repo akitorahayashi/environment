@@ -1,10 +1,6 @@
 ---
 # Docker setup and validation tasks
 
-- name: Check CI environment
-  set_fact:
-    is_ci: "{{ lookup('env', 'CI') == 'true' }}"
-
 - name: Read Docker images list
   slurp:
     src: "{{ config_dir_abs_path }}/docker/images.txt"
@@ -14,44 +10,22 @@
   set_fact:
     docker_images: "{{ images_file.content | b64decode | split('\n') | select | list }}"
 
-- name: Display CI status
-  debug:
-    msg: "{{ 'CI environment detected. Checking image availability without pulling...' if is_ci else 'Non-CI environment. Pulling Docker images...' }}"
-
-- name: Check Docker image availability (CI environment)
-  command: docker manifest inspect {{ item }}
-  register: manifest_check
-  changed_when: false
-  loop: "{{ docker_images }}"
-  when: is_ci
-  ignore_errors: true
-
-- name: Display manifest check results (CI environment)
-  debug:
-    msg: "Checking {{ item.item }}... {{ '✅ available' if item.rc == 0 else '❌ not available or error' }}"
-  loop: "{{ manifest_check.results | default([]) }}"
-  when: is_ci
-
-- name: Pull Docker images (non-CI environment)
+- name: Pull Docker images
   command: docker pull {{ item }}
   register: pull_result
   changed_when: false
   loop: "{{ docker_images }}"
-  when: not is_ci
 
-- name: Display pull results (non-CI environment)
+- name: Display pull results
   debug:
     msg: "Pulling {{ item.item }}... {{ '✅ pulled' if item.rc == 0 else '❌ failed' }}"
   loop: "{{ pull_result.results | default([]) }}"
-  when: not is_ci
 
 - name: Confirm Docker images are available
-  shell: docker images --format 'table {{.Repository}}:{{.Tag}}'
+  shell: docker images --format {% raw %}'table {{.Repository}}:{{.Tag}}'{% endraw %}
   register: docker_images_list
   changed_when: false
-  when: not is_ci
 
 - name: Display available Docker images
   debug:
     msg: "{{ docker_images_list.stdout }}"
-  when: not is_ci
