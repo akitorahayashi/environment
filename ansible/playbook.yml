@@ -8,6 +8,7 @@
 
   roles:
     - { role: brew, tags: ['brew'] }
+    - { role: apps, tags: ['apps'] }
     - { role: java, tags: ['java'] }
     - { role: python-platform, tags: ['python-platform'] }
     - { role: python-tools, tags: ['python-tools'] }

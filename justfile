@@ -125,17 +125,7 @@ cmn-mcp:
 # Install common GUI applications (casks)
 cmn-apps:
   @echo "🚀 Installing common GUI applications..."
-  @brew install --cask \
-    android-studio \
-    android-commandlinetools \
-    google-chrome \
-    slack \
-    zoom \
-    obsidian \
-    docker \
-    pgadmin4 \
-    tailscale \
-    rectangle
+  @just _run_ansible "apps" "{{config_common}}"
 
 # Pull Docker images
 cmn-docker-images:
@@ -181,7 +171,7 @@ mmn-python-tools:
 # Install Mac Mini-specific GUI applications (casks)
 mmn-apps:
   @echo "🚀 Installing Mac Mini-specific GUI applications..."
-  @brew install --cask ngrok
+  @just _run_ansible "apps" "{{config_mac_mini}}"
 
 # ------------------------------------------------------------------------------
 # Utility Recipes

@@ -1,0 +1,6 @@
+---
+- name: "Install applications from apps Brewfile"
+  ansible.builtin.command:
+    cmd: brew bundle --file="{{ config_dir_abs_path }}/apps/Brewfile"
+  register: brew_bundle_result
+  changed_when: "'Installing' in brew_bundle_result.stdout"
