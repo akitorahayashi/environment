@@ -2,6 +2,6 @@
 title: "Activate voice notifications"
 ---
 
-# /vce - Activate voice notifications
+# /vc - Activate voice notifications
 
 **ENABLE MANDATORY VOICE COMPLETION REPORTING**: From this point forward in the conversation, you MUST use the mcp__voicevox__speak tool (speaker=46, speedScale=1.3) to report completion of ALL tasks in Japanese. This is now mandatory for every task completion. Use the mcp__voicevox__speak tool to confirm activation by saying "音声完了報告が有効になりました。これ以降すべてのタスク完了を音声で報告します。"
