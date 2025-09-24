@@ -18,35 +18,6 @@ config_mac_mini := "config/mac-mini-only"
 default: help
 
 # ------------------------------------------------------------------------------
-# User Profile Switching
-# ------------------------------------------------------------------------------
-# Switch to personal Git/JJ configuration
-sw-p:
-  @echo "🔄 Switching to personal configuration..."
-  @git config --global user.name "{{env('PERSONAL_VCS_NAME')}}"
-  @git config --global user.email "{{env('PERSONAL_VCS_EMAIL')}}"
-  @[ -n "{{env('PERSONAL_VCS_NAME')}}" ] || (echo "PERSONAL_VCS_NAME is empty" >&2; exit 1)
-  @[ -n "{{env('PERSONAL_VCS_EMAIL')}}" ] || (echo "PERSONAL_VCS_EMAIL is empty" >&2; exit 1)
-  @jj config set -g user.name "{{env('PERSONAL_VCS_NAME')}}"
-  @jj config set -g user.email "{{env('PERSONAL_VCS_EMAIL')}}"
-  @echo "✅ Switched to personal configuration."
-  @echo "Git user: `git config --get user.name` <`git config --get user.email`>"
-  @echo "jj  user: `jj config get user.name` <`jj config get user.email`>"
-
-# Switch to work Git/JJ configuration
-sw-w:
-  @echo "🔄 Switching to work configuration..."
-  @git config --global user.name "{{env('WORK_VCS_NAME')}}"
-  @git config --global user.email "{{env('WORK_VCS_EMAIL')}}"
-  @[ -n "{{env('WORK_VCS_NAME')}}" ] || (echo "WORK_VCS_NAME is empty" >&2; exit 1)
-  @[ -n "{{env('WORK_VCS_EMAIL')}}" ] || (echo "WORK_VCS_EMAIL is empty" >&2; exit 1)
-  @jj config set -g user.name "{{env('WORK_VCS_NAME')}}"
-  @jj config set -g user.email "{{env('WORK_VCS_EMAIL')}}"
-  @echo "✅ Switched to work configuration."
-  @echo "Git user: `git config --get user.name` <`git config --get user.email`>"
-  @echo "jj  user: `jj config get user.name` <`jj config get user.email`>"
-
-# ------------------------------------------------------------------------------
 # Common Setup Recipes
 # ------------------------------------------------------------------------------
 # Run all common setup tasks
@@ -211,6 +182,33 @@ mmn-python-tools:
 mmn-apps:
   @echo "🚀 Installing Mac Mini-specific GUI applications..."
   @just _run_ansible "apps" "{{config_mac_mini}}"
+
+# ------------------------------------------------------------------------------
+# VCS Profile Switching
+# ------------------------------------------------------------------------------
+sw-p:
+  @echo "🔄 Switching to personal configuration..."
+  @git config --global user.name "{{env('PERSONAL_VCS_NAME')}}"
+  @git config --global user.email "{{env('PERSONAL_VCS_EMAIL')}}"
+  @[ -n "{{env('PERSONAL_VCS_NAME')}}" ] || (echo "PERSONAL_VCS_NAME is empty" >&2; exit 1)
+  @[ -n "{{env('PERSONAL_VCS_EMAIL')}}" ] || (echo "PERSONAL_VCS_EMAIL is empty" >&2; exit 1)
+  @echo "1" | jj config set --user user.name "{{env('PERSONAL_VCS_NAME')}}"
+  @echo "1" | jj config set --user user.email "{{env('PERSONAL_VCS_EMAIL')}}"
+  @echo "✅ Switched to personal configuration."
+  @echo "Git user: `git config --get user.name` <`git config --get user.email`>"
+  @echo "jj  user: `jj config get user.name` <`jj config get user.email`>"
+
+sw-w:
+  @echo "🔄 Switching to work configuration..."
+  @git config --global user.name "{{env('WORK_VCS_NAME')}}"
+  @git config --global user.email "{{env('WORK_VCS_EMAIL')}}"
+  @[ -n "{{env('WORK_VCS_NAME')}}" ] || (echo "WORK_VCS_NAME is empty" >&2; exit 1)
+  @[ -n "{{env('WORK_VCS_EMAIL')}}" ] || (echo "WORK_VCS_EMAIL is empty" >&2; exit 1)
+  @echo "1" | jj config set --user user.name "{{env('WORK_VCS_NAME')}}"
+  @echo "1" | jj config set --user user.email "{{env('WORK_VCS_EMAIL')}}"
+  @echo "✅ Switched to work configuration."
+  @echo "Git user: `git config --get user.name` <`git config --get user.email`>"
+  @echo "jj  user: `jj config get user.name` <`jj config get user.email`>"
 
 # ------------------------------------------------------------------------------
 # Utility Recipes
