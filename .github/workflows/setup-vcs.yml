@@ -1,0 +1,22 @@
+name: Setup VCS
+
+on:
+  workflow_call:
+
+jobs:
+  setup-git:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make base
+
+      - name: Setup Git configuration
+        run: just cmn-git
+
+      - name: Setup JJ configuration
+        run: just cmn-jj

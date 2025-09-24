@@ -14,15 +14,21 @@ jobs:
   setup-nodejs:
     uses: ./.github/workflows/setup-nodejs.yml
 
-  setup-components:
-    uses: ./.github/workflows/setup-components.yml
+  setup-sublang:
+    uses: ./.github/workflows/setup-sublang.yml
 
-  setup-vscode:
-    uses: ./.github/workflows/setup-vscode.yml
+  setup-vcs:
+    uses: ./.github/workflows/setup-vcs.yml
+
+  setup-ide:
+    uses: ./.github/workflows/setup-ide.yml
 
   setup-homebrew:
     uses: ./.github/workflows/setup-homebrew.yml
     secrets: inherit
+
+  setup-alias:
+    uses: ./.github/workflows/setup-alias.yml
 
   setup-system:
     uses: ./.github/workflows/setup-system.yml

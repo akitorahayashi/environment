@@ -1,10 +1,10 @@
-name: Setup Shell
+name: Setup Alias
 
 on:
   workflow_call:
 
 jobs:
-  setup-shell:
+  setup-alias:
     runs-on: macos-15
     permissions:
       contents: read
@@ -24,3 +24,9 @@ jobs:
           set -euo pipefail
           source ~/.zshrc
           mk --version
+
+      - name: Setup SSH configuration
+        run: just cmn-ssh
+
+      - name: Setup MCP configuration
+        run: just cmn-mcp
