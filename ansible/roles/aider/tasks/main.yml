@@ -15,3 +15,19 @@
     name: aider-chat
     python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python"
     state: present
+
+- name: Ensure .aider directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.aider"
+    state: directory
+    mode: '0755'
+
+- name: Symlink aider config files
+  ansible.builtin.file:
+    src: "{{ playbook_dir }}/../config/common/aider/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/{{ item }}"
+    state: link
+    force: yes
+  with_items:
+    - .aider.conf.yml
+    - .aider.model.settings.yml

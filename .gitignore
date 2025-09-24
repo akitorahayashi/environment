@@ -5,7 +5,10 @@
 ._*
 
 # Editor-specific files
-.aider*
+# Aider specific ignores
+.aider.tags.cache.v4/*
+.aider.chat.history.md
+.aider.input.history
 *.swp
 *.swo
 *~
