@@ -55,6 +55,7 @@ common:
   @just cmn-apply-system
   @just cmn-git
   @just cmn-jj
+  @just sw-p
   @just cmn-vscode
   @just cmn-python-platform
   @just cmn-python-tools
