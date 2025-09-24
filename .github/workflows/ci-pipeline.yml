@@ -20,8 +20,8 @@ jobs:
   setup-ide:
     uses: ./.github/workflows/setup-ide.yml
 
-  setup-homebrew:
-    uses: ./.github/workflows/setup-homebrew.yml
+  setup-brew:
+    uses: ./.github/workflows/setup-brew.yml
     secrets: inherit
 
   setup-alias:

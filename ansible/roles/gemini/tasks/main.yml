@@ -52,4 +52,4 @@
 - name: "Generate Gemini slash commands"
   ansible.builtin.shell: "{{ config_dir_abs_path }}/slash/gemini.sh"
   args:
-    chdir: "{{ config_dir_abs_path | dirname | dirname }}"
+    chdir: "{{ repo_root_path }}"

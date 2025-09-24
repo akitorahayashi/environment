@@ -54,4 +54,4 @@
 - name: "Generate Claude slash commands"
   ansible.builtin.shell: "{{ config_dir_abs_path }}/slash/claude.sh"
   args:
-    chdir: "{{ config_dir_abs_path | dirname | dirname }}"
+    chdir: "{{ repo_root_path }}"

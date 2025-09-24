@@ -3,7 +3,7 @@
 
 - name: Read Python version from .python-version file
   slurp:
-    src: "{{ config_dir_abs_path }}/python/.python-version"
+    src: "{{ config_dir_abs_path }}/../languages/python/.python-version"
   register: python_version_file
 
 - name: Set Python version variable
@@ -25,7 +25,7 @@
 
 - name: Symlink aider config files
   ansible.builtin.file:
-    src: "{{ playbook_dir }}/../config/common/aider/{{ item }}"
+    src: "{{ config_dir_abs_path }}/aider/{{ item }}"
     dest: "{{ ansible_env.HOME }}/{{ item }}"
     state: link
     force: yes

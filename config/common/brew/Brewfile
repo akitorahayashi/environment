@@ -36,4 +36,4 @@ brew "yq"
 
 ## Cask
 # cask "visual-studio-code" # installed by ansible/roles/vscode
-# Cask packages moved to config/common/apps and config/mac-mini-only/apps targets: cmn-apps, mmn-apps
+# Cask packages moved to config/common/brew and config/profiles/mac-mini/apps targets: cmn-apps, mmn-apps

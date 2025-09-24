@@ -14,8 +14,19 @@ This project automates the setup of a consistent development environment across 
 │   └── copilot-instructions.md
 ├── config/
 │   ├── common/
-│   ├── mac-mini-only/
-│   └── macbook-only/
+│   │   ├── aiding/
+│   │   ├── editors/
+│   │   ├── languages/
+│   │   ├── brew/
+│   │   ├── shell/
+│   │   ├── system/
+│   │   ├── vcs/
+│   │   ├── ssh/
+│   │   ├── mcp/
+│   │   └── docker/
+│   └── profiles/
+│       ├── macbook/
+│       └── mac-mini/
 ├── ansible/
 │   ├── hosts
 │   ├── playbook.yml

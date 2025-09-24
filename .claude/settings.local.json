@@ -1,10 +1,6 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(source:*)",
-      "Bash(ai-st:*)",
-      "Bash(ai:*)"
-    ],
+    "allow": [],
     "deny": [],
     "ask": []
   }
