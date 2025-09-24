@@ -85,7 +85,7 @@ After setup, you can easily switch between personal and work configurations for 
 - **Switch to personal configuration**: `just sw-p` - Sets personal VCS user name and email.
 - **Switch to work configuration**: `just sw-w` - Sets work VCS user name and email.
 
-These commands update both Git and JJ global configurations simultaneously using the environment variables defined in `.env`.
+These commands update both Git and JJ global configurations simultaneously using the environment variables defined in `.env`. Specifically, they modify `~/.gitconfig` for Git and `~/.config/jj/config.toml` for JJ.
 
 ## Implemented Features
 

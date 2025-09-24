@@ -6,7 +6,14 @@ ssh-gk() {
     if [ -z "$type" ] || [ -z "$host" ]; then
       echo "Usage: ssh-gk <type> <host>" >&2; return 1
     fi
-    # (キータイプの検証は省略)
+    # type/host のバリデーション
+    case "$type" in
+      ed25519|rsa|ecdsa) ;;
+      *) echo "Error: Unsupported key type '$type' (allowed: ed25519|rsa|ecdsa)." >&2; return 1 ;;
+    esac
+    if ! [[ "$host" =~ ^[A-Za-z0-9._-]+$ ]]; then
+      echo "Error: Invalid host '$host' (allowed: [A-Za-z0-9._-]+)." >&2; return 1
+    fi
 
     mkdir -p "$HOME/.ssh/conf.d"
 

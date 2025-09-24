@@ -47,7 +47,7 @@ fi
 
 # 拡張機能リストの取得と保存
 echo "VSCode拡張機能リストを取得中..."
-if ! extensions=$($CODE_CMD --list-extensions 2>&1); then
+if ! extensions=$("$CODE_CMD" --list-extensions 2>&1); then
   echo "❌ VSCode拡張機能の取得に失敗しました。" >&2
   echo "   考えられる原因:" >&2
   echo "   - VSCodeが起動中の場合、一度VSCodeを終了してから再度実行してください" >&2
