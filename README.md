@@ -1,11 +1,17 @@
 # MacOS Environment Setup
 
+This project automates the setup of a consistent development environment across different Macs. It includes centralized communication rules in `Rules.md` that are shared across AI assistant configurations via symbolic links.
+
 ## Directory Structure
 
 ```
 .
+├── .claude/
+├── .gemini/
+├── .serena/
 ├── .github/
-│   └── workflows/
+│   ├── workflows/
+│   └── copilot-instructions.md
 ├── config/
 │   ├── common/
 │   ├── mac-mini-only/
@@ -17,12 +23,15 @@
 │   └── utils/
 │       ├── backup-system.sh
 │       └── backup-extensions.sh
-├── .gitignore
+├── .env
 ├── .env.example
+├── .gitignore
 ├── .mcp.json
+├── AGENTS.md
 ├── Makefile
-├── justfile
-└── README.md
+├── README.md
+├── RULES.md
+└── justfile
 ```
 
 ## How to Use
@@ -161,12 +170,14 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Symlinks configuration files (`CLAUDE.md`, `settings.json`, `mcp-servers.json`) from `config/common/claude/` to `~/.claude/`.
     -   Generates slash commands from unified configuration in `config/common/slash/`.
     -   Installs MCP servers using the Claude CLI based on the configuration in `mcp-servers.json`, using environment variables for API tokens (`GITHUB_PERSONAL_ACCESS_TOKEN`, `OBSIDIAN_API_KEY`).
+    -   **Note**: `config/common/claude/CLAUDE.md` is a symbolic link to the centralized `RULES.md` file for shared communication rules.
 
 15. **Gemini CLI Environment (`gemini` role)**
     -   Creates the `~/.gemini` directory for Gemini CLI configuration.
     -   Symlinks configuration files (`GEMINI.md`, `settings.json`) from `config/common/gemini/` to `~/.gemini/`.
     -   Generates slash commands from unified configuration in `config/common/slash/`.
     -   Configures MCP servers via the symlinked `settings.json` file, using environment variables for API tokens.
+    -   **Note**: `config/common/gemini/GEMINI.md` is a symbolic link to the centralized `RULES.md` file for shared communication rules.
 
 16. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
