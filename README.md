@@ -190,8 +190,8 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Provides foundation for containerized development workflows.
 
 18. **Aider Chat Environment (`aider` role)**
-    -   aider-chatをpipx経由でインストールします。
-    -   互換性の問題に対応するため、config/common/python/.python-version で定義された特定のPythonバージョンを指定してインストールを実行します。
+    -   Installs aider-chat via pipx.
+    -   To address compatibility issues, the installation is performed using the specific Python version defined in `config/common/python/.python-version`.
 
 ## CI/CD Pipeline Verification Items
 

@@ -36,6 +36,12 @@ fi
 # Path setting for ollama models
 export OLLAMA_MODELS="$HOME/.ollama/models"
 
+# export OLLAMA_API_BASE for aider
+export OLLAMA_API_BASE="http://localhost:11434"
+
+# Set practical timeout for aider (5 minutes max)
+export AIDER_TIMEOUT=300
+
 # nvm initialization
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
