@@ -11,6 +11,7 @@
     python_version: "{{ python_version_file.content | b64decode | trim }}"
 
 - name: Install aider-chat with pipx using specific Python version
-  shell: pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python aider-chat
-  args:
-    creates: "{{ ansible_env.HOME }}/.local/bin/aider"
+  community.general.pipx:
+    name: aider-chat
+    python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python"
+    state: present

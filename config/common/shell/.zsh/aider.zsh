@@ -98,15 +98,21 @@ ai() {
     return 0
   fi
 
-  # Build aider command - start with base files
-  local aider_cmd="aider --model \"ollama/$model\" --no-auto-commit --no-gitignore"
+  # Build aider command safely as an array (no eval)
+  local provider_model
+  if [[ "$model" == */* ]]; then
+    provider_model="$model"
+  else
+    provider_model="ollama/$model"
+  fi
+  local cmd=(aider --model "$provider_model" --no-auto-commit --no-gitignore)
 
   if [[ "$yolo_mode" == true ]]; then
-    aider_cmd="$aider_cmd --yes"
+    cmd+=(--yes)
   fi
 
   if [[ -n "$message" ]]; then
-    aider_cmd="$aider_cmd --message \"$message\""
+    cmd+=(--message "$message")
   fi
 
   # Build file list: combine files from -e, -f, and direct args
@@ -119,11 +125,11 @@ ai() {
     done
   fi
 
-  # Default: use all project files if no specific files/dirs specified
+  # Default: start without explicit files if none specified
   if [[ ${#all_files[@]} -eq 0 ]]; then
-    eval "$aider_cmd"
+    command "${cmd[@]}"
   else
-    eval "$aider_cmd \"${all_files[@]}\""
+    command "${cmd[@]}" "${all_files[@]}"
   fi
 }
 
