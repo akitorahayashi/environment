@@ -13,7 +13,7 @@
 
 - name: Symlink main ssh config file
   ansible.builtin.file:
-    src: "{{ repo_root_path }}/config/common/ssh/config"
+    src: "{{ config_dir_abs_path }}/ssh/config"
     dest: "{{ ansible_env.HOME }}/.ssh/config"
     state: link
     force: yes
@@ -25,4 +25,4 @@
     state: link
     force: yes
   with_fileglob:
-    - "{{ repo_root_path }}/config/common/ssh/conf.d/*.conf"
+    - "{{ config_dir_abs_path }}/ssh/conf.d/*.conf"

@@ -31,8 +31,8 @@
     rt = restore
     rm-c = rm --cached
 
-    c = !git add . && commit -m
-    cm = !git add . && commit -m
+    c = !git add . && git commit -m
+    cm = !git add . && git commit -m
     amd = !git add . && git commit --amend --no-edit
     sb = submodule
     sb-ini = submodule init

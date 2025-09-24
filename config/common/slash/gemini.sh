@@ -30,12 +30,12 @@ echo "Generating Gemini CLI slash commands..."
 # Parse config.json and generate command files
 jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; do
     cmd=$(echo "$row" | base64 --decode | jq -r '.key')
-    description=$(echo "$row" | base64 --decode | jq -r '.value.description')
+    description_json=$(echo "$row" | base64 --decode | jq -r '.value.description | @json')
     prompt_file=$(echo "$row" | base64 --decode | jq -r '.value["prompt-file"]')
     output_file="$GEMINI_COMMANDS_DIR/$cmd.toml"
 
     # Start building the TOML file
-    echo "description = \"$description\"" > "$output_file"
+    echo "description = $description_json" > "$output_file"
     echo "" >> "$output_file"
     echo "prompt = \"\"\"" >> "$output_file"
 

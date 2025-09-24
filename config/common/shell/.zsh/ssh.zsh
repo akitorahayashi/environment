@@ -17,7 +17,10 @@ ssh-gk() {
         echo "Error: Config for host '$host' already exists." >&2; return 1
     fi
 
-    ssh-keygen -t "$type" -f "$keyfile_path" -C "$host" -N ''
+    if [ -e "$keyfile_path" ] || [ -e "${keyfile_path}.pub" ]; then
+      echo "Error: Key files already exist: '$keyfile_path'(.pub)." >&2; return 1
+    fi
+    ssh-keygen -q -t "$type" -f "$keyfile_path" -C "$host" -N ''
 
     cat > "$host_config_file" << EOF
 Host $host
