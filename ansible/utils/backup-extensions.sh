@@ -46,12 +46,22 @@ else
 fi
 
 # 拡張機能リストの取得と保存
-extensions=$($CODE_CMD --list-extensions)
-json="{\"recommendations\": ["
+echo "VSCode拡張機能リストを取得中..."
+if ! extensions=$($CODE_CMD --list-extensions 2>&1); then
+  echo "❌ VSCode拡張機能の取得に失敗しました。" >&2
+  echo "   考えられる原因:" >&2
+  echo "   - VSCodeが起動中の場合、一度VSCodeを終了してから再度実行してください" >&2
+  echo "   - VSCodeのインストールに問題がある場合" >&2
+  echo "   - コマンド: $CODE_CMD --list-extensions" >&2
+  echo "   エラー出力: $extensions" >&2
+  exit 1
+fi
+
+json="{\"extensions\": ["
 for ext in $extensions; do
   json+="\"$ext\","
 done
 json=${json%,}
 json+="]}"
-echo "$json" > "$EXT_FILE"
+echo "$json" | python3 -m json.tool > "$EXT_FILE"
 echo "VSCode拡張機能のリストをバックアップしました: $EXT_FILE"

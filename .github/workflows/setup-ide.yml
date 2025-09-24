@@ -22,7 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           just cmn-backup-vscode-extensions
-          ! git diff --exit-code config/common/vscode/extensions.json && echo "❌ extensions.json was not updated" || echo "✅ extensions.json was updated"
+          git diff --quiet --exit-code -- config/common/vscode/extensions.json || { echo "❌ extensions.json が未コミット/未同期です。'just cmn-backup-vscode-extensions' 実行後に変更をコミットしてください。"; exit 1; }
 
       - name: Setup Cursor configuration
         run: just cmn-cursor
