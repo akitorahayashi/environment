@@ -26,4 +26,7 @@ jobs:
 
       - name: Run mmn-python-tools setup
         run: just mmn-python-tools
+
+      - name: Run aider setup
+        run: just cmn-aider
         

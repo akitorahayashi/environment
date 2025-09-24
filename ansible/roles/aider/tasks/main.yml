@@ -1,0 +1,16 @@
+---
+# Aider Chat installation tasks
+
+- name: Read Python version from .python-version file
+  slurp:
+    src: "{{ config_dir_abs_path }}/python/.python-version"
+  register: python_version_file
+
+- name: Set Python version variable
+  set_fact:
+    python_version: "{{ python_version_file.content | b64decode | trim }}"
+
+- name: Install aider-chat with pipx using specific Python version
+  shell: pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python aider-chat
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/aider"

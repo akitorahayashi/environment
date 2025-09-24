@@ -40,6 +40,7 @@ common:
   @just cmn-cursor
   @just cmn-ruby
   @just cmn-java
+  @just cmn-aider
   @just cmn-brew
   @echo "✅ All common setup tasks completed successfully."
 
@@ -130,6 +131,11 @@ cmn-gm:
 cmn-mcp:
   @echo "🚀 Running common MCP setup..."
   @just _run_ansible "mcp" "{{config_common}}"
+
+# Install Aider Chat
+cmn-aider:
+  @echo "🚀 Running common Aider setup..."
+  @just _run_ansible "aider" "{{config_common}}"
 
 
 # Install common GUI applications (casks)
