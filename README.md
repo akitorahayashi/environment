@@ -177,3 +177,16 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Pulls and manages Docker images listed in `config/common/docker/images.txt`.
     -   Ensures consistent containerized development environment across machines.
     -   Provides foundation for containerized development workflows.
+
+## CI/CD Pipeline Verification Items
+
+The following GitHub Actions workflows validate the automated setup process:
+
+- **`ci-pipeline.yml`**: Main CI pipeline orchestrating all setup workflows
+- **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
+- **`setup-nodejs.yml`**: Validates Node.js platform, tools, and AI integrations (Claude, Gemini)
+- **`setup-sublang.yml`**: Validates Ruby and Java environment setup
+- **`setup-ide.yml`**: Validates VSCode/Cursor IDE configuration and extension backup functionality
+- **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types
+- **`setup-alias.yml`**: Validates Git, JJ, shell, SSH, and MCP configuration with alias testing
+- **`setup-system.yml`**: Validates macOS system defaults application and backup verification
