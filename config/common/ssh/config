@@ -1,0 +1,7 @@
+# This file is managed by dotfiles. Do not edit directly.
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  ServerAliveInterval 60
+
+Include ~/.ssh/conf.d/*.conf

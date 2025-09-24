@@ -1,14 +1,12 @@
 ## Version Control
-# brew "git" # installed by scripts/git.sh
-# brew "gh" # installed by scripts/gh.sh
+# brew "git" # installed by ansible/roles/git
+# brew "gh" # installed by ansible/roles/git
 
 ## Development Tools
-# brew "nvm" # installed by scripts/nodejs.sh
-# brew "jq"   # installed by scripts/nodejs.sh
-# brew "pnpm" # installed by scripts/nodejs/platform.sh
+# brew "nvm" # installed by ansible/roles/nodejs-platform
+# brew "jq"   # installed by ansible/roles/nodejs-platform
+# brew "pnpm" # installed by ansible/roles/nodejs-platform
 brew "go"
-# tap "leoafarias/fvm" # installed by scripts/flutter.sh
-# brew "leoafarias/fvm/fvm" # installed by scripts/flutter.sh
 
 ## Xcode & Swift Development
 brew "xcodes"
@@ -16,26 +14,26 @@ brew "xcbeautify"
 brew "mint"
 
 ## Ruby
-# brew "rbenv" # installed by scripts/ruby.sh
-# brew "openssl" # installed by scripts/ruby.sh
+# brew "rbenv" # installed by ansible/roles/ruby
+# brew "openssl" # installed by ansible/roles/ruby
 
 ## Python
-# brew "pyenv" # installed by scripts/python/platform.sh
-# brew "uv" # installed by scripts/python/platform.sh
+# brew "pyenv" # installed by ansible/roles/python-platform
+# brew "uv" # installed by ansible/roles/python-tools
 
 ## PostgreSQL
 brew "postgresql"
 
 ## Utility
 brew "redis"
-brew "jj"
+# brew "jj" # installed by ansible/roles/jj
 brew "poppler"
 brew "pandoc"
 brew "ollama"
 brew "yq"
 # brew "just" # Installed via `make setup`
-# brew "displayplacer" # installed by scripts/macos.sh
+# brew "displayplacer" # installed by ansible/roles/system
 
 ## Cask
-# cask "visual-studio-code" # installed by scripts/vscode.sh
+# cask "visual-studio-code" # installed by ansible/roles/vscode
 # Cask packages moved to config/common/apps and config/mac-mini-only/apps targets: cmn-apps, mmn-apps

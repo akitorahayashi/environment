@@ -2,6 +2,8 @@
 # justfile for macOS Environment Setup
 # ==============================================================================
 
+set dotenv-load
+
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
@@ -16,15 +18,43 @@ config_mac_mini := "config/mac-mini-only"
 default: help
 
 # ------------------------------------------------------------------------------
+# User Profile Switching
+# ------------------------------------------------------------------------------
+# Switch to personal Git/JJ configuration
+sw-p:
+  @echo "🔄 Switching to personal configuration..."
+  @git config --global user.name "{{env('PERSONAL_VCS_NAME')}}"
+  @git config --global user.email "{{env('PERSONAL_VCS_EMAIL')}}"
+  @echo '[user]' > ~/.jjconfig.toml
+  @echo 'name = "{{env('PERSONAL_VCS_NAME')}}"' >> ~/.jjconfig.toml
+  @echo 'email = "{{env('PERSONAL_VCS_EMAIL')}}"' >> ~/.jjconfig.toml
+  @echo "✅ Switched to personal configuration."
+  @echo "Git user: `git config --get user.name` <`git config --get user.email`>"
+  @echo "jj  user: `jj config get user.name` <`jj config get user.email`>"
+
+# Switch to work Git/JJ configuration
+sw-w:
+  @echo "🔄 Switching to work configuration..."
+  @git config --global user.name "{{env('WORK_VCS_NAME')}}"
+  @git config --global user.email "{{env('WORK_VCS_EMAIL')}}"
+  @echo '[user]' > ~/.jjconfig.toml
+  @echo 'name = "{{env('WORK_VCS_NAME')}}"' >> ~/.jjconfig.toml
+  @echo 'email = "{{env('WORK_VCS_EMAIL')}}"' >> ~/.jjconfig.toml
+  @echo "✅ Switched to work configuration."
+  @echo "Git user: `git config --get user.name` <`git config --get user.email`>"
+  @echo "jj  user: `jj config get user.name` <`jj config get user.email`>"
+
+# ------------------------------------------------------------------------------
 # Common Setup Recipes
 # ------------------------------------------------------------------------------
 # Run all common setup tasks
 common:
   @echo "🚀 Starting all common setup tasks..."
   @just cmn-shell
+  @just cmn-ssh
   @just cmn-apply-system
   @just cmn-git
-  @just cmn-gh
+  @just cmn-jj
   @just cmn-vscode
   @just cmn-python-platform
   @just cmn-python-tools
@@ -52,15 +82,15 @@ cmn-brew:
   @echo "  -> Running Homebrew setup with config: {{config_common}}"
   @just _run_ansible "brew" "{{config_common}}"
 
-# Configure GitHub CLI (gh) settings
-cmn-gh:
-  @echo "🚀 Running common GitHub CLI setup..."
-  @just _run_ansible "gh" "{{config_common}}"
-
 # Configure Git settings
 cmn-git:
   @echo "🚀 Running common Git setup..."
   @just _run_ansible "git" "{{config_common}}"
+
+# Configure JJ (Jujutsu) settings
+cmn-jj:
+  @echo "🚀 Running common JJ setup..."
+  @just _run_ansible "jj" "{{config_common}}"
 
 # Setup Java environment
 cmn-java:
@@ -97,6 +127,11 @@ cmn-shell:
   @echo "🚀 Linking common shell configuration..."
   @just _run_ansible "shell" "{{config_common}}"
 
+# Setup SSH configuration
+cmn-ssh:
+  @echo "🚀 Running common SSH setup..."
+  @just _run_ansible "ssh" "{{config_common}}"
+
 # Setup VS Code settings and extensions
 cmn-vscode:
   @echo "🚀 Running common VS Code setup..."
@@ -121,6 +156,7 @@ cmn-gm:
 cmn-mcp:
   @echo "🚀 Running common MCP setup..."
   @just _run_ansible "mcp" "{{config_common}}"
+
 
 # Install common GUI applications (casks)
 cmn-apps:
@@ -155,7 +191,7 @@ mbk-python-tools:
 # ------------------------------------------------------------------------------
 # Install specific Homebrew packages
 mmn-brew:
-  @echo "  -> Running Homebrew setup with config: {{config_mac_mini}}"
+  @echo "🚀 Running Homebrew setup with config: {{config_mac_mini}}"
   @just _run_ansible "brew" "{{config_mac_mini}}"
 
 # Install Mac Mini-specific Node.js tools
@@ -166,7 +202,7 @@ mmn-nodejs-tools:
 # Install Mac Mini-specific Python tools
 mmn-python-tools:
   @echo "🚀 Installing Mac Mini-specific Python tools from config: {{config_mac_mini}}"
-  @just _run_ansible "python-toolsa" "{{config_mac_mini}}"
+  @just _run_ansible "python-tools" "{{config_mac_mini}}"
 
 # Install Mac Mini-specific GUI applications (casks)
 mmn-apps:
@@ -202,4 +238,4 @@ _run_ansible tags config_dir:
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
-  ~/.local/pipx/venvs/ansible/bin/ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}"
+  ~/.local/pipx/venvs/ansible/bin/ansible-playbook -i {{inventory}} {{playbook}} --tags "{{tags}}" -e "config_dir_abs_path={{repo_root}}/{{config_dir}}" -e "repo_root_path={{repo_root}}" -e "repo_root_path={{repo_root}}"

@@ -20,10 +20,6 @@ jobs:
   setup-vscode:
     uses: ./.github/workflows/setup-vscode.yml
 
-  setup-gh:
-    uses: ./.github/workflows/setup-gh.yml
-    secrets: inherit
-
   setup-homebrew:
     uses: ./.github/workflows/setup-homebrew.yml
     secrets: inherit

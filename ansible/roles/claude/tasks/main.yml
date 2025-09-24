@@ -31,7 +31,6 @@
     file_type: directory
     recurse: no
     patterns:
-      - "commands"
       - "templates"
   register: claude_dirs
 
@@ -44,3 +43,15 @@
   loop: "{{ claude_dirs.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
+  when: claude_dirs.files is defined and claude_dirs.files | length > 0
+
+- name: "Create Claude commands directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude/commands"
+    state: directory
+    mode: '0755'
+
+- name: "Generate Claude slash commands"
+  ansible.builtin.shell: "{{ config_dir_abs_path }}/slash/claude.sh"
+  args:
+    chdir: "{{ config_dir_abs_path | dirname | dirname }}"

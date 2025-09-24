@@ -25,7 +25,7 @@ base: ## Installs Homebrew and the 'just' command runner
 
 	@if [ ! -f .env ]; then \
 		cp .env.example .env && \
-		echo "📝 Created .env file from .env.example. Please edit GIT_USERNAME and GIT_EMAIL."; \
+		echo "📝 Created .env file from .env.example. Please edit PERSONAL_VCS_NAME and PERSONAL_VCS_EMAIL."; \
 	else \
 		echo "📝 .env file already exists."; \
 	fi

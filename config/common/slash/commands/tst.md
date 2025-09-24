@@ -1,8 +1,3 @@
----
-title: "Run Tests"
-argument-hint: "test-type (e2e, unit, ui) or full command (make e2e-test)"
----
-
 # /tst - Run Tests
 
 ## Step 1: Determine Test Command
@@ -21,3 +16,8 @@ Otherwise, discover the appropriate test command for the given test type by:
    - Repeat until tests pass and implementation is clean
 
 Use TodoWrite to track progress through the fix cycle.
+
+## Arguments
+Test command to execute: `{args}`
+
+Please analyze the test results and provide fixes if needed. Use systematic approach to resolve all test failures.
