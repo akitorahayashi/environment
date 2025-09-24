@@ -14,25 +14,6 @@ config_common := "config/common"
 config_macbook := "config/profiles/macbook"
 config_mac_mini := "config/profiles/mac-mini"
 
-# Category-specific paths
-brew_path := config_common / "brew"
-aiding_path := config_common / "aiding"
-editors_path := config_common / "editors"
-languages_path := config_common / "languages"
-vcs_path := config_common / "vcs"
-shell_path := config_common / "shell"
-ssh_path := config_common / "ssh"
-system_path := config_common / "system"
-mcp_path := config_common / "mcp"
-docker_path := config_common / "docker"
-
-# Machine-specific brew paths
-macbook_brew_path := config_macbook / "brew"
-mac_mini_brew_path := config_mac_mini / "brew"
-
-# Machine-specific apps paths
-macbook_apps_path := config_macbook / "apps"
-mac_mini_apps_path := config_mac_mini / "apps"
 
 # Show available recipes
 default: help
@@ -70,144 +51,144 @@ common:
 # Apply macOS system defaults
 cmn-apply-system:
   @echo "🚀 Applying common system defaults..."
-  @just _run_ansible "system" "{{system_path}}"
+  @just _run_ansible "system" "{{config_common}}/system"
 
 # Setup common Homebrew packages
 cmn-brew:
-  @echo "  -> Running Homebrew setup with config: {{brew_path}}"
-  @just _run_ansible "brew" "{{brew_path}}"
+  @echo "  -> Running Homebrew setup with config: {{config_common}}/brew"
+  @just _run_ansible "brew" "{{config_common}}/brew"
 
 # Configure Git settings
 cmn-git:
   @echo "🚀 Running common Git setup..."
-  @just _run_ansible "git" "{{vcs_path}}"
+  @just _run_ansible "git" "{{config_common}}/vcs"
 
 # Configure JJ (Jujutsu) settings
 cmn-jj:
   @echo "🚀 Running common JJ setup..."
-  @just _run_ansible "jj" "{{vcs_path}}"
+  @just _run_ansible "jj" "{{config_common}}/vcs"
 
 # Setup Java environment
 cmn-java:
   @echo "🚀 Running common Java setup..."
-  @just _run_ansible "java" "{{config_common}}"
+  @just _run_ansible "java" "{{config_common}}/languages"
 
 # Setup Node.js platform
 cmn-nodejs-platform:
   @echo "🚀 Running common Node.js platform setup..."
-  @just _run_ansible "nodejs-platform" "{{languages_path}}"
+  @just _run_ansible "nodejs-platform" "{{config_common}}/languages"
 
 # Install common Node.js tools
 cmn-nodejs-tools:
-  @echo "🚀 Installing common Node.js tools from config: {{languages_path}}"
-  @just _run_ansible "nodejs-tools" "{{languages_path}}"
+  @echo "🚀 Installing common Node.js tools from config: {{config_common}}/languages"
+  @just _run_ansible "nodejs-tools" "{{config_common}}/languages"
 
 # Setup Python platform
 cmn-python-platform:
   @echo "🚀 Running common Python platform setup..."
-  @just _run_ansible "python-platform" "{{languages_path}}"
+  @just _run_ansible "python-platform" "{{config_common}}/languages"
 
 # Install common Python tools
 cmn-python-tools:
-  @echo "🚀 Installing common Python tools from config: {{languages_path}}"
-  @just _run_ansible "python-tools" "{{languages_path}}"
+  @echo "🚀 Installing common Python tools from config: {{config_common}}/languages"
+  @just _run_ansible "python-tools" "{{config_common}}/languages"
 
 # Setup Ruby environment with rbenv
 cmn-ruby:
   @echo "🚀 Running common Ruby setup..."
-  @just _run_ansible "ruby" "{{languages_path}}"
+  @just _run_ansible "ruby" "{{config_common}}/languages"
 
 # Link common shell configuration files
 cmn-shell:
   @echo "🚀 Linking common shell configuration..."
-  @just _run_ansible "shell" "{{shell_path}}"
+  @just _run_ansible "shell" "{{config_common}}/shell"
 
 # Setup SSH configuration
 cmn-ssh:
   @echo "🚀 Running common SSH setup..."
-  @just _run_ansible "ssh" "{{ssh_path}}"
+  @just _run_ansible "ssh" "{{config_common}}/ssh"
 
 # Setup VS Code settings and extensions
 cmn-vscode:
   @echo "🚀 Running common VS Code setup..."
-  @just _run_ansible "vscode" "{{editors_path}}"
+  @just _run_ansible "vscode" "{{config_common}}/editors"
 
 # Setup Cursor settings and CLI
 cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
-  @just _run_ansible "cursor" "{{editors_path}}"
+  @just _run_ansible "cursor" "{{config_common}}/editors"
 
 # Setup Claude Code settings
 cmn-cld:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "claude" "{{aiding_path}}"
+  @just _run_ansible "claude" "{{config_common}}/aiding"
 
 # Setup Gemini CLI settings
 cmn-gm:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "gemini" "{{aiding_path}}"
+  @just _run_ansible "gemini" "{{config_common}}/aiding"
 
 # Setup MCP servers configuration
 cmn-mcp:
   @echo "🚀 Running common MCP setup..."
-  @just _run_ansible "mcp" "{{mcp_path}}"
+  @just _run_ansible "mcp" "{{config_common}}/mcp"
 
 # Install Aider Chat
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
-  @just _run_ansible "aider" "{{aiding_path}}"
+  @just _run_ansible "aider" "{{config_common}}/aiding"
 
 
 # Install common GUI applications (casks)
 cmn-apps:
   @echo "🚀 Installing common GUI applications..."
-  @just _run_ansible "apps" "{{pkg_path}}"
+  @just _run_ansible "apps" "{{config_common}}/brew"
 
 # Pull Docker images
 cmn-docker-images:
   @echo "🚀 Checking/verifying Docker images..."
-  @just _run_ansible "docker" "{{docker_path}}"
+  @just _run_ansible "docker" "{{config_common}}/docker"
 
 # ------------------------------------------------------------------------------
 # MacBook-Specific Recipes
 # ------------------------------------------------------------------------------
 # Install specific Homebrew packages
 mbk-brew:
-  @echo "  -> Running Homebrew setup with config: {{config_macbook}}"
-  @just _run_ansible "brew" "{{config_macbook}}"
+  @echo "  -> Running Homebrew setup with config: {{config_macbook}}/brew"
+  @just _run_ansible "brew" "{{config_macbook}}/brew"
 
 # Install MacBook-specific Node.js tools
 mbk-nodejs-tools:
-  @echo "🚀 Installing MacBook-specific Node.js tools from config: {{config_macbook}}"
-  @just _run_ansible "nodejs-tools" "{{config_macbook}}"
+  @echo "🚀 Installing MacBook-specific Node.js tools from config: {{config_macbook}}/nodejs"
+  @just _run_ansible "nodejs-tools" "{{config_macbook}}/nodejs"
 
 # Install MacBook-specific Python tools
 mbk-python-tools:
-  @echo "🚀 Installing MacBook-specific Python tools from config: {{config_macbook}}"
-  @just _run_ansible "python-tools" "{{config_macbook}}"
+  @echo "🚀 Installing MacBook-specific Python tools from config: {{config_macbook}}/python"
+  @just _run_ansible "python-tools" "{{config_macbook}}/python"
 
 # ------------------------------------------------------------------------------
 # Mac Mini-Specific Recipes
 # ------------------------------------------------------------------------------
 # Install specific Homebrew packages
 mmn-brew:
-  @echo "🚀 Running Homebrew setup with config: {{config_mac_mini}}"
-  @just _run_ansible "brew" "{{config_mac_mini}}"
+  @echo "🚀 Running Homebrew setup with config: {{config_mac_mini}}/brew"
+  @just _run_ansible "brew" "{{config_mac_mini}}/brew"
 
 # Install Mac Mini-specific Node.js tools
 mmn-nodejs-tools:
-  @echo "🚀 Installing Mac Mini-specific Node.js tools from config: {{config_mac_mini}}"
-  @just _run_ansible "nodejs-tools" "{{config_mac_mini}}"
+  @echo "🚀 Installing Mac Mini-specific Node.js tools from config: {{config_mac_mini}}/nodejs"
+  @just _run_ansible "nodejs-tools" "{{config_mac_mini}}/nodejs"
 
 # Install Mac Mini-specific Python tools
 mmn-python-tools:
-  @echo "🚀 Installing Mac Mini-specific Python tools from config: {{config_mac_mini}}"
-  @just _run_ansible "python-tools" "{{config_mac_mini}}"
+  @echo "🚀 Installing Mac Mini-specific Python tools from config: {{config_mac_mini}}/python"
+  @just _run_ansible "python-tools" "{{config_mac_mini}}/python"
 
 # Install Mac Mini-specific GUI applications (casks)
 mmn-apps:
   @echo "🚀 Installing Mac Mini-specific GUI applications..."
-  @just _run_ansible "apps" "{{config_mac_mini}}"
+  @just _run_ansible "apps" "{{config_mac_mini}}/apps"
 
 # ------------------------------------------------------------------------------
 # VCS Profile Switching
