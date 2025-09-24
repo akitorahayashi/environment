@@ -16,7 +16,9 @@
     - { role: nodejs-tools, tags: ['nodejs-tools'] }
     - { role: ruby, tags: ['ruby'] }
     - { role: git, tags: ['git', 'gh'] }
+    - { role: jj, tags: ['jj'] }
     - { role: shell, tags: ['shell'] }
+    - { role: ssh, tags: ['ssh'] }
     - { role: vscode, tags: ['vscode'] }
     - { role: cursor, tags: ['cursor'] }
     - { role: claude, tags: ['claude'] }

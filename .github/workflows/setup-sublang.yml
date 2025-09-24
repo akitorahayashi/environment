@@ -1,4 +1,4 @@
-name: Setup Components
+name: Setup Sub Languages
 
 on:
   workflow_call:
@@ -12,11 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         component:
-          - git
           - ruby
           - java
-          - cursor
-          - mcp
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

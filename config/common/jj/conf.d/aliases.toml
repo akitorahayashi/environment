@@ -1,0 +1,19 @@
+[aliases]
+l = ["log", "--reversed"]
+lg = ["l"]
+st = ["status"]
+df = ["diff"]
+df-r = ["diff", "-r"]
+n = ["new"]
+n-m = ["new", "-m"]
+ds = ["describe"]
+e = ["edit"]
+sq = ["squash"]
+sp = ["split"]
+ev = ["evolog"]
+
+[revset-aliases]
+"recent()" = "heads(::@- ~ ..main-)"
+
+[template-aliases]
+'format_timestamp(timestamp)' = 'timestamp.format("%Y-%m-%d %H:%M")'

@@ -8,10 +8,6 @@ jobs:
     runs-on: macos-15
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        config: [cmn, mbk, mmn]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,6 +25,12 @@ jobs:
           echo "✅ GitHub認証の設定が完了しました"
         shell: bash
 
-      - name: Run Homebrew setup for ${{ matrix.config }}
-        run: just ${{ matrix.config }}-brew
+      - name: Run Homebrew setup for common
+        run: just cmn-brew
+
+      - name: Run Homebrew setup for MacBook
+        run: just mbk-brew
+
+      - name: Run Homebrew setup for Mac mini
+        run: just mmn-brew
 

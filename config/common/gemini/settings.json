@@ -22,8 +22,7 @@
     "usageStatisticsEnabled": false
   },
   "model": {
-    "name": "gemini-2.5-pro",
-    "maxSessionTurns": 20
+    "name": "gemini-2.5-pro"
   },
   "context": {
     "fileName": [

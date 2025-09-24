@@ -25,24 +25,6 @@
   loop_control:
     label: "{{ item.path | basename }}"
 
-- name: "Find Gemini config directories (recursive)"
-  ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/gemini"
-    file_type: directory
-    recurse: no
-    patterns: "commands"
-  register: gemini_dirs
-
-- name: "Symlink Gemini config directories (recursive)"
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/.gemini/{{ item.path | basename }}"
-    state: link
-    force: true
-  loop: "{{ gemini_dirs.files }}"
-  loop_control:
-    label: "{{ item.path | basename }}"
-  when: gemini_dirs.files is defined
 
 - name: "Check if Gemini CLI is available"
   ansible.builtin.command: which gemini
@@ -60,3 +42,14 @@
   ansible.builtin.debug:
     msg: "Gemini CLI not found. Configuration files symlinked but MCP servers not installed via CLI."
   when: gemini_cli_check.rc != 0
+
+- name: "Create Gemini commands directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gemini/commands"
+    state: directory
+    mode: '0755'
+
+- name: "Generate Gemini slash commands"
+  ansible.builtin.shell: "{{ config_dir_abs_path }}/slash/gemini.sh"
+  args:
+    chdir: "{{ config_dir_abs_path | dirname | dirname }}"

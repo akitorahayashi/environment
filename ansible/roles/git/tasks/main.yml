@@ -35,20 +35,6 @@
     scope: global
     value: "{{ ansible_env.HOME }}/.gitignore_global"
 
-- name: "Set git user.name from environment"
-  community.general.git_config:
-    name: user.name
-    scope: global
-    value: "{{ lookup('env', 'GIT_USERNAME') }}"
-  when: lookup('env', 'GIT_USERNAME') | length > 0
-
-- name: "Set git user.email from environment"
-  community.general.git_config:
-    name: user.email
-    scope: global
-    value: "{{ lookup('env', 'GIT_EMAIL') }}"
-  when: lookup('env', 'GIT_EMAIL') | length > 0
-
 - name: "Symlink gh config.yml"
   ansible.builtin.file:
     src: "{{ config_dir_abs_path }}/git/ghconfig.yml"

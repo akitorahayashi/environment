@@ -1,0 +1,10 @@
+"$schema" = "https://jj-vcs.github.io/jj/latest/config-schema.json"
+
+# User configuration will be set using switch commands:
+# just sw-p (personal) or just sw-w (work)
+
+[ui]
+color = "auto"
+editor = "code --wait"
+diff-editor = "code --wait --diff"
+default-command = ["log", "--reversed"]

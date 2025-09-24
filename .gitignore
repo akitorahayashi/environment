@@ -15,3 +15,9 @@
 
 # Environment variables
 .env
+
+# Ignore SSH keys and sensitive config files
+*.pem
+id_*
+*.pub
+*.conf

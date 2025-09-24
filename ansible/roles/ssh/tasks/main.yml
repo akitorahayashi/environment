@@ -1,0 +1,28 @@
+---
+- name: Ensure .ssh directory exists with correct permissions
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
+
+- name: Ensure .ssh/conf.d directory exists with correct permissions
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh/conf.d"
+    state: directory
+    mode: '0700'
+
+- name: Symlink main ssh config file
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/ssh/config"
+    dest: "{{ ansible_env.HOME }}/.ssh/config"
+    state: link
+    force: yes
+
+- name: Symlink individual ssh config files
+  ansible.builtin.file:
+    src: "{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.ssh/conf.d/{{ item | basename }}"
+    state: link
+    force: yes
+  with_fileglob:
+    - "{{ config_dir_abs_path }}/ssh/conf.d/*.conf"

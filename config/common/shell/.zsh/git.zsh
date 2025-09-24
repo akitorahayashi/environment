@@ -1,16 +1,12 @@
-# git
 alias g="git"
 alias gi="git"
-alias gb="git branch"
-alias gp="git pull"
-alias gp-r="git pull --rebase"
-alias gco="git checkout"
-alias gco-b="git checkout -b"
-alias gps="git push"
-alias gps-u-o="git push -u origin"
-alias gps-f-l="git push --force-with-lease"
-alias gps-o="git push origin"
-alias gc="git add .;git commit -m"
-alias gic="git add .;git commit -m"
-alias gl="git lg"
-alias glg="git lg"
+
+# Auto-generated git aliases from git config
+generate_git_aliases() {
+    # Get global git aliases and convert them to zsh aliases with 'g' prefix
+    git config --global --get-regexp '^alias\.' 2>/dev/null \
+      | sed -E 's/^alias\.([^ ]*).*/alias g\1="git \1"/'
+}
+
+# Generate and source git aliases
+eval "$(generate_git_aliases)"

@@ -1,0 +1,35 @@
+{
+  "commands": {
+    "tst": {
+      "title": "Run Tests",
+      "description": "Run various test commands with automated fix cycle",
+      "argument-hint": "test-type (e2e, unit, ui) or full command (make e2e-test)",
+      "prompt-file": "commands/tst.md"
+    },
+    "sn": {
+      "title": "Activate Serena",
+      "description": "Activate current directory as a project for semantic code analysis",
+      "prompt-file": "commands/sn.md"
+    },
+    "cm": {
+      "title": "Smart Commit",
+      "description": "Execute git add . && git commit with smart commit message generation",
+      "prompt-file": "commands/cm.md"
+    },
+    "vc": {
+      "title": "Activate voice notifications",
+      "description": "Enable mandatory voice completion reporting for all tasks",
+      "prompt-file": "commands/vc.md"
+    },
+    "dct-vc": {
+      "title": "Deactivate voice notifications",
+      "description": "Disable mandatory voice completion reporting",
+      "prompt-file": "commands/dct-vc.md"
+    },
+    "prm": {
+      "title": "Create project premise",
+      "description": "Research and create comprehensive .claude/CLAUDE.md project documentation",
+      "prompt-file": "commands/prm.md"
+    }
+  }
+}

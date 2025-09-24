@@ -28,10 +28,11 @@
     rs-s = reset --soft
     rs-h = reset --hard
     rs-h-m = reset --hard origin/main
+    rt = restore
     rm-c = rm --cached
 
-    c = commit
-    cm = commit
+    c = !git add . && git commit -m
+    cm = !git add . && git commit -m
     amd = !git add . && git commit --amend --no-edit
     sb = submodule
     sb-ini = submodule init
@@ -53,7 +54,8 @@
     tg-d-rm = push --delete origin
 
     mr = merge
-    lg = log --oneline --graph --decorate --all -n 15
+    l = log --oneline --graph --decorate --all -n 15
+    lg = l
 
 [core]
 	excludesfile = ~/.gitignore_global
