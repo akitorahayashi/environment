@@ -1,6 +1,6 @@
 # MacOS Environment Setup
 
-This project automates the setup of a consistent development environment across different Macs. It includes centralized communication rules in `Rules.md` that are shared across AI assistant configurations via symbolic links.
+This project automates the setup of a consistent development environment across different Macs.
 
 ## Directory Structure
 

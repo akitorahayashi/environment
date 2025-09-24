@@ -1,10 +1,3 @@
-alias gm="gemini"
-
-# MCP aliases
-alias gm-m-a="gemini mcp add"
-alias gm-m-rm="gemini mcp remove"
-alias gm-m-ls="gemini mcp list"
-
 # Generate Gemini model aliases
 _generate_gemini_aliases() {
     local -A models=(
@@ -24,15 +17,27 @@ _generate_gemini_aliases() {
         [yap]="-y -a -p"
     )
 
-    local model_key opts_key
+    local model_key opts_key alias_name
     for model_key in ${(k)models}; do
         for opts_key in ${(k)options}; do
-            alias "gm-${model_key}-${opts_key}"="gemini -m ${models[$model_key]} ${options[$opts_key]}"
+            alias_name="gm-${model_key}${opts_key:+-}${opts_key}"
+
+            alias "$alias_name"="gemini -m ${models[$model_key]} ${options[$opts_key]}"
         done
     done
 }
 
 _generate_gemini_aliases
+
+# Basic gm alias (defaults to flash model)
+alias gm="gemini -m gemini-2.5-flash"
+
+# Plain model aliases (without options)
+alias gm-pr="gemini -m gemini-2.5-pro"
+alias gm-fl="gemini -m gemini-2.5-flash"
+alias gm-lt="gemini -m gemini-2.5-flash-lite"
+alias gm-i="gemini -m gemini-2.5-flash-image-preview"
+alias gm-il="gemini -m gemini-2.5-flash-image-live-preview"
 
 # gemini command options
 # -p, --prompt: Specify a prompt. Appended to input on stdin (if any). Used in non-interactive mode.
