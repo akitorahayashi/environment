@@ -17,9 +17,6 @@ jobs:
   setup-sublang:
     uses: ./.github/workflows/setup-sublang.yml
 
-  setup-vcs:
-    uses: ./.github/workflows/setup-vcs.yml
-
   setup-ide:
     uses: ./.github/workflows/setup-ide.yml
 

@@ -15,9 +15,15 @@ jobs:
       - name: Setup Homebrew and just
         run: make base
 
+      - name: Setup Git configuration
+        run: just cmn-git
+
+      - name: Setup JJ configuration
+        run: just cmn-jj
+
       - name: Setup shell configuration
         run: just cmn-shell
-
+        
       - name: Test shell aliases functionality
         shell: zsh {0}
         run: |
