@@ -13,8 +13,9 @@
 - name: Install aider-chat with pipx using specific Python version
   community.general.pipx:
     name: aider-chat
-    python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python"
+    python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python{{ python_version }}"
     state: present
+    executable: /opt/homebrew/bin/pipx
 
 - name: Ensure .aider directory exists
   ansible.builtin.file:
