@@ -1,6 +1,9 @@
 {
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Bash(just cmn-python-tools:*)",
+      "Bash(just:*)"
+    ],
     "deny": [],
     "ask": []
   }
