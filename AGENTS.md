@@ -32,3 +32,8 @@ A comprehensive automation project for setting up consistent macOS development e
 - **Profile configs**: Use `{{repo_root_path}}/config/profiles/{{profile}}` (e.g., `{{repo_root_path}}/config/profiles/{{profile}}/cask/Brewfile`)
 - **Fallback logic**: Roles must implement profile-specific → common fallback for optional overrides
 - **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile
+
+### CI Orchestration
+
+CI/CD pipeline orchestration is centrally managed in the `ci-pipeline.yml` file.
+Each module defines its workflows in separate YAML files, specifying module-specific tasks and jobs. 
