@@ -1,0 +1,34 @@
+---
+# Aider Chat installation tasks
+
+- name: Read Python version from .python-version file
+  slurp:
+    src: "{{ config_dir_abs_path }}/languages/python/.python-version"
+  register: python_version_file
+
+- name: Set Python version variable
+  set_fact:
+    python_version: "{{ python_version_file.content | b64decode | trim }}"
+
+- name: Install aider-chat with pipx using specific Python version
+  community.general.pipx:
+    name: aider-chat
+    python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python"
+    state: present
+    executable: /opt/homebrew/bin/pipx
+
+- name: Ensure .aider directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.aider"
+    state: directory
+    mode: '0755'
+
+- name: Symlink aider config files
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/aiding/aider/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/{{ item }}"
+    state: link
+    force: yes
+  with_items:
+    - .aider.conf.yml
+    - .aider.model.settings.yml

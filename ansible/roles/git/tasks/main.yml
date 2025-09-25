@@ -1,30 +1,24 @@
 ---
-- name: "Install git and gh"
+- name: "Install git"
   community.general.homebrew:
-    name: "{{ item }}"
+    name: git
     state: present
-  loop:
-    - git
-    - gh
 
-- name: "Ensure .config directories exist"
+- name: "Ensure .config/git directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/{{ item }}"
+    path: "{{ ansible_env.HOME }}/.config/git"
     state: directory
     mode: '0755'
-  loop:
-    - git
-    - gh
 
 - name: "Copy .gitconfig"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/git/.gitconfig"
+    src: "{{ config_dir_abs_path }}/vcs/git/.gitconfig"
     dest: "{{ ansible_env.HOME }}/.config/git/config"
     force: true
 
 - name: "Symlink .gitignore_global"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/git/.gitignore_global"
+    src: "{{ config_dir_abs_path }}/vcs/git/.gitignore_global"
     dest: "{{ ansible_env.HOME }}/.gitignore_global"
     state: link
     force: true
@@ -34,10 +28,3 @@
     name: core.excludesfile
     scope: global
     value: "{{ ansible_env.HOME }}/.gitignore_global"
-
-- name: "Symlink gh config.yml"
-  ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/git/ghconfig.yml"
-    dest: "{{ ansible_env.HOME }}/.config/gh/config.yml"
-    state: link
-    force: true

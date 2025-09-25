@@ -20,3 +20,20 @@ A comprehensive automation project for setting up consistent macOS development e
    - Directory structure and architecture explanation
    - Usage instructions and command reference
    - Detailed Ansible role functionality
+
+## Design Rules
+
+### Configuration Path Resolution
+**Core Principle**: justfile passes only profile name and base paths; Ansible roles handle all path resolution and fallback logic.
+
+**Rules**:
+- **justfile**: Pass `profile`, `config_dir_abs_path`, and `repo_root_path` only
+- **Common configs**: Use `{{config_dir_abs_path}}` (e.g., `{{config_dir_abs_path}}/vcs/git/.gitconfig`)
+- **Profile configs**: Use `{{repo_root_path}}/config/profiles/{{profile}}` (e.g., `{{repo_root_path}}/config/profiles/{{profile}}/cask/Brewfile`)
+- **Fallback logic**: Roles must implement profile-specific → common fallback for optional overrides
+- **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile
+
+### CI Orchestration
+
+CI/CD pipeline orchestration is centrally managed in the `ci-pipeline.yml` file.
+Each module defines its workflows in separate YAML files, specifying module-specific tasks and jobs. 

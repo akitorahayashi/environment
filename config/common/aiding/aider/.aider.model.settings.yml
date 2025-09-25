@@ -1,0 +1,8 @@
+- name: ollama/gpt-oss:120b-cloud
+  weak_model_name: ollama/qwen3:4b
+  extra_params:
+    num_ctx: 131072 # 128K (128 * 1024)
+
+- name: ollama/qwen3:4b
+  extra_params:
+    num_ctx: 262144  # 256K (256 * 1024)

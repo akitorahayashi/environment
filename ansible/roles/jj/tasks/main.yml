@@ -18,7 +18,7 @@
 
 - name: "Copy jj config.toml to $HOME/.config/jj/ (user-level config)"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/jj/.jjconfig.toml"
+    src: "{{ config_dir_abs_path }}/vcs/jj/config.toml"
     dest: "{{ ansible_env.HOME }}/.config/jj/config.toml"
     force: true
     mode: '0644'
@@ -31,7 +31,7 @@
 
 - name: "Copy jj conf.d files"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/jj/conf.d/"
+    src: "{{ config_dir_abs_path }}/vcs/jj/conf.d/"
     dest: "{{ ansible_env.HOME }}/.config/jj/conf.d/"
     force: true
     mode: '0644'
