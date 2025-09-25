@@ -31,7 +31,6 @@
 
 - name: "Copy jj conf.d files"
   ansible.builtin.copy:
-    ansible.builtin.copy:
     src: "{{ config_dir_abs_path }}/vcs/jj/conf.d/"
     dest: "{{ ansible_env.HOME }}/.config/jj/conf.d/"
     force: true

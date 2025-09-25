@@ -18,9 +18,6 @@ jobs:
       - name: Apply macOS system defaults
         run: just cmn-apply-system
         
-      - name: Backup current system defaults
-        run: just cmn-backup-system
-        
       - name: Verify system defaults application
         run: |
           just cmn-backup-system
