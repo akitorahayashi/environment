@@ -20,3 +20,15 @@ A comprehensive automation project for setting up consistent macOS development e
    - Directory structure and architecture explanation
    - Usage instructions and command reference
    - Detailed Ansible role functionality
+
+## Design Rules
+
+### Configuration Path Resolution
+**Core Principle**: justfile passes only profile name and base paths; Ansible roles handle all path resolution and fallback logic.
+
+**Rules**:
+- **justfile**: Pass `profile`, `config_dir_abs_path`, and `repo_root_path` only
+- **Common configs**: Use `{{config_dir_abs_path}}` (e.g., `{{config_dir_abs_path}}/vcs/git/.gitconfig`)
+- **Profile configs**: Use `{{repo_root_path}}/config/profiles/{{profile}}` (e.g., `{{repo_root_path}}/config/profiles/{{profile}}/apps/Brewfile`)
+- **Fallback logic**: Roles must implement profile-specific → common fallback for optional overrides
+- **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile

@@ -7,7 +7,7 @@
 
 - name: "Find Gemini config files (flat)"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/gemini"
+    paths: "{{ config_dir_abs_path }}/aiding/gemini"
     patterns:
       - "*.json"
       - "*.md"
@@ -34,7 +34,7 @@
 
 - name: "Read Gemini settings configuration"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/gemini/settings.json"
+    src: "{{ config_dir_abs_path }}/aiding/gemini/settings.json"
   register: gemini_settings_config
   when: gemini_cli_check.rc == 0
 
@@ -50,6 +50,6 @@
     mode: '0755'
 
 - name: "Generate Gemini slash commands"
-  ansible.builtin.shell: "{{ config_dir_abs_path }}/slash/gemini.sh"
+  ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/gemini.sh"
   args:
     chdir: "{{ repo_root_path }}"

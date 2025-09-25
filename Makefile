@@ -72,18 +72,14 @@ base: ## Installs Homebrew and the 'just' command runner
 macbook: ## Runs the full setup for a MacBook (requires 'base' to be run first)
 	@echo "🚀 Handing over to just for MacBook setup..."
 	@just common
-	@just mbk-brew
-	@just mbk-nodejs-tools
-	@just mbk-python-tools
+	@just mbk-apps
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
 mac-mini: ## Runs the full setup for a Mac mini (requires 'base' to be run first)
 	@echo "🚀 Handing over to just for Mac mini setup..."
 	@just common
-	@just mmn-brew
-	@just mmn-nodejs-tools
-	@just mmn-python-tools
+	@just mmn-apps
 	@echo "✅ Mac mini full setup completed successfully."
 
 .PHONY: system-backup

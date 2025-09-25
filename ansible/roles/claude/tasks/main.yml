@@ -7,7 +7,7 @@
 
 - name: "Find Claude config files (flat)"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/claude"
+    paths: "{{ config_dir_abs_path }}/aiding/claude"
     patterns:
       - "*.json"
       - "*.md"
@@ -27,7 +27,7 @@
 
 - name: "Find Claude config directories (recursive)"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/claude"
+    paths: "{{ config_dir_abs_path }}/aiding/claude"
     file_type: directory
     recurse: no
     patterns:
@@ -52,6 +52,6 @@
     mode: '0755'
 
 - name: "Generate Claude slash commands"
-  ansible.builtin.shell: "{{ config_dir_abs_path }}/slash/claude.sh"
+  ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
   args:
     chdir: "{{ repo_root_path }}"

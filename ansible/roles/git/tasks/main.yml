@@ -18,13 +18,13 @@
 
 - name: "Copy .gitconfig"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/git/.gitconfig"
+    src: "{{ config_dir_abs_path }}/vcs/git/.gitconfig"
     dest: "{{ ansible_env.HOME }}/.config/git/config"
     force: true
 
 - name: "Symlink .gitignore_global"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/git/.gitignore_global"
+    src: "{{ config_dir_abs_path }}/vcs/git/.gitignore_global"
     dest: "{{ ansible_env.HOME }}/.gitignore_global"
     state: link
     force: true
@@ -37,7 +37,7 @@
 
 - name: "Symlink gh config.yml"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/git/ghconfig.yml"
+    src: "{{ config_dir_abs_path }}/vcs/git/ghconfig.yml"
     dest: "{{ ansible_env.HOME }}/.config/gh/config.yml"
     state: link
     force: true
