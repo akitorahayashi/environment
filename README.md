@@ -10,8 +10,7 @@ This project automates the setup of a consistent development environment across 
 ├── .gemini/
 ├── .serena/
 ├── .github/
-│   ├── workflows/
-│   └── copilot-instructions.md
+│   └── workflows/
 ├── config/
 │   ├── common/
 │   └── profiles/
