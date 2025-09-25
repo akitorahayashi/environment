@@ -9,7 +9,7 @@ config/
 ├── common/
 │   ├── aiding/          # AI assistant tools (aider, claude, gemini, slash)
 │   ├── editors/         # Code editors (cursor, vscode)
-│   ├── languages/       # Programming languages (nodejs, python, ruby)
+│   ├── runtime/         # Runtimes (nodejs, python, ruby)
 │   ├── packages/        # Package lists (Brewfile, images.txt)
 │   ├── shell/           # Shell configuration (.zshrc, .zprofile, .zsh/)
 │   ├── system/          # macOS system settings
@@ -29,7 +29,7 @@ config/
    - `pkg_path := config_common / "packages"`
    - `aiding_path := config_common / "aiding"`
    - `editors_path := config_common / "editors"`
-   - `languages_path := config_common / "languages"`
+   - `runtime_path := config_common / "runtime"`
    - `vcs_path := config_common / "vcs"`
 4. Updated all justfile recipes to use new paths
 5. Verified Ansible playbooks work with new structure

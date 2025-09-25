@@ -81,7 +81,7 @@ cmn-nodejs-platform:
 
 # Install common Node.js tools
 cmn-nodejs-tools:
-  @echo "🚀 Installing common Node.js tools from config: {{config_common}}/languages"
+  @echo "🚀 Installing common Node.js tools from config: {{config_common}}/runtime"
   @just _run_ansible "nodejs-tools" "common"
 
 # Setup Python platform
@@ -91,7 +91,7 @@ cmn-python-platform:
 
 # Install common Python tools
 cmn-python-tools:
-  @echo "🚀 Installing common Python tools from config: {{config_common}}/languages"
+  @echo "🚀 Installing common Python tools from config: {{config_common}}/runtime"
   @just _run_ansible "python-tools" "common"
 
 # Setup Ruby environment with rbenv
