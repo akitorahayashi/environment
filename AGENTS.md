@@ -29,6 +29,6 @@ A comprehensive automation project for setting up consistent macOS development e
 **Rules**:
 - **justfile**: Pass `profile`, `config_dir_abs_path`, and `repo_root_path` only
 - **Common configs**: Use `{{config_dir_abs_path}}` (e.g., `{{config_dir_abs_path}}/vcs/git/.gitconfig`)
-- **Profile configs**: Use `{{repo_root_path}}/config/profiles/{{profile}}` (e.g., `{{repo_root_path}}/config/profiles/{{profile}}/apps/Brewfile`)
+- **Profile configs**: Use `{{repo_root_path}}/config/profiles/{{profile}}` (e.g., `{{repo_root_path}}/config/profiles/{{profile}}/cask/Brewfile`)
 - **Fallback logic**: Roles must implement profile-specific → common fallback for optional overrides
 - **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile

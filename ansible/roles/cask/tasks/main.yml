@@ -1,0 +1,6 @@
+---
+- name: "Install cask from cask Brewfile"
+  ansible.builtin.command:
+    cmd: brew bundle --file="{{ repo_root_path }}/config/profiles/{{ profile }}/cask/Brewfile"
+  register: brew_bundle_result
+  changed_when: "'Installing' in brew_bundle_result.stdout"

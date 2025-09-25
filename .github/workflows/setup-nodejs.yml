@@ -21,12 +21,6 @@ jobs:
       - name: Run cmn-nodejs-tools setup
         run: just cmn-nodejs-tools
 
-      - name: Run mbk-nodejs-tools setup
-        run: just mbk-nodejs-tools
-
-      - name: Run mmn-nodejs-tools setup
-        run: just mmn-nodejs-tools
-
       - name: Run Claude setup
         run: just cmn-cld
 

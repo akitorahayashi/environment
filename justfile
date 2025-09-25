@@ -29,6 +29,7 @@ common:
   @just cmn-apply-system
   @just cmn-git
   @just cmn-jj
+  @just cmn-gh
   @just sw-p
   @just cmn-vscode
   @just cmn-python-platform
@@ -40,7 +41,7 @@ common:
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-ruby
-  @just cmn-java
+
   @just cmn-aider
   @just cmn-brew
   @echo "✅ All common setup tasks completed successfully."
@@ -68,10 +69,10 @@ cmn-jj:
   @echo "🚀 Running common JJ setup..."
   @just _run_ansible "jj" "common"
 
-# Setup Java environment
-cmn-java:
-  @echo "🚀 Running common Java setup..."
-  @just _run_ansible "java" "common"
+# Configure GitHub CLI settings
+cmn-gh:
+  @echo "🚀 Running GitHub CLI setup..."
+  @just _run_ansible "gh" "common"
 
 # Setup Node.js platform
 cmn-nodejs-platform:
@@ -139,10 +140,10 @@ cmn-aider:
   @just _run_ansible "aider" "common"
 
 
-# Install common GUI applications (casks)
-cmn-apps:
-  @echo "🚀 Installing common GUI applications..."
-  @just _run_ansible "apps" "common"
+# Install common cask
+cmn-cask:
+  @echo "🚀 Installing common Brew Casks..."
+  @just _run_ansible "cask" "common"
 
 # Pull Docker images
 cmn-docker-images:
@@ -152,18 +153,18 @@ cmn-docker-images:
 # ------------------------------------------------------------------------------
 # MacBook-Specific Recipes
 # ------------------------------------------------------------------------------
-# Install MacBook-specific GUI applications (casks)
-mbk-apps:
-  @echo "🚀 Installing MacBook-specific GUI applications..."
-  @just _run_ansible "apps" "macbook"
+# Install MacBook-specific cask
+mbk-cask:
+  @echo "🚀 Installing MacBook-specific Brew Casks..."
+  @just _run_ansible "cask" "macbook"
 
 # ------------------------------------------------------------------------------
 # Mac Mini-Specific Recipes
 # ------------------------------------------------------------------------------
-# Install Mac Mini-specific GUI applications (casks)
-mmn-apps:
-  @echo "🚀 Installing Mac Mini-specific GUI applications..."
-  @just _run_ansible "apps" "mac-mini"
+
+mmn-cask:
+  @echo "🚀 Installing Mac Mini-specific Brew Casks..."
+  @just _run_ansible "cask" "mac-mini"
 
 # ------------------------------------------------------------------------------
 # VCS Profile Switching
