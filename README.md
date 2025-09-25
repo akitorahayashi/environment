@@ -100,13 +100,14 @@ These commands update both Git and JJ global configurations simultaneously using
 
 This project uses Ansible to automate the setup of a complete development environment. The automation logic is organized into roles, each responsible for a specific component.
 
-1.  **Homebrew Setup (`brew` role)**
-    -   Installs and configures Homebrew packages using `brew bundle`.
-    -   Reads the package list from the `Brewfile` located in the corresponding configuration directory (e.g., `config/common/brew/Brewfile`).
+1.  **Homebrew Formulae (`formulae` role)**
+    -   Installs Homebrew formula packages using `brew bundle`.
+    -   Reads the package list from the `Brewfile` located in `config/common/brew/formulae/Brewfile`.
 
 2.  **Brew Casks (`cask` role)**
-    -   Installs Brew Casks (cask) using `brew bundle`.
-    -   Reads the cask list from the `Brewfile` located in the corresponding cask configuration directory (e.g., `config/common/cask/Brewfile`).
+    -   Installs Brew Casks (GUI applications) using `brew bundle`.
+    -   Supports profile-specific configurations with fallback to common configuration.
+    -   Reads from profile-specific `Brewfile` (e.g., `config/profiles/mac-mini/brew/cask/Brewfile`) or falls back to `config/common/brew/cask/Brewfile`.
 
 3.  **Shell Configuration (`shell` role)**
     -   Sets up the shell environment by creating symbolic links for `.zprofile`, `.zshrc`, and all files within the `.zsh/` directory.

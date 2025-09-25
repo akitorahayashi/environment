@@ -7,7 +7,7 @@
     config_dir_abs_path: "{{ config_dir_abs_path }}"
 
   roles:
-    - { role: brew, tags: ['brew'] }
+    - { role: formulae, tags: ['formulae'] }
     - { role: cask, tags: ['cask'] }
     - { role: python-platform, tags: ['python-platform'] }
     - { role: python-tools, tags: ['python-tools'] }

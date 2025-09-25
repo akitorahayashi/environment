@@ -43,7 +43,7 @@ common:
   @just cmn-ruby
 
   @just cmn-aider
-  @just cmn-brew
+  @just cmn-formulae
   @echo "✅ All common setup tasks completed successfully."
 
 # ------------------------------------------------------------------------------
@@ -54,10 +54,10 @@ cmn-apply-system:
   @echo "🚀 Applying common system defaults..."
   @just _run_ansible "system" "common"
 
-# Setup common Homebrew packages
-cmn-brew:
-  @echo "  -> Running Homebrew setup with config: {{config_common}}/brew"
-  @just _run_ansible "brew" "common"
+# Setup common Homebrew formulae packages
+cmn-formulae:
+  @echo "  -> Running Homebrew formulae setup with config: {{config_common}}/brew"
+  @just _run_ansible "formulae" "common"
 
 # Configure Git settings
 cmn-git:
