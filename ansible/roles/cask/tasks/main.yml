@@ -1,11 +1,10 @@
 ---
 - name: "Install cask packages from Brewfile (profile-specific or common fallback)"
-  ansible.builtin.command:
-    cmd: |
-      if [ -f "{{ repo_root_path }}/config/profiles/{{ profile }}/brew/cask/Brewfile" ]; then
-        brew bundle --file="{{ repo_root_path }}/config/profiles/{{ profile }}/brew/cask/Brewfile"
-      else
-        brew bundle --file="{{ config_dir_abs_path }}/brew/cask/Brewfile"
-      fi
+  ansible.builtin.shell: |
+    if [ -f "{{ repo_root_path }}/config/profiles/{{ profile }}/brew/cask/Brewfile" ]; then
+      brew bundle --file="{{ repo_root_path }}/config/profiles/{{ profile }}/brew/cask/Brewfile"
+    else
+      brew bundle --file="{{ config_dir_abs_path }}/brew/cask/Brewfile"
+    fi
   register: brew_bundle_result
   changed_when: "'Installing' in brew_bundle_result.stdout"

@@ -1,4 +1,4 @@
-name: Setup Homebrew
+name: Setup Homebrew Formulae
 
 on:
   workflow_call:
