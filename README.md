@@ -144,7 +144,7 @@ This project uses Ansible to automate the setup of a complete development enviro
 
 9.  **Ruby Environment (`ruby` role)**
     -   Installs `rbenv` to manage Ruby versions.
-    -   Reads the desired Ruby version from the `.ruby-version` file in `config/common/ruby/`.
+    -   Reads the desired Ruby version from the `.ruby-version` file in `config/common/runtime/ruby/`.
     -   Installs the specified Ruby version and sets it as the global default.
     -   Installs a specific version of the `bundler` gem.
 
@@ -162,11 +162,11 @@ This project uses Ansible to automate the setup of a complete development enviro
 
 12. **Python Environment (`python-platform` and `python-tools` roles)**
     -   **Platform:** Installs `pyenv`, reads the target Python version from `.python-version`, installs it, and sets it as the global default.
-    -   **Tools:** Installs a list of Python tools from `config/common/python/pipx-tools.txt` using `pipx install`.
+    -   **Tools:** Installs a list of Python tools from `config/common/runtime/python/pipx-tools.txt` using `pipx install`.
 
 13. **Node.js Environment (`nodejs-platform` and `nodejs-tools` roles)**
-    -   **Platform:** Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `.nvmrc`, installs it, and sets it as the default.
-    -   **Tools:** Reads the `global-packages.json` file, parses the list of dependencies, and installs them globally using `pnpm install -g`. It also symlinks the `md-to-pdf-config.js` file to the home directory.
+    -   **Platform:** Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `config/common/runtime/nodejs/.nvmrc`, installs it, and sets it as the default.
+    -   **Tools:** Reads `config/common/runtime/nodejs/global-packages.json`, parses the list of dependencies, and installs them globally using `pnpm install -g`. It also symlinks `config/common/runtime/nodejs/md-to-pdf-config.js` to the home directory.
 
 15. **Claude Code Environment (`claude` role)**
     -   Creates the `~/.claude` directory for Claude Code configuration.
@@ -194,7 +194,7 @@ This project uses Ansible to automate the setup of a complete development enviro
 
 19. **Aider Chat Environment (`aider` role)**
     -   Installs aider-chat via pipx.
-    -   To address compatibility issues, the installation is performed using the specific Python version defined in `config/common/python/.python-version`.
+    -   To address compatibility issues, the installation is performed using the specific Python version defined in `config/common/runtime/python/.python-version`.
 
 ## CI/CD Pipeline Verification Items
 

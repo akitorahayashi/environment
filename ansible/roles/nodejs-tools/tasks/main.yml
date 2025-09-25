@@ -1,7 +1,7 @@
 ---
 - name: "Set Node.js version variable from file"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/languages/nodejs/.nvmrc"
+    src: "{{ config_dir_abs_path }}/runtime/nodejs/.nvmrc"
   register: node_version_file
 
 - name: "Set Node.js version fact"
@@ -10,7 +10,7 @@
 
 - name: "Load packages JSON content"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/languages/nodejs/global-packages.json"
+    src: "{{ config_dir_abs_path }}/runtime/nodejs/global-packages.json"
   register: node_pkg_file_raw
 
 - name: "Parse package JSON"
@@ -33,7 +33,7 @@
 
 - name: "Create symlink for md-to-pdf config"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/languages/nodejs/md-to-pdf-config.js"
+    src: "{{ config_dir_abs_path }}/runtime/nodejs/md-to-pdf-config.js"
     dest: "{{ ansible_env.HOME }}/.md-to-pdf-config.js"
     state: link
     force: true

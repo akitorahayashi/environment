@@ -3,7 +3,7 @@
 
 - name: Read Python version from .python-version file
   slurp:
-    src: "{{ config_dir_abs_path }}/languages/python/.python-version"
+    src: "{{ config_dir_abs_path }}/runtime/python/.python-version"
   register: python_version_file
 
 - name: Set Python version variable
