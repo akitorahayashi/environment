@@ -1,0 +1,10 @@
+---
+- name: "Install Homebrew formulae (CLI tools)"
+  include_tasks: formulae.yml
+  when: brew_install_formulae | default(true) | bool
+  tags: [brew, brew-formulae]
+
+- name: "Install Homebrew casks (GUI apps)"
+  include_tasks: cask.yml
+  when: brew_install_cask | default(true) | bool
+  tags: [brew, brew-cask]

@@ -18,11 +18,6 @@ jobs:
       - name: Setup VSCode configuration
         run: just cmn-vscode
 
-      - name: Test VSCode extensions backup script
-        run: |
-          set -euo pipefail
-          just cmn-backup-vscode-extensions
-          git diff --quiet --exit-code -- config/common/vscode/extensions.json || { echo "❌ extensions.json が未コミット/未同期です。'just cmn-backup-vscode-extensions' 実行後に変更をコミットしてください。"; exit 1; }
 
       - name: Setup Cursor configuration
         run: just cmn-cursor

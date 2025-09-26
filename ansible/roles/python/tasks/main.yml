@@ -1,0 +1,26 @@
+---
+- name: "Set Python version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/runtime/python/.python-version"
+  register: python_version_file
+  tags: [python, python-platform, python-tools, python-aider]
+
+- name: "Set Python version fact"
+  ansible.builtin.set_fact:
+    python_version: "{{ python_version_file.content | b64decode | trim }}"
+  tags: [python, python-platform, python-tools, python-aider]
+
+- name: "Setup Python platform"
+  include_tasks: platform.yml
+  when: python_setup_platform | default(true) | bool
+  tags: [python, python-platform]
+
+- name: "Install Python tools"
+  include_tasks: tools.yml
+  when: python_install_tools | default(true) | bool
+  tags: [python, python-tools]
+
+- name: "Install Aider AI coding assistant"
+  include_tasks: aider.yml
+  when: python_install_aider | default(false) | bool
+  tags: [python, python-aider]

@@ -7,23 +7,15 @@
     config_dir_abs_path: "{{ config_dir_abs_path }}"
 
   roles:
-    - { role: formulae, tags: ['formulae'] }
-    - { role: cask, tags: ['cask'] }
-    - { role: python-platform, tags: ['python-platform'] }
-    - { role: python-tools, tags: ['python-tools'] }
-    - { role: nodejs-platform, tags: ['nodejs-platform'] }
-    - { role: nodejs-tools, tags: ['nodejs-tools'] }
+    - { role: brew, tags: ['brew'] }
+    - { role: python, tags: ['python'] }
+    - { role: nodejs, tags: ['nodejs'] }
     - { role: ruby, tags: ['ruby'] }
-    - { role: git, tags: ['git'] }
+    - { role: vcs, tags: ['vcs'] }
     - { role: gh, tags: ['gh'] }
-    - { role: jj, tags: ['jj'] }
     - { role: shell, tags: ['shell'] }
     - { role: ssh, tags: ['ssh'] }
-    - { role: vscode, tags: ['vscode'] }
-    - { role: cursor, tags: ['cursor'] }
-    - { role: claude, tags: ['claude'] }
-    - { role: gemini, tags: ['gemini'] }
+    - { role: editor, tags: ['editor'] }
     - { role: mcp, tags: ['mcp'] }
     - { role: system, tags: ['system'] }
     - { role: docker, tags: ['docker'] }
-    - { role: aider, tags: ['aider'] }

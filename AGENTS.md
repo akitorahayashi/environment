@@ -1,7 +1,7 @@
 # Environment Setup Project
 
 ## Project Overview
-A comprehensive automation project for setting up consistent macOS development environments across different machines (MacBook and Mac mini). This project uses Ansible playbooks to automate the installation and configuration of development tools, system settings, and environment configurations.
+A comprehensive automation project for setting up consistent macOS development environments across different machines (MacBook and Mac mini). This project uses Ansible playbooks to automate the installation and configuration of development tools, system settings, and configurations.
 
 ## Quick Start Guide
 

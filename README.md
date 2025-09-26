@@ -88,47 +88,39 @@ These commands are recommended to be run manually once after initial setup:
 
 ### VCS User Profile Switching
 
-After setup, you can easily switch between personal and work configurations for Git and JJ (Jujutsu):
+After setup, you can easily switch between personal and work configurations for version control systems:
 
 - **Switch to personal configuration**: `just sw-p` - Sets personal VCS user name and email.
 - **Switch to work configuration**: `just sw-w` - Sets work VCS user name and email.
 
-These commands update both Git and JJ global configurations simultaneously using the environment variables defined in `.env`. Specifically, they modify `~/.gitconfig` for Git and `~/.config/jj/config.toml` for JJ.
+These commands update both Git and JJ (Jujutsu) global configurations simultaneously using the environment variables defined in `.env`. The unified VCS role manages both systems, modifying `~/.config/git/config` for Git and `~/.config/jj/config.toml` for JJ.
 
 ## Implemented Features
 
 This project uses Ansible to automate the setup of a complete development environment. The automation logic is organized into roles, each responsible for a specific component.
 
-1.  **Homebrew Formulae (`formulae` role)**
-    -   Installs Homebrew formula packages using `brew bundle`.
-    -   Reads the package list from the `Brewfile` located in `config/common/brew/formulae/Brewfile`.
+1.  **Homebrew Package Management (`brew` role)**
+    -   **Formulae**: Installs CLI tools using `brew bundle` with profile-specific fallback support.
+    -   **Casks**: Installs GUI applications using `brew bundle` with profile-specific fallback support.
+    -   Reads from profile-specific `Brewfile` (e.g., `config/profiles/mac-mini/brew/formulae/Brewfile`) or falls back to common configuration (`config/common/brew/formulae/Brewfile`, `config/common/brew/cask/Brewfile`).
+    -   Conditional installation: Can install formulae-only or casks-only using tags (`--tags brew-formulae`, `--tags brew-cask`).
 
-2.  **Brew Casks (`cask` role)**
-    -   Installs Brew Casks (GUI applications) using `brew bundle`.
-    -   Supports profile-specific configurations with fallback to common configuration.
-    -   Reads from profile-specific `Brewfile` (e.g., `config/profiles/mac-mini/brew/cask/Brewfile`) or falls back to `config/common/brew/cask/Brewfile`.
-
-3.  **Shell Configuration (`shell` role)**
+2.  **Shell Configuration (`shell` role)**
     -   Sets up the shell environment by creating symbolic links for `.zprofile`, `.zshrc`, and all files within the `.zsh/` directory.
     -   All shell configuration files are sourced from `config/common/shell/`.
 
-4.  **Git Configuration (`git` role)**
-    -   Installs `git` via Homebrew.
-    -   Copies the `.gitconfig` file to `~/.config/git/config`.
-    -   Symlinks the `.gitignore_global` file to the home directory.
-    -   Sets the global excludesfile configuration.
+3.  **Version Control Systems (`vcs` role)**
+    -   **Git**: Installs `git` via Homebrew, copies `.gitconfig` to `~/.config/git/config`, symlinks `.gitignore_global`, and sets global excludesfile configuration.
+    -   **Jujutsu (JJ)**: Installs `jj` via Homebrew, copies `config.toml` to `~/.config/jj/config.toml`, and sets up conf.d directory structure.
+    -   Conditional installation: Can install git-only or jj-only using tags (`--tags vcs-git`, `--tags vcs-jj`).
+    -   Enables both traditional Git and next-generation VCS workflows.
 
-5.  **GitHub CLI Configuration (`gh` role)**
+4.  **GitHub CLI Configuration (`gh` role)**
     -   Installs the GitHub CLI (`gh`) via Homebrew.
     -   Configures the GitHub CLI by symlinking the `config.yml` from `config/common/gh/` to `~/.config/gh/config.yml`.
     -   Provides access to GitHub repository management, pull request workflows, and issue tracking from the command line.
 
-6.  **JJ (Jujutsu VCS) Configuration (`jj` role)**
-    -   Installs JJ (Jujutsu) via Homebrew.
-    -   Copies `.jjconfig.toml` to `~/.jjconfig.toml` (highest priority configuration).
-    -   Enables version control systems to work alongside Git for next-generation VCS workflows.
-
-7.  **SSH Configuration (`ssh` role)**
+5.  **SSH Configuration (`ssh` role)**
     -   Sets up SSH environment with proper security and organization.
     -   Creates `.ssh` and `.ssh/conf.d` directories with appropriate permissions (700).
     -   Symlinks the main SSH config file from `config/common/ssh/config` to `~/.ssh/config`.
@@ -137,63 +129,45 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Provides SSH key management utilities via shell functions (`ssh-gk`, `ssh-ls`, `ssh-rm`, `ssha-ls`).
     -   Implements automatic SSH agent startup and reuse in `.zprofile` for seamless authentication.
 
-8.  **macOS System Settings (`system` role)**
+6.  **macOS System Settings (`system` role)**
     -   Applies system settings using the `community.general.osx_defaults` module based on the definitions in `config/common/system/system.yml`.
     -   A backup of the current system settings can be generated by running `make system-backup`. This uses the `ansible/utils/backup-system.sh` script, which leverages `yq` and `defaults read` to create a backup based on definitions in `config/common/system/definitions/`.
 
-9.  **Ruby Environment (`ruby` role)**
+7.  **Ruby Environment (`ruby` role)**
     -   Installs `rbenv` to manage Ruby versions.
     -   Reads the desired Ruby version from the `.ruby-version` file in `config/common/runtime/ruby/`.
     -   Installs the specified Ruby version and sets it as the global default.
     -   Installs a specific version of the `bundler` gem.
 
-10. **Visual Studio Code (`vscode` role)**
-    -   Installs Visual Studio Code via Homebrew Cask.
-    -   Symlinks user configuration files (`settings.json`, `keybindings.json`, etc.) from `config/common/vscode/` to the appropriate VS Code directory (`~/Library/Application Support/Code/User/`).
-    -   A backup of the current VSCode extensions can be generated by running `make vscode-extensions-backup`. This creates `config/common/vscode/extensions.json` with the list of installed extensions.
+8.  **Editor Configuration (`editor` role)**
+    -   **VS Code**: Installs Visual Studio Code via Homebrew Cask, symlinks configuration files from `config/common/editors/vscode/` to `~/Library/Application Support/Code/User/`, and installs extensions.
+    -   **Cursor**: Installs Cursor via Homebrew Cask, downloads and installs CLI, symlinks configuration files from `config/common/editors/cursor/` to `~/Library/Application Support/Cursor/User/`, and installs extensions.
+    -   Conditional installation: Can install VS Code-only or Cursor-only using tags (`--tags editor-vscode`, `--tags editor-cursor`).
+    -   Unified IDE management with shared configuration patterns and extension management.
 
-11. **Cursor Environment (`cursor` role)**
-    -   Installs Cursor editor via Homebrew Cask.
-    -   Downloads and installs the Cursor CLI.
-    -   Symlinks user configuration files (`settings.json`, `keybindings.json`) from `config/common/cursor/` to Cursor's User directory.
-    -   Installs extensions listed in `config/common/cursor/extensions.json` using the `cursor --install-extension` command. Note: Many VSCode extensions are not compatible with Cursor. Manually add compatible extension IDs to this file.
-    -   **Note**: `config/common/cursor/settings.json` and `keybindings.json` are symbolic links to the corresponding files in `config/common/vscode/` for shared configuration.
+9.  **Python Runtime & Tools (`python` role)**
+    -   **Platform**: Installs `pyenv`, reads the target Python version from `config/common/runtime/python/.python-version`, installs it, and sets it as the global default.
+    -   **Tools**: Installs Python tools from `config/common/runtime/python/pipx-tools.txt` using `pipx install`.
+    -   **Aider Integration**: Installs aider-chat via pipx using the configured Python version when enabled (`--tags python-aider`).
+    -   Conditional installation: Can install platform-only, tools-only, or aider-only using tags (`--tags python-platform`, `--tags python-tools`, `--tags python-aider`).
 
-12. **Python Environment (`python-platform` and `python-tools` roles)**
-    -   **Platform:** Installs `pyenv`, reads the target Python version from `.python-version`, installs it, and sets it as the global default.
-    -   **Tools:** Installs a list of Python tools from `config/common/runtime/python/pipx-tools.txt` using `pipx install`.
+9.  **Node.js Runtime & Tools (`nodejs` role)**
+    -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `config/common/runtime/nodejs/.nvmrc`, installs it, and sets it as the default.
+    -   **Tools**: Reads `config/common/runtime/nodejs/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to home directory.
+    -   **Claude Code Integration**: Creates `~/.claude` directory, symlinks configuration files, and generates slash commands from unified configuration when enabled (`--tags nodejs-claude`).
+    -   **Gemini CLI Integration**: Creates `~/.gemini` directory, symlinks configuration files, and generates slash commands when enabled (`--tags nodejs-gemini`).
+    -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags nodejs-claude`, `--tags nodejs-gemini`).
 
-13. **Node.js Environment (`nodejs-platform` and `nodejs-tools` roles)**
-    -   **Platform:** Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `config/common/runtime/nodejs/.nvmrc`, installs it, and sets it as the default.
-    -   **Tools:** Reads `config/common/runtime/nodejs/global-packages.json`, parses the list of dependencies, and installs them globally using `pnpm install -g`. It also symlinks `config/common/runtime/nodejs/md-to-pdf-config.js` to the home directory.
-
-15. **Claude Code Environment (`claude` role)**
-    -   Creates the `~/.claude` directory for Claude Code configuration.
-    -   Symlinks configuration files (`CLAUDE.md`, `settings.json`, `mcp-servers.json`) from `config/common/claude/` to `~/.claude/`.
-    -   Generates slash commands from unified configuration in `config/common/slash/`.
-    -   Installs MCP servers using the Claude CLI based on the configuration in `mcp-servers.json`, using environment variables for API tokens (`GITHUB_PERSONAL_ACCESS_TOKEN`, `OBSIDIAN_API_KEY`).
-    -   **Note**: `config/common/claude/CLAUDE.md` is a symbolic link to the centralized `RULES.md` file for shared communication rules.
-
-16. **Gemini CLI Environment (`gemini` role)**
-    -   Creates the `~/.gemini` directory for Gemini CLI configuration.
-    -   Symlinks configuration files (`GEMINI.md`, `settings.json`) from `config/common/gemini/` to `~/.gemini/`.
-    -   Generates slash commands from unified configuration in `config/common/slash/`.
-    -   Configures MCP servers via the symlinked `settings.json` file, using environment variables for API tokens.
-    -   **Note**: `config/common/gemini/GEMINI.md` is a symbolic link to the centralized `RULES.md` file for shared communication rules.
-
-17. **MCP Servers Configuration (`mcp` role)**
+10. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
     -   Sets up Context7, Serena, VOICEVOX, and other MCP servers with proper authentication.
     -   Manages server configurations and API token integration for Claude Code and Gemini CLI.
 
-18. **Docker Environment (`docker` role)**
+11. **Docker Environment (`docker` role)**
     -   Pulls and manages Docker images listed in `config/common/docker/images.txt`.
     -   Ensures consistent containerized development environment across machines.
     -   Provides foundation for containerized development workflows.
 
-19. **Aider Chat Environment (`aider` role)**
-    -   Installs aider-chat via pipx.
-    -   To address compatibility issues, the installation is performed using the specific Python version defined in `config/common/runtime/python/.python-version`.
 
 ## CI/CD Pipeline Verification Items
 
@@ -203,7 +177,7 @@ The following GitHub Actions workflows validate the automated setup process:
 - **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
 - **`setup-nodejs.yml`**: Validates Node.js platform, tools, and AI integrations (Claude, Gemini)
 - **`setup-sublang.yml`**: Validates Ruby and Java environment setup
-- **`setup-ide.yml`**: Validates VSCode/Cursor IDE configuration and extension backup functionality
+- **`setup-ide.yml`**: Validates unified editor (VS Code/Cursor) configuration and extension management
 - **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types
 - **`setup-alias.yml`**: Validates Git, JJ, shell, SSH, and MCP configuration with alias testing
 - **`setup-system.yml`**: Validates macOS system defaults application and backup verification
