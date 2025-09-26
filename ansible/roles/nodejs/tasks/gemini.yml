@@ -25,7 +25,6 @@
   loop_control:
     label: "{{ item.path | basename }}"
 
-
 - name: "Check if Gemini CLI is available"
   ansible.builtin.command: which gemini
   register: gemini_cli_check

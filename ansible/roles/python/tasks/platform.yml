@@ -37,4 +37,3 @@
   changed_when: "current_py_global.stdout != python_version"
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-

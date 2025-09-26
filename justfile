@@ -27,23 +27,19 @@ common:
   @just cmn-shell
   @just cmn-ssh
   @just cmn-apply-system
-  @just cmn-git
-  @just cmn-jj
+  @just cmn-vcs
   @just cmn-gh
   @just sw-p
   @just cmn-vscode
-  @just cmn-python-platform
-  @just cmn-python-tools
-  @just cmn-nodejs-platform
-  @just cmn-nodejs-tools
+  @just cmn-python
+  @just cmn-nodejs
   @just cmn-cld
   @just cmn-gm
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-ruby
-
   @just cmn-aider
-  @just cmn-formulae
+  @just cmn-brew
   @echo "✅ All common setup tasks completed successfully."
 
 # ------------------------------------------------------------------------------
@@ -54,45 +50,65 @@ cmn-apply-system:
   @echo "🚀 Applying common system defaults..."
   @just _run_ansible "system" "common"
 
-# Setup common Homebrew formulae packages
+# Setup common Homebrew packages (formulae and casks)
+cmn-brew:
+  @echo "🚀 Running Homebrew setup with config: {{config_common}}/brew"
+  @just _run_ansible "brew" "common"
+
+# Setup common Homebrew formulae packages only
 cmn-formulae:
   @echo "  -> Running Homebrew formulae setup with config: {{config_common}}/brew"
-  @just _run_ansible "formulae" "common"
+  @just _run_ansible "brew" "common" "--tags brew-formulae"
 
-# Configure Git settings
+# Configure VCS (Version Control Systems)
+cmn-vcs:
+  @echo "🚀 Running common VCS setup..."
+  @just _run_ansible "vcs" "common"
+
+# Configure Git settings only
 cmn-git:
   @echo "🚀 Running common Git setup..."
-  @just _run_ansible "git" "common"
+  @just _run_ansible "vcs" "common" "--tags vcs-git"
 
-# Configure JJ (Jujutsu) settings
+# Configure JJ (Jujutsu) settings only
 cmn-jj:
   @echo "🚀 Running common JJ setup..."
-  @just _run_ansible "jj" "common"
+  @just _run_ansible "vcs" "common" "--tags vcs-jj"
 
 # Configure GitHub CLI settings
 cmn-gh:
   @echo "🚀 Running GitHub CLI setup..."
   @just _run_ansible "gh" "common"
 
-# Setup Node.js platform
+# Setup Node.js platform and tools
+cmn-nodejs:
+  @echo "🚀 Running common Node.js setup..."
+  @just _run_ansible "nodejs" "common"
+
+# Setup Node.js platform only
 cmn-nodejs-platform:
   @echo "🚀 Running common Node.js platform setup..."
-  @just _run_ansible "nodejs-platform" "common"
+  @just _run_ansible "nodejs" "common" "--tags nodejs-platform"
 
-# Install common Node.js tools
+# Install Node.js tools only
 cmn-nodejs-tools:
   @echo "🚀 Installing common Node.js tools from config: {{config_common}}/runtime"
-  @just _run_ansible "nodejs-tools" "common"
+  @just _run_ansible "nodejs" "common" "--tags nodejs-tools"
 
-# Setup Python platform
+# Setup Python platform and tools
+cmn-python:
+  @echo "🚀 Running common Python setup..."
+  @just _run_ansible "python" "common"
+
+# Setup Python platform only
 cmn-python-platform:
   @echo "🚀 Running common Python platform setup..."
-  @just _run_ansible "python-platform" "common"
+  @just _run_ansible "python" "common" "--tags python-platform"
 
-# Install common Python tools
+# Install Python tools only
 cmn-python-tools:
   @echo "🚀 Installing common Python tools from config: {{config_common}}/runtime"
-  @just _run_ansible "python-tools" "common"
+  @just _run_ansible "python" "common" "--tags python-tools"
 
 # Setup Ruby environment with rbenv
 cmn-ruby:
@@ -117,17 +133,17 @@ cmn-vscode:
 # Setup Cursor settings and CLI
 cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
-  @just _run_ansible "cursor" "common"
+  @just _run_ansible "nodejs" "common" "--tags nodejs-cursor" "--extra-vars nodejs_install_cursor=true"
 
 # Setup Claude Code settings
 cmn-cld:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "claude" "common"
+  @just _run_ansible "nodejs" "common" "--tags nodejs-claude" "--extra-vars nodejs_install_claude=true"
 
 # Setup Gemini CLI settings
 cmn-gm:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "gemini" "common"
+  @just _run_ansible "nodejs" "common" "--tags nodejs-gemini" "--extra-vars nodejs_install_gemini=true"
 
 # Setup MCP servers configuration
 cmn-mcp:
@@ -137,13 +153,13 @@ cmn-mcp:
 # Install Aider Chat
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
-  @just _run_ansible "aider" "common"
+  @just _run_ansible "python" "common" "--tags python-aider" "--extra-vars python_install_aider=true"
 
 
-# Install common cask
+# Install common cask packages only
 cmn-cask:
   @echo "🚀 Installing common Brew Casks..."
-  @just _run_ansible "cask" "common"
+  @just _run_ansible "brew" "common" "--tags brew-cask"
 
 # Pull Docker images
 cmn-docker-images:

@@ -1,0 +1,34 @@
+---
+- name: "Set Node.js version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/runtime/nodejs/.nvmrc"
+  register: node_version_file
+
+- name: "Set Node.js version fact"
+  ansible.builtin.set_fact:
+    node_version: "{{ node_version_file.content | b64decode | trim }}"
+
+- name: "Setup Node.js platform"
+  include_tasks: platform.yml
+  when: nodejs_setup_platform | default(true)
+  tags: [nodejs, nodejs-platform]
+
+- name: "Install Node.js tools and packages"
+  include_tasks: tools.yml
+  when: nodejs_install_tools | default(true)
+  tags: [nodejs, nodejs-tools]
+
+- name: "Setup Claude Code CLI"
+  include_tasks: claude.yml
+  when: nodejs_install_claude | default(false)
+  tags: [nodejs, nodejs-claude]
+
+- name: "Setup Gemini CLI"
+  include_tasks: gemini.yml
+  when: nodejs_install_gemini | default(false)
+  tags: [nodejs, nodejs-gemini]
+
+- name: "Setup Cursor IDE"
+  include_tasks: cursor.yml
+  when: nodejs_install_cursor | default(false)
+  tags: [nodejs, nodejs-cursor]

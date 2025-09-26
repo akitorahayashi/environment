@@ -52,4 +52,3 @@
   ignore_errors: true
   register: install_result
   changed_when: "'is successfully installed' in install_result.stdout"
-

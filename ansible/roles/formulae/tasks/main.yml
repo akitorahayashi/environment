@@ -1,6 +1,0 @@
----
-- name: "Install formulae packages from Brewfile"
-  ansible.builtin.command:
-    cmd: brew bundle --file="{{ config_dir_abs_path }}/brew/formulae/Brewfile"
-  register: brew_bundle_result
-  changed_when: "'Installing' in brew_bundle_result.stdout"
