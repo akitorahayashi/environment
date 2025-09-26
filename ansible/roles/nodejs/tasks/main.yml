@@ -1,6 +1,7 @@
 ---
 - name: "Read Node.js version"
   include_tasks: version.yml
+  tags: [nodejs, nodejs-platform, nodejs-tools, nodejs-claude, nodejs-gemini]
 
 - name: "Setup Node.js platform"
   include_tasks: platform.yml
