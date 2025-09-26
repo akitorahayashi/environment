@@ -1,4 +1,7 @@
 ---
+- name: "Read Node.js version"
+  include_tasks: version.yml
+
 - name: "Setup Node.js platform"
   include_tasks: platform.yml
   when: nodejs_setup_platform | default(true) | bool

@@ -48,123 +48,123 @@ common:
 # Apply macOS system defaults
 cmn-apply-system:
   @echo "🚀 Applying common system defaults..."
-  @just _run_ansible "system" "common"
+  @just _run_ansible "system" "common" "system"
 
 # Setup common Homebrew packages (formulae and casks)
 cmn-brew:
   @echo "🚀 Running Homebrew setup with config: {{config_common}}/brew"
-  @just _run_ansible "brew" "common"
+  @just _run_ansible "brew" "common" "brew"
 
 # Setup common Homebrew formulae packages only
 cmn-formulae:
   @echo "  -> Running Homebrew formulae setup with config: {{config_common}}/brew"
-  @just _run_ansible "brew" "common" "--tags brew-formulae"
+  @just _run_ansible "brew" "common" "brew-formulae"
 
 # Configure VCS (Version Control Systems)
 cmn-vcs:
   @echo "🚀 Running common VCS setup..."
-  @just _run_ansible "vcs" "common"
+  @just _run_ansible "vcs" "common" "vcs"
 
 # Configure Git settings only
 cmn-git:
   @echo "🚀 Running common Git setup..."
-  @just _run_ansible "vcs" "common" "--tags vcs-git"
+  @just _run_ansible "vcs" "common" "vcs-git"
 
 # Configure JJ (Jujutsu) settings only
 cmn-jj:
   @echo "🚀 Running common JJ setup..."
-  @just _run_ansible "vcs" "common" "--tags vcs-jj"
+  @just _run_ansible "vcs" "common" "vcs-jj"
 
 # Configure GitHub CLI settings
 cmn-gh:
   @echo "🚀 Running GitHub CLI setup..."
-  @just _run_ansible "gh" "common"
+  @just _run_ansible "gh" "common" "gh"
 
 # Setup Node.js platform and tools
 cmn-nodejs:
   @echo "🚀 Running common Node.js setup..."
-  @just _run_ansible "nodejs" "common"
+  @just _run_ansible "nodejs" "common" "nodejs"
 
 # Setup Node.js platform only
 cmn-nodejs-platform:
   @echo "🚀 Running common Node.js platform setup..."
-  @just _run_ansible "nodejs" "common" "--tags nodejs-platform"
+  @just _run_ansible "nodejs" "common" "nodejs-platform"
 
 # Install Node.js tools only
 cmn-nodejs-tools:
   @echo "🚀 Installing common Node.js tools from config: {{config_common}}/runtime"
-  @just _run_ansible "nodejs" "common" "--tags nodejs-tools"
+  @just _run_ansible "nodejs" "common" "nodejs-tools"
 
 # Setup Python platform and tools
 cmn-python:
   @echo "🚀 Running common Python setup..."
-  @just _run_ansible "python" "common"
+  @just _run_ansible "python" "common" "python"
 
 # Setup Python platform only
 cmn-python-platform:
   @echo "🚀 Running common Python platform setup..."
-  @just _run_ansible "python" "common" "--tags python-platform"
+  @just _run_ansible "python" "common" "python-platform"
 
 # Install Python tools only
 cmn-python-tools:
   @echo "🚀 Installing common Python tools from config: {{config_common}}/runtime"
-  @just _run_ansible "python" "common" "--tags python-tools"
+  @just _run_ansible "python" "common" "python-tools"
 
 # Setup Ruby environment with rbenv
 cmn-ruby:
   @echo "🚀 Running common Ruby setup..."
-  @just _run_ansible "ruby" "common"
+  @just _run_ansible "ruby" "common" "ruby"
 
 # Link common shell configuration files
 cmn-shell:
   @echo "🚀 Linking common shell configuration..."
-  @just _run_ansible "shell" "common"
+  @just _run_ansible "shell" "common" "shell"
 
 # Setup SSH configuration
 cmn-ssh:
   @echo "🚀 Running common SSH setup..."
-  @just _run_ansible "ssh" "common"
+  @just _run_ansible "ssh" "common" "ssh"
 
 # Setup VS Code settings and extensions
 cmn-vscode:
   @echo "🚀 Running common VS Code setup..."
-  @just _run_ansible "editor" "common" "--tags editor-vscode"
+  @just _run_ansible "editor" "common" "editor-vscode"
 
 # Setup Cursor settings and CLI
 cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
-  @just _run_ansible "editor" "common" "--tags editor-cursor" "--extra-vars editor_install_cursor=true"
+  @just _run_ansible "editor" "common" "editor-cursor" "--extra-vars editor_install_cursor=true"
 
 # Setup Claude Code settings
 cmn-cld:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "nodejs" "common" "--tags nodejs-claude" "--extra-vars nodejs_install_claude=true"
+  @just _run_ansible "nodejs" "common" "nodejs-claude" "--extra-vars nodejs_install_claude=true"
 
 # Setup Gemini CLI settings
 cmn-gm:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "nodejs" "common" "--tags nodejs-gemini" "--extra-vars nodejs_install_gemini=true"
+  @just _run_ansible "nodejs" "common" "nodejs-gemini" "--extra-vars nodejs_install_gemini=true"
 
 # Setup MCP servers configuration
 cmn-mcp:
   @echo "🚀 Running common MCP setup..."
-  @just _run_ansible "mcp" "common"
+  @just _run_ansible "mcp" "common" "mcp"
 
 # Install Aider Chat
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
-  @just _run_ansible "python" "common" "--tags python-aider" "--extra-vars python_install_aider=true"
+  @just _run_ansible "python" "common" "python-aider" "--extra-vars python_install_aider=true"
 
 
 # Install common cask packages only
 cmn-cask:
   @echo "🚀 Installing common Brew Casks..."
-  @just _run_ansible "brew" "common" "--tags brew-cask"
+  @just _run_ansible "brew" "common" "brew-cask"
 
 # Pull Docker images
 cmn-docker-images:
   @echo "🚀 Checking/verifying Docker images..."
-  @just _run_ansible "docker" "common"
+  @just _run_ansible "docker" "common" "docker"
 
 # ------------------------------------------------------------------------------
 # MacBook-Specific Recipes
@@ -172,7 +172,7 @@ cmn-docker-images:
 # Install MacBook-specific cask
 mbk-cask:
   @echo "🚀 Installing MacBook-specific Brew Casks..."
-  @just _run_ansible "brew" "macbook" "--tags brew-cask"
+  @just _run_ansible "brew" "macbook" "brew-cask"
 
 # ------------------------------------------------------------------------------
 # Mac Mini-Specific Recipes
@@ -180,7 +180,7 @@ mbk-cask:
 
 mmn-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
-  @just _run_ansible "brew" "mac-mini" "--tags brew-cask"
+  @just _run_ansible "brew" "mac-mini" "brew-cask"
 
 # ------------------------------------------------------------------------------
 # VCS Profile Switching
@@ -234,8 +234,8 @@ help:
 # Hidden Recipes
 # ------------------------------------------------------------------------------
 # @hidden
-_run_ansible role profile *args="":
+_run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
-  ~/.local/pipx/venvs/ansible/bin/ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{role}}" -e "config_dir_abs_path={{repo_root}}/config/common" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}
+  ~/.local/pipx/venvs/ansible/bin/ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "config_dir_abs_path={{repo_root}}/config/common" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}

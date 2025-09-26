@@ -1,19 +1,11 @@
 ---
-- name: "Check if profile-specific cask Brewfile exists"
-  ansible.builtin.stat:
-    path: "{{ repo_root_path }}/config/profiles/{{ profile }}/brew/cask/Brewfile"
-  register: profile_cask_brewfile
-
-- name: "Install cask packages from profile-specific Brewfile"
+- name: "Install cask packages from Brewfile (profile-specific or common fallback)"
   ansible.builtin.command:
-    cmd: "brew bundle --file={{ repo_root_path }}/config/profiles/{{ profile }}/brew/cask/Brewfile"
+    cmd: "brew bundle --file={{ brewfile_path }}"
   register: brew_bundle_result
   changed_when: "'Installing' in brew_bundle_result.stdout"
-  when: profile_cask_brewfile.stat.exists
-
-- name: "Install cask packages from common Brewfile"
-  ansible.builtin.command:
-    cmd: "brew bundle --file={{ config_dir_abs_path }}/brew/cask/Brewfile"
-  register: brew_bundle_result
-  changed_when: "'Installing' in brew_bundle_result.stdout"
-  when: not profile_cask_brewfile.stat.exists
+  vars:
+    brewfile_path: "{{ lookup('first_found', brewfile_candidates) }}"
+    brewfile_candidates:
+      - "{{ repo_root_path }}/config/profiles/{{ profile }}/brew/cask/Brewfile"
+      - "{{ config_dir_abs_path }}/brew/cask/Brewfile"
