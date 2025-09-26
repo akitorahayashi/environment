@@ -112,8 +112,8 @@ module.exports = {
       content: `
         window.MathJax = {
           tex: {
-            inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-            displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
           }
         };
       `
@@ -149,6 +149,86 @@ module.exports = {
 };
 ```
 
+### 6. Japanese Report with Custom Author Style
+This configuration is tailored for a Japanese academic report based on specific formatting requirements.
+
+**Key Features:**
+- A4 format with custom margins (Top/Bottom: 20mm, Left/Right: 25mm).
+- Differentiates fonts: Gothic for titles/headings and Mincho for the body text.
+- **Crucially, it styles the author's name using a dedicated CSS class (`.author`), which requires wrapping the author's name in a `<p class="author">...</p>` tag within the Markdown file for correct right-alignment.**
+
+**Usage:**
+Your markdown file should be structured like this:
+```markdown
+# Title of the Report
+<p class="author">Your Name</p>
+
+### 1. First Section
+...
+```
+
+**Config File (`japanese-report-config.js`):**
+```javascript
+module.exports = {
+  pdf_options: {
+    format: 'a4',
+    margin: {
+      top: '20mm',
+      bottom: '20mm',
+      left: '25mm',
+      right: '25mm'
+    },
+    printBackground: true,
+    displayHeaderFooter: false
+  },
+  css: `
+    /* Body text style */
+    body {
+      font-family: 'Hiragino Mincho ProN', 'MS Mincho', serif; /* Mincho font */
+      font-size: 10.5pt;
+      line-height: 1.7; /* Adjusted for approx. 40 lines per page */
+    }
+
+    /* Report Title (h1) */
+    h1 {
+      font-family: 'Hiragino Kaku Gothic ProN', 'MS Gothic', sans-serif; /* Gothic font */
+      font-size: 12pt;
+      text-align: center;
+      margin-bottom: 1em;
+    }
+
+    /* Author Info (using a dedicated class) */
+    .author {
+      font-family: 'Hiragino Kaku Gothic ProN', 'MS Gothic', sans-serif; /* Gothic font */
+      font-size: 11pt;
+      text-align: right;
+      margin-bottom: 2em;
+    }
+
+    /* Section Headings (h3, etc.) */
+    h3, h4, h5, h6 {
+      font-family: 'Hiragino Kaku Gothic ProN', 'MS Gothic', sans-serif; /* Gothic font */
+      font-size: 10.5pt;
+      page-break-after: avoid;
+    }
+  `,
+  // MathJax settings (optional, can be removed if no equations)
+  script: [
+    {
+      content: `
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+          }
+        };
+      `
+    },
+    { url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" }
+  ]
+};
+```
+
 ## Usage Examples
 ```bash
 # Default config
@@ -164,7 +244,7 @@ md-pdf -c a3-config.js large-document.md
 md-pdf -c academic-config.js paper.md
 
 # Initialize and customize config in current directory
-md2pdf-ini
+md-pdf-ini
 # Edit md2pdf-config.js as needed
 md-pdf -c md2pdf-config.js document.md
 ```
@@ -173,3 +253,46 @@ md-pdf -c md2pdf-config.js document.md
 - `.page-break` - Forces page break after element
 - `.pageNumber` - Current page number (header/footer only)
 - `.totalPages` - Total page count (header/footer only)
+
+## Issue with Right-Aligning Author Information and Solution
+
+### Problem
+Even when specifying `text-align: right` for the `.author` class in the CSS config file, the author information may not be right-aligned.
+
+### Solution
+**Using inline styles** is the most reliable approach:
+
+```html
+<div style="text-align: right;">Akitora Hayashi</div>
+```
+
+Or
+
+```html
+<p style="text-align: right;">Akitora Hayashi</p>
+```
+
+### Why Inline Styles Work
+1. **CSS Priority**: Inline styles (`style="..."`) have the highest priority.
+2. **Stronger than !important**: Inline styles override even `!important` declarations in CSS files.
+3. **Processing Order**: Inline styles in HTML are processed after external CSS by md-pdf.
+
+### Verified Working Solutions
+- `<div style="text-align: right;">Author Name</div>` → ✅ Right-aligned display
+- `<p style="text-align: right;">Author Name</p>` → ✅ Right-aligned display
+- `<div style="text-align: right;"><strong>Author Name</strong></div>` → ✅ Right-aligned bold display
+- CSS config file only → ❌ Often insufficient
+
+### Best Practice
+**Always use inline styles** for author information right-alignment. This guarantees consistent results across different PDF generation environments.
+
+### Technical Explanation
+The reason inline styles work reliably:
+1. **Highest CSS Specificity**: Inline styles have the highest priority in the CSS cascade.
+2. **Overrides External CSS**: Even `!important` declarations in external CSS files are overridden.
+3. **Processing Order**: HTML inline styles are processed after external CSS by md-pdf.
+
+### Recommended Pattern
+```html
+<div style="text-align: right;"><strong>Author Name</strong></div>
+```

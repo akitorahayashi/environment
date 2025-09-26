@@ -23,6 +23,19 @@ md-pdf() {
 }
 
 md-pdf-ini() {
-  cp "$HOME/.md-to-pdf-config.js" "./md2pdf-config.js"
-  echo "Created md2pdf-config.js in current directory"
+  local source_config="$HOME/.md-to-pdf-config.js"
+  local dest_config="./md2pdf-config.js"
+
+  if [ ! -f "$source_config" ]; then
+    echo "Error: Default config file not found at $source_config" >&2
+    return 1
+  fi
+
+  if [ -e "$dest_config" ]; then
+    echo "Error: $dest_config already exists in the current directory." >&2
+    return 1
+  fi
+
+  cp "$source_config" "$dest_config"
+  echo "Created $dest_config in current directory"
 }
