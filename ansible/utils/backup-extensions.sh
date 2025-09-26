@@ -2,11 +2,11 @@
 set -euo pipefail
 
 # Get the configuration directory path from script arguments
-CONFIG_DIR="$1"
-if [ -z "$CONFIG_DIR" ]; then
+if [ $# -lt 1 ]; then
     echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
     exit 1
 fi
+CONFIG_DIR="$1"
 
 # ================================================
 # 現在の VSCode 拡張機能リストを取得し、extensions.json を生成
@@ -26,7 +26,7 @@ fi
 # Backup file path
 
 # Set output file path
-EXT_FILE="$CONFIG_DIR/vscode/extensions.json"
+EXT_FILE="$CONFIG_DIR/editor/vscode/extensions.json"
 mkdir -p "$(dirname "$EXT_FILE")"
 
 # Detect VSCode command

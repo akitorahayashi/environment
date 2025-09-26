@@ -25,21 +25,21 @@
 
 - name: "Symlink Cursor settings.json"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/editors/cursor/settings.json"
+    src: "{{ config_dir_abs_path }}/editor/cursor/settings.json"
     dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/settings.json"
     state: link
     force: true
 
 - name: "Symlink Cursor keybindings.json"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/editors/cursor/keybindings.json"
+    src: "{{ config_dir_abs_path }}/editor/cursor/keybindings.json"
     dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/keybindings.json"
     state: link
     force: true
 
 - name: "Read Cursor extensions list"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/editors/cursor/extensions.json"
+    src: "{{ config_dir_abs_path }}/editor/cursor/extensions.json"
   register: cursor_extensions_content
 
 - name: "Parse Cursor extensions JSON"

@@ -8,7 +8,7 @@ Successfully reorganized the config directory from machine-specific (common/macb
 config/
 ├── common/
 │   ├── aiding/          # AI assistant tools (aider, claude, gemini, slash)
-│   ├── editors/         # Code editors (cursor, vscode)
+│   ├── editor/          # Code editors (cursor, vscode)
 │   ├── runtime/         # Runtimes (nodejs, python, ruby)
 │   ├── packages/        # Package lists (Brewfile, images.txt)
 │   ├── shell/           # Shell configuration (.zshrc, .zprofile, .zsh/)

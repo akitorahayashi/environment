@@ -12,7 +12,7 @@
 
 - name: "Find VS Code config files"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/editors/vscode"
+    paths: "{{ config_dir_abs_path }}/editor/vscode"
     patterns: "*.json"
     recurse: true
   register: vscode_files
@@ -27,7 +27,7 @@
 
 - name: "Read VS Code extensions list"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/editors/vscode/extensions.json"
+    src: "{{ config_dir_abs_path }}/editor/vscode/extensions.json"
   register: vscode_extensions_content
 
 - name: "Parse VS Code extensions JSON"

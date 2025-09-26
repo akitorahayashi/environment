@@ -140,8 +140,8 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs a specific version of the `bundler` gem.
 
 8.  **Editor Configuration (`editor` role)**
-    -   **VS Code**: Installs Visual Studio Code via Homebrew Cask, symlinks configuration files from `config/common/editors/vscode/` to `~/Library/Application Support/Code/User/`, and installs extensions.
-    -   **Cursor**: Installs Cursor via Homebrew Cask, downloads and installs CLI, symlinks configuration files from `config/common/editors/cursor/` to `~/Library/Application Support/Cursor/User/`, and installs extensions.
+    -   **VS Code**: Installs Visual Studio Code via Homebrew Cask, symlinks configuration files from `config/common/editor/vscode/` to `~/Library/Application Support/Code/User/`, and installs extensions.
+    -   **Cursor**: Installs Cursor via Homebrew Cask, downloads and installs CLI, symlinks configuration files from `config/common/editor/cursor/` to `~/Library/Application Support/Cursor/User/`, and installs extensions.
     -   Conditional installation: Can install VS Code-only or Cursor-only using tags (`--tags editor-vscode`, `--tags editor-cursor`).
     -   Unified IDE management with shared configuration patterns and extension management.
 
