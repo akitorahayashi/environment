@@ -10,15 +10,15 @@
 
 - name: "Setup Python platform"
   include_tasks: platform.yml
-  when: python_setup_platform | default(true)
+  when: python_setup_platform | default(true) | bool
   tags: [python, python-platform]
 
 - name: "Install Python tools"
   include_tasks: tools.yml
-  when: python_install_tools | default(true)
+  when: python_install_tools | default(true) | bool
   tags: [python, python-tools]
 
 - name: "Install Aider AI coding assistant"
   include_tasks: aider.yml
-  when: python_install_aider | default(false)
+  when: python_install_aider | default(false) | bool
   tags: [python, python-aider]

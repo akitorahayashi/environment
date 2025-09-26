@@ -3,4 +3,3 @@ nodejs_setup_platform: true
 nodejs_install_tools: true
 nodejs_install_claude: false
 nodejs_install_gemini: false
-nodejs_install_cursor: false
