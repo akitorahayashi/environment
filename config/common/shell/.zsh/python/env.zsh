@@ -67,9 +67,6 @@ alias px-i="pipx install"
 alias px-ui="pipx uninstall"
 alias px-r="pipx run"
 
-# jupyter
-alias jpl="jupyter lab"
-
 # pyenv
 alias pv="pyenv"
 alias pv-i="pyenv install"
@@ -78,30 +75,6 @@ alias pv-ls="pyenv versions"
 alias pv-s="pyenv shell"
 alias pv-g="pyenv global"
 alias pv-l="pyenv local"
-
-# pytest
-alias pts="pytest"
-
-# django
-alias dj-stpj="django-admin startproject"
-alias dj-sta="django-admin startapp"
-alias dj-mp-sta="python manage.py startapp"
-alias dj-s="python manage.py runserver"
-alias dj-mk-m="python manage.py makemigrations"
-alias dj-m="python manage.py migrate"
-alias dj-sh="python manage.py shell"
-alias dj-chk="python manage.py check"
-alias dj-chkm="python manage.py makemigrations --check"
-alias dj-csu="python manage.py createsuperuser"
-alias dj-ts="python manage.py test"
-
-# black
-alias bl="black ."
-alias bl-chk="black --check ."
-
-# ruff
-alias rf="ruff check . --fix"
-alias rf-chk="ruff check ."
 
 # python project cleanup
 py-cln() {
@@ -112,7 +85,3 @@ py-cln() {
   rm -rf .ruff_cache
   echo "✅ Cleanup completed"
 }
-
-# streamlit
-alias st="streamlit"
-alias st-r="streamlit run"

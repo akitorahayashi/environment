@@ -24,16 +24,25 @@
     state: directory
     mode: '0755'
 
-- name: "Find .zsh config files"
+- name: "Find .zsh config files recursively"
   ansible.builtin.find:
     paths: "{{ config_dir_abs_path }}/shell/.zsh"
     patterns: "*.zsh"
+    recurse: true
   register: zsh_files
 
-- name: "Symlink .zsh config files"
+- name: "Create subdirectories in ~/.zsh"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.zsh/{{ (item.path | replace(config_dir_abs_path + '/shell/.zsh/', '')) | dirname }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ zsh_files.files }}"
+  when: (item.path | replace(config_dir_abs_path + '/shell/.zsh/', '')) | dirname != ''
+
+- name: "Symlink .zsh config files recursively"
   ansible.builtin.file:
     src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/.zsh/{{ item.path | basename }}"
+    dest: "{{ ansible_env.HOME }}/.zsh/{{ item.path | replace(config_dir_abs_path + '/shell/.zsh/', '') }}"
     state: link
     force: true
   loop: "{{ zsh_files.files }}"
