@@ -33,11 +33,10 @@
 
 - name: "Create subdirectories in ~/.zsh"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.zsh/{{ (item.path | replace(config_dir_abs_path + '/shell/.zsh/', '')) | dirname }}"
+    path: "{{ ansible_env.HOME }}/.zsh/{{ item }}"
     state: directory
     mode: '0755'
-  loop: "{{ zsh_files.files }}"
-  when: (item.path | replace(config_dir_abs_path + '/shell/.zsh/', '')) | dirname != ''
+  loop: "{{ zsh_files.files | map(attribute='path') | map('replace', config_dir_abs_path + '/shell/.zsh/', '') | map('dirname') | unique | reject('equalto', '.') | list }}"
 
 - name: "Symlink .zsh config files recursively"
   ansible.builtin.file:
