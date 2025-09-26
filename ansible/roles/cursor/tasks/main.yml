@@ -23,23 +23,23 @@
     state: directory
     mode: '0755'
 
-- name: "Symlink Cursor settings.json"
-  ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/editors/cursor/settings.json"
-    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/settings.json"
-    state: link
-    force: true
+- name: "Find Cursor config files"
+  ansible.builtin.find:
+    paths: "{{ config_dir_abs_path }}/editor/cursor"
+    patterns: ["settings.json", "keybindings.json"]
+  register: cursor_config_files
 
-- name: "Symlink Cursor keybindings.json"
+- name: "Symlink Cursor config files"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/editors/cursor/keybindings.json"
-    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/keybindings.json"
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item.path | basename }}"
     state: link
     force: true
+  loop: "{{ cursor_config_files.files }}"
 
 - name: "Read Cursor extensions list"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/editors/cursor/extensions.json"
+    src: "{{ config_dir_abs_path }}/editor/cursor/extensions.json"
   register: cursor_extensions_content
 
 - name: "Parse Cursor extensions JSON"
@@ -47,7 +47,7 @@
     cursor_extensions: "{{ (cursor_extensions_content.content | b64decode | from_json).extensions }}"
 
 - name: "Install Cursor extensions"
-  ansible.builtin.command: "cursor --install-extension {{ item }}"
+  ansible.builtin.command: "cursor --install-extension {{ item }} --force"
   loop: "{{ cursor_extensions }}"
   ignore_errors: true
   register: install_result

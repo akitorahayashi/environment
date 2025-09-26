@@ -8,7 +8,7 @@ Successfully reorganized the config directory from machine-specific (common/macb
 config/
 ├── common/
 │   ├── aiding/          # AI assistant tools (aider, claude, gemini, slash)
-│   ├── editors/         # Code editors (cursor, vscode)
+│   ├── editor/          # Code editors (cursor, vscode)
 │   ├── runtime/         # Runtimes (nodejs, python, ruby)
 │   ├── packages/        # Package lists (Brewfile, images.txt)
 │   ├── shell/           # Shell configuration (.zshrc, .zprofile, .zsh/)
@@ -28,7 +28,7 @@ config/
 3. Updated justfile with new category-specific path variables:
    - `pkg_path := config_common / "packages"`
    - `aiding_path := config_common / "aiding"`
-   - `editors_path := config_common / "editors"`
+   - `editor_path := config_common / "editor"`
    - `runtime_path := config_common / "runtime"`
    - `vcs_path := config_common / "vcs"`
 4. Updated all justfile recipes to use new paths
