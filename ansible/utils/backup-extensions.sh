@@ -7,6 +7,10 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 CONFIG_DIR="$1"
+if [ -z "${1-}" ]; then
+    echo "[ERROR] This script requires a non-empty configuration directory path as its first argument." >&2
+    exit 1
+fi
 
 # ================================================
 # 現在の VSCode 拡張機能リストを取得し、extensions.json を生成

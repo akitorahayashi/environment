@@ -15,7 +15,8 @@
     - { role: gh, tags: ['gh'] }
     - { role: shell, tags: ['shell'] }
     - { role: ssh, tags: ['ssh'] }
-    - { role: editor, tags: ['editor'] }
+    - { role: vscode, tags: ['editor', 'vscode'] }
+    - { role: cursor, tags: ['editor', 'cursor'] }
     - { role: mcp, tags: ['mcp'] }
     - { role: system, tags: ['system'] }
     - { role: docker, tags: ['docker'] }

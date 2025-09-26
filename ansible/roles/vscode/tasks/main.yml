@@ -35,7 +35,7 @@
     vscode_extensions: "{{ (vscode_extensions_content.content | b64decode | from_json).extensions }}"
 
 - name: "Install VS Code extensions"
-  ansible.builtin.command: "code --install-extension {{ item }}"
+  ansible.builtin.command: "code --install-extension {{ item }} --force"
   loop: "{{ vscode_extensions }}"
   ignore_errors: true
   register: install_result

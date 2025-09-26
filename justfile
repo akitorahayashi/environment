@@ -128,12 +128,14 @@ cmn-ssh:
 # Setup VS Code settings and extensions
 cmn-vscode:
   @echo "🚀 Running common VS Code setup..."
-  @just _run_ansible "editor" "common" "editor-vscode"
+  @just _run_ansible "vscode" "common" "vscode"
 
 # Setup Cursor settings and CLI
 cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
-  @just _run_ansible "editor" "common" "editor-cursor" "--extra-vars editor_install_cursor=true"
+  @just _run_ansible "cursor" "common" "cursor"
+
+
 
 # Setup Claude Code settings
 cmn-cld:
