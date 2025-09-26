@@ -172,7 +172,7 @@ cmn-docker-images:
 # Install MacBook-specific cask
 mbk-cask:
   @echo "🚀 Installing MacBook-specific Brew Casks..."
-  @just _run_ansible "cask" "macbook"
+  @just _run_ansible "brew" "macbook" "--tags brew-cask"
 
 # ------------------------------------------------------------------------------
 # Mac Mini-Specific Recipes
@@ -180,7 +180,7 @@ mbk-cask:
 
 mmn-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
-  @just _run_ansible "cask" "mac-mini"
+  @just _run_ansible "brew" "mac-mini" "--tags brew-cask"
 
 # ------------------------------------------------------------------------------
 # VCS Profile Switching

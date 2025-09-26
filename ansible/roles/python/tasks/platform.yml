@@ -1,13 +1,4 @@
 ---
-- name: "Set Python version variable from file"
-  ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/runtime/python/.python-version"
-  register: python_version_file
-
-- name: "Set Python version fact"
-  ansible.builtin.set_fact:
-    python_version: "{{ python_version_file.content | b64decode | trim }}"
-
 - name: "Install pyenv"
   community.general.homebrew:
     name: pyenv

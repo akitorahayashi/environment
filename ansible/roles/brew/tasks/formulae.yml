@@ -1,10 +1,19 @@
 ---
-- name: "Install formulae packages from Brewfile (profile-specific or common fallback)"
-  ansible.builtin.shell: |
-    if [ -f "{{ repo_root_path }}/config/profiles/{{ profile }}/brew/formulae/Brewfile" ]; then
-      brew bundle --file="{{ repo_root_path }}/config/profiles/{{ profile }}/brew/formulae/Brewfile"
-    else
-      brew bundle --file="{{ config_dir_abs_path }}/brew/formulae/Brewfile"
-    fi
+- name: "Check if profile-specific Brewfile exists"
+  ansible.builtin.stat:
+    path: "{{ repo_root_path }}/config/profiles/{{ profile }}/brew/formulae/Brewfile"
+  register: profile_brewfile
+
+- name: "Install formulae packages from profile-specific Brewfile"
+  ansible.builtin.command:
+    cmd: "brew bundle --file={{ repo_root_path }}/config/profiles/{{ profile }}/brew/formulae/Brewfile"
   register: brew_bundle_result
   changed_when: "'Installing' in brew_bundle_result.stdout"
+  when: profile_brewfile.stat.exists
+
+- name: "Install formulae packages from common Brewfile"
+  ansible.builtin.command:
+    cmd: "brew bundle --file={{ config_dir_abs_path }}/brew/formulae/Brewfile"
+  register: brew_bundle_result
+  changed_when: "'Installing' in brew_bundle_result.stdout"
+  when: not profile_brewfile.stat.exists
