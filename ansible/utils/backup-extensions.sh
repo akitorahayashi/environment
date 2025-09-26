@@ -22,18 +22,14 @@ fi
 #
 # ================================================
 
-# VSCode拡張機能のリストをバックアップするスクリプト
-# バックアップファイルのパス
+# Script to backup VSCode extensions list
+# Backup file path
 
-# CI環境かどうかで出力先を決定
-if [ "${CI:-false}" = "true" ]; then
-  EXT_FILE="/tmp/extensions.json"
-else
-  EXT_FILE="$CONFIG_DIR/vscode/extensions.json"
-  mkdir -p "$(dirname "$EXT_FILE")"
-fi
+# Set output file path
+EXT_FILE="$CONFIG_DIR/vscode/extensions.json"
+mkdir -p "$(dirname "$EXT_FILE")"
 
-# VSCodeコマンドの検出
+# Detect VSCode command
 if command -v code >/dev/null 2>&1; then
   CODE_CMD="code"
 elif [ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
@@ -41,19 +37,19 @@ elif [ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
 elif command -v code-insiders >/dev/null 2>&1; then
   CODE_CMD="code-insiders"
 else
-  echo "VSCodeのコマンド(code または code-insiders)が見つかりません。" >&2
+  echo "❌ VSCode command (code or code-insiders) not found." >&2
   exit 1
 fi
 
-# 拡張機能リストの取得と保存
-echo "VSCode拡張機能リストを取得中..."
+# Get and save extensions list
+echo "Getting VSCode extensions list..."
 if ! extensions=$("$CODE_CMD" --list-extensions 2>&1); then
-  echo "❌ VSCode拡張機能の取得に失敗しました。" >&2
-  echo "   考えられる原因:" >&2
-  echo "   - VSCodeが起動中の場合、一度VSCodeを終了してから再度実行してください" >&2
-  echo "   - VSCodeのインストールに問題がある場合" >&2
-  echo "   - コマンド: $CODE_CMD --list-extensions" >&2
-  echo "   エラー出力: $extensions" >&2
+  echo "❌ Failed to get VSCode extensions." >&2
+  echo "   Possible causes:" >&2
+  echo "   - If VSCode is running, please close it and try again" >&2
+  echo "   - VSCode installation may have issues" >&2
+  echo "   - Command: $CODE_CMD --list-extensions" >&2
+  echo "   Error output: $extensions" >&2
   exit 1
 fi
 
@@ -64,4 +60,4 @@ done
 json=${json%,}
 json+="]}"
 echo "$json" | python3 -m json.tool > "$EXT_FILE"
-echo "VSCode拡張機能のリストをバックアップしました: $EXT_FILE"
+echo "VSCode extensions list backed up to: $EXT_FILE"
