@@ -4,22 +4,22 @@
   tags: [nodejs, nodejs-platform, nodejs-tools, nodejs-claude, nodejs-gemini]
 
 - name: "Setup Node.js platform"
-  include_tasks: platform.yml
+  import_tasks: platform.yml
   when: nodejs_setup_platform | default(true) | bool
   tags: [nodejs, nodejs-platform]
 
 - name: "Install Node.js tools and packages"
-  include_tasks: tools.yml
+  import_tasks: tools.yml
   when: nodejs_install_tools | default(true) | bool
   tags: [nodejs, nodejs-tools]
 
 - name: "Setup Claude Code CLI"
-  include_tasks: claude.yml
+  import_tasks: claude.yml
   when: nodejs_install_claude | default(false) | bool
   tags: [nodejs, nodejs-claude]
 
 - name: "Setup Gemini CLI"
-  include_tasks: gemini.yml
+  import_tasks: gemini.yml
   when: nodejs_install_gemini | default(false) | bool
   tags: [nodejs, nodejs-gemini]
 

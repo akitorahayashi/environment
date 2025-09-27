@@ -14,16 +14,13 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
     exit 1
 fi
 
-# Create Claude commands directory if ~/.claude exists
-if [[ -d "$HOME/.claude" ]]; then
-    mkdir -p "$CLAUDE_COMMANDS_DIR"
-else
-    echo "Warning: ~/.claude directory not found. Skipping Claude command generation."
-    exit 0
-fi
+# Create Claude commands directory
+mkdir -p "$CLAUDE_COMMANDS_DIR"
 
 # Remove existing command files
-rm -f "$CLAUDE_COMMANDS_DIR"/*.md
+if [[ -d "$CLAUDE_COMMANDS_DIR" ]]; then
+    rm -f "$CLAUDE_COMMANDS_DIR"/*
+fi
 
 echo "Generating Claude Code slash commands..."
 
