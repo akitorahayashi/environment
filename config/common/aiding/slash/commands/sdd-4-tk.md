@@ -1,78 +1,110 @@
 
 ## Context
 
-- Task ID: {args} (e.g., 01, 02, 03)
-- Design: `.tmp/task{args}/design.md`
-- Test spec: `.tmp/task{args}/test_design.md`
+- Design: `.tmp/design.md`
+- Test spec: `.tmp/test_design.md`
 
 ## Your task
 
-### 1. Read implementation design
+### 1. Analyze design and test specifications
 
-Understand the specific files and changes needed from the design document.
+Read `.tmp/design.md` and `.tmp/test_design.md` to understand:
+- Specific files to create/modify/delete
+- Component dependencies and integration points
+- Testing requirements and CI considerations
+- Potential conflict areas between parallel work
 
 ### 2. Create task breakdown
 
-Create `.tmp/task{args}/tasks.md`:
+Create `.tmp/tasks.md` using the template structure shown below:
+
+### 3. Submit output
+
+Provide the task breakdown results:
+- Location: `.tmp/tasks.md`
+- Agents can now work in parallel on Phase 1 tasks
+- Each agent should read the task file and work on their assigned tasks
+- Ready for documentation integration? (use `/sdd-5-dc`)
+
+## Notes
+
+Create specific, actionable tasks with clear agent assignments. Focus on preventing conflicts and enabling parallel development.
+
+---
+
+# Example: .tmp/tasks.md Template
+
+Below is the structure to create in `.tmp/tasks.md`:
 
 ```markdown
 # Task Breakdown - [Task Name]
 
 ## Overview
-- Total tasks: [number]
-- Estimated time: [hours]
+- Total agents: [1-3 depending on complexity]
+- Phases: [number]
 
-## Implementation Tasks
+## Agent Assignment Strategy
+- **Agent 1**: [Frontend/Backend/Full-stack] - maintains ownership of their components across all phases
+- **Agent 2**: [Backend/Testing/Config] - maintains ownership of their components across all phases
+- **Agent 3**: [Testing/Documentation/Integration] - joins as needed, maintains consistency
+- **Continuity**: Each agent maintains context and ownership of their work throughout the project
+- **Conflict zones**: [files/areas requiring single-agent ownership to prevent merge conflicts]
 
-### 1. Create/Modify `[file-name]`
-- [ ] Create new file `[file-path]`
-- [ ] Add class `[ClassName]` with methods `[method1]`, `[method2]`
-- [ ] Implement `[specific-functionality]`
-- **Time**: [hours]
+## All Tasks Summary
 
-### 2. Update `[config-file]`
-- [ ] Add environment variable `[VAR_NAME]`
-- [ ] Update configuration section `[section-name]`
-- **Time**: [hours]
+### Phase 1: Foundation
+**Goal**: [Core implementation without dependencies]
+- [ ] [Task 1] - `[file-path]` (Agent 1)
+- [ ] [Task 2] - `[file-path]` (Agent 1)
+- [ ] [Task 3] - `[file-path]` (Agent 2)
+- [ ] [Task 4] - `[file-path]` (Agent 2)
+- [ ] [Task 5] - `[file-path]` (Agent 3)
 
-### 3. Database Changes
-- [ ] Create migration file `[migration-name]`
-- [ ] Add table `[table-name]` with columns
-- [ ] Run migration
-- **Time**: [hours]
+### Phase 2: Integration
+**Goal**: [Connect components and test interactions]
+- [ ] [Integration task 1] (Agent 1)
+- [ ] [Integration task 2] (Agent 2)
 
-### 4. Integration
-- [ ] Update `[file-name]` to call new `[method-name]`
-- [ ] Test integration between components
-- **Time**: [hours]
+### Phase 3: Testing & Polish
+**Goal**: [Comprehensive testing and documentation]
+- [ ] [Frontend tests] (Agent 1)
+- [ ] [Backend tests] (Agent 2)
+- [ ] [Integration tests] (Agent 3)
+- [ ] [Documentation updates] (Agent 3)
 
-### 5. Testing
-- [ ] Write unit tests for `[component]`
-- [ ] Write integration tests
-- [ ] Manual testing of user workflow
-- **Time**: [hours]
+## Conflict Prevention
+- **Shared files**: [list files requiring coordination]
+- **Dependencies**: [which tasks must complete before others]
+- **Communication points**: [when agents should sync]
 
-### 6. Documentation
-- [ ] Update README if needed
-- [ ] Add code comments
-- [ ] Update API documentation
-- **Time**: [hours]
+## Instructions for Agents
 
-## Order
-1. Do tasks 1-3 first (core implementation)
-2. Then task 4 (integration)
-3. Finally tasks 5-6 (testing and docs)
+Read the following context files to understand the project:
+- `.tmp/requirements.md` - Business requirements and goals
+- `.tmp/design.md` - Technical implementation instructions
+- `.tmp/test_design.md` - Test specifications
+- `.tmp/tasks.md` - This file with complete task breakdown
+
+**General Instructions**:
+- Work only on your assigned tasks in each phase
+- Avoid conflicts with shared files listed in Conflict Prevention section
+- Update this file to change [ ] to ✅ for completed tasks
+- Follow existing code patterns and project conventions
+- Coordinate with other agents at phase boundaries
+
+## Agent Prompts by Phase
+
+### Phase 1: Foundation
+- **Agent 1**: "Read `.tmp/tasks.md` and complete all tasks assigned to Agent 1 in Phase 1. Work only on your assigned files and avoid shared components until Phase 2."
+- **Agent 2**: "Read `.tmp/tasks.md` and complete all tasks assigned to Agent 2 in Phase 1. Work only on your assigned files and avoid shared components until Phase 2."
+- **Agent 3**: "Read `.tmp/tasks.md` and complete all tasks assigned to Agent 3 in Phase 1. Work only on your assigned files and avoid shared components until Phase 2."
+
+### Phase 2: Integration
+- **Agent 1**: "Proceed to Phase 2 tasks. Integrate your components with other agents' work."
+- **Agent 2**: "Proceed to Phase 2 tasks. Integrate your components with other agents' work."
+
+### Phase 3: Testing & Polish
+- **Agent 1**: "Proceed to Phase 3 tasks. Add comprehensive testing and final polish."
+- **Agent 2**: "Proceed to Phase 3 tasks. Add comprehensive testing and final polish."
+- **Agent 3**: "Proceed to Phase 3 tasks. Handle integration testing, documentation, and project coordination."
 ```
-
-### 3. Present to user
-
-Show the task breakdown and provide task ID:
-- Task ID: {args}
-- Location: `.tmp/task{args}/tasks.md`
-- Tasks are ready for implementation
-- Start with task 1 and work in order
-- Ready for documentation integration? (use `/sdd-5-dc {args}`)
-
-## Notes
-
-Create specific, actionable tasks that can be completed in 1-4 hours each. Focus on the exact implementation steps from the design.

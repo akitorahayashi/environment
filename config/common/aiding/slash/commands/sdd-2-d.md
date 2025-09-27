@@ -1,8 +1,7 @@
 
 ## Context
 
-- Task ID: {args} (e.g., 01, 02, 03)
-- Requirements: `.tmp/task{args}/requirements.md`
+- Requirements: `.tmp/requirements.md`
 
 ## Your task
 
@@ -16,7 +15,7 @@ Understand the current codebase structure, identify where the new feature fits, 
 
 ### 3. Create implementation instructions
 
-Create `.tmp/task{args}/design.md`:
+Create `.tmp/design.md`:
 
 ```markdown
 # Implementation Instructions - [Task Name]

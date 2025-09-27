@@ -1,8 +1,7 @@
 
 ## Context
 
-- Task ID: {args} (e.g., 01, 02, 03)
-- Design: `.tmp/task{args}/design.md`
+- Design: `.tmp/design.md`
 
 ## Your task
 
@@ -12,7 +11,7 @@ Read the implementation instructions to understand what needs to be tested.
 
 ### 2. Create test specification
 
-Create `.tmp/task{args}/test_design.md`:
+Create `.tmp/test_design.md`:
 
 ```markdown
 # Test Specification - [Task Name]
@@ -59,11 +58,10 @@ Create `.tmp/task{args}/test_design.md`:
 ### 3. Present to user
 
 Show the test specification and provide task ID:
-- Task ID: {args}
-- Location: `.tmp/task{args}/test_design.md`
+- Location: `.tmp/test_design.md`
 - Does this cover the important test cases?
 - Any missing scenarios?
-- Ready for task breakdown? (use `/sdd-4-tk {args}`)
+- Ready for task breakdown? (use `/sdd-4-tk`)
 
 ## Notes
 

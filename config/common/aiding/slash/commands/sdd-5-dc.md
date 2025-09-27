@@ -1,21 +1,20 @@
 
 ## Context
 
-- Task ID: {args} (e.g., 01, 02, 03)
-- SDD outputs: `.tmp/task{args}/` directory
+- SDD outputs: `.tmp/` directory
 
 ## Your task
 
 ### 1. Analyze SDD outputs and evaluate integration
 
 Review SDD outputs and compare with current project state:
-- Read requirements.md, design.md, test_design.md from `.tmp/task{args}/`
+- Read requirements.md, design.md, test_design.md from `.tmp/`
 - Identify gaps and overlaps with existing documentation
 - Evaluate integration feasibility and approach
 
 ### 2. Create integration summary
 
-Create `.tmp/task{args}/integration_summary.md`:
+Create `.tmp/integration_summary.md`:
 
 ```markdown
 # Documentation Integration Summary - [Task Name]

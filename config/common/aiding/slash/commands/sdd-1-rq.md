@@ -5,10 +5,9 @@
 
 ## Your task
 
-### 1. Create task directory
+### 1. Create temporary directory
 
-- Generate sequential task ID (e.g., 01, 02, 03, etc.)
-- Create `.tmp/task[id]/` directory (e.g., .tmp/task01/, .tmp/task02/)
+- Create `.tmp/` directory if it doesn't exist
 - All SDD outputs for this task will go in this directory
 
 ### 2. Quick analysis
@@ -20,7 +19,7 @@ Understand the core request:
 
 ### 3. Create simple requirements
 
-Create `.tmp/task[id]/requirements.md`:
+Create `.tmp/requirements.md`:
 
 ```markdown
 # Requirements - [Task Name]
