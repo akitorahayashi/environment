@@ -14,7 +14,13 @@ Review SDD outputs and compare with current project state:
 
 ### 2. Create integration summary
 
-Create `.tmp/integration_summary.md`:
+Create `.tmp/integration_summary.md` using the template structure shown below.
+
+## Notes
+
+Evaluate before integrating. Only integrate if it adds value without duplication.
+
+---
 
 ```markdown
 # Documentation Integration Summary - [Task Name]
@@ -45,7 +51,3 @@ Investigate existing documentation to understand:
 If integration summary recommends proceeding:
 - Integrate content into identified target locations
 - SDD process complete!
-
-## Notes
-
-Evaluate before integrating. Only integrate if it adds value without duplication.

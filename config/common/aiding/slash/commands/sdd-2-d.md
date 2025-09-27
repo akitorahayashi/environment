@@ -15,7 +15,13 @@ Understand the current codebase structure, identify where the new feature fits, 
 
 ### 3. Create implementation instructions
 
-Create `.tmp/design.md`:
+Create `.tmp/design.md` using the template structure shown below.
+
+## Notes
+
+Create specific implementation instructions - no code, no tests, just clear directions on which files to modify and how. Focus on architectural integration and concrete actionable steps.
+
+---
 
 ```markdown
 # Implementation Instructions - [Task Name]
@@ -68,7 +74,3 @@ Create `.tmp/design.md`:
 - Add to `.env.example`: `[new-variables]`
 - Update documentation in `[doc-file]`
 ```
-
-## Notes
-
-Create specific implementation instructions - no code, no tests, just clear directions on which files to modify and how. Focus on architectural integration and concrete actionable steps.

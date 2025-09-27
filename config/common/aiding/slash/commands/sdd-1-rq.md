@@ -19,7 +19,13 @@ Understand the core request:
 
 ### 3. Create simple requirements
 
-Create `.tmp/requirements.md`:
+Create `.tmp/requirements.md` using the template structure shown below.
+
+## Notes
+
+Focus only on business requirements - don't worry about project structure, technical implementation, or existing codebase. Keep it purely business-focused.
+
+---
 
 ```markdown
 # Requirements - [Task Name]
@@ -45,7 +51,3 @@ Create `.tmp/requirements.md`:
 ## Notes
 - [Any important constraints or considerations]
 ```
-
-## Notes
-
-Focus only on business requirements - don't worry about project structure, technical implementation, or existing codebase. Keep it purely business-focused.

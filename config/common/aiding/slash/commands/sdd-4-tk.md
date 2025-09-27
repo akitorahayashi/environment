@@ -16,7 +16,7 @@ Read `.tmp/design.md` and `.tmp/test_design.md` to understand:
 
 ### 2. Create task breakdown
 
-Create `.tmp/tasks.md` using the template structure shown below:
+Create `.tmp/tasks.md` using the template structure shown below.
 
 ### 3. Submit output
 

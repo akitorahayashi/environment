@@ -11,7 +11,13 @@ Read the implementation instructions to understand what needs to be tested.
 
 ### 2. Create test specification
 
-Create `.tmp/test_design.md`:
+Create `.tmp/test_design.md` using the template structure shown below.
+
+## Notes
+
+Keep tests focused on the specific implementation - test what was designed, not everything possible.
+
+---
 
 ```markdown
 # Test Specification - [Task Name]
@@ -62,7 +68,3 @@ Show the test specification and provide task ID:
 - Does this cover the important test cases?
 - Any missing scenarios?
 - Ready for task breakdown? (use `/sdd-4-tk`)
-
-## Notes
-
-Keep tests focused on the specific implementation - test what was designed, not everything possible.
