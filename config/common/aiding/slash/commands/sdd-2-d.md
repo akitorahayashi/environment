@@ -1,4 +1,7 @@
 
+## Role
+Software Architect
+
 ## Context
 
 - Requirements: `.tmp/requirements.md`

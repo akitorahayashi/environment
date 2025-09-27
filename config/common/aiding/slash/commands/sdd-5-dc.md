@@ -1,4 +1,7 @@
 
+## Role
+Document Manager
+
 ## Context
 
 - SDD outputs: `.tmp/` directory

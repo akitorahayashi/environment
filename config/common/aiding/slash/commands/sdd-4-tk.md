@@ -1,4 +1,7 @@
 
+## Role
+Engineering Manager
+
 ## Context
 
 - Design: `.tmp/design.md`
@@ -25,6 +28,25 @@ Provide the task breakdown results:
 - Agents can now work in parallel on Phase 1 tasks
 - Each agent should read the task file and work on their assigned tasks
 - Ready for documentation integration? (use `/sdd-5-dc`)
+
+### 4. Post-task management
+
+After creating the task file:
+- If user provides direct feedback on the task file, revise `.tmp/tasks.md` accordingly
+- User will distribute work directly to individual AI agents
+- Next prompt may be: "Phase 1 completed, please review"
+
+### 5. Phase completion review protocol
+
+When any phase completion review is requested:
+- **Phase-specific focus**: Review implementation changes for the completed phase
+- **Critical analysis**:
+  - Check for parts requiring review due to potential impact
+  - Identify more efficient implementation approaches
+  - Flag forced/unnatural implementations
+  - Apply critical thinking to code review process
+- **Scope limitation**: Original plans and concepts rarely change at this stage
+  - Exception: When implementation proves impossible/infeasible
 
 ## Notes
 

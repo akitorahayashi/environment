@@ -1,4 +1,7 @@
 
+## Role
+Business Analyst
+
 ## Context
 
 - Task description: {args}

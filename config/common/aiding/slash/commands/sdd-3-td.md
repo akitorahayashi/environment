@@ -1,4 +1,7 @@
 
+## Role
+QA Engineer
+
 ## Context
 
 - Design: `.tmp/design.md`
