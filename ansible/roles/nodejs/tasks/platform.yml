@@ -1,4 +1,13 @@
 ---
+- name: "Set Node.js version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ config_dir_abs_path }}/runtime/nodejs/.nvmrc"
+  register: node_version_file
+
+- name: "Set Node.js version fact"
+  ansible.builtin.set_fact:
+    node_version: "{{ node_version_file.content | b64decode | trim }}"
+
 - name: "Install nvm, jq, and pnpm"
   community.general.homebrew:
     name: "{{ item }}"
