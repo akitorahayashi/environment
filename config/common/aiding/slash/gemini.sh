@@ -18,9 +18,7 @@ fi
 mkdir -p "$GEMINI_COMMANDS_DIR"
 
 # Remove existing command files
-if [[ -d "$GEMINI_COMMANDS_DIR" ]]; then
-    rm -f "$GEMINI_COMMANDS_DIR"/*
-fi
+rm -f "$GEMINI_COMMANDS_DIR"/*
 
 echo "Generating Gemini CLI slash commands..."
 

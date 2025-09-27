@@ -18,9 +18,7 @@ fi
 mkdir -p "$CLAUDE_COMMANDS_DIR"
 
 # Remove existing command files
-if [[ -d "$CLAUDE_COMMANDS_DIR" ]]; then
-    rm -f "$CLAUDE_COMMANDS_DIR"/*
-fi
+rm -f "$CLAUDE_COMMANDS_DIR"/*
 
 echo "Generating Claude Code slash commands..."
 
