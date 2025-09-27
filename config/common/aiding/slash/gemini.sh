@@ -14,16 +14,11 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
     exit 1
 fi
 
-# Create Gemini commands directory if ~/.gemini exists
-if [[ -d "$HOME/.gemini" ]]; then
-    mkdir -p "$GEMINI_COMMANDS_DIR"
-else
-    echo "Warning: ~/.gemini directory not found. Skipping Gemini command generation."
-    exit 0
-fi
+# Create Gemini commands directory
+mkdir -p "$GEMINI_COMMANDS_DIR"
 
 # Remove existing command files
-rm -f "$GEMINI_COMMANDS_DIR"/*.toml
+rm -f "$GEMINI_COMMANDS_DIR"/*
 
 echo "Generating Gemini CLI slash commands..."
 

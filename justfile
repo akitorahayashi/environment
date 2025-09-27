@@ -157,6 +157,22 @@ cmn-aider:
   @echo "🚀 Running common Aider setup..."
   @just _run_ansible "python" "common" "python-aider" "--extra-vars python_install_aider=true"
 
+# Generate Claude Code slash commands
+cmn-slash-claude:
+  @echo "🚀 Generating Claude Code slash commands..."
+  @{{repo_root}}/config/common/aiding/slash/claude.sh
+
+# Generate Gemini CLI slash commands
+cmn-slash-gemini:
+  @echo "🚀 Generating Gemini CLI slash commands..."
+  @{{repo_root}}/config/common/aiding/slash/gemini.sh
+
+# Generate all slash commands
+cmn-slash:
+  @echo "🚀 Generating all slash commands..."
+  @just cmn-slash-claude
+  @just cmn-slash-gemini
+
 
 # Install common cask packages only
 cmn-cask:

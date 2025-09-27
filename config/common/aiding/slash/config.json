@@ -30,6 +30,36 @@
       "title": "Create project premise",
       "description": "Research and create comprehensive .claude/CLAUDE.md project documentation",
       "prompt-file": "commands/prm.md"
+    },
+    "sdd-1-rq": {
+      "title": "SDD Step 1: Requirements",
+      "description": "Create requirements specification (Stage 1 of SDD)",
+      "argument-hint": "task description or project details",
+      "prompt-file": "commands/sdd-1-rq.md"
+    },
+    "sdd-2-d": {
+      "title": "SDD Step 2: Design",
+      "description": "Create detailed design specification (Stage 2 of SDD)",
+      "argument-hint": "design focus area or specific component",
+      "prompt-file": "commands/sdd-2-d.md"
+    },
+    "sdd-3-td": {
+      "title": "SDD Step 3: Test Design",
+      "description": "Create comprehensive test specification (Stage 3 of SDD)",
+      "argument-hint": "test focus area or specific component",
+      "prompt-file": "commands/sdd-3-td.md"
+    },
+    "sdd-4-tk": {
+      "title": "SDD Step 4: Task Breakdown",
+      "description": "Break down design into implementable tasks (Stage 4 of SDD)",
+      "argument-hint": "implementation area or priority",
+      "prompt-file": "commands/sdd-4-tk.md"
+    },
+    "sdd-5-dc": {
+      "title": "SDD Step 5: Documentation",
+      "description": "Integrate SDD outputs into project documentation (Stage 5 of SDD)",
+      "argument-hint": "documentation focus or specific area",
+      "prompt-file": "commands/sdd-5-dc.md"
     }
   }
 }
