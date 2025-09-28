@@ -155,7 +155,8 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `config/common/runtime/nodejs/.nvmrc`, installs it, and sets it as the default.
     -   **Tools**: Reads `config/common/runtime/nodejs/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to home directory.
     -   **Claude Code Integration**: Creates `~/.claude` directory, symlinks configuration files, and generates slash commands from unified configuration when enabled (`--tags nodejs-claude`).
-    -   **Gemini CLI Integration**: Creates `~/.gemini` directory, symlinks configuration files, and generates slash commands when enabled (`--tags nodejs-gemini`).
+    - **Gemini CLI Integration**: Creates `~/.gemini` directory, symlinks configuration files, and generates slash commands when enabled (`--tags nodejs-gemini`).
+    - **Codex CLI Integration**: Creates `~/.codex` and `~/.codex/prompts` directories, symlinks `config.toml`, and generates slash commands from unified configuration when enabled (`--tags nodejs-codex`).
     -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags nodejs-claude`, `--tags nodejs-gemini`).
 
 10. **MCP Servers Configuration (`mcp` role)**
@@ -175,7 +176,7 @@ The following GitHub Actions workflows validate the automated setup process:
 
 - **`ci-pipeline.yml`**: Main CI pipeline orchestrating all setup workflows
 - **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
-- **`setup-nodejs.yml`**: Validates Node.js platform, tools, and AI integrations (Claude, Gemini)
+- **`setup-nodejs.yml`**: Validates Node.js platform, tools, and AI integrations (Claude, Gemini, Codex)
 - **`setup-sublang.yml`**: Validates Ruby and Java environment setup
 - **`setup-ide.yml`**: Validates unified editor (VS Code/Cursor) configuration and extension management
 - **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types

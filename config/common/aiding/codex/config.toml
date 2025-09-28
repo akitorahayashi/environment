@@ -1,0 +1,13 @@
+# Default model to use
+model = "gpt-5-codex"
+
+# Model provider (e.g., "openai", "azure")
+model_provider = "openai"
+
+# Approval policy for executing commands
+# Options: "untrusted", "on-failure", "on-request", "never"
+approval_policy = "on-request"
+
+# Sandbox execution mode
+# Options: "read-only", "workspace-write", "danger-full-access"
+sandbox_mode = "workspace-write"
