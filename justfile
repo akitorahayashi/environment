@@ -141,16 +141,16 @@ cmn-cursor:
 # Setup Claude Code settings
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "nodejs" "common" "nodejs-claude" "--extra-vars nodejs_install_claude=true"
+  @just _run_ansible "nodejs" "common" "nodejs-claude"
 
 # Setup Gemini CLI settings
 cmn-gemini:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "nodejs" "common" "nodejs-gemini" "--extra-vars nodejs_install_gemini=true"
+  @just _run_ansible "nodejs" "common" "nodejs-gemini"
 
 cmn-codex:
   @echo "🚀 Running common Codex CLI setup..."
-  @just _run_ansible "nodejs" "common" "nodejs-codex" "--extra-vars nodejs_install_codex=true"
+  @just _run_ansible "nodejs" "common" "nodejs-codex"
 
 # Setup MCP servers configuration
 cmn-mcp:
@@ -160,7 +160,7 @@ cmn-mcp:
 # Install Aider Chat
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
-  @just _run_ansible "python" "common" "python-aider" "--extra-vars python_install_aider=true"
+  @just _run_ansible "python" "common" "python-aider"
 
 # Install common cask packages only
 cmn-cask:

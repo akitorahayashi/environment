@@ -21,8 +21,14 @@ mkdir -p "$CODEX_PROMPTS_DIR"
 rm -f "$CODEX_PROMPTS_DIR"/*
 
 # Parse config.json and generate command files
-jq -r '.commands | to_entries[] | "\(.key)\t\(.value["prompt-file"])"' "$CONFIG_FILE" | while IFS=$'\t' read -r cmd prompt_file; do
-    output_file="$CODEX_PROMPTS_DIR/$cmd.md"
+while IFS=$'\t' read -r cmd prompt_file; do
+    # Sanitize command key to a safe filename
+    safe_cmd="${cmd//[^A-Za-z0-9._-]/_}"
+    if [[ "$safe_cmd" != "$cmd" ]]; then
+        echo "Error: Invalid command key '$cmd' (unsafe filename)." >&2
+        exit 1
+    fi
+    output_file="$CODEX_PROMPTS_DIR/$safe_cmd.md"
     prompt_source_path="config/common/aiding/slash/$prompt_file"
 
     # Add the prompt content from the referenced file
@@ -32,4 +38,4 @@ jq -r '.commands | to_entries[] | "\(.key)\t\(.value["prompt-file"])"' "$CONFIG_
         echo "Error: Prompt file not found: $prompt_source_path" >&2
         exit 1
     fi
-done
+done < <(jq -r '.commands | to_entries[] | select(.value["prompt-file"]) | "\(.key)\t\(.value["prompt-file"])"' "$CONFIG_FILE")

@@ -18,6 +18,6 @@
     dest: "{{ ansible_env.HOME }}/{{ item }}"
     state: link
     force: true
-  with_items:
+  loop:
     - .aider.conf.yml
     - .aider.model.settings.yml

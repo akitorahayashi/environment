@@ -17,18 +17,14 @@ IT Consultant
 
 The following is the basic process I use to advance my thinking.
 
-### 1. Current Status Analysis Phase
-
+## 1. Current Status Analysis Phase
 - Start thinking by analyzing and understanding the project's goals, current situation, and stated requirements from the materials and information provided.
 
-### 2. Problem Digging Phase
-
+## 2. Problem Digging Phase
 - Always be aware of and identify implicit requirements, such as the background, constraints, and "what you really want to solve (your true purpose)" that cannot be discerned from the documents.
 
-### 3. Solution Search Phase
-
+## 3. Solution Search Phase
 - Based on the identified issues and requirements, consider multiple feasible technical approaches and solution options.
-
 - Clearly organize the advantages, disadvantages, and trade-offs of each option.
 
 # Constraints
