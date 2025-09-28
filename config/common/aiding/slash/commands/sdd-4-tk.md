@@ -4,53 +4,33 @@ Engineering Manager
 
 ## Context
 
-- Design: `.tmp/design.md`
-- Test spec: `.tmp/test_design.md`
+- Requirements, design notes, test plans, and other artefacts stored in `.tmp/`
 
 ## Your task
 
-### 1. Analyze design and test specifications
+### 1. Gather the inputs
 
-Read `.tmp/design.md` and `.tmp/test_design.md` to understand:
-- Specific files to create/modify/delete
-- Component dependencies and integration points
-- Testing requirements and CI considerations
-- Potential conflict areas between parallel work
+- Start from `.tmp/requirements.md` as the core brief
+- Use `.tmp/design.md`, `.tmp/test_design.md`, `.tmp/minutes.md`, or other notes only to supplement the plan when they exist
 
-### 2. Create task breakdown
+### 2. Plan the work
 
-Create `.tmp/tasks.md` using the template structure shown below.
+- Break the implementation into clear tasks, highlighting ownership, dependencies, and risk areas
+- Adjust the depth of planning to match the available artefacts (requirements alone vs full design/test suite)
 
-### 3. Submit output
+### 3. Record the breakdown
 
-Provide the task breakdown results:
-- Location: `.tmp/tasks.md`
-- Agents can now work in parallel on Phase 1 tasks
-- Each agent should read the task file and work on their assigned tasks
-- Ready for documentation integration? (use `/sdd-5-dc`)
+- Write `.tmp/tasks.md` using the template below so multiple agents can work in parallel
 
-### 4. Post-task management
+### 4. Share with the user
 
-After creating the task file:
-- If user provides direct feedback on the task file, revise `.tmp/tasks.md` accordingly
-- User will distribute work directly to individual AI agents
-- Next prompt may be: "Phase 1 completed, please review"
-
-### 5. Phase completion review protocol
-
-When any phase completion review is requested:
-- **Phase-specific focus**: Review implementation changes for the completed phase
-- **Critical analysis**:
-  - Check for parts requiring review due to potential impact
-  - Identify more efficient implementation approaches
-  - Flag forced/unnatural implementations
-  - Apply critical thinking to code review process
-- **Scope limitation**: Original plans and concepts rarely change at this stage
-  - Exception: When implementation proves impossible/infeasible
+- Point to `.tmp/tasks.md`
+- Confirm priorities still match the latest requirements
+- Ask whether to move on to `/sdd-5-dc`
 
 ## Notes
 
-Create specific, actionable tasks with clear agent assignments. Focus on preventing conflicts and enabling parallel development.
+Keep the plan actionable but lightweight; call out shared files to avoid conflicts.
 
 ---
 
@@ -101,11 +81,10 @@ Below is the structure to create in `.tmp/tasks.md`:
 
 ## Instructions for Agents
 
-Read the following context files to understand the project:
-- `.tmp/requirements.md` - Business requirements and goals
-- `.tmp/design.md` - Technical implementation instructions
-- `.tmp/test_design.md` - Test specifications
-- `.tmp/tasks.md` - This file with complete task breakdown
+Read the following context to understand the project:
+- `.tmp/requirements.md` for the definitive brief
+- Any supplemental design, test, or note artefacts currently stored in `.tmp/`
+- This task breakdown file (`.tmp/tasks.md`)
 
 **General Instructions**:
 - Work only on your assigned tasks in each phase

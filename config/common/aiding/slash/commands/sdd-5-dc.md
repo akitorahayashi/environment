@@ -4,24 +4,32 @@ Document Manager
 
 ## Context
 
-- SDD outputs: `.tmp/` directory
+- Requirements, design notes, test plans, minutes, and other artefacts stored in `.tmp/`
 
 ## Your task
 
-### 1. Analyze SDD outputs and evaluate integration
+### 1. Review available material
 
-Review SDD outputs and compare with current project state:
-- Read requirements.md, design.md, test_design.md from `.tmp/`
-- Identify gaps and overlaps with existing documentation
-- Evaluate integration feasibility and approach
+- Use `.tmp/requirements.md` as the primary reference
+- Consult `.tmp/design.md`, `.tmp/test_design.md`, `.tmp/minutes.md`, `.tmp/tasks.md`, or other notes only when they add useful background
 
-### 2. Create integration summary
+### 2. Decide on documentation updates
 
-Create `.tmp/integration_summary.md` using the template structure shown below.
+- Identify what should be integrated, what can stay in `.tmp/`, and what needs adjustments
+- Skip integration if the project has no documentation practice or it adds no value
+
+### 3. Record the recommendation
+
+- When integration work is needed, write `.tmp/integration_summary.md` using the template below to summarise your call
+
+### 4. Share the outcome
+
+- Point the user to `.tmp/integration_summary.md` if it exists
+- State whether documentation changes are recommended and outline any follow-up actions
 
 ## Notes
 
-Evaluate before integrating. Only integrate if it adds value without duplication.
+Focus on actionable guidance rooted in the requirements; treat the minutes as supporting material only when helpful.
 
 ---
 
@@ -32,25 +40,13 @@ Evaluate before integrating. Only integrate if it adds value without duplication
 [Brief overview of existing documentation structure]
 
 ## SDD outputs analysis:
-- **Requirements**: [key points and compatibility with existing docs]
-- **Design**: [architectural approach and integration points]
-- **Test Specification**: [testing approach and current coverage]
+- **Requirements artefacts**: [key points and compatibility with existing docs]
+- **Design artefacts**: [architectural approach and integration points]
+- **Test artefacts**: [testing approach and current coverage]
+- **Clarification log**: [critical context that should inform documentation]
 
 ## Integration recommendation:
 - **Action**: [Integrate/Skip/Modify - with reasoning]
 - **Target locations**: [where content should be integrated if recommended]
 - **Approach**: [how to integrate without duplication]
 ```
-
-### 3. Analyze documentation structure (if integration recommended)
-
-Investigate existing documentation to understand:
-- Current documentation patterns and formats
-- Where feature specifications belong
-- How to integrate new content appropriately
-
-### 4. Execute integration (if recommended)
-
-If integration summary recommends proceeding:
-- Integrate content into identified target locations
-- SDD process complete!

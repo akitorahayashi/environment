@@ -4,29 +4,25 @@ Business Analyst
 
 ## Context
 
-- Task description: {args}
+- Current notes and artefacts stored in `.tmp/`
 
 ## Your task
 
-### 1. Create temporary directory
+### 1. Understand the ask
 
-- Create `.tmp/` directory if it doesn't exist
-- All SDD outputs for this task will go in this directory
+- Review conversation context plus any files already in `.tmp/` (minutes, scratch notes, earlier briefs)
+- Treat `.tmp/minutes.md` as background only—pull forward just the insights worth keeping
+- Ask only for details that remain unclear
 
-### 2. Quick analysis
+### 2. Capture business requirements
 
-Understand the core request:
-- What needs to be built?
-- Who will use it?
-- What's the main benefit?
-
-### 3. Create simple requirements
-
-Create `.tmp/requirements.md` using the template structure shown below.
+- Summarise what needs to be achieved, who benefits, and why it matters
+- Produce a clean narrative that stands without the scratch notes
+- Record the result in `.tmp/requirements.md` using the template below
 
 ## Notes
 
-Focus only on business requirements - don't worry about project structure, technical implementation, or existing codebase. Keep it purely business-focused.
+Keep everything business-focused; avoid implementation details. Requirements should be self-contained so later steps can ignore the minutes entirely if desired.
 
 ---
 

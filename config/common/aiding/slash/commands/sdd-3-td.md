@@ -4,21 +4,33 @@ QA Engineer
 
 ## Context
 
-- Design: `.tmp/design.md`
+- Requirements, design details, and any other artefacts stored in `.tmp/`
 
 ## Your task
 
-### 1. Read design document
+### 1. Review design inputs
 
-Read the implementation instructions to understand what needs to be tested.
+- Rely on `.tmp/requirements.md` for the definitive scope
+- Use `.tmp/design.md` when present, and skim `.tmp/minutes.md` or other notes only for supporting background
 
-### 2. Create test specification
+### 2. Plan the tests
 
-Create `.tmp/test_design.md` using the template structure shown below.
+- Translate the design into test coverage, considering normal, edge, and failure cases
+- Note required test data, mocks, or manual checks
+
+### 3. Record the plan
+
+- When a test plan is needed, write `.tmp/test_design.md` using the template below so implementation knows what to verify
+
+### 4. Share the outcome
+
+- Point the user to `.tmp/test_design.md` if it exists
+- Confirm the plan matches the current requirements
+- Ask whether to continue with `/sdd-4-tk`
 
 ## Notes
 
-Keep tests focused on the specific implementation - test what was designed, not everything possible.
+Skip this step entirely when no formal testing guidance is required.
 
 ---
 
@@ -63,11 +75,3 @@ Keep tests focused on the specific implementation - test what was designed, not 
 - **Workflow changes**: [none needed if wrapped in existing commands vs new CI steps]
 - **Manual-only tests**: [tests requiring human verification or complex setup]
 ```
-
-### 3. Present to user
-
-Show the test specification and provide task ID:
-- Location: `.tmp/test_design.md`
-- Does this cover the important test cases?
-- Any missing scenarios?
-- Ready for task breakdown? (use `/sdd-4-tk`)
