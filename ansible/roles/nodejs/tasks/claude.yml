@@ -60,3 +60,10 @@
   ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
   args:
     chdir: "{{ repo_root_path }}"
+
+- name: "Symlink Claude AGENTS file"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/aiding/claude/CLAUDE.md"
+    dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
+    state: link
+    force: yes

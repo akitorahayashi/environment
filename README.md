@@ -7,6 +7,7 @@ This project automates the setup of a consistent development environment across 
 ```
 .
 ├── .claude/
+├── .codex/
 ├── .gemini/
 ├── .serena/
 ├── .github/
@@ -27,10 +28,8 @@ This project automates the setup of a consistent development environment across 
 ├── .env.example
 ├── .gitignore
 ├── .mcp.json
-├── AGENTS.md
 ├── Makefile
 ├── README.md
-├── RULES.md
 └── justfile
 ```
 
