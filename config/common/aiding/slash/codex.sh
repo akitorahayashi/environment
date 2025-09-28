@@ -10,7 +10,7 @@ CODEX_PROMPTS_DIR="$HOME/.codex/prompts"
 
 # Check if config file exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "Error: Config file not found: $CONFIG_FILE"
+    echo "Error: Config file not found: $CONFIG_FILE" >&2
     exit 1
 fi
 
@@ -19,8 +19,6 @@ mkdir -p "$CODEX_PROMPTS_DIR"
 
 # Remove existing command files
 rm -f "$CODEX_PROMPTS_DIR"/*
-
-echo "Generating Codex slash commands..."
 
 # Parse config.json and generate command files
 jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; do
@@ -32,11 +30,7 @@ jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; d
     if [[ -f "config/common/aiding/slash/$prompt_file" ]]; then
         cat "config/common/aiding/slash/$prompt_file" > "$output_file"
     else
-        echo "Error: Prompt file not found: config/common/aiding/slash/$prompt_file"
+        echo "Error: Prompt file not found: config/common/aiding/slash/$prompt_file" >&2
         exit 1
     fi
-
-    echo "Generated: $output_file"
 done
-
-echo "Codex slash commands generated successfully!"

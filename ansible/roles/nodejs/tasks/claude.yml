@@ -51,6 +51,11 @@
     state: directory
     mode: '0755'
 
+- name: "Ensure Claude slash command script is executable"
+  ansible.builtin.file:
+    path: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
+    mode: '0755'
+
 - name: "Generate Claude slash commands"
   ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
   args:

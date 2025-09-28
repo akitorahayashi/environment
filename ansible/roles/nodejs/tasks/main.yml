@@ -26,6 +26,6 @@
 - name: "Setup Codex CLI"
   import_tasks: codex.yml
   when: nodejs_install_codex | default(false) | bool
-  tags: [nodejs, nodeex]
+  tags: [nodejs, nodejs-codex]
 
 
