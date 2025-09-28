@@ -15,18 +15,14 @@ QA Engineer
 
 ### 2. Plan the tests
 
-- Translate the design into test coverage, considering normal, edge, and failure cases
-- Note required test data, mocks, or manual checks
+- Start by mapping the requirements to existing suites, scripts, and CI jobs
+- Call out only the additional coverage that is actually needed (leave a note when no new tests are required)
+- Note required test data, mocks, or manual checks when they are not already covered elsewhere
 
 ### 3. Record the plan
 
-- When a test plan is needed, write `.tmp/test_design.md` using the template below so implementation knows what to verify
-
-### 4. Share the outcome
-
-- Point the user to `.tmp/test_design.md` if it exists
-- Confirm the plan matches the current requirements
-- Ask whether to continue with `/sdd-4-tk`
+- Capture the outcome in `.tmp/test_design.md`, referencing the template below and pruning sections that do not apply
+- Prefer linking to existing playbooks/commands over redefining them; highlight gaps only when something truly new is required
 
 ## Notes
 
@@ -37,41 +33,34 @@ Skip this step entirely when no formal testing guidance is required. Do not modi
 ```markdown
 # Test Specification - [Task Name]
 
+> Tailor this outline to the real scope. Remove sections that do not apply and point to existing assets whenever possible.
+
 ## Test Scope
-- Files to test: [list of files from design]
-- Functions to test: [list of functions/methods]
-- Integration points to test: [connections between components]
+- **Focus areas**: [features or flows covered by this work]
+- **Existing coverage**: [suites/commands/pipelines already exercising this area]
+- **Net-new coverage**: [only if additional tests are required]
 
-## Unit Tests
+## Unit / Component Tests *(include only when new or changed)*
+- **Suite/command**: [`just test-module`]
+  - **Target**: [file/function]
+  - **Notes**: [normal/error/edge cases still missing]
 
-### Test `[file-name]`
-- **Function**: `[function-name]`
-- **Normal cases**: [what should work]
-- **Error cases**: [what should fail and how]
-- **Edge cases**: [boundary conditions]
+## Integration / End-to-End *(include only when new or changed)*
+- **Workflow**: [component A ↔ component B]
+  - **Validation**: [how to observe success/failure]
+  - **Reuse**: [existing script or playbook name]
 
-### Test `[another-file]`
-- **Function**: `[function-name]`
-- **Normal cases**: [what should work]
-- **Error cases**: [what should fail and how]
+## Manual / Exploratory *(optional)*
+- **Scenario**: [user journey or system state]
+- **Steps**: [how to execute]
+- **Expected**: [observable outcome]
 
-## Integration Tests
-- **Test**: [component A] + [component B]
-- **Scenario**: [what workflow to test]
-- **Expected**: [what should happen]
+## Automation & CI Hooks
+- **Current pipeline**: [`just ci`, `gh workflow run build.yml`, etc.]
+- **Adjustments**: [none if existing structure already covers it]
+- **Follow-up**: [backlog items or risks when coverage stays manual]
 
-## Test Data
-- **Valid data**: [examples]
-- **Invalid data**: [examples]
-- **Mock responses**: [if external APIs involved]
-
-## Manual Testing
-- **User workflow**: [steps to test manually]
-- **Expected behavior**: [what user should see]
-
-## CI/CD Integration (if applicable)
-- **CI suitability**: [whether these tests can run in CI environment]
-- **Existing commands**: [make/just commands that already include test execution]
-- **Workflow changes**: [none needed if wrapped in existing commands vs new CI steps]
-- **Manual-only tests**: [tests requiring human verification or complex setup]
+## Test Data & Fixtures *(only when not already available)*
+- **Source**: [file, script, or dataset]
+- **Preparation steps**: [how to set up data/mocks]
 ```

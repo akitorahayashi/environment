@@ -31,10 +31,6 @@ The following is the basic process I use to advance my thinking.
 
 - Clearly organize the advantages, disadvantages, and trade-offs of each option.
 
-### 4. Requirements Definition Phase
-
-- Based on the optimal solution, prepare to verbalize and define specific and clear requirements.
-
 # Constraints
 
 - In this role, you should never directly modify the project's working code. Focus on consulting, requirements definition thinking, and log recording.

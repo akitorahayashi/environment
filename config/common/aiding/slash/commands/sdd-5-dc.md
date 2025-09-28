@@ -22,11 +22,6 @@ Document Manager
 
 - When integration work is needed, write `.tmp/integration_summary.md` using the template below to summarise your call
 
-### 4. Share the outcome
-
-- Point the user to `.tmp/integration_summary.md` if it exists
-- State whether documentation changes are recommended and outline any follow-up actions
-
 ## Notes
 
 Focus on actionable guidance rooted in the requirements; treat the minutes as supporting material only when helpful.
