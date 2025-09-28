@@ -12,11 +12,6 @@ This project automates the setup of a consistent development environment across 
 ├── .serena/
 ├── .github/
 │   └── workflows/
-├── config/
-│   ├── common/
-│   └── profiles/
-│       ├── macbook/
-│       └── mac-mini/
 ├── ansible/
 │   ├── hosts
 │   ├── playbook.yml
@@ -24,6 +19,12 @@ This project automates the setup of a consistent development environment across 
 │   └── utils/
 │       ├── backup-system.sh
 │       └── backup-extensions.sh
+├── config/
+│   ├── common/
+│   └── profiles/
+│       ├── macbook/
+│       └── mac-mini/
+├── tests/
 ├── .env
 ├── .env.example
 ├── .gitignore
@@ -192,6 +193,11 @@ To ensure a consistent and reliable environment, all symbolic link creation task
 - **No Existence Checks**: Automation does not check if a symlink already exists before running the creation task. This guarantees that links are always up-to-date and point to the correct source, eliminating the risk of stale or broken links.
 
 This policy ensures that the environment's state always reflects the configuration defined in this repository.
+
+## Tests
+
+- `python3 -m unittest tests.test_slash_config` validates `config/common/aiding/slash/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
+- GitHub Actions runs `.github/workflows/run-tests.yml`, which bootstraps the repo with `make base` and executes the same validator before other jobs start.
 
 ## CI/CD Pipeline Verification Items
 

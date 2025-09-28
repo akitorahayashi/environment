@@ -1,0 +1,17 @@
+name: Run Tests
+
+on:
+  workflow_call:
+
+jobs:
+  validate-slash-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bootstrap environment
+        run: make base
+
+      - name: Validate slash config
+        run: python3 -m unittest tests.test_slash_config

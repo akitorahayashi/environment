@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
+  run-tests:
+    uses: ./.github/workflows/run-tests.yml
+
   setup-python:
     uses: ./.github/workflows/setup-python.yml
 
@@ -29,4 +32,3 @@ jobs:
 
   setup-system:
     uses: ./.github/workflows/setup-system.yml
-

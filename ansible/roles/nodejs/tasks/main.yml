@@ -1,30 +1,14 @@
 ---
 - name: "Read Node.js version"
   include_tasks: version.yml
-  tags: [nodejs, nodejs-platform, nodejs-tools, nodejs-claude, nodejs-gemini, nodejs-codex]
+  tags: [nodejs, nodejs-platform, nodejs-tools]
 
 - name: "Setup Node.js platform"
   import_tasks: platform.yml
   when: nodejs_setup_platform | default(true) | bool
-  tags: [nodejs, nodejs-platform, nodejs-codex]
+  tags: [nodejs, nodejs-platform]
 
 - name: "Install Node.js tools and packages"
   import_tasks: tools.yml
   when: nodejs_install_tools | default(true) | bool
-  tags: [nodejs, nodejs-tools, nodejs-codex]
-
-- name: "Setup Claude Code CLI"
-  import_tasks: claude.yml
-  when: nodejs_install_claude | default(false) | bool
-  tags: [nodejs, nodejs-claude]
-
-- name: "Setup Gemini CLI"
-  import_tasks: gemini.yml
-  when: nodejs_install_gemini | default(false) | bool
-  tags: [nodejs, nodejs-gemini]
-
-- name: "Setup Codex CLI"
-  import_tasks: codex.yml
-  when: nodejs_install_codex | default(false) | bool
-  tags: [nodejs, nodejs-codex]
-
+  tags: [nodejs, nodejs-tools]
