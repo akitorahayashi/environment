@@ -3,6 +3,7 @@
 # gemini.sh - Generate Gemini CLI slash commands from unified config
 # Run from project root with: just cmn-slash-gemini
 
+# Slash commands now operate with static prompts; do not introduce argument placeholders.
 set -euo pipefail
 
 CONFIG_FILE="config/common/aiding/slash/config.json"

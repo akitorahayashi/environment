@@ -8,11 +8,10 @@ Business Analyst
 
 ## Your task
 
-### 1. Understand the ask
+### 1. Understand the requirements
 
 - Review conversation context plus any files already in `.tmp/` (minutes, scratch notes, earlier briefs)
-- Treat `.tmp/minutes.md` as background only—pull forward just the insights worth keeping
-- Ask only for details that remain unclear
+- Treat `.tmp/minutes.md` as background only—pull forward just the insights worth keeping if exists
 
 ### 2. Capture business requirements
 

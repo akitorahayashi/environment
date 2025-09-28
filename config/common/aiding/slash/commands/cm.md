@@ -1,6 +1,6 @@
 # /cm - Smart Commit
 
-Generates a commit message from the conversation context and executes the commit. This command relies on editing history only, not `git diff` or `git status`.
+Generates a commit message from the conversation context and executes the commit.
 
 ## Execution Flow
 

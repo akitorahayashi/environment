@@ -1,42 +1,16 @@
-# Slash Command Argument Patterns
+# Slash Command Prompt Behavior
 
 ## Claude Code (.md format)
-- **Front Matter**: YAML for human-readable information
-  ```yaml
-  ---
-  title: "Command Name"
-  argument-hint: "Argument Description"
-  ---
-  ```
-- **Body**: Instructions for AI, with Markdown headers
-  ```markdown
-  # /cmd - Command Name
-
-  Instruction content...
-  ```
-- **Arguments**: Passed as `{args}` placeholder in command templates
-  - Arguments appear at end of command prompt as `ARGUMENTS: <user-input>`
-  - Template placeholders like `{args}` are replaced with actual user input
-  - Example: `/tst can you see this` → `{args}` becomes `can you see this`
+- **Front Matter**: Contains only `title` metadata; dynamic `argument-hint` fields have been retired.
+- **Body**: Markdown instructions that must stand alone without `{args}` placeholders.
+- **Usage**: Commands execute with the static prompt content exactly as authored in `config/common/aiding/slash/commands/`.
 
 ## Gemini CLI (.toml format)
-- **Description**: Human-readable description
-- **Prompt**: Instructions for AI
-- **Argument Passing**: `{{args}}` placeholder
-  - Raw replacement: Used directly in text
-- **Usage Example**: `/cmd arg1 arg2` → args = "arg1 arg2"
+- **Description**: Preserved from `config.json`.
+- **Prompt**: Multi-line string copied verbatim from the shared Markdown template; no `{{args}}` substitution occurs.
+- **Usage**: Gemini interprets the generated prompt directly, so trailing arguments in slash invocations are ignored.
 
-## Common Patterns
-1. Header Section: Human-readable information (title, description, etc.)
-2. Body Section: Detailed instructions for AI
-3. Argument Handling:
-   - Claude: `{args}` placeholder replacement + `ARGUMENTS:` system message
-   - Gemini: `{{args}}` placeholder replacement only
-
-## Generation Process (Claude)
-The `config/common/slash/claude.sh` script:
-1. Reads `config.json` for command definitions
-2. Generates `.md` files in `~/.claude/commands/`
-3. Includes `argument-hint` in frontmatter if specified
-4. Embeds prompt content from referenced template files
-5. Runtime: Claude Code substitutes `{args}` and appends `ARGUMENTS:` line
+## Common Rules
+1. Shared templates must avoid references to runtime arguments or `{args}`-style placeholders.
+2. Generation scripts (`claude.sh`, `gemini.sh`, `codex.sh`) simply mirror the prompt text and metadata; introducing argument support requires explicit design changes.
+3. Maintain consistency by validating regenerated command files contain no argument hints after running `just cmn-slash-claude` or `just cmn-slash-gemini`.
