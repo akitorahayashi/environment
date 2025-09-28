@@ -142,18 +142,15 @@ cmn-cursor:
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."
   @just _run_ansible "nodejs" "common" "nodejs-claude" "--extra-vars nodejs_install_claude=true"
-  @{{repo_root}}/config/common/aiding/slash/claude.sh
 
 # Setup Gemini CLI settings
 cmn-gemini:
   @echo "🚀 Running common Gemini CLI setup..."
   @just _run_ansible "nodejs" "common" "nodejs-gemini" "--extra-vars nodejs_install_gemini=true"
-  @{{repo_root}}/config/common/aiding/slash/gemini.sh
 
 cmn-codex:
   @echo "🚀 Running common Codex CLI setup..."
   @just _run_ansible "nodejs" "common" "nodejs-codex" "--extra-vars nodejs_install_codex=true"
-  @{{repo_root}}/config/common/aiding/slash/codex.sh
 
 # Setup MCP servers configuration
 cmn-mcp:

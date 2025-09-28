@@ -18,3 +18,8 @@
   ansible.builtin.file:
     path: "{{ config_dir_abs_path }}/aiding/slash/codex.sh"
     mode: '0755'
+
+- name: "Generate Codex slash commands"
+  ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/codex.sh"
+  args:
+    chdir: "{{ repo_root_path }}"
