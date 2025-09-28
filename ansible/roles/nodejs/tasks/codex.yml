@@ -6,7 +6,6 @@
   loop:
     - "{{ ansible_env.HOME }}/.codex"
     - "{{ ansible_env.HOME }}/.codex/prompts"
-  tags: codex
 
 - name: Symlink Codex configuration file
   ansible.builtin.file:
@@ -14,10 +13,8 @@
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
     state: link
     force: yes
-  tags: codex
 
 - name: "Ensure Codex slash command script is executable"
   ansible.builtin.file:
     path: "{{ config_dir_abs_path }}/aiding/slash/codex.sh"
     mode: '0755'
-  tags: codex

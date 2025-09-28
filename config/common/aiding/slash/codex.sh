@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # codex.sh - Generate Codex slash commands from unified config
-# Run from project root with: just cmn-slash-codex
+# Run from project root as part of: just cmn-codex
 
 set -euo pipefail
 
@@ -21,16 +21,15 @@ mkdir -p "$CODEX_PROMPTS_DIR"
 rm -f "$CODEX_PROMPTS_DIR"/*
 
 # Parse config.json and generate command files
-jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; do
-    cmd=$(echo "$row" | base64 --decode | jq -r '.key')
-    prompt_file=$(echo "$row" | base64 --decode | jq -r '.value["prompt-file"]')
+jq -r '.commands | to_entries[] | "\(.key)\t\(.value["prompt-file"])"' "$CONFIG_FILE" | while IFS=$'\t' read -r cmd prompt_file; do
     output_file="$CODEX_PROMPTS_DIR/$cmd.md"
+    prompt_source_path="config/common/aiding/slash/$prompt_file"
 
     # Add the prompt content from the referenced file
-    if [[ -f "config/common/aiding/slash/$prompt_file" ]]; then
-        cat "config/common/aiding/slash/$prompt_file" > "$output_file"
+    if [[ -f "$prompt_source_path" ]]; then
+        cat "$prompt_source_path" > "$output_file"
     else
-        echo "Error: Prompt file not found: config/common/aiding/slash/$prompt_file" >&2
+        echo "Error: Prompt file not found: $prompt_source_path" >&2
         exit 1
     fi
 done

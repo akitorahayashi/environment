@@ -155,9 +155,9 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `config/common/runtime/nodejs/.nvmrc`, installs it, and sets it as the default.
     -   **Tools**: Reads `config/common/runtime/nodejs/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to home directory.
     -   **Claude Code Integration**: Creates `~/.claude` directory, symlinks configuration files, and generates slash commands from unified configuration when enabled (`--tags nodejs-claude`).
-    - **Gemini CLI Integration**: Creates `~/.gemini` directory, symlinks configuration files, and generates slash commands when enabled (`--tags nodejs-gemini`).
-    - **Codex CLI Integration**: Creates `~/.codex` and `~/.codex/prompts` directories, symlinks `config.toml`, and generates slash commands from unified configuration when enabled (`--tags nodejs-codex`).
-    -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags nodejs-claude`, `--tags nodejs-gemini`).
+    -   **Gemini CLI Integration**: Creates `~/.gemini` directory, symlinks configuration files, and generates slash commands when enabled (`--tags nodejs-gemini`).
+    -   **Codex CLI Integration**: Creates `~/.codex` and `~/.codex/prompts` directories, symlinks `config.toml`, and generates slash commands from unified configuration when enabled (`--tags nodejs-codex`).
+    -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags nodejs-claude`, `--tags nodejs-gemini`, `--tags nodejs-codex`).
 
 10. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
