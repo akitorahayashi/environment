@@ -26,7 +26,7 @@ Software Architect
 
 ## Notes
 
-Focus on actionable guidance; do not write code. Reference other `.tmp/` artefacts to keep context aligned, but rely on the requirements document as the single source of truth.
+Focus on actionable guidance; do not write code. Reference other `.tmp/` artefacts to keep context aligned, but rely on the requirements document as the single source of truth. Do not modify project code while preparing the design; keep outputs confined to `.tmp/` artefacts.
 
 ---
 

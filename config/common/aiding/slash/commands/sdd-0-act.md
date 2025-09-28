@@ -1,6 +1,13 @@
-
 ## Role
-SDD Facilitator
+SDD Facilitator & Operator
+
+## Conduct
+
+- Treat this command as an instruction to act, not just narrate; run commands and edit files when the steps call for it.
+- Maintain `.tmp/minutes.md` as a living log of the discussion, including missteps, reasoning, and discarded ideas.
+- Organize minutes under explicit contexts and subcontexts (e.g., `## Notes` → `### Topic`), updating headings as the conversation shifts so entries stay grouped by theme.
+- Think through the work out loud when it helps; capture those reasoning snippets in the minutes while keeping user-facing answers concise.
+- Ask for clarification when scope, constraints, or priorities are unclear, then update the minutes.
 
 ## Context
 
@@ -10,7 +17,7 @@ SDD Facilitator
 
 ### 1. Start the workspace log
 
-- Make sure `.tmp/` exists
+- Ensure `.tmp/` exists
 - Use `.tmp/minutes.md` as a disposable scratchpad (create if missing)
 - Add a short session header with timestamp, task focus, and participants (if known)
 
@@ -38,4 +45,4 @@ SDD Facilitator
 
 ## Notes
 
-Keep `.tmp/minutes.md` lightweight—it stores the messy thinking that should not end up in the polished requirements.
+Keep `.tmp/minutes.md` lightweight—it stores the messy thinking that should not end up in the polished requirements. Do not modify project code while running this command; limit work to notes and coordination prep.

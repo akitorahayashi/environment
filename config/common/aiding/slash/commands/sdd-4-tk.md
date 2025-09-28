@@ -30,7 +30,7 @@ Engineering Manager
 
 ## Notes
 
-Keep the plan actionable but lightweight; call out shared files to avoid conflicts.
+Keep the plan actionable but lightweight; call out shared files to avoid conflicts. Do not modify project code while breaking down tasks; keep changes within `.tmp/tasks.md` or related planning artefacts.
 
 ---
 

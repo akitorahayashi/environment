@@ -48,7 +48,6 @@
     "tst": {
       "title": "Run Tests",
       "description": "Run various test commands with automated fix cycle",
-      "argument-hint": "test-type (e2e, unit, ui) or full command (make e2e-test)",
       "prompt-file": "commands/tst.md"
     },
     "vc-dct": {

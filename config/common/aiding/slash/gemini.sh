@@ -35,9 +35,6 @@ jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; d
     # Add the prompt content from the referenced file
     if [[ -f "config/common/aiding/slash/$prompt_file" ]]; then
         cat "config/common/aiding/slash/$prompt_file" >> "$output_file"
-        echo "" >> "$output_file"
-        echo "" >> "$output_file"
-        echo "!{{{args}}}" >> "$output_file"
     else
         echo "Error: Prompt file not found: config/common/aiding/slash/$prompt_file"
         exit 1

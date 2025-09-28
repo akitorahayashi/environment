@@ -22,7 +22,7 @@ Business Analyst
 
 ## Notes
 
-Keep everything business-focused; avoid implementation details. Requirements should be self-contained so later steps can ignore the minutes entirely if desired.
+Keep everything business-focused; avoid implementation details. Requirements should be self-contained so later steps can ignore the minutes entirely if desired. Do not modify project code while producing requirements—limit output to `.tmp/requirements.md`.
 
 ---
 
