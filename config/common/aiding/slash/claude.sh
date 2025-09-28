@@ -20,8 +20,6 @@ mkdir -p "$CLAUDE_COMMANDS_DIR"
 # Remove existing command files
 rm -f "$CLAUDE_COMMANDS_DIR"/*
 
-echo "Generating Claude Code slash commands..."
-
 # Parse config.json and generate command files
 jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; do
     cmd=$(echo "$row" | base64 --decode | jq -r '.key')
@@ -50,8 +48,4 @@ jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; d
         echo "Error: Prompt file not found: config/common/aiding/slash/$prompt_file"
         exit 1
     fi
-
-    echo "Generated: $output_file"
 done
-
-echo "Claude Code slash commands generated successfully!"

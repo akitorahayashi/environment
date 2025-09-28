@@ -1,39 +1,18 @@
 {
   "commands": {
-    "tst": {
-      "title": "Run Tests",
-      "description": "Run various test commands with automated fix cycle",
-      "argument-hint": "test-type (e2e, unit, ui) or full command (make e2e-test)",
-      "prompt-file": "commands/tst.md"
-    },
-    "sn": {
-      "title": "Activate Serena",
-      "description": "Activate current directory as a project for semantic code analysis",
-      "prompt-file": "commands/sn.md"
-    },
     "cm": {
       "title": "Smart Commit",
-      "description": "Execute git add . && git commit with smart commit message generation",
+      "description": "Generates a commit message from the conversation context and executes the commit. This command relies on editing history only, not `git diff` or `git status`.",
       "prompt-file": "commands/cm.md"
-    },
-    "vc": {
-      "title": "Activate voice notifications",
-      "description": "Enable mandatory voice completion reporting for all tasks",
-      "prompt-file": "commands/vc.md"
-    },
-    "dct-vc": {
-      "title": "Deactivate voice notifications",
-      "description": "Disable mandatory voice completion reporting",
-      "prompt-file": "commands/dct-vc.md"
     },
     "prm": {
       "title": "Create project premise",
-      "description": "Research and create comprehensive .claude/CLAUDE.md project documentation",
+      "description": "Researches, compiles, and creates a `.claude/CLAUDE.md` file with all necessary project information. If the file already exists, checks for consistency and fixes any inconsistencies.",
       "prompt-file": "commands/prm.md"
     },
     "sdd-0-act": {
       "title": "SDD Activation",
-      "description": "Kick off Structured Design Discussion and log clarifications",
+      "description": "Kick off the Structured Design Discussion (SDD)",
       "prompt-file": "commands/sdd-0-act.md"
     },
     "sdd-1-rq": {
@@ -60,6 +39,27 @@
       "title": "SDD Step 5: Documentation",
       "description": "Integrate SDD outputs into project documentation (Stage 5 of SDD)",
       "prompt-file": "commands/sdd-5-dc.md"
+    },
+    "sn": {
+      "title": "Activate Serena",
+      "description": "Activate current directory as a project for semantic code analysis using the `activate_project` tool with the current working directory as the `project` argument. Respond only with \"Project activated successfully.\" if the command succeeds. If there are any errors or warnings, display them fully.",
+      "prompt-file": "commands/sn.md"
+    },
+    "tst": {
+      "title": "Run Tests",
+      "description": "Run various test commands with automated fix cycle",
+      "argument-hint": "test-type (e2e, unit, ui) or full command (make e2e-test)",
+      "prompt-file": "commands/tst.md"
+    },
+    "vc-dct": {
+      "title": "Deactivate voice notifications",
+      "description": "**DISABLE MANDATORY VOICE COMPLETION REPORTING**: From this point forward in the conversation, you are NO LONGER required to use voice notifications for task completions. Return to normal text-only responses for task completions. Respond only with \"Voice completion reporting has been disabled.\" to confirm deactivation.",
+      "prompt-file": "commands/vc-dct.md"
+    },
+    "vc": {
+      "title": "Activate voice notifications",
+      "description": "**ENABLE MANDATORY VOICE COMPLETION REPORTING**: From this point forward in the conversation, you MUST use the mcp__voicevox__speak tool (speaker=46, speedScale=1.3) to report completion of ALL tasks in Japanese. This is now mandatory for every task completion. Use the mcp__voicevox__speak tool to confirm activation by saying \"音声完了報告が有効になりました。これ以降すべてのタスク完了を音声で報告します。\"",
+      "prompt-file": "commands/vc.md"
     }
   }
 }

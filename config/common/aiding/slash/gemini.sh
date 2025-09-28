@@ -20,8 +20,6 @@ mkdir -p "$GEMINI_COMMANDS_DIR"
 # Remove existing command files
 rm -f "$GEMINI_COMMANDS_DIR"/*
 
-echo "Generating Gemini CLI slash commands..."
-
 # Parse config.json and generate command files
 jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; do
     cmd=$(echo "$row" | base64 --decode | jq -r '.key')
@@ -46,8 +44,4 @@ jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; d
     fi
 
     echo "\"\"\"" >> "$output_file"
-
-    echo "Generated: $output_file"
 done
-
-echo "Gemini CLI slash commands generated successfully!"
