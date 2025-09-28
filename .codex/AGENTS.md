@@ -37,3 +37,16 @@ A comprehensive automation project for setting up consistent macOS development e
 
 CI/CD pipeline orchestration is centrally managed in the `ci-pipeline.yml` file.
 Each module defines its workflows in separate YAML files, specifying module-specific tasks and jobs. 
+
+### Symlink Enforcement
+**Core Principle**: Any automation that creates symbolic links must overwrite the destination regardless of its current state.
+
+**Rules**:
+- Always set `force: true` (or the equivalent) when creating symlinks so existing files, directories, or links are replaced.
+- Do not skip symlink creation merely because the destination already exists; the task must re-run to guarantee the link points at the intended target.
+- Treat broken symlinks as unacceptable debt—rewriting links is lightweight and prevents configuration drift.
+
+**Rationale**:
+- We observed a skipped symlink task during `just cmn-claude`, revealing that conditional guards can leave stale or broken links in place.
+- Source paths change over time; unconditional recreation ensures our configuration always converges to the desired state.
+- This policy keeps developer environments predictable and reduces time spent debugging missing or outdated resources.
