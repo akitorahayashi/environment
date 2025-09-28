@@ -16,11 +16,16 @@ help: ## Show this help message
 base: ## Installs Homebrew and the 'just' command runner
 	@echo "🚀 Starting bootstrap setup..."
 
-	@if ! xcode-select -p &> /dev/null; then \
-		echo "[INSTALL] Xcode Command Line Tools ..."; \
-		xcode-select --install; \
+	@if command -v xcode-select &> /dev/null; then \
+		if ! xcode-select -p &> /dev/null; then \
+			echo "[INSTALL] Xcode Command Line Tools ..."; \
+			xcode-select --install; \
+		else \
+			echo "[SUCCESS] Xcode Command Line Tools are already installed."; \
+		fi; \
 	else \
-		echo "[SUCCESS] Xcode Command Line Tools are already installed."; \
+		echo "[ERROR] xcode-select command not found. This setup must run on macOS."; \
+		exit 1; \
 	fi
 
 	@if [ ! -f .env ]; then \
@@ -28,13 +33,6 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "📝 Created .env file from .env.example. Please edit PERSONAL_VCS_NAME and PERSONAL_VCS_EMAIL."; \
 	else \
 		echo "📝 .env file already exists."; \
-	fi
-
-	@if [ -d .git ]; then \
-		echo "[SYNC] Updating git submodules..."; \
-		git submodule update --init --recursive; \
-	else \
-		echo "[SKIP] No git repository detected; skipping submodule update."; \
 	fi
 
 	@if ! command -v brew &> /dev/null; then \
@@ -45,10 +43,22 @@ base: ## Installs Homebrew and the 'just' command runner
 			echo "[ERROR] Homebrewのインストールに失敗しました"; \
 			exit 1; \
 		fi; \
-		eval "$('/opt/homebrew/bin/brew' shellenv)"; \
 		echo "[SUCCESS] Homebrew のインストール完了"; \
 	else \
 		echo "[SUCCESS] Homebrew はすでにインストールされています"; \
+	fi
+
+	@if command -v brew &> /dev/null; then \
+		eval "$$(brew shellenv)"; \
+	else \
+		echo "[WARN] Homebrew command not available; subsequent installs may fail."; \
+	fi
+
+	@if ! command -v git &> /dev/null; then \
+		echo "[INSTALL] git..."; \
+		brew install git; \
+	else \
+		echo "[SUCCESS] git is already installed."; \
 	fi
 
 	@if ! command -v just &> /dev/null; then \
@@ -72,6 +82,17 @@ base: ## Installs Homebrew and the 'just' command runner
 		export PATH="$$HOME/.local/bin:$$PATH"; \
 	else \
 		echo "[SUCCESS] ansible is already installed."; \
+	fi
+
+	@if [ -d .git ]; then \
+		if command -v git &> /dev/null; then \
+			echo "[SYNC] Updating git submodules..."; \
+			git submodule update --init --recursive; \
+		else \
+			echo "[WARN] Git is not available; skipping submodule update."; \
+		fi; \
+	else \
+		echo "[SKIP] No git repository detected; skipping submodule update."; \
 	fi
 	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
 

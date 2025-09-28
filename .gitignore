@@ -27,3 +27,11 @@ id_*
 
 # Temporary directory
 .tmp/*
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

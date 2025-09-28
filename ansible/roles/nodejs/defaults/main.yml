@@ -1,6 +1,3 @@
 ---
 nodejs_setup_platform: true
 nodejs_install_tools: true
-nodejs_install_claude: true
-nodejs_install_gemini: true
-nodejs_install_codex: true

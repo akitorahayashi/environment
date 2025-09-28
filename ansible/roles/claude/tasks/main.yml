@@ -1,5 +1,5 @@
 ---
-- name: "Ensure Claude Code User directory exists"
+- name: "Ensure Claude configuration directory exists"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.claude"
     state: directory
@@ -49,16 +49,6 @@
     path: "{{ ansible_env.HOME }}/.claude/commands"
     state: directory
     mode: '0755'
-
-- name: "Ensure Claude slash command script is executable"
-  ansible.builtin.file:
-    path: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
-    mode: '0755'
-
-- name: "Generate Claude slash commands"
-  ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
-  args:
-    chdir: "{{ repo_root_path }}"
 
 - name: "Symlink Claude AGENTS file"
   ansible.builtin.file:

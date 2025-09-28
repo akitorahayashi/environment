@@ -1,4 +1,5 @@
-- name: Ensure Codex directories exist
+---
+- name: "Ensure Codex configuration directories exist"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -7,22 +8,12 @@
     - "{{ ansible_env.HOME }}/.codex"
     - "{{ ansible_env.HOME }}/.codex/prompts"
 
-- name: Symlink Codex configuration file
+- name: "Symlink Codex configuration file"
   ansible.builtin.file:
     src: "{{ config_dir_abs_path }}/aiding/codex/config.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
     state: link
     force: true
-
-- name: "Ensure Codex slash command script is executable"
-  ansible.builtin.file:
-    path: "{{ config_dir_abs_path }}/aiding/slash/codex.sh"
-    mode: '0755'
-
-- name: "Generate Codex slash commands"
-  ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/codex.sh"
-  args:
-    chdir: "{{ repo_root_path }}"
 
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
