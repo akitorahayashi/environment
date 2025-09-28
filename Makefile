@@ -30,13 +30,6 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "📝 .env file already exists."; \
 	fi
 
-	@if [ -d .git ]; then \
-		echo "[SYNC] Updating git submodules..."; \
-		git submodule update --init --recursive; \
-	else \
-		echo "[SKIP] No git repository detected; skipping submodule update."; \
-	fi
-
 	@if ! command -v brew &> /dev/null; then \
 		echo "[INSTALL] Homebrew ..."; \
 		echo "[INFO] Homebrewインストールスクリプトを実行します..."; \
@@ -45,10 +38,17 @@ base: ## Installs Homebrew and the 'just' command runner
 			echo "[ERROR] Homebrewのインストールに失敗しました"; \
 			exit 1; \
 		fi; \
-		eval "$('/opt/homebrew/bin/brew' shellenv)"; \
 		echo "[SUCCESS] Homebrew のインストール完了"; \
 	else \
 		echo "[SUCCESS] Homebrew はすでにインストールされています"; \
+	fi; \
+		eval "$('/opt/homebrew/bin/brew' shellenv)"
+
+	@if ! command -v git &> /dev/null; then \
+		echo "[INSTALL] git..."; \
+		brew install git; \
+	else \
+		echo "[SUCCESS] git is already installed."; \
 	fi
 
 	@if ! command -v just &> /dev/null; then \
@@ -72,6 +72,17 @@ base: ## Installs Homebrew and the 'just' command runner
 		export PATH="$$HOME/.local/bin:$$PATH"; \
 	else \
 		echo "[SUCCESS] ansible is already installed."; \
+	fi
+
+	@if [ -d .git ]; then \
+		if command -v git &> /dev/null; then \
+			echo "[SYNC] Updating git submodules..."; \
+			git submodule update --init --recursive; \
+		else \
+			echo "[WARN] Git is not available; skipping submodule update."; \
+		fi; \
+	else \
+		echo "[SKIP] No git repository detected; skipping submodule update."; \
 	fi
 	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
 

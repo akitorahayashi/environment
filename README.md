@@ -51,6 +51,8 @@ cd environment
 curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --strip-components=1
 ```
 
+Feel free to replace `environment` with any other empty directory path you prefer.
+
 1.  **Bootstrap Setup**
 
     Install Xcode Command Line Tools, Homebrew, Ansible, the `just` command runner, and create the `.env` file:
