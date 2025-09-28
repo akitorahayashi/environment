@@ -36,6 +36,7 @@ common:
   @just cmn-claude
   @just cmn-gemini
   @just cmn-codex
+  @just cmn-slash
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-ruby
@@ -141,16 +142,21 @@ cmn-cursor:
 # Setup Claude Code settings
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "nodejs" "common" "nodejs-claude"
+  @just _run_ansible "claude" "common" "claude"
 
 # Setup Gemini CLI settings
 cmn-gemini:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "nodejs" "common" "nodejs-gemini"
+  @just _run_ansible "gemini" "common" "gemini"
 
 cmn-codex:
   @echo "🚀 Running common Codex CLI setup..."
-  @just _run_ansible "nodejs" "common" "nodejs-codex"
+  @just _run_ansible "codex" "common" "codex"
+
+# Regenerate AI slash commands
+cmn-slash:
+  @echo "🚀 Regenerating AI slash commands..."
+  @just _run_ansible "slash" "common" "slash"
 
 # Setup MCP servers configuration
 cmn-mcp:
