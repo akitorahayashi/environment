@@ -7,6 +7,7 @@ This project automates the setup of a consistent development environment across 
 ```
 .
 ├── .claude/
+├── .codex/
 ├── .gemini/
 ├── .serena/
 ├── .github/
@@ -27,10 +28,8 @@ This project automates the setup of a consistent development environment across 
 ├── .env.example
 ├── .gitignore
 ├── .mcp.json
-├── AGENTS.md
 ├── Makefile
 ├── README.md
-├── RULES.md
 └── justfile
 ```
 
@@ -54,6 +53,7 @@ This project automates the setup of a consistent development environment across 
     This command will:
     - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
+    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
     - Install Homebrew if not already installed
     - Install Ansible if not already installed
     - Install the `just` command runner
@@ -156,7 +156,8 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   **Tools**: Reads `config/common/runtime/nodejs/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to home directory.
     -   **Claude Code Integration**: Creates `~/.claude` directory, symlinks configuration files, and generates slash commands from unified configuration when enabled (`--tags nodejs-claude`).
     -   **Gemini CLI Integration**: Creates `~/.gemini` directory, symlinks configuration files, and generates slash commands when enabled (`--tags nodejs-gemini`).
-    -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags nodejs-claude`, `--tags nodejs-gemini`).
+    -   **Codex CLI Integration**: Creates `~/.codex` and `~/.codex/prompts` directories, symlinks `config.toml`, and generates slash commands from unified configuration when enabled (`--tags nodejs-codex`).
+    -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags nodejs-claude`, `--tags nodejs-gemini`, `--tags nodejs-codex`).
 
 10. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
@@ -169,13 +170,26 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Provides foundation for containerized development workflows.
 
 
+## Automation Policies
+
+This section outlines key policies that govern how automation is implemented in this project.
+
+### Symlink Enforcement
+
+To ensure a consistent and reliable environment, all symbolic link creation tasks are designed to be idempotent and forceful.
+
+- **Forced Replacement**: Every symlink is created with a `force: true` flag. This means that any existing file, directory, or old symlink at the destination path will be unconditionally replaced.
+- **No Existence Checks**: Automation does not check if a symlink already exists before running the creation task. This guarantees that links are always up-to-date and point to the correct source, eliminating the risk of stale or broken links.
+
+This policy ensures that the environment's state always reflects the configuration defined in this repository.
+
 ## CI/CD Pipeline Verification Items
 
 The following GitHub Actions workflows validate the automated setup process:
 
 - **`ci-pipeline.yml`**: Main CI pipeline orchestrating all setup workflows
 - **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
-- **`setup-nodejs.yml`**: Validates Node.js platform, tools, and AI integrations (Claude, Gemini)
+- **`setup-nodejs.yml`**: Validates Node.js platform, tools, and AI integrations (Claude, Gemini, Codex)
 - **`setup-sublang.yml`**: Validates Ruby and Java environment setup
 - **`setup-ide.yml`**: Validates unified editor (VS Code/Cursor) configuration and extension management
 - **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types

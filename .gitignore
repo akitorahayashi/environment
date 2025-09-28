@@ -24,3 +24,6 @@
 id_*
 *.pub
 *.conf
+
+# Temporary directory
+.tmp/*

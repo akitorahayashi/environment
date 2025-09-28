@@ -17,7 +17,7 @@
     src: "{{ config_dir_abs_path }}/aiding/aider/{{ item }}"
     dest: "{{ ansible_env.HOME }}/{{ item }}"
     state: link
-    force: yes
-  with_items:
+    force: true
+  loop:
     - .aider.conf.yml
     - .aider.model.settings.yml

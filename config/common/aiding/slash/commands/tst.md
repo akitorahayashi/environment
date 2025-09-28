@@ -1,23 +1,18 @@
 # /tst - Run Tests
 
-## Step 1: Determine Test Command
-If user provides a full command (e.g., "make e2e-test"), use it directly.
-Otherwise, discover the appropriate test command for the given test type by:
-- Checking Makefile, justfile, package.json scripts
-- Looking for common patterns: `make $1-test`, `npm run test:$1`, `pytest tests/$1/`
+## Step 1: Identify Relevant Tests
+Evaluate the current task, recent code changes, and available project commands to select the most appropriate test suite. Use repository knowledge to locate likely commands by:
+- Inspecting Makefile targets, justfile recipes, package.json scripts, or common framework conventions
+- Favoring smoke or unit tests when scope is narrow; escalate to broader suites only when necessary
+- Asking for clarification before proceeding if the correct test target cannot be inferred confidently
 
 ## Step 2: Test-Fix Cycle
-1. Execute the test command
+1. Execute the chosen test command
 2. If tests fail:
-   - Analyze failure causes
-   - Determine if it's a test issue or implementation issue
-   - Apply appropriate fixes (test code or implementation)
-   - Re-run tests
-   - Repeat until tests pass and implementation is clean
+   - Analyze failure causes and decide whether they stem from test gaps or implementation defects
+   - Apply fixes methodically, updating tests or code as required
+   - Re-run tests until they pass and the implementation is stable
 
-Use TodoWrite to track progress through the fix cycle.
+Use TodoWrite to track progress through the fix cycle and communicate decisions clearly.
 
-## Arguments
-Test command to execute: `{args}`
-
-Please analyze the test results and provide fixes if needed. Use systematic approach to resolve all test failures.
+Please analyze the test results and provide fixes if needed. Use a systematic approach to resolve all test failures.

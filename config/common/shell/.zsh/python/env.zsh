@@ -40,8 +40,6 @@ alias ut-r="uv tool run"
 # uvx
 alias ux="uvx"
 alias ux-c="uvx cowsay -t"
-alias ux-srn-st='uvx --from git+https://github.com/oraios/serena serena start-mcp-server'
-alias ux-srn-idx='uvx --from git+https://github.com/oraios/serena serena project index "$(pwd)"'
 
 # venv
 act() {

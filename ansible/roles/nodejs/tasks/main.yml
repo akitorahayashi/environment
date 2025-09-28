@@ -23,3 +23,9 @@
   when: nodejs_install_gemini | default(false) | bool
   tags: [nodejs, nodejs-gemini]
 
+- name: "Setup Codex CLI"
+  import_tasks: codex.yml
+  when: nodejs_install_codex | default(false) | bool
+  tags: [nodejs, nodejs-codex]
+
+

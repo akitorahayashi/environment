@@ -27,6 +27,7 @@
   ansible.builtin.find:
     paths: "{{ config_dir_abs_path }}/editor/cursor"
     patterns: ["settings.json", "keybindings.json"]
+    file_type: any
   register: cursor_config_files
 
 - name: "Symlink Cursor config files"
@@ -35,6 +36,7 @@
     dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item.path | basename }}"
     state: link
     force: true
+    follow: false
   loop: "{{ cursor_config_files.files }}"
 
 - name: "Read Cursor extensions list"

@@ -48,7 +48,19 @@
     state: directory
     mode: '0755'
 
+- name: "Ensure Gemini slash command script is executable"
+  ansible.builtin.file:
+    path: "{{ config_dir_abs_path }}/aiding/slash/gemini.sh"
+    mode: '0755'
+
 - name: "Generate Gemini slash commands"
   ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/gemini.sh"
   args:
     chdir: "{{ repo_root_path }}"
+
+- name: "Symlink Gemini AGENTS file"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/aiding/gemini/GEMINI.md"
+    dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
+    state: link
+    force: true

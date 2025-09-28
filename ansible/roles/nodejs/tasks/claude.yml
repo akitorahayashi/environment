@@ -40,10 +40,9 @@
     dest: "{{ ansible_env.HOME }}/.claude/{{ item.path | basename }}"
     state: link
     force: true
-  loop: "{{ claude_dirs.files }}"
+  loop: "{{ claude_dirs.files | default([]) }}"
   loop_control:
     label: "{{ item.path | basename }}"
-  when: claude_dirs.files is defined and claude_dirs.files | length > 0
 
 - name: "Create Claude commands directory"
   ansible.builtin.file:
@@ -51,7 +50,19 @@
     state: directory
     mode: '0755'
 
+- name: "Ensure Claude slash command script is executable"
+  ansible.builtin.file:
+    path: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
+    mode: '0755'
+
 - name: "Generate Claude slash commands"
   ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/claude.sh"
   args:
     chdir: "{{ repo_root_path }}"
+
+- name: "Symlink Claude AGENTS file"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/aiding/claude/CLAUDE.md"
+    dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
+    state: link
+    force: true

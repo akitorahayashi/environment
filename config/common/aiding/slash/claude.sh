@@ -20,25 +20,17 @@ mkdir -p "$CLAUDE_COMMANDS_DIR"
 # Remove existing command files
 rm -f "$CLAUDE_COMMANDS_DIR"/*
 
-echo "Generating Claude Code slash commands..."
-
 # Parse config.json and generate command files
 jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; do
     cmd=$(echo "$row" | base64 --decode | jq -r '.key')
     title=$(echo "$row" | base64 --decode | jq -r '.value.title')
     description=$(echo "$row" | base64 --decode | jq -r '.value.description')
-    arg_hint=$(echo "$row" | base64 --decode | jq -r '.value["argument-hint"] // ""')
     prompt_file=$(echo "$row" | base64 --decode | jq -r '.value["prompt-file"]')
     output_file="$CLAUDE_COMMANDS_DIR/$cmd.md"
 
     # Start building the frontmatter
     echo "---" > "$output_file"
     echo "title: \"$title\"" >> "$output_file"
-
-    # Add argument-hint if it exists
-    if [[ -n "$arg_hint" ]]; then
-        echo "argument-hint: \"$arg_hint\"" >> "$output_file"
-    fi
 
     echo "---" >> "$output_file"
     echo "" >> "$output_file"
@@ -50,8 +42,4 @@ jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; d
         echo "Error: Prompt file not found: config/common/aiding/slash/$prompt_file"
         exit 1
     fi
-
-    echo "Generated: $output_file"
 done
-
-echo "Claude Code slash commands generated successfully!"

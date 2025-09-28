@@ -30,6 +30,13 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "📝 .env file already exists."; \
 	fi
 
+	@if [ -d .git ]; then \
+		echo "[SYNC] Updating git submodules..."; \
+		git submodule update --init --recursive; \
+	else \
+		echo "[SKIP] No git repository detected; skipping submodule update."; \
+	fi
+
 	@if ! command -v brew &> /dev/null; then \
 		echo "[INSTALL] Homebrew ..."; \
 		echo "[INFO] Homebrewインストールスクリプトを実行します..."; \
