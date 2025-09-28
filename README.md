@@ -53,6 +53,7 @@ This project automates the setup of a consistent development environment across 
     This command will:
     - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
+    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
     - Install Homebrew if not already installed
     - Install Ansible if not already installed
     - Install the `just` command runner
