@@ -63,4 +63,4 @@
     src: "{{ config_dir_abs_path }}/aiding/gemini/GEMINI.md"
     dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
     state: link
-    force: yes
+    force: true

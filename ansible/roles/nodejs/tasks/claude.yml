@@ -40,10 +40,9 @@
     dest: "{{ ansible_env.HOME }}/.claude/{{ item.path | basename }}"
     state: link
     force: true
-  loop: "{{ claude_dirs.files }}"
+  loop: "{{ claude_dirs.files | default([]) }}"
   loop_control:
     label: "{{ item.path | basename }}"
-  when: claude_dirs.files is defined and claude_dirs.files | length > 0
 
 - name: "Create Claude commands directory"
   ansible.builtin.file:
@@ -66,4 +65,4 @@
     src: "{{ config_dir_abs_path }}/aiding/claude/CLAUDE.md"
     dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
     state: link
-    force: yes
+    force: true

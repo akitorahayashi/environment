@@ -12,7 +12,7 @@
     src: "{{ playbook_dir }}/config/common/aiding/codex/config.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
     state: link
-    force: yes
+    force: true
 
 - name: "Ensure Codex slash command script is executable"
   ansible.builtin.file:
@@ -29,4 +29,4 @@
     src: "{{ config_dir_abs_path }}/aiding/codex/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
     state: link
-    force: yes
+    force: true

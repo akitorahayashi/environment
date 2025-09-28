@@ -169,6 +169,19 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Provides foundation for containerized development workflows.
 
 
+## Automation Policies
+
+This section outlines key policies that govern how automation is implemented in this project.
+
+### Symlink Enforcement
+
+To ensure a consistent and reliable environment, all symbolic link creation tasks are designed to be idempotent and forceful.
+
+- **Forced Replacement**: Every symlink is created with a `force: true` flag. This means that any existing file, directory, or old symlink at the destination path will be unconditionally replaced.
+- **No Existence Checks**: Automation does not check if a symlink already exists before running the creation task. This guarantees that links are always up-to-date and point to the correct source, eliminating the risk of stale or broken links.
+
+This policy ensures that the environment's state always reflects the configuration defined in this repository.
+
 ## CI/CD Pipeline Verification Items
 
 The following GitHub Actions workflows validate the automated setup process:
