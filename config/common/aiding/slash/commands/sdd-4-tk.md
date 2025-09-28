@@ -22,12 +22,6 @@ Engineering Manager
 
 - Write `.tmp/tasks.md` using the template below so multiple agents can work in parallel
 
-### 4. Share with the user
-
-- Point to `.tmp/tasks.md`
-- Confirm priorities still match the latest requirements
-- Ask whether to move on to `/sdd-5-dc`
-
 ## Notes
 
 Keep the plan actionable but lightweight; call out shared files to avoid conflicts. Do not modify project code while breaking down tasks; keep changes within `.tmp/tasks.md` or related planning artefacts.

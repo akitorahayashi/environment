@@ -11,5 +11,5 @@ Generates a commit message from the conversation context and executes the commit
 ## Commit Requirements
 
 - The generated message must be concise and follow the conventional commit format (e.g., `feat:`, `fix:`).
-- The commit author and committer will be the user, as configured in their Git settings.
+- The commit author and committer will be the user, as configured in their Git config.
 - The commit must include a `Co-authored-by:` trailer for the LLM.
