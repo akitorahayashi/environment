@@ -8,45 +8,59 @@ Engineering Manager
 
 ## Your task
 
+Create `.tmp/tasks.think.md` and log your reasoning as you progress. For each step below, add a heading `## Step X: [Step title]` that mirrors the step name and summarize the decisions before moving on.
+
 ### 1. Gather the inputs
 
 - Start from `.tmp/requirements.md` as the core brief
 - Use `.tmp/design.md`, `.tmp/test_design.md`, `.tmp/minutes.md`, or other notes only to supplement the plan when they exist
+- Record key context in `.tmp/tasks.think.md` under `## Step 1: Gather the inputs` before progressing.
 
-### 2. Plan the work
+### 2. Map conflicts before planning
 
-- Break the implementation into clear tasks, highlighting ownership, dependencies, and risk areas
-- Adjust the depth of planning to match the available artefacts (requirements alone vs full design/test suite)
+- Identify shared files, global configurations, and fragile components that must stay under single ownership.
+- Capture dependencies and handoff risks upfront so later phase and agent choices respect these constraints.
+- Summarize conflict risks in `.tmp/tasks.think.md` under `## Step 2: Map conflicts before planning`.
 
-### 3. Record the breakdown
+### 3. Design phases and agent usage
 
-- Write `.tmp/tasks.md` using the template below so multiple agents can work in parallel
+- Choose the minimum number of phases that enables safe parallel progress while reflecting how the codebase will evolve.
+- Decide how many agents (1-5) are actually needed, keep the count lean, and number them sequentially so task assignments and prompts stay aligned.
+- Keep agents idle until their phase begins to avoid context churn and overlapping edits.
+- Never split conflict-prone work across multiple agents or phases.
+- Document chosen phases, agent assignments, and rationale in `.tmp/tasks.think.md` under `## Step 3: Design phases and agent usage`.
+
+### 4. Build `.tmp/tasks.md`
+
+- Review the notes captured in `.tmp/tasks.think.md`.
+- When the thinking log feels solid, open `.tmp/tasks.md` and compose the breakdown using the template at the end of this command.
+- Base each section on the decisions recorded in `.tmp/tasks.think.md` so ownership, sequencing, and risks stay aligned.
+- Highlight opportunities for safe concurrency only after the conflict boundaries are fixed.
+- Update the Conflict Prevention guidance whenever task assignments or sequencing change.
 
 ## Notes
 
 Keep the plan actionable but lightweight; call out shared files to avoid conflicts. Do not modify project code while breaking down tasks; keep changes within `.tmp/tasks.md` or related planning artefacts.
 
----
-
 # Example: .tmp/tasks.md Template
 
-Below is the structure to create in `.tmp/tasks.md`:
+After you finish logging the reasoning steps, read this template and mirror it when writing `.tmp/tasks.md`. Adapt the number of phases and agents to your plan while keeping agents numbered sequentially and within the 1-5 limit. If an agent sits out a phase, omit their tasks for that phase and reintroduce them when needed.
 
 ```markdown
 # Task Breakdown - [Task Name]
 
 ## Overview
-- Total agents: [1-3 depending on complexity]
-- Phases: [number]
+- Total agents: [1-5, choose the minimum that fits the scope]
+- Phases: [positive integer count matching the plan]
 
 ## Agent Assignment Strategy
-- **Agent 1**: [Frontend/Backend/Full-stack] - maintains ownership of their components across all phases
-- **Agent 2**: [Backend/Testing/Config] - maintains ownership of their components across all phases
-- **Agent 3**: [Testing/Documentation/Integration] - joins as needed, maintains consistency
+- [List the agents in sequential order starting from Agent 1, describing their focus areas and responsibilities. Include only the agents you plan to activate for this effort.]
 - **Continuity**: Each agent maintains context and ownership of their work throughout the project
 - **Conflict zones**: [files/areas requiring single-agent ownership to prevent merge conflicts]
 
 ## All Tasks Summary
+
+Adjust the phase names, goals, and task counts to match your plan while keeping agents aligned with their ownership.
 
 ### Phase 1: Foundation
 **Goal**: [Core implementation without dependencies]
@@ -68,10 +82,6 @@ Below is the structure to create in `.tmp/tasks.md`:
 - [ ] [Integration tests] (Agent 3)
 - [ ] [Documentation updates] (Agent 3)
 
-## Conflict Prevention
-- **Shared files**: [list files requiring coordination]
-- **Dependencies**: [which tasks must complete before others]
-- **Communication points**: [when agents should sync]
 
 ## Instructions for Agents
 
@@ -82,24 +92,24 @@ Read the following context to understand the project:
 
 **General Instructions**:
 - Work only on your assigned tasks in each phase
-- Avoid conflicts with shared files listed in Conflict Prevention section
+- Avoid conflicts with shared files listed in the Conflict Prevention section
 - Update this file to change [ ] to ✅ for completed tasks
 - Follow existing code patterns and project conventions
 - Coordinate with other agents at phase boundaries
 
-## Agent Prompts by Phase
+## Agent Activation Prompts
 
-### Phase 1: Foundation
-- **Agent 1**: "Read `.tmp/tasks.md` and complete all tasks assigned to Agent 1 in Phase 1. Work only on your assigned files and avoid shared components until Phase 2."
-- **Agent 2**: "Read `.tmp/tasks.md` and complete all tasks assigned to Agent 2 in Phase 1. Work only on your assigned files and avoid shared components until Phase 2."
-- **Agent 3**: "Read `.tmp/tasks.md` and complete all tasks assigned to Agent 3 in Phase 1. Work only on your assigned files and avoid shared components until Phase 2."
+### Phase 1
+- **Agent 1**: "youare agent1, at .tmp/tasks.md. Work according to Phase 1 tasks assigned to Agent 1. Respect the Conflict Prevention guidance and keep ownership of your files."
+- **Agent 2**: "youare agent2, at .tmp/tasks.md. Work according to Phase 1 tasks assigned to Agent 2. Respect the Conflict Prevention guidance and keep ownership of your files."
 
-### Phase 2: Integration
-- **Agent 1**: "Proceed to Phase 2 tasks. Integrate your components with other agents' work."
-- **Agent 2**: "Proceed to Phase 2 tasks. Integrate your components with other agents' work."
+### Phase 2
+- **Agent 1**: "Once Phase 1 is complete, return to .tmp/tasks.md and execute your Phase 2 tasks for Agent 1. Coordinate handoffs defined in the Conflict Prevention section before editing shared artefacts."
+- **Agent 3**: "Once Phase 1 is complete, return to .tmp/tasks.md and execute your Phase 2 tasks for Agent 3. Coordinate handoffs defined in the Conflict Prevention section before editing shared artefacts."
 
-### Phase 3: Testing & Polish
-- **Agent 1**: "Proceed to Phase 3 tasks. Add comprehensive testing and final polish."
-- **Agent 2**: "Proceed to Phase 3 tasks. Add comprehensive testing and final polish."
-- **Agent 3**: "Proceed to Phase 3 tasks. Handle integration testing, documentation, and project coordination."
+### Phase 3
+- **Agent 1**: "Once Phase 2 is complete, return to .tmp/tasks.md and execute your Phase 3 tasks for Agent 1, closing out testing and documentation without reassigning conflict-sensitive files."
+- **Agent 2**: "Once Phase 2 is complete, return to .tmp/tasks.md and execute your Phase 3 tasks for Agent 2, completing launch readiness and comms while respecting Conflict Prevention notes."
+
+Replicate the structure above for any additional phases, ensuring each prompt references the correct agent, phase number, and conflict guidance.
 ```
