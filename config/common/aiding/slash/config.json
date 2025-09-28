@@ -35,10 +35,15 @@
       "description": "Break down design into implementable tasks (Stage 4 of SDD)",
       "prompt-file": "commands/sdd-4-tk.md"
     },
-    "sdd-5-dc": {
-      "title": "SDD Step 5: Documentation",
-      "description": "Integrate SDD outputs into project documentation (Stage 5 of SDD)",
-      "prompt-file": "commands/sdd-5-dc.md"
+    "sdd-5-pm": {
+      "title": "SDD Step 5: Prompt Messaging",
+      "description": "Generate activation prompts from the task breakdown (Stage 5 of SDD)",
+      "prompt-file": "commands/sdd-5-pm.md"
+    },
+    "sdd-6-dc": {
+      "title": "SDD Step 6: Documentation",
+      "description": "Integrate SDD outputs into project documentation (Stage 6 of SDD)",
+      "prompt-file": "commands/sdd-6-dc.md"
     },
     "sn": {
       "title": "Activate Serena",
