@@ -16,11 +16,16 @@ help: ## Show this help message
 base: ## Installs Homebrew and the 'just' command runner
 	@echo "🚀 Starting bootstrap setup..."
 
-	@if ! xcode-select -p &> /dev/null; then \
-		echo "[INSTALL] Xcode Command Line Tools ..."; \
-		xcode-select --install; \
+	@if command -v xcode-select &> /dev/null; then \
+		if ! xcode-select -p &> /dev/null; then \
+			echo "[INSTALL] Xcode Command Line Tools ..."; \
+			xcode-select --install; \
+		else \
+			echo "[SUCCESS] Xcode Command Line Tools are already installed."; \
+		fi; \
 	else \
-		echo "[SUCCESS] Xcode Command Line Tools are already installed."; \
+		echo "[ERROR] xcode-select command not found. This setup must run on macOS."; \
+		exit 1; \
 	fi
 
 	@if [ ! -f .env ]; then \
@@ -41,8 +46,13 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "[SUCCESS] Homebrew のインストール完了"; \
 	else \
 		echo "[SUCCESS] Homebrew はすでにインストールされています"; \
-	fi; \
-		eval "$('/opt/homebrew/bin/brew' shellenv)"
+	fi
+
+	@if command -v brew &> /dev/null; then \
+		eval "$$(brew shellenv)"; \
+	else \
+		echo "[WARN] Homebrew command not available; subsequent installs may fail."; \
+	fi
 
 	@if ! command -v git &> /dev/null; then \
 		echo "[INSTALL] git..."; \
