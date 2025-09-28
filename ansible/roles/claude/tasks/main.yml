@@ -4,6 +4,8 @@
     path: "{{ ansible_env.HOME }}/.claude"
     state: directory
     mode: '0755'
+  tags:
+    - claude
 
 - name: "Find Claude config files (flat)"
   ansible.builtin.find:
@@ -14,6 +16,8 @@
     file_type: file
     recurse: no
   register: claude_files_flat
+  tags:
+    - claude
 
 - name: "Symlink Claude config files (flat)"
   ansible.builtin.file:
@@ -24,6 +28,8 @@
   loop: "{{ claude_files_flat.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
+  tags:
+    - claude
 
 - name: "Find Claude config directories (recursive)"
   ansible.builtin.find:
@@ -33,6 +39,8 @@
     patterns:
       - "templates"
   register: claude_dirs
+  tags:
+    - claude
 
 - name: "Symlink Claude config directories (recursive)"
   ansible.builtin.file:
@@ -43,12 +51,16 @@
   loop: "{{ claude_dirs.files | default([]) }}"
   loop_control:
     label: "{{ item.path | basename }}"
+  tags:
+    - claude
 
 - name: "Create Claude commands directory"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.claude/commands"
     state: directory
     mode: '0755'
+  tags:
+    - claude
 
 - name: "Symlink Claude AGENTS file"
   ansible.builtin.file:
@@ -56,3 +68,5 @@
     dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
     state: link
     force: true
+  tags:
+    - claude

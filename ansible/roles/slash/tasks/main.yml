@@ -9,7 +9,9 @@
     - codex.sh
 
 - name: "Regenerate slash commands"
-  ansible.builtin.shell: "{{ config_dir_abs_path }}/aiding/slash/{{ item }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ config_dir_abs_path }}/aiding/slash/{{ item }}"
   args:
     chdir: "{{ repo_root_path }}"
   loop:
