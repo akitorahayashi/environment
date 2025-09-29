@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 jobs:
-  setup-homebrew:
+  setup-formulae:
     runs-on: macos-15
     permissions:
       contents: read
@@ -17,12 +17,12 @@ jobs:
 
       - name: Setup GitHub authentication for Homebrew
         run: |
-          echo "🔑 CI環境用のGitHub認証を設定中..."
-          # 認証情報を環境変数に設定
+          echo "🔑 Setting up GitHub authentication for CI environment..."
+          # Set authentication information in environment variables
           echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          # Gitの認証設定
+          # Configure Git authentication
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}"
-          echo "✅ GitHub認証の設定が完了しました"
+          echo "✅ GitHub authentication setup completed"
         shell: bash
 
       - name: Run Homebrew formulae setup for common
