@@ -25,7 +25,6 @@ This project automates the setup of a consistent development environment across 
 │       ├── macbook/
 │       └── mac-mini/
 ├── tests/
-├── .env
 ├── .env.example
 ├── .gitignore
 ├── .mcp.json
@@ -52,8 +51,6 @@ cd environment
 curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --strip-components=1
 ```
 
-Feel free to replace `environment` with any other empty directory path you prefer.
-
 1.  **Bootstrap Setup**
 
     Install Xcode Command Line Tools, Homebrew, Ansible, the `just` command runner, and create the `.env` file:
@@ -64,10 +61,11 @@ Feel free to replace `environment` with any other empty directory path you prefe
     This command will:
     - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
-    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
-    - Install Homebrew if not already installed
+    - Install Homebrew if not already 
+    - Install Git if not already installed
     - Install Ansible if not already installed
     - Install the `just` command runner
+    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
 
     **Important**: After running `make base`, edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
 
@@ -217,7 +215,7 @@ This policy ensures that the environment's state always reflects the configurati
 ## Tests
 
 - `python3 -m unittest tests.test_slash_config` validates `config/common/aiding/slash/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
-- GitHub Actions runs `.github/workflows/run-tests.yml`, which bootstraps the repo with `make base` and executes the same validator before other jobs start.
+
 
 ## CI/CD Pipeline Verification Items
 
@@ -231,3 +229,4 @@ The following GitHub Actions workflows validate the automated setup process:
 - **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types
 - **`setup-alias.yml`**: Validates Git, JJ, shell, SSH, and MCP configuration with alias testing
 - **`setup-system.yml`**: Validates macOS system defaults application and backup verification
+- **`run-tests.yml`**: Validates the slash command configuration by running tests.
