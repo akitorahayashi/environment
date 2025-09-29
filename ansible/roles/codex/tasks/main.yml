@@ -7,8 +7,6 @@
   loop:
     - "{{ ansible_env.HOME }}/.codex"
     - "{{ ansible_env.HOME }}/.codex/prompts"
-  tags:
-    - codex
 
 - name: "Symlink Codex configuration file"
   ansible.builtin.file:
@@ -16,8 +14,6 @@
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
     state: link
     force: true
-  tags:
-    - codex
 
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
@@ -25,5 +21,3 @@
     dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
     state: link
     force: true
-  tags:
-    - codex

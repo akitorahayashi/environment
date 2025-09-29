@@ -53,7 +53,7 @@
 
     - name: "Ensure Codex MCP servers block is synchronized"
       ansible.builtin.blockinfile:
-        path: "{{ config_dir_abs_path }}/aiding/codex/config.toml"
+        path: "{{ codex_config_stat.stat.path }}"
         marker: "# {mark} MCP servers (managed by Ansible)"
         block: "{{ mcp_servers_toml_block }}"
         insertafter: EOF

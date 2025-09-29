@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Regression tests for relocated slash configuration assets."""
 
 from __future__ import annotations

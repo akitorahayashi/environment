@@ -59,5 +59,5 @@ if ! extensions=$("$CODE_CMD" --list-extensions 2>&1); then
   exit 1
 fi
 
-echo "$extensions" | jq -R . | jq -s '{"extensions": .}' > "$EXT_FILE"
+echo "$extensions" | jq -R 'select(length>0)' | jq -s '{"extensions": .}' > "$EXT_FILE"
 echo "VSCode extensions list backed up to: $EXT_FILE"
