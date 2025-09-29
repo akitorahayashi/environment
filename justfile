@@ -153,6 +153,12 @@ cmn-codex:
   @echo "🚀 Running common Codex CLI setup..."
   @just _run_ansible "codex" "common" "codex"
 
+# Run Codex before MCP so the Codex config symlink exists for synchronization
+cmn-codex-mcp:
+  @echo "🚀 Running Codex setup followed by MCP synchronization..."
+  @just cmn-codex
+  @just cmn-mcp
+
 # Regenerate AI slash commands
 cmn-slash:
   @echo "🚀 Regenerating AI slash commands..."
@@ -160,7 +166,7 @@ cmn-slash:
 
 # Setup MCP servers configuration
 cmn-mcp:
-  @echo "🚀 Running common MCP setup..."
+  @echo "🚀 Running common MCP setup (requires Codex config to exist)..."
   @just _run_ansible "mcp" "common" "mcp"
 
 # Install Aider Chat

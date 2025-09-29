@@ -94,8 +94,17 @@ These commands are recommended to be run manually once after initial setup:
 
 - **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
+- **Refresh Codex before MCP sync**: `just cmn-codex-mcp` - Runs Codex setup first and then MCP synchronization so the Ansible role can read the user Codex config before updating repository assets.
 - **Refresh AI CLI configuration**: `just cmn-claude`, `just cmn-gemini`, `just cmn-codex` - Reapplies Claude, Gemini, and Codex configuration assets without rerunning the Node.js installer.
 - **Regenerate slash commands**: `just cmn-slash` - Rebuilds all AI slash commands from source prompts through the dedicated `slash` role.
+
+### Codex ↔ MCP Synchronization
+
+- Run `just cmn-codex` before `just cmn-mcp` (or simply execute `just cmn-codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
+- The authoritative catalogue lives in `config/common/mcp/servers.json`; edits there are converted into the `[mcp_servers]` block within `config/common/aiding/codex/config.toml`.
+- When `~/.codex/config.toml` is missing, the synchronization block is skipped to avoid overwriting repository files.
+- After catalogue changes, rerun the combined recipe and confirm the play output reports the managed block as updated once and idempotent on the subsequent run.
+- Inspect the `# BEGIN MCP servers (managed by Ansible)` block in `config/common/aiding/codex/config.toml` to verify the definitions match expectations while comments elsewhere remain intact.
 
 ### VCS User Profile Switching
 

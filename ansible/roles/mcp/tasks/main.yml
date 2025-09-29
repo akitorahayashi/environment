@@ -4,3 +4,88 @@
     src: "{{ config_dir_abs_path }}/mcp/servers.json"
     dest: "{{ ansible_env.HOME }}/.mcp.json"
     mode: '0644'
+
+- name: "Check for existing Codex configuration"
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.codex/config.toml"
+    follow: true
+  register: codex_config_stat
+
+- name: "Record Codex configuration presence"
+  ansible.builtin.set_fact:
+    mcp_codex_config_available: "{{ codex_config_stat.stat.exists | bool }}"
+
+- name: "Load Codex configuration for MCP synchronization"
+  when: codex_config_stat.stat.exists
+  block:
+    - name: "Slurp user Codex configuration"
+      ansible.builtin.slurp:
+        src: "{{ ansible_env.HOME }}/.codex/config.toml"
+      register: codex_config_slurp
+
+    - name: "Parse user Codex configuration"
+      ansible.builtin.set_fact:
+        mcp_codex_config: "{{ codex_config_slurp.content | b64decode | community.general.from_toml }}"
+
+    - name: "Slurp MCP server catalogue"
+      ansible.builtin.slurp:
+        src: "{{ config_dir_abs_path }}/mcp/servers.json"
+      register: mcp_servers_slurp
+
+    - name: "Parse MCP server catalogue"
+      ansible.builtin.set_fact:
+        mcp_authoritative_servers: "{{ (mcp_servers_slurp.content | b64decode | from_json).mcpServers | default({}) }}"
+
+    - name: "Initialize transformed MCP server map"
+      ansible.builtin.set_fact:
+        mcp_transformed_servers: {}
+
+    - name: "Transform MCP server definitions for Codex"
+      ansible.builtin.set_fact:
+        mcp_transformed_servers: "{{ mcp_transformed_servers | combine({item.key: transformed_value}) }}"
+      loop: "{{ mcp_authoritative_servers | dict2items }}"
+      vars:
+        transformed_value: >-
+          {{
+            dict(
+              []
+              + ([('type', item.value.type)] if (item.value.type is defined and item.value.type is not none) else [])
+              + [('command', item.value.command | default(''))]
+              + [('args', item.value.args | default([]))]
+              + ([('env', item.value.env)] if (item.value.env is defined and (item.value.env | default({})) != {}) else [])
+              + ([('timeout', item.value.timeout)] if (item.value.timeout is defined and item.value.timeout is not none) else [])
+            )
+          }}
+
+    - name: "Sort MCP server entries by name"
+      ansible.builtin.set_fact:
+        mcp_transformed_servers_sorted: "{{ mcp_transformed_servers | dict2items | sort(attribute='key') | items2dict }}"
+
+    - name: "Render MCP servers TOML block"
+      ansible.builtin.set_fact:
+        mcp_servers_toml_block: "{{ {'mcp_servers': mcp_transformed_servers_sorted} | community.general.toml_dumps | trim }}"
+
+    - name: "Normalize existing Codex MCP servers for comparison"
+      ansible.builtin.set_fact:
+        mcp_existing_servers_sorted: "{{ (mcp_codex_config.mcp_servers | default({})) | dict2items | sort(attribute='key') | items2dict }}"
+
+    - name: "Determine if Codex MCP servers block requires update"
+      ansible.builtin.set_fact:
+        mcp_servers_need_update: "{{ (mcp_existing_servers_sorted != mcp_transformed_servers_sorted) | bool }}"
+
+    - name: "Ensure Codex MCP servers block is synchronized"
+      ansible.builtin.blockinfile:
+        path: "{{ config_dir_abs_path }}/aiding/codex/config.toml"
+        marker: "# {mark} MCP servers (managed by Ansible)"
+        block: "{{ mcp_servers_toml_block }}"
+        insertafter: EOF
+      when: mcp_servers_need_update
+
+    - name: "Report Codex MCP synchronization outcome"
+      ansible.builtin.debug:
+        msg: "{{ 'Codex MCP configuration updated with authoritative server definitions.' if mcp_servers_need_update else 'Codex MCP configuration already aligned with authoritative server definitions.' }}"
+
+- name: "Report Codex MCP synchronization skipped"
+  ansible.builtin.debug:
+    msg: "Codex configuration not found; skipping MCP server synchronization."
+  when: not codex_config_stat.stat.exists
