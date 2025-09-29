@@ -48,12 +48,10 @@ args = [
 
 [mcp_servers.sequentialthinking]
 type = "stdio"
-command = "docker"
+command = "npx"
 args = [
-  "run",
-  "--rm",
-  "-i",
-  "mcp/sequentialthinking"
+  "-y",
+  "@modelcontextprotocol/server-sequential-thinking"
 ]
 
 [mcp_servers.serena]

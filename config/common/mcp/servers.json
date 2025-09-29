@@ -69,18 +69,16 @@
       "args": [
         "arxiv-mcp-server",
         "--storage-path",
-        "/path/to/papers"
+        "~/Documents/ArxivPapers"
       ],
       "description": "Allows searching for and downloading papers. Downloaded papers are saved in Markdown format."
     },
     "sequentialthinking": {
       "type": "stdio",
-      "command": "docker",
+      "command": "npx",
       "args": [
-        "run",
-        "--rm",
-        "-i",
-        "mcp/sequentialthinking"
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
       ],
       "description": "Enables sequential thinking capabilities."
     }
