@@ -220,7 +220,7 @@ This policy ensures that the environment's state always reflects the configurati
 
 ## Tests
 
-- `python3 -m unittest tests.test_slash_config` validates `config/common/aiding/slash/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
+- `python3 -m unittest tests.test_slash_config` validates `config/common/slash/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
 
 
 ## CI/CD Pipeline Verification Items

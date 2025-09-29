@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-CONFIG_FILE="config/common/aiding/slash/config.json"
+CONFIG_FILE="config/common/slash/config.json"
 CLAUDE_COMMANDS_DIR="$HOME/.claude/commands"
 
 # Check if config file exists
@@ -36,10 +36,10 @@ jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; d
     echo "" >> "$output_file"
 
     # Add the prompt content from the referenced file
-    if [[ -f "config/common/aiding/slash/$prompt_file" ]]; then
-        cat "config/common/aiding/slash/$prompt_file" >> "$output_file"
+    if [[ -f "config/common/slash/$prompt_file" ]]; then
+        cat "config/common/slash/$prompt_file" >> "$output_file"
     else
-        echo "Error: Prompt file not found: config/common/aiding/slash/$prompt_file"
+        echo "Error: Prompt file not found: config/common/slash/$prompt_file"
         exit 1
     fi
 done

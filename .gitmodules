@@ -1,4 +1,4 @@
-[submodule "config/common/aiding/slash/commands/async-sdd-slashes"]
-	path = config/common/aiding/slash/commands/async-sdd-slashes
+[submodule "config/common/slash/commands/async-sdd-slashes"]
+	path = config/common/slash/commands/async-sdd-slashes
 	url = https://github.com/akitorahayashi/async-sdd-slashes.git
 	# tag: v1.0.1
