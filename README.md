@@ -61,7 +61,7 @@ curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --st
     This command will:
     - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
-    - Install Homebrew if not already 
+    - Install Homebrew if not already installed
     - Install Git if not already installed
     - Install Ansible if not already installed
     - Install the `just` command runner

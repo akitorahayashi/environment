@@ -35,11 +35,11 @@
           {{
             dict(
               []
-              + ([('type', item.value.type)] if (item.value.type is defined and item.value.type is not none) else [])
-              + [('command', item.value.command | default(''))]
-              + [('args', item.value.args | default([]))]
-              + ([('env', item.value.env)] if (item.value.env is defined and (item.value.env | default({})) != {}) else [])
-              + ([('timeout', item.value.timeout)] if (item.value.timeout is defined and item.value.timeout is not none) else [])
+              + ([('type', item.value.type)] if item.value.type is defined and item.value.type is not none else [])
+              + ([('command', item.value.command)] if item.value.command is defined and item.value.command else [])
+              + ([('args', item.value.args)] if item.value.args is defined and item.value.args else [])
+              + ([('env', item.value.env)] if item.value.env is defined and item.value.env else [])
+              + ([('timeout', item.value.timeout)] if item.value.timeout is defined and item.value.timeout is not none else [])
             )
           }}
 
