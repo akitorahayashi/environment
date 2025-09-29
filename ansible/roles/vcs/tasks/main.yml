@@ -1,10 +1,10 @@
 ---
 - name: "Setup Git version control"
-  include_tasks: git.yml
+  import_tasks: git.yml
   when: vcs_setup_git | default(true) | bool
   tags: [vcs, vcs-git]
 
 - name: "Setup Jujutsu (jj) version control"
-  include_tasks: jj.yml
+  import_tasks: jj.yml
   when: vcs_setup_jj | default(true) | bool
   tags: [vcs, vcs-jj]

@@ -13,7 +13,7 @@
     ft = fetch
 
     p = pull
-    p-r= pull --rebase
+    p-r = pull --rebase
     pl = pull
     pl-r = pull --rebase
 
