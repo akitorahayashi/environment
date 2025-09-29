@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
-CONFIG_PATH = Path("config/common/aiding/slash/config.json")
+CONFIG_PATH = Path("config/common/slash/config.json")
 
 
 class DuplicateKeyError(ValueError):

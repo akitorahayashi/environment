@@ -19,6 +19,9 @@
 # Environment variables
 .env
 
+# Ansible local cache and collections
+/.ansible/
+
 # Ignore SSH keys and sensitive config files
 *.pem
 id_*

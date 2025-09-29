@@ -8,9 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-tests:
-    uses: ./.github/workflows/run-tests.yml
-
   setup-python:
     uses: ./.github/workflows/setup-python.yml
 
@@ -26,9 +23,6 @@ jobs:
   setup-formulae:
     uses: ./.github/workflows/setup-formulae.yml
     secrets: inherit
-
-  setup-alias:
-    uses: ./.github/workflows/setup-alias.yml
 
   setup-system:
     uses: ./.github/workflows/setup-system.yml

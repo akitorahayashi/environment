@@ -4,15 +4,10 @@ on:
   workflow_call:
 
 jobs:
-  setup:
+  setup-ruby:
     runs-on: macos-15
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        component:
-          - ruby
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,5 +15,5 @@ jobs:
       - name: Setup Homebrew and just
         run: make base
 
-      - name: Setup ${{ matrix.component }}
-        run: just cmn-${{ matrix.component }}
+      - name: Setup ruby
+        run: just cmn-ruby

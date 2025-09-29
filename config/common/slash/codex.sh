@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-CONFIG_FILE="config/common/aiding/slash/config.json"
+CONFIG_FILE="config/common/slash/config.json"
 CODEX_PROMPTS_DIR="$HOME/.codex/prompts"
 
 # Check if config file exists
@@ -29,7 +29,7 @@ while IFS=$'\t' read -r cmd prompt_file; do
         exit 1
     fi
     output_file="$CODEX_PROMPTS_DIR/$safe_cmd.md"
-    prompt_source_path="config/common/aiding/slash/$prompt_file"
+    prompt_source_path="config/common/slash/$prompt_file"
 
     # Add the prompt content from the referenced file
     if [[ -f "$prompt_source_path" ]]; then

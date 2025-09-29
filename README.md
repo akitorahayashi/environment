@@ -25,7 +25,6 @@ This project automates the setup of a consistent development environment across 
 │       ├── macbook/
 │       └── mac-mini/
 ├── tests/
-├── .env
 ├── .env.example
 ├── .gitignore
 ├── .mcp.json
@@ -52,8 +51,6 @@ cd environment
 curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --strip-components=1
 ```
 
-Feel free to replace `environment` with any other empty directory path you prefer.
-
 1.  **Bootstrap Setup**
 
     Install Xcode Command Line Tools, Homebrew, Ansible, the `just` command runner, and create the `.env` file:
@@ -64,10 +61,11 @@ Feel free to replace `environment` with any other empty directory path you prefe
     This command will:
     - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
-    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
     - Install Homebrew if not already installed
+    - Install Git if not already installed
     - Install Ansible if not already installed
     - Install the `just` command runner
+    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
 
     **Important**: After running `make base`, edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
 
@@ -92,12 +90,18 @@ Feel free to replace `environment` with any other empty directory path you prefe
 
 ### Manual Execution Options
 
-These commands are recommended to be run manually once after initial setup:
+These commands are recommended to be run manually once after initial setup (Ansible collections are refreshed automatically when `just common` runs):
 
 - **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
-- **Refresh AI CLI configuration**: `just cmn-claude`, `just cmn-gemini`, `just cmn-codex` - Reapplies Claude, Gemini, and Codex configuration assets without rerunning the Node.js installer.
-- **Regenerate slash commands**: `just cmn-slash` - Rebuilds all AI slash commands from source prompts through the dedicated `slash` role.
+
+### Codex ↔ MCP Synchronization
+
+- Run `just cmn-codex` before `just cmn-mcp` (or simply execute `just cmn-codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
+- The authoritative catalogue lives in `config/common/mcp/servers.json`; edits there are converted into the `[mcp_servers]` block within `config/common/aiding/codex/config.toml`.
+- When `~/.codex/config.toml` is missing, the synchronization block is skipped to avoid overwriting repository files.
+- After catalogue changes, rerun the combined recipe and confirm the play output reports the managed block as updated once and idempotent on the subsequent run.
+- Inspect the `# BEGIN MCP servers (managed by Ansible)` block in `config/common/aiding/codex/config.toml` to verify the definitions match expectations while comments elsewhere remain intact.
 
 ### VCS User Profile Switching
 
@@ -216,14 +220,14 @@ This policy ensures that the environment's state always reflects the configurati
 
 ## Tests
 
-- `python3 -m unittest tests.test_slash_config` validates `config/common/aiding/slash/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
-- GitHub Actions runs `.github/workflows/run-tests.yml`, which bootstraps the repo with `make base` and executes the same validator before other jobs start.
+- `python3 -m unittest tests.test_slash_config` validates `config/common/slash/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
+
 
 ## CI/CD Pipeline Verification Items
 
 The following GitHub Actions workflows validate the automated setup process:
 
-- **`ci-pipeline.yml`**: Main CI pipeline orchestrating all setup workflows
+- **`ci-workflows.yml`**: Main CI pipeline orchestrating all setup workflows
 - **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
 - **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning along with the Claude, Gemini, Codex, and slash configuration roles
 - **`setup-sublang.yml`**: Validates Ruby and Java environment setup
@@ -231,3 +235,4 @@ The following GitHub Actions workflows validate the automated setup process:
 - **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types
 - **`setup-alias.yml`**: Validates Git, JJ, shell, SSH, and MCP configuration with alias testing
 - **`setup-system.yml`**: Validates macOS system defaults application and backup verification
+- **`run-tests.yml`**: Validates the slash command configuration by running tests.

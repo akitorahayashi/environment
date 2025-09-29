@@ -35,7 +35,7 @@ A comprehensive automation project for setting up consistent macOS development e
 
 ### CI Orchestration
 
-CI/CD pipeline orchestration is centrally managed in the `ci-pipeline.yml` file.
+CI/CD pipeline orchestration is centrally managed in the `ci-workflows.yml` file.
 Each module defines its workflows in separate YAML files, specifying module-specific tasks and jobs. 
 
 ### Symlink Enforcement

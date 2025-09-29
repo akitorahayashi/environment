@@ -29,3 +29,9 @@ jobs:
 
       - name: Setup Codex
         run: just cmn-codex
+
+      - name: Verify slash config
+        run: python3 -m unittest tests.test_slash_config
+
+      - name: Setup slash commands
+        run: just cmn-slash
