@@ -45,6 +45,15 @@ aliases:
             echo "$pr" | jq --arg mergeable "$mergeable" --arg has_running "$has_running_actions" --arg ci_status "$ci_status" '. + {mergeable: $mergeable, actions_in_progress: $has_running, ci_status: $ci_status}'
           done
         }; f
+    pr-ct: |
+        !f() {
+          local pr_id="$1"
+          if [ -z "$pr_id" ]; then
+            echo "Usage: gh pr-ds <pr-number>" >&2
+            return 1
+          fi
+          gh pr view "$pr_id" --json comments --jq '.comments[] | "[\(.author.login)] \(.body)"'
+        }; f "$@"
     pr-mr: |
         !f() {
           local pr_id="$1"
