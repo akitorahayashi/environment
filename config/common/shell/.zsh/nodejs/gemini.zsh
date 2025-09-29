@@ -44,18 +44,21 @@ alias gm-il="gemini -m gemini-2.5-flash-image-live-preview"
 # -a, --all-files: Include ALL files in context?
 # -y, --yolo: Automatically accept all actions (aka YOLO mode).
 
+# Gemini Configuration Management
 # Initialize project-specific Gemini configuration
 gm-ini() {
-    local local_gemini=".gemini"
+    # Guard clause: Verify prerequisites
+    if [ -d .gemini ]; then
+        echo "❌ .gemini directory already exists in current directory"
+        return 1
+    fi
 
-    # Validation
-    [[ -d "$local_gemini" ]] && { echo "❌ $local_gemini already exists"; return 1; }
+    # Build basic structure
+    mkdir -p .gemini/commands
 
-    # Create directory structure
-    mkdir -p "$local_gemini/commands"
+    # Generate initial configuration file
+    echo '{}' > .gemini/settings.json
+    touch .gemini/GEMINI.md
 
-    # Create empty settings.json only
-    echo '{}' > "$local_gemini/settings.json"
-
-    echo "✅ Initialized .gemini configuration (empty settings.json created)"
+    echo "✅ Initialized project-specific .gemini configuration"
 }
