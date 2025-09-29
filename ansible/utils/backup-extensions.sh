@@ -59,11 +59,5 @@ if ! extensions=$("$CODE_CMD" --list-extensions 2>&1); then
   exit 1
 fi
 
-json="{\"extensions\": ["
-for ext in $extensions; do
-  json+="\"$ext\","
-done
-json=${json%,}
-json+="]}"
-echo "$json" | python3 -m json.tool > "$EXT_FILE"
+echo "$extensions" | jq -R . | jq -s '{"extensions": .}' > "$EXT_FILE"
 echo "VSCode extensions list backed up to: $EXT_FILE"

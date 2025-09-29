@@ -13,9 +13,6 @@ inventory := repo_root / "ansible/hosts"
 config_common := "config/common"
 config_macbook := "config/profiles/macbook"
 config_mac_mini := "config/profiles/mac-mini"
-ansible_repo_root := repo_root / ".ansible"
-ansible_collections_dir := ansible_repo_root / "collections"
-collections_requirements := repo_root / "ansible/collections/requirements.yml"
 
 
 # Show available recipes
@@ -27,7 +24,6 @@ default: help
 # Run all common setup tasks
 common:
   @echo "🚀 Starting all common setup tasks..."
-  @just ansible-collections
   @just cmn-shell
   @just cmn-ssh
   @just cmn-apply-system
@@ -245,14 +241,6 @@ cmn-backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."
   @{{repo_root}}/ansible/utils/backup-extensions.sh "{{config_common}}"
   @echo "✅ VSCode extensions backup completed."
-
-# Install or update required Ansible collections
-ansible-collections:
-  @echo "🚀 Ensuring required Ansible collections are installed..."
-  @if [ ! -f {{collections_requirements}} ]; then echo "❌ Missing collections requirements file..."; exit 1; fi
-  @mkdir -p {{ansible_collections_dir}}
-  @ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg ~/.local/pipx/venvs/ansible/bin/ansible-galaxy collection install --force -r {{collections_requirements}} -p {{ansible_collections_dir}}
-  @echo "✅ Ansible collections are up to date."
 
 # Display help with all available recipes
 help:
