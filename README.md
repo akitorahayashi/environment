@@ -227,7 +227,7 @@ This policy ensures that the environment's state always reflects the configurati
 
 The following GitHub Actions workflows validate the automated setup process:
 
-- **`ci-pipeline.yml`**: Main CI pipeline orchestrating all setup workflows
+- **`ci-workflows.yml`**: Main CI pipeline orchestrating all setup workflows
 - **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
 - **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning along with the Claude, Gemini, Codex, and slash configuration roles
 - **`setup-sublang.yml`**: Validates Ruby and Java environment setup

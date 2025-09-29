@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 jobs:
-  setup-macos:
+  setup-system:
     runs-on: macos-15
     permissions:
       contents: read
@@ -14,6 +14,31 @@ jobs:
 
       - name: Setup Homebrew and just
         run: make base
+
+      - name: Setup Git configuration
+        run: just cmn-git
+
+      - name: Setup GitHub CLI configuration
+        run: just cmn-gh
+
+      - name: Setup JJ configuration
+        run: just cmn-jj
+
+      - name: Setup shell configuration
+        run: just cmn-shell
+        
+      - name: Test shell aliases functionality
+        shell: zsh {0}
+        run: |
+          set -euo pipefail
+          source ~/.zshrc
+          mk --version
+
+      - name: Setup SSH configuration
+        run: just cmn-ssh
+
+      - name: Setup MCP configuration
+        run: just cmn-mcp
 
       - name: Apply macOS system defaults
         run: just cmn-apply-system
