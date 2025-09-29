@@ -22,6 +22,7 @@ alias mkd="mkdir -p"
 alias rel="source ~/.zshrc"
 alias cl="clear"
 alias tmp="echo 'template' | pbcopy && echo '✅ Copied \"template\" to clipboard'"
+alias pcp="echo 'pbcopy' | pbcopy && echo '✅ Copied \"pbcopy\" to clipboard'"
 alias gip="ipconfig getifaddr"
 
 sw() {
