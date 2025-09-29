@@ -1,4 +1,3 @@
----
 - name: "Copy config/common/mcp/servers.json to ~/.mcp.json"
   ansible.builtin.copy:
     src: "{{ config_dir_abs_path }}/mcp/servers.json"
@@ -11,22 +10,9 @@
     follow: true
   register: codex_config_stat
 
-- name: "Record Codex configuration presence"
-  ansible.builtin.set_fact:
-    mcp_codex_config_available: "{{ codex_config_stat.stat.exists | bool }}"
-
 - name: "Load Codex configuration for MCP synchronization"
   when: codex_config_stat.stat.exists
   block:
-    - name: "Slurp user Codex configuration"
-      ansible.builtin.slurp:
-        src: "{{ ansible_env.HOME }}/.codex/config.toml"
-      register: codex_config_slurp
-
-    - name: "Parse user Codex configuration"
-      ansible.builtin.set_fact:
-        mcp_codex_config: "{{ codex_config_slurp.content | b64decode | community.general.from_toml }}"
-
     - name: "Slurp MCP server catalogue"
       ansible.builtin.slurp:
         src: "{{ config_dir_abs_path }}/mcp/servers.json"
@@ -63,15 +49,7 @@
 
     - name: "Render MCP servers TOML block"
       ansible.builtin.set_fact:
-        mcp_servers_toml_block: "{{ {'mcp_servers': mcp_transformed_servers_sorted} | community.general.toml_dumps | trim }}"
-
-    - name: "Normalize existing Codex MCP servers for comparison"
-      ansible.builtin.set_fact:
-        mcp_existing_servers_sorted: "{{ (mcp_codex_config.mcp_servers | default({})) | dict2items | sort(attribute='key') | items2dict }}"
-
-    - name: "Determine if Codex MCP servers block requires update"
-      ansible.builtin.set_fact:
-        mcp_servers_need_update: "{{ (mcp_existing_servers_sorted != mcp_transformed_servers_sorted) | bool }}"
+        mcp_servers_toml_block: "{{ lookup('template', 'mcp_servers_block.j2') }}"
 
     - name: "Ensure Codex MCP servers block is synchronized"
       ansible.builtin.blockinfile:
@@ -79,11 +57,12 @@
         marker: "# {mark} MCP servers (managed by Ansible)"
         block: "{{ mcp_servers_toml_block }}"
         insertafter: EOF
-      when: mcp_servers_need_update
+        create: true
+      register: mcp_servers_block_result
 
     - name: "Report Codex MCP synchronization outcome"
       ansible.builtin.debug:
-        msg: "{{ 'Codex MCP configuration updated with authoritative server definitions.' if mcp_servers_need_update else 'Codex MCP configuration already aligned with authoritative server definitions.' }}"
+        msg: "{{ 'Codex MCP configuration updated with authoritative server definitions.' if mcp_servers_block_result.changed else 'Codex MCP configuration already aligned with authoritative server definitions.' }}"
 
 - name: "Report Codex MCP synchronization skipped"
   ansible.builtin.debug:

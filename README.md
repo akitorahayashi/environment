@@ -90,13 +90,10 @@ curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --st
 
 ### Manual Execution Options
 
-These commands are recommended to be run manually once after initial setup:
+These commands are recommended to be run manually once after initial setup (Ansible collections are refreshed automatically when `just common` runs):
 
 - **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
-- **Refresh Codex before MCP sync**: `just cmn-codex-mcp` - Runs Codex setup first and then MCP synchronization so the Ansible role can read the user Codex config before updating repository assets.
-- **Refresh AI CLI configuration**: `just cmn-claude`, `just cmn-gemini`, `just cmn-codex` - Reapplies Claude, Gemini, and Codex configuration assets without rerunning the Node.js installer.
-- **Regenerate slash commands**: `just cmn-slash` - Rebuilds all AI slash commands from source prompts through the dedicated `slash` role.
 
 ### Codex ↔ MCP Synchronization
 
