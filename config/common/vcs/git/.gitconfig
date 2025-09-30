@@ -46,7 +46,7 @@
     ps-o = push origin
     ps-u-m = push --set-upstream origin main
     ps-f-l = push --force-with-lease
-    ow = show
+    sw = show
 
     tg = tag
     tg-ls = tag -l -n
@@ -55,6 +55,7 @@
     tg-d-rm = push --delete origin
 
     mr = merge
+    rb = rebase
     l = log --oneline --graph --decorate --all -n 15
     lg = l
 
