@@ -81,6 +81,17 @@
         "@modelcontextprotocol/server-sequential-thinking"
       ],
       "description": "Enables sequential thinking capabilities."
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<GITHUB_PERSONAL_ACCESS_TOKEN>"
+      },
+      "description": "GitHub repository management and interaction through MCP"
     }
   }
 }
