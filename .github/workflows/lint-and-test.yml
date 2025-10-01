@@ -30,7 +30,11 @@ jobs:
         run: just test
 
       - name: Install linting tools
-        run: brew install shellcheck ansible-lint
+        run: |
+          brew install shellcheck
+          pipx install ansible
+          pipx inject ansible ansible-lint
+          echo "$HOME/.local/pipx/venvs/ansible/bin" >> $GITHUB_PATH
 
       - name: Run Linters
         run: just lint
