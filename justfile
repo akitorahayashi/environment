@@ -47,7 +47,7 @@ common:
   @just cmn-cursor
   @just cmn-ruby
   @just cmn-aider
-  @just cmn-brew
+  @just cmn-brew-formulae
   @echo "✅ All common setup tasks completed successfully."
 
 # ------------------------------------------------------------------------------
@@ -58,13 +58,8 @@ cmn-apply-system:
   @echo "🚀 Applying common system defaults..."
   @just _run_ansible "system" "common" "system"
 
-# Setup common Homebrew packages (formulae and casks)
-cmn-brew:
-  @echo "🚀 Running Homebrew setup with config: {{config_common}}/brew"
-  @just _run_ansible "brew" "common" "brew"
-
 # Setup common Homebrew formulae packages only
-cmn-formulae:
+cmn-brew-formulae:
   @echo "  -> Running Homebrew formulae setup with config: {{config_common}}/brew"
   @just _run_ansible "brew" "common" "brew-formulae"
 
@@ -179,7 +174,7 @@ cmn-aider:
   @just _run_ansible "python" "common" "python-aider"
 
 # Install common cask packages only
-cmn-cask:
+cmn-brew-cask:
   @echo "🚀 Installing common Brew Casks..."
   @just _run_ansible "brew" "common" "brew-cask"
 
@@ -192,7 +187,7 @@ cmn-docker-images:
 # MacBook-Specific Recipes
 # ------------------------------------------------------------------------------
 # Install MacBook-specific cask
-mbk-cask:
+mbk-brew-cask:
   @echo "🚀 Installing MacBook-specific Brew Casks..."
   @just _run_ansible "brew" "macbook" "brew-cask"
 
@@ -200,7 +195,7 @@ mbk-cask:
 # Mac Mini-Specific Recipes
 # ------------------------------------------------------------------------------
 
-mmn-cask:
+mmn-brew-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
   @just _run_ansible "brew" "mac-mini" "brew-cask"
 
@@ -256,11 +251,13 @@ format:
     @uv run black tests/
     @uv run ruff check tests/ --fix
 
-# Lint code with black check and ruff
+# Lint code with black check, ruff, shellcheck, and ansible-lint
 lint:
-    @echo "Linting code with black check and ruff..."
+    @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
     @uv run black --check tests/
     @uv run ruff check tests/
+    @shellcheck ansible/utils/backup-extensions.sh ansible/utils/backup-system.sh config/common/slash/claude.sh config/common/slash/codex.sh config/common/slash/gemini.sh
+    @ansible-lint ansible/
     
 # ------------------------------------------------------------------------------
 # Testing

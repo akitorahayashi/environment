@@ -26,8 +26,8 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v2
 
-      - name: Run Linters
-        run: just lint
-
       - name: Run tests
         run: just test
+        
+      - name: Run Linters
+        run: just lint

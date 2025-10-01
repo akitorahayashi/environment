@@ -1,2 +1,4 @@
 uv
 jupyterlab
+ansible
+ansible-lint

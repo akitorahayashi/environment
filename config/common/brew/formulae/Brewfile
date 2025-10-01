@@ -31,6 +31,7 @@ brew "poppler"
 brew "pandoc"
 brew "ollama"
 brew "yq"
+brew "shellcheck"
 # brew "just" # Installed via `make setup`
 # brew "displayplacer" # installed by ansible/roles/system
 
