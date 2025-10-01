@@ -29,11 +29,13 @@ jq -r '.commands | to_entries[] | @base64' "$CONFIG_FILE" | while read -r row; d
     output_file="$CLAUDE_COMMANDS_DIR/$cmd.md"
 
     # Start building the frontmatter
-    echo "---" > "$output_file"
-    echo "title: \"$title\"" >> "$output_file"
-
-    echo "---" >> "$output_file"
-    echo "" >> "$output_file"
+    {
+        echo "---"
+        echo "title: \"$title\""
+        echo "description: \"$description\""
+        echo "---"
+        echo ""
+    } > "$output_file"
 
     # Add the prompt content from the referenced file
     if [[ -f "config/common/slash/$prompt_file" ]]; then
