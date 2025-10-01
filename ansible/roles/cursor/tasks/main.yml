@@ -16,7 +16,7 @@
     url: https://cursor.com/install
     dest: "{{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh"
     mode: '0755'
-    checksum: "sha256:a8779ed0e591d9af020684461419a3598e2f43f186e995eb1857fb11e7782270"
+    checksum: "sha256:19f6fd9bf7d23e93b4e6b41de2a2434d05db375dc1ef29922d4c51f6e0566ff8"
 
 - name: "Install Cursor CLI"
   ansible.builtin.command: /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh

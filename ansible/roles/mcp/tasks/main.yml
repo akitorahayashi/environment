@@ -1,8 +1,15 @@
-- name: "Copy config/common/mcp/servers.json to ~/.mcp.json"
+- name: "Copy base MCP configuration"
   ansible.builtin.copy:
     src: "{{ config_dir_abs_path }}/mcp/servers.json"
     dest: "{{ ansible_env.HOME }}/.mcp.json"
     mode: '0644'
+
+- name: "Substitute environment variables in MCP configuration"
+  ansible.builtin.replace:
+    path: "{{ ansible_env.HOME }}/.mcp.json"
+    regexp: '\$\{GITHUB_PERSONAL_ACCESS_TOKEN\}'
+    replace: "{{ lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') }}"
+  when: lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') != ""
 
 - name: "Check for existing Codex configuration"
   ansible.builtin.stat:
@@ -13,9 +20,9 @@
 - name: "Load Codex configuration for MCP synchronization"
   when: codex_config_stat.stat.exists
   block:
-    - name: "Slurp MCP server catalogue"
+    - name: "Slurp processed MCP server catalogue"
       ansible.builtin.slurp:
-        src: "{{ config_dir_abs_path }}/mcp/servers.json"
+        src: "{{ ansible_env.HOME }}/.mcp.json"
       register: mcp_servers_slurp
 
     - name: "Parse MCP server catalogue"

@@ -18,6 +18,12 @@ config_mac_mini := "config/profiles/mac-mini"
 # Show available recipes
 default: help
 
+# Display help with all available recipes
+help:
+  @echo "Usage: just [recipe]"
+  @echo "Available recipes:"
+  @just --list | tail -n +2 | awk '{printf "  \033[36m%-20s\033[0m %s\n", $1, substr($0, index($0, $2))}'
+  
 # ------------------------------------------------------------------------------
 # Common Setup Recipes
 # ------------------------------------------------------------------------------
@@ -137,8 +143,6 @@ cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
   @just _run_ansible "cursor" "common" "cursor"
 
-
-
 # Setup Claude Code settings
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."
@@ -242,11 +246,13 @@ cmn-backup-vscode-extensions:
   @{{repo_root}}/ansible/utils/backup-extensions.sh "{{config_common}}"
   @echo "✅ VSCode extensions backup completed."
 
-# Display help with all available recipes
-help:
-  @echo "Usage: just [recipe]"
-  @echo "Available recipes:"
-  @just --list | tail -n +2 | awk '{printf "  \033[36m%-20s\033[0m %s\n", $1, substr($0, index($0, $2))}'
+# ------------------------------------------------------------------------------
+# Testing
+# ------------------------------------------------------------------------------
+# Run all tests under tests/ directory with python3
+test:
+  @echo "🧪 Running all tests under tests/ directory..."
+  @cd {{repo_root}} && python3 -m unittest discover -s tests -p "test_*.py" -v
 
 # ------------------------------------------------------------------------------
 # Hidden Recipes

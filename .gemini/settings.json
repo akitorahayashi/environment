@@ -34,6 +34,18 @@
         "@t09tanaka/mcp-simple-voicevox"
       ],
       "description": "Japanese text-to-speech synthesis using VOICEVOX engine"
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      },
+      "description": "GitHub repository management and interaction through MCP"
     }
   }
 }

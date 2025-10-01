@@ -33,6 +33,14 @@ A comprehensive automation project for setting up consistent macOS development e
 - **Fallback logic**: Roles must implement profile-specific → common fallback for optional overrides
 - **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile
 
+### tests/ Directory Rules
+
+To maintain a lightweight and dependency-free testing environment, all tests within the `tests/` directory should be written using Python's built-in `unittest` framework. This approach ensures that tests can be executed with a standard Python installation without the need for external packages like `pytest`.
+
+- **Use `unittest`:** All new test files should use the `unittest.TestCase` structure.
+- **No External Dependencies:** Do not introduce testing libraries such as `pytest`, `nose`, or others that are not part of the standard library.
+- **Execution:** Tests should be runnable via the command `python -m unittest discover tests`.
+
 ### CI Orchestration
 
 CI/CD pipeline orchestration is centrally managed in the `ci-workflows.yml` file.

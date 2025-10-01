@@ -8,12 +8,11 @@
     - "{{ ansible_env.HOME }}/.codex"
     - "{{ ansible_env.HOME }}/.codex/prompts"
 
-- name: "Symlink Codex configuration file"
-  ansible.builtin.file:
+- name: "Copy Codex configuration file"
+  ansible.builtin.copy:
     src: "{{ config_dir_abs_path }}/aiding/codex/config.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
-    state: link
-    force: true
+    mode: '0644'
 
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
