@@ -1,0 +1,4 @@
+[submodule "ansible/roles/slash/config/common/commands/async-sdd-slashes"]
+	path = ansible/roles/slash/config/common/commands/async-sdd-slashes
+	url = https://github.com/akitorahayashi/async-sdd-slashes
+	branch = v1.1.0
