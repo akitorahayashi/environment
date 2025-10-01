@@ -19,33 +19,38 @@
     path: "{{ ansible_env.HOME }}/.zsh"
     state: absent
 
-- ansible.builtin.file:
+- name: "Create ~/.zsh directory"
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.zsh"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Find .zsh config files recursively"
   ansible.builtin.find:
     paths: "{{ config_dir_abs_path }}/shell/.zsh"
     patterns: "*.zsh"
     recurse: true
-  register: zsh_files
+  register: shell_zsh_files
 
 - name: "Calculate unique subdirectories for .zsh files"
   ansible.builtin.set_fact:
-    zsh_subdirs: "{{ zsh_files.files | map(attribute='path') | map('replace', config_dir_abs_path + '/shell/.zsh/', '') | map('dirname') | unique | reject('equalto', '.') | list }}"
+    shell_zsh_subdirs: >-
+      {{ shell_zsh_files.files | map(attribute='path')
+         | map('replace', config_dir_abs_path + '/shell/.zsh/', '')
+         | map('dirname') | unique | reject('equalto', '.') | list }}
 
 - name: "Create subdirectories in ~/.zsh"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.zsh/{{ item }}"
     state: directory
-    mode: '0755'
-  loop: "{{ zsh_subdirs }}"
+    mode: "0755"
+  loop: "{{ shell_zsh_subdirs }}"
 
 - name: "Symlink .zsh config files recursively"
   ansible.builtin.file:
     src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/.zsh/{{ item.path | replace(config_dir_abs_path + '/shell/.zsh/', '') }}"
+    dest: >-
+      {{ ansible_env.HOME }}/.zsh/{{ item.path | replace(config_dir_abs_path + '/shell/.zsh/', '') }}
     state: link
     force: true
-  loop: "{{ zsh_files.files }}"
+  loop: "{{ shell_zsh_files.files }}"

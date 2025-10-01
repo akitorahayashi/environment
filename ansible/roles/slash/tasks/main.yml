@@ -2,7 +2,7 @@
 - name: "Ensure slash generator scripts are executable"
   ansible.builtin.file:
     path: "{{ config_dir_abs_path }}/slash/{{ item }}"
-    mode: '0755'
+    mode: "0755"
   loop:
     - claude.sh
     - gemini.sh
@@ -18,5 +18,6 @@
     - claude.sh
     - gemini.sh
     - codex.sh
+  changed_when: false
   loop_control:
     label: "{{ item }}"

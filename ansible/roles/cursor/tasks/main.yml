@@ -8,14 +8,14 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.ansible/tmp"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Download Cursor CLI installer"
   # Checksum obtained via: curl -s https://cursor.com/install | shasum -a 256
   ansible.builtin.get_url:
     url: https://cursor.com/install
     dest: "{{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh"
-    mode: '0755'
+    mode: "0755"
     checksum: "sha256:19f6fd9bf7d23e93b4e6b41de2a2434d05db375dc1ef29922d4c51f6e0566ff8"
 
 - name: "Install Cursor CLI"
@@ -27,7 +27,7 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Find Cursor config files"
   ansible.builtin.find:
@@ -58,5 +58,5 @@
   ansible.builtin.command: "cursor --install-extension {{ item }} --force"
   loop: "{{ cursor_extensions }}"
   ignore_errors: true
-  register: install_result
-  changed_when: "'is successfully installed' in install_result.stdout"
+  register: cursor_install_result
+  changed_when: "'is successfully installed' in cursor_install_result.stdout"

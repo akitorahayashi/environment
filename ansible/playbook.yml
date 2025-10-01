@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: Setup macOS development environment
+  hosts: localhost
   connection: local
 
   vars:
@@ -7,20 +8,20 @@
     config_dir_abs_path: "{{ config_dir_abs_path }}"
 
   roles:
-    - { role: brew, tags: ['brew', 'brew-formulae', 'brew-cask'] }
-    - { role: python, tags: ['python', 'python-platform', 'python-tools', 'python-aider'] }
-    - { role: nodejs, tags: ['nodejs', 'nodejs-platform', 'nodejs-tools'] }
-    - { role: claude, tags: ['claude'] }
-    - { role: gemini, tags: ['gemini'] }
-    - { role: codex, tags: ['codex'] }
-    - { role: slash, tags: ['slash'] }
-    - { role: ruby, tags: ['ruby'] }
-    - { role: vcs, tags: ['vcs', 'vcs-git', 'vcs-jj'] }
-    - { role: gh, tags: ['gh'] }
-    - { role: shell, tags: ['shell'] }
-    - { role: ssh, tags: ['ssh'] }
-    - { role: vscode, tags: ['editor', 'vscode'] }
-    - { role: cursor, tags: ['editor', 'cursor'] }
-    - { role: mcp, tags: ['mcp'] }
-    - { role: system, tags: ['system'] }
-    - { role: docker, tags: ['docker'] }
+    - { role: brew, tags: ["brew", "brew-formulae", "brew-cask"] }
+    - { role: python, tags: ["python", "python-platform", "python-tools", "python-aider"] }
+    - { role: nodejs, tags: ["nodejs", "nodejs-platform", "nodejs-tools"] }
+    - { role: claude, tags: ["claude"] }
+    - { role: gemini, tags: ["gemini"] }
+    - { role: codex, tags: ["codex"] }
+    - { role: slash, tags: ["slash"] }
+    - { role: ruby, tags: ["ruby"] }
+    - { role: vcs, tags: ["vcs", "vcs-git", "vcs-jj"] }
+    - { role: gh, tags: ["gh"] }
+    - { role: shell, tags: ["shell"] }
+    - { role: ssh, tags: ["ssh"] }
+    - { role: vscode, tags: ["editor", "vscode"] }
+    - { role: cursor, tags: ["editor", "cursor"] }
+    - { role: mcp, tags: ["mcp"] }
+    - { role: system, tags: ["system"] }
+    - { role: docker, tags: ["docker"] }

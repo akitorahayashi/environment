@@ -64,6 +64,7 @@ curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --st
     - Install Homebrew if not already installed
     - Install Git if not already installed
     - Install Ansible if not already installed
+    - Inject ansible-lint into the Ansible environment for code quality validation
     - Install the `just` command runner
     - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
 

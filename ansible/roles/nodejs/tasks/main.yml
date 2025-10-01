@@ -1,14 +1,14 @@
 ---
 - name: "Read Node.js version"
-  import_tasks: version.yml
+  ansible.builtin.import_tasks: version.yml
   tags: [nodejs, nodejs-platform, nodejs-tools]
 
 - name: "Setup Node.js platform"
-  import_tasks: platform.yml
+  ansible.builtin.import_tasks: platform.yml
   when: nodejs_setup_platform | default(true) | bool
   tags: [nodejs, nodejs-platform]
 
 - name: "Install Node.js tools and packages"
-  import_tasks: tools.yml
+  ansible.builtin.import_tasks: tools.yml
   when: nodejs_install_tools | default(true) | bool
   tags: [nodejs, nodejs-tools]

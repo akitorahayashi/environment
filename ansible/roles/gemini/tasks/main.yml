@@ -3,7 +3,7 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.gemini"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Find Gemini config files (flat)"
   ansible.builtin.find:
@@ -12,7 +12,7 @@
       - "*.json"
       - "*.md"
     file_type: file
-    recurse: no
+    recurse: false
   register: gemini_files_flat
 
 - name: "Symlink Gemini config files (flat)"
@@ -46,7 +46,7 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.gemini/commands"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Symlink Gemini AGENTS file"
   ansible.builtin.file:

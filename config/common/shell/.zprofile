@@ -10,6 +10,9 @@ export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
 # Path for cli tools
 export PATH="$HOME/.local/bin:$PATH"
 
+# Path for pipx ansible venv (ansible-playbook, ansible-lint, etc.)
+export PATH="$HOME/.local/pipx/venvs/ansible/bin:$PATH"
+
 
 # Android SDK environment variables
 if [[ -z "$ANDROID_HOME" ]]; then

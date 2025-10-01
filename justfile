@@ -250,6 +250,7 @@ format:
     @echo "Formatting code with black and ruff..."
     @uv run black tests/
     @uv run ruff check tests/ --fix
+    @ansible-lint ansible/ --fix
 
 # Lint code with black check, ruff, shellcheck, and ansible-lint
 lint:
@@ -291,4 +292,4 @@ _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
-  ~/.local/pipx/venvs/ansible/bin/ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "config_dir_abs_path={{repo_root}}/config/common" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}
+  ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "config_dir_abs_path={{repo_root}}/config/common" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}

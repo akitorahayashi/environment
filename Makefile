@@ -54,35 +54,14 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "[WARN] Homebrew command not available; subsequent installs may fail."; \
 	fi
 
-	@if ! command -v git &> /dev/null; then \
-		echo "[INSTALL] git..."; \
-		brew install git; \
-	else \
-		echo "[SUCCESS] git is already installed."; \
-	fi
+	@echo "[INSTALL] git, just, pipx..."; \
+	brew install git just pipx; \
+	export PATH="$$HOME/.local/bin:$$PATH"
 
-	@if ! command -v just &> /dev/null; then \
-		echo "    [INSTALL] just..."; \
-		brew install just; \
-	else \
-		echo "[SUCCESS] just is already installed."; \
-	fi
-
-	@if ! command -v pipx &> /dev/null; then \
-		echo "[INSTALL] pipx..."; \
-		brew install pipx; \
-		export PATH="$$HOME/.local/bin:$$PATH"; \
-	else \
-		echo "[SUCCESS] pipx is already installed."; \
-	fi
-
-	@if ! command -v ansible &> /dev/null; then \
-		echo "[INSTALL] ansible..."; \
-		pipx install ansible; \
-		export PATH="$$HOME/.local/bin:$$PATH"; \
-	else \
-		echo "[SUCCESS] ansible is already installed."; \
-	fi
+	@echo "[INSTALL] ansible and inject ansible-lint..."; \
+	pipx install ansible; \
+	pipx inject ansible ansible-lint
+	export PATH="$$HOME/.local/pipx/venvs/ansible/bin:$$PATH"
 
 	@if [ -d .git ]; then \
 		if command -v git &> /dev/null; then \

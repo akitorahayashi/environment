@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/Library/Application Support/Code/User"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Find VS Code config files"
   ansible.builtin.find:
@@ -38,5 +38,5 @@
   ansible.builtin.command: "code --install-extension {{ item }} --force"
   loop: "{{ vscode_extensions }}"
   ignore_errors: true
-  register: install_result
-  changed_when: "'was successfully installed' in install_result.stdout"
+  register: vscode_install_result
+  changed_when: "'was successfully installed' in vscode_install_result.stdout"
