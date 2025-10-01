@@ -1,3 +1,4 @@
+---
 model: ollama/gpt-oss:120b-cloud
 edit-format: diff
 use-repo-map: true

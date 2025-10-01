@@ -17,11 +17,7 @@ def version_files(runtime_config_dirs: dict[str, Path]) -> dict[str, Path]:
 @pytest.fixture(scope="session")
 def existing_files(version_files: dict[str, Path]) -> dict[str, Path]:
     """Filter for files that actually exist to prevent test errors."""
-    return {
-        name: path
-        for name, path in version_files.items()
-        if path.exists()
-    }
+    return {name: path for name, path in version_files.items() if path.exists()}
 
 
 class TestRuntimeVersions:

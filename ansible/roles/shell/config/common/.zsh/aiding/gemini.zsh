@@ -64,7 +64,7 @@ gm-ini() {
 }
 
 # Link MCP configuration from root .mcp.json to .gemini/settings.json
-gm-mcp-lk() {
+gm-mcp-ln() {
     local project_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
     local mcp_json="${project_root}/.mcp.json"
     local gemini_dir=".gemini"

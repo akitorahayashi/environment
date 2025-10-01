@@ -111,9 +111,7 @@ def _collect_src_references(
                 raw_value = match.group("value").strip()
                 if any(substr in raw_value for substr in SKIP_SUBSTRINGS):
                     continue
-                resolved = _resolve_template_literal(
-                    raw_value, project_root, role_path
-                )
+                resolved = _resolve_template_literal(raw_value, project_root, role_path)
                 if resolved is None:
                     continue
                 references.append(
@@ -143,9 +141,7 @@ def _collect_lookup_references(
                     continue
                 for match in LOOKUP_PATTERN.finditer(line):
                     expr = match.group("expr").strip()
-                    resolved = _resolve_lookup_expression(
-                        expr, project_root, role_path
-                    )
+                    resolved = _resolve_lookup_expression(expr, project_root, role_path)
                     if resolved is None:
                         continue
                     references.append(
@@ -172,9 +168,7 @@ def _ensure_reference_cache(
         roles_root = project_root / "ansible/roles"
         role_task_files = load_role_task_files(roles_root)
         _REFERENCE_CACHE = {
-            "src": _collect_src_references(
-                role_task_files, project_root, roles_root
-            ),
+            "src": _collect_src_references(role_task_files, project_root, roles_root),
             "lookup": _collect_lookup_references(
                 role_task_files, project_root, roles_root
             ),
