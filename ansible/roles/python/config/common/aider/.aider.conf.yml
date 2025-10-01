@@ -1,0 +1,7 @@
+---
+model: ollama/gpt-oss:120b-cloud
+edit-format: diff
+use-repo-map: true
+streaming: true
+set-env:
+  - OLLAMA_API_BASE=http://127.0.0.1:11434

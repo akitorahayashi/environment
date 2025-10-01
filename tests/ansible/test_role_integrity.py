@@ -54,12 +54,12 @@ def _normalize_path(value: str, project_root: Path) -> Path:
 
 
 def _resolve_template_literal(
-    raw: str, project_root: Path, config_common_path: Path
+    raw: str, project_root: Path, role_path: Path
 ) -> Path | None:
     """Resolve simple Jinja template strings used in src references."""
     candidate = raw
     replacements = {
-        "{{ config_dir_abs_path }}": str(config_common_path),
+        "{{ role_path }}": str(role_path),
         "{{ repo_root_path }}": str(project_root),
     }
     for placeholder, replacement in replacements.items():
@@ -72,7 +72,7 @@ def _resolve_template_literal(
 
 
 def _resolve_lookup_expression(
-    expr: str, project_root: Path, config_common_path: Path
+    expr: str, project_root: Path, role_path: Path
 ) -> Path | None:
     """Evaluate a lookup('file', ...) expression to a concrete path."""
     expr = expr.strip()
@@ -83,7 +83,7 @@ def _resolve_lookup_expression(
         return _normalize_path(literal, project_root)
 
     safe_locals = {
-        "config_dir_abs_path": str(config_common_path),
+        "role_path": str(role_path),
         "repo_root_path": str(project_root),
     }
     try:
@@ -98,10 +98,11 @@ def _resolve_lookup_expression(
 def _collect_src_references(
     role_task_files: Sequence[RoleTaskFile],
     project_root: Path,
-    config_common_path: Path,
+    roles_root: Path,
 ) -> List[FileReference]:
     references: List[FileReference] = []
     for task_file in role_task_files:
+        role_path = roles_root / task_file.role
         with task_file.path.open("r", encoding="utf-8") as handle:
             for line_number, line in enumerate(handle, start=1):
                 match = SRC_PATTERN.search(line)
@@ -110,9 +111,7 @@ def _collect_src_references(
                 raw_value = match.group("value").strip()
                 if any(substr in raw_value for substr in SKIP_SUBSTRINGS):
                     continue
-                resolved = _resolve_template_literal(
-                    raw_value, project_root, config_common_path
-                )
+                resolved = _resolve_template_literal(raw_value, project_root, role_path)
                 if resolved is None:
                     continue
                 references.append(
@@ -131,19 +130,18 @@ def _collect_src_references(
 def _collect_lookup_references(
     role_task_files: Sequence[RoleTaskFile],
     project_root: Path,
-    config_common_path: Path,
+    roles_root: Path,
 ) -> List[FileReference]:
     references: List[FileReference] = []
     for task_file in role_task_files:
+        role_path = roles_root / task_file.role
         with task_file.path.open("r", encoding="utf-8") as handle:
             for line_number, line in enumerate(handle, start=1):
                 if "lookup('file'" not in line:
                     continue
                 for match in LOOKUP_PATTERN.finditer(line):
                     expr = match.group("expr").strip()
-                    resolved = _resolve_lookup_expression(
-                        expr, project_root, config_common_path
-                    )
+                    resolved = _resolve_lookup_expression(expr, project_root, role_path)
                     if resolved is None:
                         continue
                     references.append(
@@ -168,14 +166,11 @@ def _ensure_reference_cache(
     global _REFERENCE_CACHE
     if _REFERENCE_CACHE is None:
         roles_root = project_root / "ansible/roles"
-        config_common_path = project_root / "config/common"
         role_task_files = load_role_task_files(roles_root)
         _REFERENCE_CACHE = {
-            "src": _collect_src_references(
-                role_task_files, project_root, config_common_path
-            ),
+            "src": _collect_src_references(role_task_files, project_root, roles_root),
             "lookup": _collect_lookup_references(
-                role_task_files, project_root, config_common_path
+                role_task_files, project_root, roles_root
             ),
         }
     return _REFERENCE_CACHE["src"], _REFERENCE_CACHE["lookup"]

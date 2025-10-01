@@ -1,19 +1,19 @@
 ---
 - name: "Symlink .zprofile"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/shell/.zprofile"
+    src: "{{ role_path }}/config/common/.zprofile"
     dest: "{{ ansible_env.HOME }}/.zprofile"
     state: link
     force: true
 
 - name: "Symlink .zshrc"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/shell/.zshrc"
+    src: "{{ role_path }}/config/common/.zshrc"
     dest: "{{ ansible_env.HOME }}/.zshrc"
     state: link
     force: true
 
-# --- create symbolic links for all files in config/common/shell/.zsh/
+# --- create symbolic links for all files in role_path/config/common/.zsh/
 - name: "Clean and recreate ~/.zsh directory"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.zsh"
@@ -25,18 +25,18 @@
     state: directory
     mode: "0755"
 
-- name: "Find .zsh config files recursively"
+- name: "Find shell config files recursively"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/shell/.zsh"
-    patterns: "*.zsh"
+    paths: "{{ role_path }}/config/common/.zsh"
+    patterns: ["*.sh", "*.zsh"]
     recurse: true
-  register: shell_zsh_files
+  register: shell_config_files
 
-- name: "Calculate unique subdirectories for .zsh files"
+- name: "Calculate unique subdirectories for shell config files"
   ansible.builtin.set_fact:
-    shell_zsh_subdirs: >-
-      {{ shell_zsh_files.files | map(attribute='path')
-         | map('replace', config_dir_abs_path + '/shell/.zsh/', '')
+    shell_config_subdirs: >-
+      {{ shell_config_files.files | map(attribute='path')
+         | map('replace', role_path + '/config/common/.zsh/', '')
          | map('dirname') | unique | reject('equalto', '.') | list }}
 
 - name: "Create subdirectories in ~/.zsh"
@@ -44,13 +44,13 @@
     path: "{{ ansible_env.HOME }}/.zsh/{{ item }}"
     state: directory
     mode: "0755"
-  loop: "{{ shell_zsh_subdirs }}"
+  loop: "{{ shell_config_subdirs }}"
 
-- name: "Symlink .zsh config files recursively"
+- name: "Symlink shell config files recursively"
   ansible.builtin.file:
     src: "{{ item.path }}"
     dest: >-
-      {{ ansible_env.HOME }}/.zsh/{{ item.path | replace(config_dir_abs_path + '/shell/.zsh/', '') }}
+      {{ ansible_env.HOME }}/.zsh/{{ item.path | replace(role_path + '/config/common/.zsh/', '') }}
     state: link
     force: true
-  loop: "{{ shell_zsh_files.files }}"
+  loop: "{{ shell_config_files.files }}"

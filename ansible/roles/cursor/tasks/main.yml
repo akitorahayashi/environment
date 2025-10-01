@@ -31,7 +31,7 @@
 
 - name: "Find Cursor config files"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/editor/cursor"
+    paths: "{{ role_path }}/config/common"
     patterns: ["settings.json", "keybindings.json"]
     file_type: any
   register: cursor_config_files
@@ -47,7 +47,7 @@
 
 - name: "Read Cursor extensions list"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/editor/cursor/extensions.json"
+    src: "{{ role_path }}/config/common/extensions.json"
   register: cursor_extensions_content
 
 - name: "Parse Cursor extensions JSON"

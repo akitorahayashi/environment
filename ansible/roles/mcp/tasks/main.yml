@@ -1,7 +1,7 @@
 ---
 - name: "Copy base MCP configuration"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/mcp/servers.json"
+    src: "{{ role_path }}/config/common/servers.json"
     dest: "{{ ansible_env.HOME }}/.mcp.json"
     mode: "0644"
 

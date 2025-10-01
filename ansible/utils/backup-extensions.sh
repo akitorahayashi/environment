@@ -4,14 +4,14 @@ set -euo pipefail
 # Get the configuration directory path from script arguments
 # Validate that at least one argument is provided
 if [ $# -lt 1 ]; then
-    echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
-    exit 1
+	echo "[ERROR] This script requires a configuration directory path as its first argument." >&2
+	exit 1
 fi
 CONFIG_DIR="$1"
 # Validate that the provided argument is not an empty string
 if [ -z "${1-}" ]; then
-    echo "[ERROR] This script requires a non-empty configuration directory path as its first argument." >&2
-    exit 1
+	echo "[ERROR] This script requires a non-empty configuration directory path as its first argument." >&2
+	exit 1
 fi
 
 # ================================================
@@ -22,9 +22,9 @@ fi
 # 1. Grant execution permission:
 #    $ chmod +x ansible/utils/backup-extensions.sh
 # 2. Run the script:
-#    $ ./ansible/utils/backup-extensions.sh config/common
+#    $ ./ansible/utils/backup-extensions.sh ansible/roles/vscode/config/common
 #
-# The script will create/update config/common/vscode/extensions/extensions.json with the current list of VSCode extensions.
+# The script will create/update ansible/roles/vscode/config/common/extensions.json with the current list of VSCode extensions.
 #
 # ================================================
 
@@ -32,32 +32,32 @@ fi
 # Backup file path
 
 # Set output file path
-EXT_FILE="$CONFIG_DIR/editor/vscode/extensions.json"
+EXT_FILE="$CONFIG_DIR/extensions.json"
 mkdir -p "$(dirname "$EXT_FILE")"
 
 # Detect VSCode command
 if command -v code >/dev/null 2>&1; then
-  CODE_CMD="code"
+	CODE_CMD="code"
 elif [ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
-  CODE_CMD="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+	CODE_CMD="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
 elif command -v code-insiders >/dev/null 2>&1; then
-  CODE_CMD="code-insiders"
+	CODE_CMD="code-insiders"
 else
-  echo "❌ VSCode command (code or code-insiders) not found." >&2
-  exit 1
+	echo "❌ VSCode command (code or code-insiders) not found." >&2
+	exit 1
 fi
 
 # Get and save extensions list
 echo "Getting VSCode extensions list..."
 if ! extensions=$("$CODE_CMD" --list-extensions 2>&1); then
-  echo "❌ Failed to get VSCode extensions." >&2
-  echo "   Possible causes:" >&2
-  echo "   - If VSCode is running, please close it and try again" >&2
-  echo "   - VSCode installation may have issues" >&2
-  echo "   - Command: $CODE_CMD --list-extensions" >&2
-  echo "   Error output: $extensions" >&2
-  exit 1
+	echo "❌ Failed to get VSCode extensions." >&2
+	echo "   Possible causes:" >&2
+	echo "   - If VSCode is running, please close it and try again" >&2
+	echo "   - VSCode installation may have issues" >&2
+	echo "   - Command: $CODE_CMD --list-extensions" >&2
+	echo "   Error output: $extensions" >&2
+	exit 1
 fi
 
-echo "$extensions" | jq -R 'select(length>0)' | jq -s '{"extensions": .}' > "$EXT_FILE"
+echo "$extensions" | jq -R 'select(length>0)' | jq -s '{"extensions": .}' >"$EXT_FILE"
 echo "VSCode extensions list backed up to: $EXT_FILE"

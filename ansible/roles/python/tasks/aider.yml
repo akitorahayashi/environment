@@ -14,7 +14,7 @@
 
 - name: "Symlink aider config files"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/aiding/aider/{{ item }}"
+    src: "{{ role_path }}/config/common/aider/{{ item }}"
     dest: "{{ ansible_env.HOME }}/{{ item }}"
     state: link
     force: true
