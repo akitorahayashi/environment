@@ -20,9 +20,9 @@ fi
 #
 # Usage:
 # 1. Grant execution permission:
-#    $ chmod +x ansible/utils/backup-extensions.sh
+#    $ chmod +x ansible/roles/vscode/utils/backup-extensions.sh
 # 2. Run the script:
-#    $ ./ansible/utils/backup-extensions.sh ansible/roles/vscode/config/common
+#    $ ./ansible/roles/vscode/utils/backup-extensions.sh ansible/roles/vscode/config/common
 #
 # The script will create/update ansible/roles/vscode/config/common/extensions.json with the current list of VSCode extensions.
 #

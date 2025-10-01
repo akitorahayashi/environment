@@ -229,13 +229,13 @@ sw-w:
 # Backup current macOS system defaults
 cmn-backup-system:
   @echo "🚀 Backing up current macOS system defaults..."
-  @{{repo_root}}/ansible/utils/backup-system.sh "{{repo_root}}/ansible/roles/system/config/common"
+  @{{repo_root}}/ansible/roles/system/utils/backup-system.sh "{{repo_root}}/ansible/roles/system/config/common"
   @echo "✅ macOS system defaults backup completed."
 
 # Backup current VSCode extensions
 cmn-backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."
-  @{{repo_root}}/ansible/utils/backup-extensions.sh "{{repo_root}}/ansible/roles/vscode/config/common"
+  @{{repo_root}}/ansible/roles/vscode/utils/backup-extensions.sh "{{repo_root}}/ansible/roles/vscode/config/common"
   @echo "✅ VSCode extensions backup completed."
 
 # ==============================================================================
