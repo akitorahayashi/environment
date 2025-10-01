@@ -213,7 +213,26 @@ This policy ensures that the environment's state always reflects the configurati
 
 ## Tests
 
-- `python3 -m unittest tests.test_slash_config` validates `ansible/roles/slash/config/common/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
+This project uses pytest with session-scoped fixtures for efficient validation. Run all tests with:
+
+```sh
+just test
+```
+
+### Test Coverage
+
+**Ansible Integration (`tests/ansible/`)**
+- **Justfile ↔ Playbook Tag Validation**: Ensures justfile recipes reference valid Ansible tags and roles
+- **Role File Integrity**: Validates all `src:` and `lookup('file', ...)` references point to existing files
+
+**Configuration Validation (`tests/config/`)**
+- **Editor Configs**: Validates JSON syntax and schema for VS Code/Cursor configuration files
+- **MCP Servers**: Verifies MCP server definitions have required fields and correct types
+- **Runtime Versions**: Checks `.python-version`, `.ruby-version`, `.nvmrc` format
+- **Slash Commands**: Validates configuration JSON, verifies prompt files exist, checks generator script executability
+- **System Definitions**: Verifies YAML syntax and required schema for macOS system settings
+
+All tests use properly-scoped fixtures in `conftest.py` files to share context and avoid code duplication.
 
 
 ## CI/CD Pipeline Verification Items
