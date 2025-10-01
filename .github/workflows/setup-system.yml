@@ -57,4 +57,4 @@ jobs:
         shell: bash
 
       - name: Run Homebrew formulae setup for common
-        run: just cmn-formulae
+        run: just cmn-brew-formulae
