@@ -15,6 +15,9 @@ jobs:
       - name: Setup Homebrew and just
         run: make base
 
+      - name: Add ansible venv to PATH
+        run: echo "$HOME/.local/pipx/venvs/ansible/bin" >> $GITHUB_PATH
+
       - name: Setup Git configuration
         run: just cmn-git
 
