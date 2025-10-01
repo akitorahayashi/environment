@@ -13,17 +13,9 @@ This project automates the setup of a consistent development environment across 
 ├── .github/
 │   └── workflows/
 ├── ansible/
-│   ├── hosts
-│   ├── playbook.yml
 │   ├── roles/
-│   └── utils/
-│       ├── backup-system.sh
-│       └── backup-extensions.sh
-├── config/
-│   ├── common/
-│   └── profiles/
-│       ├── macbook/
-│       └── mac-mini/
+│   ├── hosts
+│   └── playbook.yml
 ├── tests/
 ├── .env.example
 ├── .gitignore
@@ -64,6 +56,7 @@ curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --st
     - Install Homebrew if not already installed
     - Install Git if not already installed
     - Install Ansible if not already installed
+    - Inject ansible-lint into the Ansible environment for code quality validation
     - Install the `just` command runner
     - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
 
@@ -93,15 +86,15 @@ curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --st
 These commands are recommended to be run manually once after initial setup (Ansible collections are refreshed automatically when `just common` runs):
 
 - **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
-- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `config/common/docker/images.txt`.
+- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
 
 ### Codex ↔ MCP Synchronization
 
 - Run `just cmn-codex` before `just cmn-mcp` (or simply execute `just cmn-codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
-- The authoritative catalogue lives in `config/common/mcp/servers.json`; edits there are converted into the `[mcp_servers]` block within `config/common/aiding/codex/config.toml`.
+- The authoritative catalogue lives in `ansible/roles/mcp/config/common/servers.json`; edits there are converted into the `[mcp_servers]` block within `ansible/roles/codex/config/common/config.toml`.
 - When `~/.codex/config.toml` is missing, the synchronization block is skipped to avoid overwriting repository files.
 - After catalogue changes, rerun the combined recipe and confirm the play output reports the managed block as updated once and idempotent on the subsequent run.
-- Inspect the `# BEGIN MCP servers (managed by Ansible)` block in `config/common/aiding/codex/config.toml` to verify the definitions match expectations while comments elsewhere remain intact.
+- Inspect the `# BEGIN MCP servers (managed by Ansible)` block in `ansible/roles/codex/config/common/config.toml` to verify the definitions match expectations while comments elsewhere remain intact.
 
 ### VCS User Profile Switching
 
@@ -119,12 +112,12 @@ This project uses Ansible to automate the setup of a complete development enviro
 1.  **Homebrew Package Management (`brew` role)**
     -   **Formulae**: Installs CLI tools using `brew bundle` with profile-specific fallback support.
     -   **Casks**: Installs GUI applications using `brew bundle` with profile-specific fallback support.
-    -   Reads from profile-specific `Brewfile` (e.g., `config/profiles/mac-mini/brew/formulae/Brewfile`) or falls back to common configuration (`config/common/brew/formulae/Brewfile`, `config/common/brew/cask/Brewfile`).
+    -   Reads from profile-specific `Brewfile` (e.g., `ansible/roles/brew/config/profiles/mac-mini/formulae/Brewfile`) or falls back to common configuration (`ansible/roles/brew/config/common/formulae/Brewfile`, `ansible/roles/brew/config/common/cask/Brewfile`).
     -   Conditional installation: Can install formulae-only or casks-only using tags (`--tags brew-formulae`, `--tags brew-cask`).
 
 2.  **Shell Configuration (`shell` role)**
     -   Sets up the shell environment by creating symbolic links for `.zprofile`, `.zshrc`, and all files within the `.zsh/` directory.
-    -   All shell configuration files are sourced from `config/common/shell/`.
+    -   All shell configuration files are sourced from `ansible/roles/shell/config/common/`.
 
 3.  **Version Control Systems (`vcs` role)**
     -   **Git**: Installs `git` via Homebrew, copies `.gitconfig` to `~/.config/git/config`, symlinks `.gitignore_global`, and sets global excludesfile configuration.
@@ -134,58 +127,58 @@ This project uses Ansible to automate the setup of a complete development enviro
 
 4.  **GitHub CLI Configuration (`gh` role)**
     -   Installs the GitHub CLI (`gh`) via Homebrew.
-    -   Configures the GitHub CLI by symlinking the `config.yml` from `config/common/gh/` to `~/.config/gh/config.yml`.
+    -   Configures the GitHub CLI by symlinking the `config.yml` from `ansible/roles/gh/config/common/` to `~/.config/gh/config.yml`.
     -   Provides access to GitHub repository management, pull request workflows, and issue tracking from the command line.
 
 5.  **SSH Configuration (`ssh` role)**
     -   Sets up SSH environment with proper security and organization.
     -   Creates `.ssh` and `.ssh/conf.d` directories with appropriate permissions (700).
-    -   Symlinks the main SSH config file from `config/common/ssh/config` to `~/.ssh/config`.
-    -   Symlinks individual host-specific SSH config files from `config/common/ssh/conf.d/` to `~/.ssh/conf.d/`.
+    -   Symlinks the main SSH config file from `ansible/roles/ssh/config/common/config` to `~/.ssh/config`.
+    -   Symlinks individual host-specific SSH config files from `ansible/roles/ssh/config/common/conf.d/` to `~/.ssh/conf.d/`.
     -   Configures global SSH settings including `AddKeysToAgent yes`, `UseKeychain yes`, and `ServerAliveInterval 60`.
     -   Provides SSH key management utilities via shell functions (`ssh-gk`, `ssh-ls`, `ssh-rm`, `ssha-ls`).
     -   Implements automatic SSH agent startup and reuse in `.zprofile` for seamless authentication.
 
 6.  **macOS System Settings (`system` role)**
-    -   Applies system settings using the `community.general.osx_defaults` module based on the definitions in `config/common/system/system.yml`.
-    -   A backup of the current system settings can be generated by running `make system-backup`. This uses the `ansible/utils/backup-system.sh` script, which leverages `yq` and `defaults read` to create a backup based on definitions in `config/common/system/definitions/`.
+    -   Applies system settings using the `community.general.osx_defaults` module based on the definitions in `ansible/roles/system/config/common/system.yml`.
+    -   A backup of the current system settings can be generated by running `make system-backup`. This uses the `ansible/roles/system/utils/backup-system.sh` script, which leverages `yq` and `defaults read` to create a backup based on definitions in `ansible/roles/system/config/common/definitions/`.
 
 7.  **Ruby Environment (`ruby` role)**
     -   Installs `rbenv` to manage Ruby versions.
-    -   Reads the desired Ruby version from the `.ruby-version` file in `config/common/runtime/ruby/`.
+    -   Reads the desired Ruby version from the `.ruby-version` file in `ansible/roles/ruby/config/common/`.
     -   Installs the specified Ruby version and sets it as the global default.
     -   Installs a specific version of the `bundler` gem.
 
 8.  **Editor Configuration (`vscode` and `cursor` roles)**
     Manages the setup for VS Code and Cursor, which are now in separate, modular roles.
-    -   **VS Code (`vscode` role)**: Installs Visual Studio Code, symlinks configuration files from `config/common/editor/vscode/`, and installs extensions.
-    -   **Cursor (`cursor` role)**: Installs Cursor, downloads its CLI, symlinks configuration files from `config/common/editor/cursor/`, and installs extensions.
+    -   **VS Code (`vscode` role)**: Installs Visual Studio Code, symlinks configuration files from `ansible/roles/vscode/config/common/`, and installs extensions.
+    -   **Cursor (`cursor` role)**: Installs Cursor, downloads its CLI, symlinks configuration files from `ansible/roles/cursor/config/common/`, and installs extensions.
     -   **Conditional Installation**: The playbook installs both editors by default. You can target a specific one by using Ansible tags: `--tags vscode` or `--tags cursor`.
 
 9.  **Python Runtime & Tools (`python` role)**
-    -   **Platform**: Installs `pyenv`, reads the target Python version from `config/common/runtime/python/.python-version`, installs it, and sets it as the global default.
-    -   **Tools**: Installs Python tools from `config/common/runtime/python/pipx-tools.txt` using `pipx install`.
+    -   **Platform**: Installs `pyenv`, reads the target Python version from `ansible/roles/python/config/common/.python-version`, installs it, and sets it as the global default.
+    -   **Tools**: Installs Python tools from `ansible/roles/python/config/common/pipx-tools.txt` using `pipx install`.
     -   **Aider Integration**: Installs aider-chat via pipx using the configured Python version when enabled (`--tags python-aider`).
     -   Conditional installation: Can install platform-only, tools-only, or aider-only using tags (`--tags python-platform`, `--tags python-tools`, `--tags python-aider`).
 
 10. **Node.js Runtime & Tools (`nodejs` role)**
-    -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `config/common/runtime/nodejs/.nvmrc`, installs it, and sets it as the default.
-    -   **Tools**: Reads `config/common/runtime/nodejs/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to the home directory.
+    -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `ansible/roles/nodejs/config/common/.nvmrc`, installs it, and sets it as the default.
+    -   **Tools**: Reads `ansible/roles/nodejs/config/common/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to the home directory.
     -   Focused solely on runtime provisioning so CLI configuration can run independently in follow-on roles.
     -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`).
 
 11. **Claude CLI Configuration (`claude` role)**
-    -   Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `config/common/aiding/claude`.
+    -   Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `ansible/roles/claude/config/common`.
     -   Links `CLAUDE.md` and prepares the `commands` directory used by Claude Code.
     -   Runs without invoking the Node.js role and can be targeted via `just cmn-claude` or `ansible-playbook --tags claude`.
 
 12. **Gemini CLI Configuration (`gemini` role)**
-    -   Creates `~/.gemini`, symlinks configuration files from `config/common/aiding/gemini`, and retains templates used by the Gemini CLI.
+    -   Creates `~/.gemini`, symlinks configuration files from `ansible/roles/gemini/config/common`, and retains templates used by the Gemini CLI.
     -   Performs a best-effort `which gemini` check, warning if the CLI is missing while still applying configuration assets.
     -   Runs independently of Node.js and can be executed with `just cmn-gemini` or `ansible-playbook --tags gemini`.
 
 13. **Codex CLI Configuration (`codex` role)**
-    -   Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `config/common/aiding/codex`.
+    -   Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/codex/config/common`.
     -   Provides prompt and agent files without re-triggering the Node.js runtime setup.
     -   Invoked through `just cmn-codex` or `ansible-playbook --tags codex`.
 
@@ -200,7 +193,7 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Manages server configurations and API token integration for Claude Code and Gemini CLI.
 
 16. **Docker Environment (`docker` role)**
-    -   Pulls and manages Docker images listed in `config/common/docker/images.txt`.
+    -   Pulls and manages Docker images listed in `ansible/roles/docker/config/common/images.txt`.
     -   Ensures consistent containerized development environment across machines.
     -   Provides foundation for containerized development workflows.
 
@@ -220,7 +213,7 @@ This policy ensures that the environment's state always reflects the configurati
 
 ## Tests
 
-- `python3 -m unittest tests.test_slash_config` validates `config/common/slash/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
+- `python3 -m unittest tests.test_slash_config` validates `ansible/roles/slash/config/common/config.json` and fails on JSON syntax errors, duplicate keys, missing required fields, or missing prompt files.
 
 
 ## CI/CD Pipeline Verification Items

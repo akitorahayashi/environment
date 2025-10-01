@@ -1,10 +1,10 @@
 ---
 - name: "Install Homebrew formulae (CLI tools)"
-  import_tasks: formulae.yml
+  ansible.builtin.import_tasks: formulae.yml
   when: brew_install_formulae | default(true) | bool
-  tags: [brew, brew-formulae]
+  tags: [brew-formulae]
 
 - name: "Install Homebrew casks (GUI apps)"
-  import_tasks: cask.yml
+  ansible.builtin.import_tasks: cask.yml
   when: brew_install_cask | default(true) | bool
-  tags: [brew, brew-cask]
+  tags: [brew-cask]

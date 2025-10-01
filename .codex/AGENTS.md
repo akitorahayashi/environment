@@ -35,11 +35,18 @@ A comprehensive automation project for setting up consistent macOS development e
 
 ### tests/ Directory Rules
 
-To maintain a lightweight and dependency-free testing environment, all tests within the `tests/` directory should be written using Python's built-in `unittest` framework. This approach ensures that tests can be executed with a standard Python installation without the need for external packages like `pytest`.
+To keep the repository lightweight while enabling richer validation, the `tests/` tree now relies on `pytest` with optional dependencies scoped to that directory.
 
-- **Use `unittest`:** All new test files should use the `unittest.TestCase` structure.
-- **No External Dependencies:** Do not introduce testing libraries such as `pytest`, `nose`, or others that are not part of the standard library.
-- **Execution:** Tests should be runnable via the command `python -m unittest discover tests`.
+- **Dependency Isolation:** Dependencies declared in root `pyproject.toml`; install via `uv sync` when you need the full suite.
+- **Test Style:** All tests use pytest with fixtures and parametrization for efficient validation.
+- **Execution:** Run tests via `just test` command, which executes `uv run pytest tests/` with proper dependency management.
+- **Structure Mirroring:** Keep parity between source directories and their companion test modules (e.g., `ansible/roles/python/` ↔ `tests/ansible/test_role_integrity.py`).
+- **Test Coverage:** Includes justfile ↔ Ansible tag validation and Ansible file reference integrity checks.
+- **Fixture Organization:** Define fixtures at appropriate scope levels in conftest.py files:
+  - `tests/conftest.py`: Global fixtures shared across all test domains
+  - `tests/ansible/conftest.py`: Ansible-specific fixtures (playbook parsing, role validation)
+  - `tests/config/conftest.py`: Configuration validation fixtures
+  - **No helper utilities:** Avoid generic helper/utils modules; use properly-scoped fixtures instead
 
 ### CI Orchestration
 

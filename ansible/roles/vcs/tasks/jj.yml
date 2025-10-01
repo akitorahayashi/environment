@@ -8,30 +8,30 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.jj"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Ensure .config/jj directory exists"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/jj"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Copy jj config.toml to $HOME/.config/jj/ (user-level config)"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/vcs/jj/config.toml"
+    src: "{{ role_path }}/config/common/jj/config.toml"
     dest: "{{ ansible_env.HOME }}/.config/jj/config.toml"
     force: true
-    mode: '0644'
+    mode: "0644"
 
 - name: "Ensure .config/jj/conf.d directory exists"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/jj/conf.d"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Copy jj conf.d files"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/vcs/jj/conf.d/"
+    src: "{{ role_path }}/config/common/jj/conf.d/"
     dest: "{{ ansible_env.HOME }}/.config/jj/conf.d/"
     force: true
-    mode: '0644'
+    mode: "0644"

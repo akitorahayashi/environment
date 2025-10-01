@@ -1,0 +1,22 @@
+name: Setup Sub Languages
+
+on:
+  workflow_call:
+
+jobs:
+  setup-ruby:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew and just
+        run: make base
+
+      - name: Add ansible venv to PATH
+        run: echo "$HOME/.local/pipx/venvs/ansible/bin" >> $GITHUB_PATH
+
+      - name: Setup ruby
+        run: just cmn-ruby

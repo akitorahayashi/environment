@@ -3,20 +3,20 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
   loop:
     - "{{ ansible_env.HOME }}/.codex"
     - "{{ ansible_env.HOME }}/.codex/prompts"
 
 - name: "Copy Codex configuration file"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/aiding/codex/config.toml"
+    src: "{{ role_path }}/config/common/config.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
-    mode: '0644'
+    mode: "0644"
 
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/aiding/codex/AGENTS.md"
+    src: "{{ role_path }}/config/common/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
     state: link
     force: true

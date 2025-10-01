@@ -3,16 +3,16 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.claude"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Find Claude config files (flat)"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/aiding/claude"
+    paths: "{{ role_path }}/config/common"
     patterns:
       - "*.json"
       - "*.md"
     file_type: file
-    recurse: no
+    recurse: false
   register: claude_files_flat
 
 - name: "Symlink Claude config files (flat)"
@@ -27,9 +27,9 @@
 
 - name: "Find Claude config directories (recursive)"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/aiding/claude"
+    paths: "{{ role_path }}/config/common"
     file_type: directory
-    recurse: no
+    recurse: false
     patterns:
       - "templates"
   register: claude_dirs
@@ -48,11 +48,11 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.claude/commands"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Symlink Claude AGENTS file"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/aiding/claude/CLAUDE.md"
+    src: "{{ role_path }}/config/common/CLAUDE.md"
     dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
     state: link
     force: true

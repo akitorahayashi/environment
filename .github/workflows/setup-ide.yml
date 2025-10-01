@@ -15,9 +15,11 @@ jobs:
       - name: Setup Homebrew and just
         run: make base
 
+      - name: Add ansible venv to PATH
+        run: echo "$HOME/.local/pipx/venvs/ansible/bin" >> $GITHUB_PATH
+
       - name: Setup VSCode configuration
         run: just cmn-vscode
-
 
       - name: Setup Cursor configuration
         run: just cmn-cursor

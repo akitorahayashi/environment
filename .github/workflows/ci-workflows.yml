@@ -8,21 +8,20 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint-and-test:
+    uses: ./.github/workflows/lint-and-test.yml
+
   setup-python:
     uses: ./.github/workflows/setup-python.yml
 
   setup-nodejs:
     uses: ./.github/workflows/setup-nodejs.yml
 
-  setup-sublang:
-    uses: ./.github/workflows/setup-sublang.yml
+  setup-ruby:
+    uses: ./.github/workflows/setup-ruby.yml
 
   setup-ide:
     uses: ./.github/workflows/setup-ide.yml
-
-  setup-formulae:
-    uses: ./.github/workflows/setup-formulae.yml
-    secrets: inherit
 
   setup-system:
     uses: ./.github/workflows/setup-system.yml

@@ -1,8 +1,8 @@
 ---
 - name: "Install pipx tools"
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: "pipx install {{ item }}"
-  loop: "{{ lookup('file', config_dir_abs_path + '/runtime/python/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
+  loop: "{{ lookup('file', role_path + '/config/common/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
   changed_when: false
   environment:
     PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"

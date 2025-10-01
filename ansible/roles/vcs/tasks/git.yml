@@ -8,17 +8,18 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/git"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Copy .gitconfig"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/vcs/git/.gitconfig"
+    src: "{{ role_path }}/config/common/git/.gitconfig"
     dest: "{{ ansible_env.HOME }}/.config/git/config"
     force: true
+    mode: "0644"
 
 - name: "Symlink .gitignore_global"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/vcs/git/.gitignore_global"
+    src: "{{ role_path }}/config/common/git/.gitignore_global"
     dest: "{{ ansible_env.HOME }}/.gitignore_global"
     state: link
     force: true

@@ -1,13 +1,14 @@
+---
 - name: "Copy base MCP configuration"
   ansible.builtin.copy:
-    src: "{{ config_dir_abs_path }}/mcp/servers.json"
+    src: "{{ role_path }}/config/common/servers.json"
     dest: "{{ ansible_env.HOME }}/.mcp.json"
-    mode: '0644'
+    mode: "0644"
 
 - name: "Substitute environment variables in MCP configuration"
   ansible.builtin.replace:
     path: "{{ ansible_env.HOME }}/.mcp.json"
-    regexp: '\$\{GITHUB_PERSONAL_ACCESS_TOKEN\}'
+    regexp: "\\$\\{GITHUB_PERSONAL_ACCESS_TOKEN\\}"
     replace: "{{ lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') }}"
   when: lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') != ""
 
@@ -15,10 +16,10 @@
   ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.codex/config.toml"
     follow: true
-  register: codex_config_stat
+  register: mcp_codex_config_stat
 
 - name: "Load Codex configuration for MCP synchronization"
-  when: codex_config_stat.stat.exists
+  when: mcp_codex_config_stat.stat.exists
   block:
     - name: "Slurp processed MCP server catalogue"
       ansible.builtin.slurp:
@@ -46,7 +47,8 @@
               + ([('command', item.value.command)] if item.value.command is defined and item.value.command else [])
               + ([('args', item.value.args)] if item.value.args is defined and item.value.args else [])
               + ([('env', item.value.env)] if item.value.env is defined and item.value.env else [])
-              + ([('timeout', item.value.timeout)] if item.value.timeout is defined and item.value.timeout is not none else [])
+              + ([('timeout', item.value.timeout)]
+                if item.value.timeout is defined and item.value.timeout is not none else [])
             )
           }}
 
@@ -60,18 +62,22 @@
 
     - name: "Ensure Codex MCP servers block is synchronized"
       ansible.builtin.blockinfile:
-        path: "{{ codex_config_stat.stat.path }}"
+        path: "{{ mcp_codex_config_stat.stat.path }}"
         marker: "# {mark} MCP servers (managed by Ansible)"
         block: "{{ mcp_servers_toml_block }}"
         insertafter: EOF
         create: true
+        mode: "0644"
       register: mcp_servers_block_result
 
     - name: "Report Codex MCP synchronization outcome"
       ansible.builtin.debug:
-        msg: "{{ 'Codex MCP configuration updated with authoritative server definitions.' if mcp_servers_block_result.changed else 'Codex MCP configuration already aligned with authoritative server definitions.' }}"
+        msg: >-
+          {{ 'Codex MCP configuration updated with authoritative server definitions.'
+             if mcp_servers_block_result.changed
+             else 'Codex MCP configuration already aligned with authoritative server definitions.' }}
 
 - name: "Report Codex MCP synchronization skipped"
   ansible.builtin.debug:
     msg: "Codex configuration not found; skipping MCP server synchronization."
-  when: not codex_config_stat.stat.exists
+  when: not mcp_codex_config_stat.stat.exists

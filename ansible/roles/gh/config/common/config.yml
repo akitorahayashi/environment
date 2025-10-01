@@ -1,0 +1,76 @@
+---
+version: "1"
+git_protocol: ssh
+prompt: disabled
+spinner: enabled
+aliases:
+  # gh repo aliases
+  re-ls: 'repo list --limit 18 --json name,url,pushedAt --jq "sort_by(.pushedAt) | reverse | .[] | \"【\\(.name)】: \\(.url)\""'
+  re-cl: repo clone
+  # gh branch aliases
+  br-df: |
+    !f() {
+      local base_branch="${1:-main}"
+      local target_branch="${2:-HEAD}"
+      echo "=== DIFF CONTEXT ==="
+      echo "Base: $base_branch"
+      echo "Target: $target_branch"
+      echo "Repository: $(basename $(git rev-parse --show-toplevel))"
+      echo "=== CHANGES ==="
+      git diff "$base_branch...$target_branch"
+    }; f "$@"
+  pr-ls: |
+    !f() {
+      gh pr list --limit 20 --json number,title,author,headRefName,state \
+        --jq '.[] | {number, title, author: .author.login, branch: .headRefName, state}' | while read -r pr; do
+        num=$(echo "$pr" | jq -r ".number")
+        branch=$(echo "$pr" | jq -r ".branch")
+        mergeable=$(gh pr view "$num" --json mergeable --jq ".mergeable")
+
+        # Check running actions
+        running=$(gh run list --branch "$branch" --status in_progress --limit 1 --json databaseId | jq "length")
+        has_running_actions=$([ "$running" -gt 0 ] && echo "true" || echo "false")
+
+        # Check CI status (latest workflow run)
+        ci_status="none"
+        latest_run=$(gh run list --branch "$branch" --limit 1 --json status,conclusion 2>/dev/null || echo "[]")
+        if [ "$latest_run" != "[]" ] && [ "$(echo "$latest_run" | jq length)" -gt 0 ]; then
+          run_status=$(echo "$latest_run" | jq -r '.[0].status')
+          run_conclusion=$(echo "$latest_run" | jq -r '.[0].conclusion')
+          if [ "$run_status" = "completed" ]; then
+            ci_status="$run_conclusion"
+          else
+            ci_status="$run_status"
+          fi
+        fi
+
+        echo "$pr" | jq --arg mergeable "$mergeable" --arg has_running "$has_running_actions" \
+          --arg ci_status "$ci_status" '. + {mergeable: $mergeable, actions_in_progress: $has_running, ci_status: $ci_status}'
+      done
+    }; f
+  pr-ct: |
+    !f() {
+      local pr_id="$1"
+      if [ -z "$pr_id" ]; then
+        echo "Usage: gh pr-ds <pr-number>" >&2
+        return 1
+      fi
+      gh pr view "$pr_id" --json comments --jq '.comments[] | "[\(.author.login)] \(.body)"'
+    }; f "$@"
+  pr-mr: |
+    !f() {
+      local pr_id="$1"
+      if [ -z "$pr_id" ]; then
+        echo "Usage: gh pr-mr <pr-number>" >&2
+        return 1
+      fi
+      local mergeable
+      mergeable=$(gh pr view "$pr_id" --json mergeable --jq ".mergeable")
+      if [ "$mergeable" = "MERGEABLE" ]; then
+        echo "PR #$pr_id is MERGEABLE. Merging..."
+        gh pr merge "$pr_id"
+      else
+        echo "PR #$pr_id is not mergeable: $mergeable"
+        return 2
+      fi
+    }; f "$@"

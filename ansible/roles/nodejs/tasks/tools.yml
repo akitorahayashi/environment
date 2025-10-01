@@ -1,21 +1,24 @@
 ---
 - name: "Load packages JSON content"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/runtime/nodejs/global-packages.json"
-  register: node_pkg_file_raw
+    src: "{{ role_path }}/config/common/global-packages.json"
+  register: nodejs_pkg_file_raw
 
 - name: "Parse package JSON"
   ansible.builtin.set_fact:
-    node_pkg_content: "{{ node_pkg_file_raw.content | b64decode | from_json }}"
+    nodejs_pkg_content: "{{ nodejs_pkg_file_raw.content | b64decode | from_json }}"
 
 - name: "Combine dependency keys (dependencies and globalPackages)"
   ansible.builtin.set_fact:
-    node_packages_to_install: "{{ (node_pkg_content.dependencies | default({})) | combine(node_pkg_content.globalPackages | default({})) | dict2items | map(attribute='key') | list }}"
+    nodejs_packages_to_install: >-
+      {{ (nodejs_pkg_content.dependencies | default({}))
+         | combine(nodejs_pkg_content.globalPackages | default({}))
+         | dict2items | map(attribute='key') | list }}
 
 - name: "Install global Node.js packages"
   ansible.builtin.shell:
     cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g {{ item }}@latest"
-  loop: "{{ node_packages_to_install }}"
+  loop: "{{ nodejs_packages_to_install }}"
   changed_when: false
   environment:
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
@@ -24,7 +27,7 @@
 
 - name: "Create symlink for md-to-pdf config"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/runtime/nodejs/md-to-pdf-config.js"
+    src: "{{ role_path }}/config/common/md-to-pdf-config.js"
     dest: "{{ ansible_env.HOME }}/.md-to-pdf-config.js"
     state: link
     force: true

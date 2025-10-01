@@ -10,9 +10,6 @@ set dotenv-load
 repo_root := `pwd`
 playbook := repo_root / "ansible/playbook.yml"
 inventory := repo_root / "ansible/hosts"
-config_common := "config/common"
-config_macbook := "config/profiles/macbook"
-config_mac_mini := "config/profiles/mac-mini"
 
 
 # Show available recipes
@@ -47,7 +44,7 @@ common:
   @just cmn-cursor
   @just cmn-ruby
   @just cmn-aider
-  @just cmn-brew
+  @just cmn-brew-formulae
   @echo "✅ All common setup tasks completed successfully."
 
 # ------------------------------------------------------------------------------
@@ -58,14 +55,9 @@ cmn-apply-system:
   @echo "🚀 Applying common system defaults..."
   @just _run_ansible "system" "common" "system"
 
-# Setup common Homebrew packages (formulae and casks)
-cmn-brew:
-  @echo "🚀 Running Homebrew setup with config: {{config_common}}/brew"
-  @just _run_ansible "brew" "common" "brew"
-
 # Setup common Homebrew formulae packages only
-cmn-formulae:
-  @echo "  -> Running Homebrew formulae setup with config: {{config_common}}/brew"
+cmn-brew-formulae:
+  @echo "  -> Running Homebrew formulae setup with config: ansible/roles/brew/config"
   @just _run_ansible "brew" "common" "brew-formulae"
 
 # Configure VCS (Version Control Systems)
@@ -100,7 +92,7 @@ cmn-nodejs-platform:
 
 # Install Node.js tools only
 cmn-nodejs-tools:
-  @echo "🚀 Installing common Node.js tools from config: {{config_common}}/runtime"
+  @echo "🚀 Installing common Node.js tools from config: ansible/roles/nodejs/config/common"
   @just _run_ansible "nodejs" "common" "nodejs-tools"
 
 # Setup Python platform and tools
@@ -115,7 +107,7 @@ cmn-python-platform:
 
 # Install Python tools only
 cmn-python-tools:
-  @echo "🚀 Installing common Python tools from config: {{config_common}}/runtime"
+  @echo "🚀 Installing common Python tools from config: ansible/roles/python/config/common"
   @just _run_ansible "python" "common" "python-tools"
 
 # Setup Ruby environment with rbenv
@@ -179,7 +171,7 @@ cmn-aider:
   @just _run_ansible "python" "common" "python-aider"
 
 # Install common cask packages only
-cmn-cask:
+cmn-brew-cask:
   @echo "🚀 Installing common Brew Casks..."
   @just _run_ansible "brew" "common" "brew-cask"
 
@@ -192,7 +184,7 @@ cmn-docker-images:
 # MacBook-Specific Recipes
 # ------------------------------------------------------------------------------
 # Install MacBook-specific cask
-mbk-cask:
+mbk-brew-cask:
   @echo "🚀 Installing MacBook-specific Brew Casks..."
   @just _run_ansible "brew" "macbook" "brew-cask"
 
@@ -200,7 +192,7 @@ mbk-cask:
 # Mac Mini-Specific Recipes
 # ------------------------------------------------------------------------------
 
-mmn-cask:
+mmn-brew-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
   @just _run_ansible "brew" "mac-mini" "brew-cask"
 
@@ -237,22 +229,58 @@ sw-w:
 # Backup current macOS system defaults
 cmn-backup-system:
   @echo "🚀 Backing up current macOS system defaults..."
-  @{{repo_root}}/ansible/utils/backup-system.sh "{{config_common}}"
+  @{{repo_root}}/ansible/roles/system/utils/backup-system.sh "{{repo_root}}/ansible/roles/system/config/common"
   @echo "✅ macOS system defaults backup completed."
 
 # Backup current VSCode extensions
 cmn-backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."
-  @{{repo_root}}/ansible/utils/backup-extensions.sh "{{config_common}}"
+  @{{repo_root}}/ansible/roles/vscode/utils/backup-extensions.sh "{{repo_root}}/ansible/roles/vscode/config/common"
   @echo "✅ VSCode extensions backup completed."
 
+# ==============================================================================
+# CODE QUALITY
+# ==============================================================================
+
+# Format code with black and ruff --fix
+format:
+    @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
+    @uv run black tests/
+    @uv run ruff check tests/ --fix
+    @files=$(find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | grep -v "\.git" | grep -v async-sdd-slashes | grep -v "gemini.zsh"); echo "Found $(echo "$files" | wc -l) shell files to format"; for file in $files; do shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; done
+    @ansible-lint ansible/ --fix
+
+# Lint code with black check, ruff, shellcheck, and ansible-lint
+lint:
+    @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
+    @uv run black --check tests/
+    @uv run ruff check tests/
+    @files=$(find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | grep -v "\.git" | grep -v async-sdd-slashes | grep -v "gemini.zsh"); echo "Found $(echo "$files" | wc -l) shell files to lint"; for file in $files; do shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; done
+    @ansible-lint ansible/
+    
 # ------------------------------------------------------------------------------
 # Testing
 # ------------------------------------------------------------------------------
-# Run all tests under tests/ directory with python3
+# Run all tests under tests/ directory with pytest
 test:
   @echo "🧪 Running all tests under tests/ directory..."
-  @cd {{repo_root}} && python3 -m unittest discover -s tests -p "test_*.py" -v
+  @uv run pytest tests/
+
+# ==============================================================================
+# CLEANUP
+# ==============================================================================
+
+# Remove __pycache__ and .venv to make project lightweight
+clean:
+    @echo "🧹 Cleaning up project..."
+    @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    @rm -rf .venv
+    @rm -rf .pytest_cache
+    @rm -rf .ruff_cache
+    @rm -rf .aider.tags.cache.v4
+    @rm -rf .serena/cache
+    @rm -rf .tmp
+    @echo "✅ Cleanup completed"
 
 # ------------------------------------------------------------------------------
 # Hidden Recipes
@@ -262,4 +290,4 @@ _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
-  ~/.local/pipx/venvs/ansible/bin/ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "config_dir_abs_path={{repo_root}}/config/common" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}
+  ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}

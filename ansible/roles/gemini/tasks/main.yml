@@ -3,16 +3,16 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.gemini"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Find Gemini config files (flat)"
   ansible.builtin.find:
-    paths: "{{ config_dir_abs_path }}/aiding/gemini"
+    paths: "{{ role_path }}/config/common"
     patterns:
       - "*.json"
       - "*.md"
     file_type: file
-    recurse: no
+    recurse: false
   register: gemini_files_flat
 
 - name: "Symlink Gemini config files (flat)"
@@ -33,7 +33,7 @@
 
 - name: "Read Gemini settings configuration"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/aiding/gemini/settings.json"
+    src: "{{ role_path }}/config/common/settings.json"
   register: gemini_settings_config
   when: gemini_cli_check.rc == 0
 
@@ -46,11 +46,11 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.gemini/commands"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Symlink Gemini AGENTS file"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/aiding/gemini/GEMINI.md"
+    src: "{{ role_path }}/config/common/GEMINI.md"
     dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
     state: link
     force: true

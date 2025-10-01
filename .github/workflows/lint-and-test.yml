@@ -1,0 +1,40 @@
+name: Lint and Test
+
+on:
+  workflow_call:
+
+jobs:
+  lint-and-test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+
+      - name: Install uv
+        run: pipx install uv
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Run tests
+        run: just test
+
+      - name: Install linting tools
+        run: |
+          brew install shellcheck
+          pipx install ansible
+          pipx inject ansible ansible-lint
+          echo "$HOME/.local/pipx/venvs/ansible/bin" >> $GITHUB_PATH
+
+      - name: Run Linters
+        run: just lint

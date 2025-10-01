@@ -54,35 +54,14 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "[WARN] Homebrew command not available; subsequent installs may fail."; \
 	fi
 
-	@if ! command -v git &> /dev/null; then \
-		echo "[INSTALL] git..."; \
-		brew install git; \
-	else \
-		echo "[SUCCESS] git is already installed."; \
-	fi
+	@echo "[INSTALL] git, just, pipx..."; \
+	brew install git just pipx; \
+	export PATH="$$HOME/.local/bin:$$PATH"
 
-	@if ! command -v just &> /dev/null; then \
-		echo "    [INSTALL] just..."; \
-		brew install just; \
-	else \
-		echo "[SUCCESS] just is already installed."; \
-	fi
-
-	@if ! command -v pipx &> /dev/null; then \
-		echo "[INSTALL] pipx..."; \
-		brew install pipx; \
-		export PATH="$$HOME/.local/bin:$$PATH"; \
-	else \
-		echo "[SUCCESS] pipx is already installed."; \
-	fi
-
-	@if ! command -v ansible &> /dev/null; then \
-		echo "[INSTALL] ansible..."; \
-		pipx install ansible; \
-		export PATH="$$HOME/.local/bin:$$PATH"; \
-	else \
-		echo "[SUCCESS] ansible is already installed."; \
-	fi
+	@echo "[INSTALL] ansible and inject ansible-lint..."; \
+	pipx install ansible; \
+	pipx inject ansible ansible-lint
+	export PATH="$$HOME/.local/pipx/venvs/ansible/bin:$$PATH"
 
 	@if [ -d .git ]; then \
 		if command -v git &> /dev/null; then \
@@ -100,14 +79,12 @@ base: ## Installs Homebrew and the 'just' command runner
 macbook: ## Runs the full setup for a MacBook (requires 'base' to be run first)
 	@echo "🚀 Handing over to just for MacBook setup..."
 	@just common
-	@just mbk-cask
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
 mac-mini: ## Runs the full setup for a Mac mini (requires 'base' to be run first)
 	@echo "🚀 Handing over to just for Mac mini setup..."
 	@just common
-	@just mmn-cask
 	@echo "✅ Mac mini full setup completed successfully."
 
 .PHONY: system-backup

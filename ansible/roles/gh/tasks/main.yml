@@ -8,11 +8,11 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/gh"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: "Symlink gh config.yml"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/gh/config.yml"
+    src: "{{ role_path }}/config/common/config.yml"
     dest: "{{ ansible_env.HOME }}/.config/gh/config.yml"
     state: link
     force: true
