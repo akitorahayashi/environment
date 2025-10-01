@@ -49,7 +49,7 @@ jobs:
       - name: Verify system defaults application
         run: |
           just cmn-backup-system
-          git diff --exit-code config/common/system/system.yml
+          git diff --exit-code ansible/roles/system/config/common/system.yml
 
       - name: Setup GitHub authentication for Homebrew
         run: |
