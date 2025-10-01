@@ -7,7 +7,7 @@
 - name: "Substitute environment variables in MCP configuration"
   ansible.builtin.replace:
     path: "{{ ansible_env.HOME }}/.mcp.json"
-    regexp: '<GITHUB_PERSONAL_ACCESS_TOKEN>'
+    regexp: '\$\{GITHUB_PERSONAL_ACCESS_TOKEN\}'
     replace: "{{ lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') }}"
   when: lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') != ""
 
