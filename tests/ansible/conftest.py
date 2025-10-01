@@ -10,7 +10,9 @@ from typing import Dict, Iterable, Iterator, List, Mapping
 import pytest
 import yaml
 
-RUN_ANSIBLE_PATTERN = r"@just\s+_run_ansible\s+\"([^\"]+)\"\s+\"([^\"]+)\"\s+\"([^\"]+)\""
+RUN_ANSIBLE_PATTERN = (
+    r"@just\s+_run_ansible\s+\"([^\"]+)\"\s+\"([^\"]+)\"\s+\"([^\"]+)\""
+)
 
 
 @dataclass(frozen=True)
@@ -112,7 +114,9 @@ def load_role_task_files(roles_root: Path) -> List[RoleTaskFile]:
                 if document is None:
                     continue
                 if isinstance(document, list):
-                    task_items.extend(doc for doc in document if isinstance(doc, Mapping))
+                    task_items.extend(
+                        doc for doc in document if isinstance(doc, Mapping)
+                    )
                 elif isinstance(document, Mapping):
                     task_items.append(document)
             task_files.append(
@@ -126,13 +130,13 @@ def load_role_task_files(roles_root: Path) -> List[RoleTaskFile]:
     return task_files
 
 
-def iter_role_tasks(role_task_files: Iterable[RoleTaskFile]) -> Iterator[Mapping[str, object]]:
+def iter_role_tasks(
+    role_task_files: Iterable[RoleTaskFile],
+) -> Iterator[Mapping[str, object]]:
     """Yield individual task dictionaries from an iterable of `RoleTaskFile`."""
     for task_file in role_task_files:
         for task in task_file.tasks:
             yield task
-
-
 
 
 @pytest.fixture(scope="session")
@@ -158,19 +162,21 @@ def ansible_role_tasks(project_root: Path) -> List[RoleTaskFile]:
     """Collection of parsed Ansible role task files for downstream tests."""
     roles_root = project_root / "ansible" / "roles"
     if not roles_root.exists():
-        raise FileNotFoundError(f"Unable to locate Ansible roles directory at {roles_root}")
+        raise FileNotFoundError(
+            f"Unable to locate Ansible roles directory at {roles_root}"
+        )
     return load_role_task_files(roles_root)
 
 
 @pytest.fixture(scope="session")
-def ansible_tasks_by_role(ansible_role_tasks: List[RoleTaskFile]) -> Dict[str, List[RoleTaskFile]]:
+def ansible_tasks_by_role(
+    ansible_role_tasks: List[RoleTaskFile],
+) -> Dict[str, List[RoleTaskFile]]:
     """Convenience mapping of role name to its task files."""
     mapping: Dict[str, List[RoleTaskFile]] = defaultdict(list)
     for task_file in ansible_role_tasks:
         mapping[task_file.role].append(task_file)
     return dict(mapping)
-
-
 
 
 __all__ = [

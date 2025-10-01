@@ -4,8 +4,6 @@ from pathlib import Path
 import pytest
 
 
-
-
 @pytest.fixture(scope="session")
 def config_files_to_check(editor_config_dir: Path) -> list[Path]:
     """List all potential configuration files to be tested."""
@@ -37,7 +35,9 @@ def _create_test_id(path: Path, editor_config_dir: Path) -> str:
 
 
 class TestEditorConfigs:
-    def test_editor_config_json_syntax(self, existing_config_files: list[Path], editor_config_dir: Path) -> None:
+    def test_editor_config_json_syntax(
+        self, existing_config_files: list[Path], editor_config_dir: Path
+    ) -> None:
         """Verify that all editor configuration files have valid JSON syntax."""
         if not existing_config_files:
             pytest.skip("No editor config files found to test.")
@@ -51,7 +51,9 @@ class TestEditorConfigs:
                         f"Invalid JSON syntax in {_create_test_id(config_path, editor_config_dir)}: {e}"
                     )
 
-    def test_extensions_json_schema(self, extensions_files: list[Path], editor_config_dir: Path) -> None:
+    def test_extensions_json_schema(
+        self, extensions_files: list[Path], editor_config_dir: Path
+    ) -> None:
         """
         Verify that extensions.json files have the correct schema:
         an object with an 'extensions' key holding a list of strings.
@@ -72,7 +74,9 @@ class TestEditorConfigs:
             assert isinstance(
                 data, dict
             ), f"{_create_test_id(extensions_path, editor_config_dir)} should be a JSON object."
-            assert "extensions" in data, f"Missing 'extensions' key in {_create_test_id(extensions_path, editor_config_dir)}."
+            assert (
+                "extensions" in data
+            ), f"Missing 'extensions' key in {_create_test_id(extensions_path, editor_config_dir)}."
 
             extensions_list = data["extensions"]
             assert isinstance(

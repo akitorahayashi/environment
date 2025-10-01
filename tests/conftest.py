@@ -38,6 +38,8 @@ def config_dir_abs_path(project_root: Path) -> Path:
 @pytest.fixture(scope="session")
 def profile_config_path(project_root: Path):
     """Factory fixture for profile-specific configuration paths."""
+
     def _profile_config_path(profile: str) -> Path:
         return project_root / "config" / "profiles" / profile
+
     return _profile_config_path

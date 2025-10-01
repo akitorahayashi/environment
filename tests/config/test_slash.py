@@ -43,7 +43,9 @@ class TestSlashIntegration:
 
         return result
 
-    def test_config_is_valid_and_assets_exist(self, slash_config_path: Path, slash_config_dir: Path) -> None:
+    def test_config_is_valid_and_assets_exist(
+        self, slash_config_path: Path, slash_config_dir: Path
+    ) -> None:
         """Validate configuration file and verify referenced assets exist."""
         # 1. Load and validate configuration file
         try:
@@ -63,11 +65,13 @@ class TestSlashIntegration:
             script_path = slash_config_dir / script_name
             assert script_path.is_file(), f"Script not found: {script_path}"
             mode = script_path.stat().st_mode
-            assert (
-                mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            assert mode & (
+                stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
             ), f"Script is not executable: {script_path}"
 
-    def _validate_schema_and_prompts(self, data: Dict[str, Any], slash_config_dir: Path) -> None:
+    def _validate_schema_and_prompts(
+        self, data: Dict[str, Any], slash_config_dir: Path
+    ) -> None:
         """Validate configuration schema and verify prompt files exist."""
         assert "commands" in data, "Top-level 'commands' object is missing."
         commands = data["commands"]
@@ -81,12 +85,16 @@ class TestSlashIntegration:
 
             for field in required_fields:
                 assert field in spec, f"Command '{name}' is missing '{field}'."
-                assert isinstance(spec[field], str), f"'{field}' in '{name}' must be a string."
+                assert isinstance(
+                    spec[field], str
+                ), f"'{field}' in '{name}' must be a string."
 
             # Verify prompt file exists and is in correct directory
             prompt_file = spec["prompt-file"]
             prompt_path = (slash_config_dir / prompt_file).resolve()
-            assert prompt_path.is_file(), f"Prompt file for '{name}' not found: {prompt_file}"
+            assert (
+                prompt_path.is_file()
+            ), f"Prompt file for '{name}' not found: {prompt_file}"
             assert (
                 base_resolved in prompt_path.parents
             ), f"Prompt file for '{name}' must be within {slash_config_dir}"

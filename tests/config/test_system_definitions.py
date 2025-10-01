@@ -47,6 +47,6 @@ class TestSystemDefinitions:
                     dict,
                 ), f"Definition #{i+1} in {file_basename} is not a dictionary."
                 for key in required_keys:
-                    assert key in definition, (
-                        f"Missing required key '{key}' in definition #{i+1} in {file_basename}."
-                    )
+                    assert (
+                        key in definition
+                    ), f"Missing required key '{key}' in definition #{i+1} in {file_basename}."

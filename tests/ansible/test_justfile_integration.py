@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from pathlib import Path
 from typing import Dict, Mapping, Sequence, Set
 
 import pytest
@@ -108,7 +107,9 @@ class TestJustfileAnsibleIntegration:
 
                 # Tag is valid if it's either in task definitions OR role is listed for this tag in playbook
                 # (because playbook-level role tags are automatically inherited by all tasks)
-                has_explicit_tag = any(tag in _extract_task_tags(task) for task in all_tasks)
+                has_explicit_tag = any(
+                    tag in _extract_task_tags(task) for task in all_tasks
+                )
                 has_inherited_tag = role in ansible_playbook_mapping.get(tag, [])
 
                 if not (has_explicit_tag or has_inherited_tag):
@@ -129,12 +130,12 @@ class TestJustfileAnsibleIntegration:
     ) -> None:
         for invocation in parsed_justfile:
             roles_for_tag = ansible_playbook_mapping.get(invocation.tag)
-            assert roles_for_tag, (
-                "Tag '{tag}' from recipe '{recipe}' (justfile:{line}) is not declared in ansible/playbook.yml".format(
-                    tag=invocation.tag,
-                    recipe=invocation.recipe,
-                    line=invocation.line_number,
-                )
+            assert (
+                roles_for_tag
+            ), "Tag '{tag}' from recipe '{recipe}' (justfile:{line}) is not declared in ansible/playbook.yml".format(
+                tag=invocation.tag,
+                recipe=invocation.recipe,
+                line=invocation.line_number,
             )
             assert invocation.role in roles_for_tag, (
                 "Tag '{tag}' from recipe '{recipe}' targets role '{role}',"
