@@ -8,13 +8,12 @@ The SDD process is structured around specialized roles, each contributing to a p
 
 ## SDD Files
 
-- **sdd-0-act.md**: IT Consultant - Sets up the thinking mindset for SDD, emphasizing logging and active problem-solving.
-- **sdd-1-rq.md**: Business Analyst - Extracts and defines requirements from discussion logs into a clear document.
-- **sdd-2-d.md**: Software Architect - Outlines the solution architecture and implementation plan.
-- **sdd-3-td.md**: QA Engineer - Plans testing strategies and coverage.
-- **sdd-4-tk.md**: Engineering Manager - Breaks down tasks into phases and assigns agents.
-- **sdd-5-pm.md**: Prompt Engineer - Creates activation prompts for agents based on tasks.
-- **sdd-6-dc.md**: Document Manager - Recommends documentation integration and updates.
+- **sdd-0-rq.md**: Business Analyst - Extracts and defines requirements from discussion logs into a clear document.
+- **sdd-1-d.md**: Software Architect - Outlines the solution architecture and implementation plan.
+- **sdd-2-td.md**: QA Engineer - Plans testing strategies and coverage.
+- **sdd-3-tk.md**: Engineering Manager - Breaks down tasks into phases and assigns agents.
+- **sdd-4-pm.md**: Prompt Engineer - Creates activation prompts for agents based on tasks.
+- **sdd-5-dc.md**: Document Manager - Recommends documentation integration and updates.
 
 ## Usage
 

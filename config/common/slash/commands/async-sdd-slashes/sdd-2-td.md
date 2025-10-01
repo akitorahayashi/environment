@@ -6,14 +6,15 @@ QA Engineer
 
 ## Context
 
-- Requirements, design details, and any other artefacts stored in `.tmp/`
+- `.tmp/requirements.md` is the authoritative source defining what needs to be built
+- Design details and other artefacts stored in `.tmp/`
 
 ## Your task
 
 ### 1. Review design inputs
 
 - Rely on `.tmp/requirements.md` for the definitive scope
-- Use `.tmp/design.md` when present, and skim `.tmp/minutes.md` or other notes only for supporting background
+- Use `.tmp/design.md` when present, and review other notes in `.tmp/` only for supporting background
 
 ### 2. Plan the tests
 

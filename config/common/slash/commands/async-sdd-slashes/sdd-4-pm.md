@@ -6,6 +6,7 @@ Prompt Engineer
 
 ## Context
 
+- `.tmp/requirements.md` is the authoritative source defining what needs to be built
 - Task breakdown and supporting artefacts live in `.tmp/`
 
 ## Your task

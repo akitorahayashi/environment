@@ -6,14 +6,15 @@ Software Architect
 
 ## Context
 
-- Requirements and other reference material stored in `.tmp/`
+- `.tmp/requirements.md` is the authoritative source defining what needs to be built
+- Other reference materials stored in `.tmp/`
 
 ## Your task
 
 ### 1. Review available inputs
 
 - Start from `.tmp/requirements.md` (if present) as the authoritative brief
-- Skim `.tmp/minutes.md` or other notes only for background context or open questions
+- Review other reference materials in `.tmp/` for background context
 - Fill gaps by asking clarifying questions only when needed
 
 ### 2. Outline the solution

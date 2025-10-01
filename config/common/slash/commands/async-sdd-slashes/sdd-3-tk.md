@@ -6,7 +6,8 @@ Engineering Manager
 
 ## Context
 
-- Requirements, design notes, test plans, and other artefacts stored in `.tmp/`
+- `.tmp/requirements.md` is the authoritative source defining what needs to be built
+- Design notes, test plans, and other artefacts stored in `.tmp/`
 
 ## Your task
 
@@ -15,7 +16,7 @@ Create `.tmp/tasks.think.md` and log your reasoning as you progress. For each st
 ### 1. Gather the inputs
 
 - Start from `.tmp/requirements.md` as the core brief
-- Use `.tmp/design.md`, `.tmp/test_design.md`, `.tmp/minutes.md`, or other notes only to supplement the plan when they exist
+- Use `.tmp/design.md`, `.tmp/test_design.md`, or other notes in `.tmp/` only to supplement the plan when they exist
 - Record key context in `.tmp/tasks.think.md` under `## Step 1: Gather the inputs` before progressing.
 
 ### 2. Map conflicts before planning
