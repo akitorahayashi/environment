@@ -22,9 +22,9 @@ fi
 # 1. Grant execution permission:
 #    $ chmod +x ansible/utils/backup-extensions.sh
 # 2. Run the script:
-#    $ ./ansible/utils/backup-extensions.sh config/common
+#    $ ./ansible/utils/backup-extensions.sh ansible/roles/vscode/config/common
 #
-# The script will create/update config/common/vscode/extensions/extensions.json with the current list of VSCode extensions.
+# The script will create/update ansible/roles/vscode/config/common/extensions.json with the current list of VSCode extensions.
 #
 # ================================================
 
@@ -32,7 +32,7 @@ fi
 # Backup file path
 
 # Set output file path
-EXT_FILE="$CONFIG_DIR/editor/vscode/extensions.json"
+EXT_FILE="$CONFIG_DIR/extensions.json"
 mkdir -p "$(dirname "$EXT_FILE")"
 
 # Detect VSCode command

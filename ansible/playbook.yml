@@ -2,11 +2,6 @@
 - name: Setup macOS development environment
   hosts: localhost
   connection: local
-
-  vars:
-    # This 'config_dir' variable is passed from the justfile
-    config_dir_abs_path: "{{ config_dir_abs_path }}"
-
   roles:
     - { role: brew, tags: ["brew", "brew-formulae", "brew-cask"] }
     - { role: python, tags: ["python", "python-platform", "python-tools", "python-aider"] }

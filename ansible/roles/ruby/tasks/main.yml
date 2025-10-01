@@ -1,7 +1,7 @@
 ---
 - name: "Set Ruby version variable from file"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/runtime/ruby/.ruby-version"
+    src: "{{ role_path }}/config/common/.ruby-version"
   register: ruby_version_file
 
 - name: "Set Ruby version fact"

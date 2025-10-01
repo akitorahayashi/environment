@@ -10,9 +10,6 @@ set dotenv-load
 repo_root := `pwd`
 playbook := repo_root / "ansible/playbook.yml"
 inventory := repo_root / "ansible/hosts"
-config_common := "config/common"
-config_macbook := "config/profiles/macbook"
-config_mac_mini := "config/profiles/mac-mini"
 
 
 # Show available recipes
@@ -60,7 +57,7 @@ cmn-apply-system:
 
 # Setup common Homebrew formulae packages only
 cmn-brew-formulae:
-  @echo "  -> Running Homebrew formulae setup with config: {{config_common}}/brew"
+  @echo "  -> Running Homebrew formulae setup with config: ansible/roles/brew/config"
   @just _run_ansible "brew" "common" "brew-formulae"
 
 # Configure VCS (Version Control Systems)
@@ -95,7 +92,7 @@ cmn-nodejs-platform:
 
 # Install Node.js tools only
 cmn-nodejs-tools:
-  @echo "🚀 Installing common Node.js tools from config: {{config_common}}/runtime"
+  @echo "🚀 Installing common Node.js tools from config: ansible/roles/nodejs/config/common"
   @just _run_ansible "nodejs" "common" "nodejs-tools"
 
 # Setup Python platform and tools
@@ -110,7 +107,7 @@ cmn-python-platform:
 
 # Install Python tools only
 cmn-python-tools:
-  @echo "🚀 Installing common Python tools from config: {{config_common}}/runtime"
+  @echo "🚀 Installing common Python tools from config: ansible/roles/python/config/common"
   @just _run_ansible "python" "common" "python-tools"
 
 # Setup Ruby environment with rbenv
@@ -232,13 +229,13 @@ sw-w:
 # Backup current macOS system defaults
 cmn-backup-system:
   @echo "🚀 Backing up current macOS system defaults..."
-  @{{repo_root}}/ansible/utils/backup-system.sh "{{config_common}}"
+  @{{repo_root}}/ansible/utils/backup-system.sh "{{repo_root}}/ansible/roles/system/config/common"
   @echo "✅ macOS system defaults backup completed."
 
 # Backup current VSCode extensions
 cmn-backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."
-  @{{repo_root}}/ansible/utils/backup-extensions.sh "{{config_common}}"
+  @{{repo_root}}/ansible/utils/backup-extensions.sh "{{repo_root}}/ansible/roles/vscode/config/common"
   @echo "✅ VSCode extensions backup completed."
 
 # ==============================================================================
@@ -257,7 +254,7 @@ lint:
     @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
     @uv run black --check tests/
     @uv run ruff check tests/
-    @shellcheck ansible/utils/backup-extensions.sh ansible/utils/backup-system.sh config/common/slash/claude.sh config/common/slash/codex.sh config/common/slash/gemini.sh
+    @shellcheck ansible/utils/backup-extensions.sh ansible/utils/backup-system.sh ansible/roles/slash/config/common/claude.sh ansible/roles/slash/config/common/codex.sh ansible/roles/slash/config/common/gemini.sh
     @ansible-lint ansible/
     
 # ------------------------------------------------------------------------------
@@ -292,4 +289,4 @@ _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
-  ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "config_dir_abs_path={{repo_root}}/config/common" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}
+  ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}

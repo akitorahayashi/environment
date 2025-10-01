@@ -1,7 +1,7 @@
 ---
 - name: "Ensure slash generator scripts are executable"
   ansible.builtin.file:
-    path: "{{ config_dir_abs_path }}/slash/{{ item }}"
+    path: "{{ role_path }}/config/common/{{ item }}"
     mode: "0755"
   loop:
     - claude.sh
@@ -11,7 +11,7 @@
 - name: "Regenerate slash commands"
   ansible.builtin.command:
     argv:
-      - "{{ config_dir_abs_path }}/slash/{{ item }}"
+      - "{{ role_path }}/config/common/{{ item }}"
   args:
     chdir: "{{ repo_root_path }}"
   loop:

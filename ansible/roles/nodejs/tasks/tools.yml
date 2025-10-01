@@ -1,7 +1,7 @@
 ---
 - name: "Load packages JSON content"
   ansible.builtin.slurp:
-    src: "{{ config_dir_abs_path }}/runtime/nodejs/global-packages.json"
+    src: "{{ role_path }}/config/common/global-packages.json"
   register: nodejs_pkg_file_raw
 
 - name: "Parse package JSON"
@@ -27,7 +27,7 @@
 
 - name: "Create symlink for md-to-pdf config"
   ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/runtime/nodejs/md-to-pdf-config.js"
+    src: "{{ role_path }}/config/common/md-to-pdf-config.js"
     dest: "{{ ansible_env.HOME }}/.md-to-pdf-config.js"
     state: link
     force: true

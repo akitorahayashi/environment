@@ -1,19 +1,20 @@
 import json
 from pathlib import Path
+from typing import Dict
 
 import pytest
 
 
 @pytest.fixture(scope="session")
-def config_files_to_check(editor_config_dir: Path) -> list[Path]:
+def config_files_to_check(editor_config_dirs: Dict[str, Path]) -> list[Path]:
     """List all potential configuration files to be tested."""
     return [
-        editor_config_dir / "vscode/settings.json",
-        editor_config_dir / "vscode/keybindings.json",
-        editor_config_dir / "vscode/extensions.json",
-        editor_config_dir / "cursor/extensions.json",
-        editor_config_dir / "cursor/settings.json",
-        editor_config_dir / "cursor/keybindings.json",
+        editor_config_dirs["vscode"] / "settings.json",
+        editor_config_dirs["vscode"] / "keybindings.json",
+        editor_config_dirs["vscode"] / "extensions.json",
+        editor_config_dirs["cursor"] / "extensions.json",
+        editor_config_dirs["cursor"] / "settings.json",
+        editor_config_dirs["cursor"] / "keybindings.json",
     ]
 
 
@@ -29,14 +30,18 @@ def extensions_files(existing_config_files: list[Path]) -> list[Path]:
     return [p for p in existing_config_files if "extensions.json" in p.name]
 
 
-def _create_test_id(path: Path, editor_config_dir: Path) -> str:
+def _create_test_id(path: Path, editor_config_dirs: Dict[str, Path]) -> str:
     """Create a shorter, more readable test ID from the file path."""
-    return str(path.relative_to(editor_config_dir))
+    for name, base_dir in editor_config_dirs.items():
+        if base_dir in path.parents or path == base_dir:
+            relative = path.relative_to(base_dir)
+            return f"{name}/{relative}"
+    return str(path)
 
 
 class TestEditorConfigs:
     def test_editor_config_json_syntax(
-        self, existing_config_files: list[Path], editor_config_dir: Path
+        self, existing_config_files: list[Path], editor_config_dirs: Dict[str, Path]
     ) -> None:
         """Verify that all editor configuration files have valid JSON syntax."""
         if not existing_config_files:
@@ -48,11 +53,11 @@ class TestEditorConfigs:
                     json.load(f)
                 except json.JSONDecodeError as e:
                     pytest.fail(
-                        f"Invalid JSON syntax in {_create_test_id(config_path, editor_config_dir)}: {e}"
+                        f"Invalid JSON syntax in {_create_test_id(config_path, editor_config_dirs)}: {e}"
                     )
 
     def test_extensions_json_schema(
-        self, extensions_files: list[Path], editor_config_dir: Path
+        self, extensions_files: list[Path], editor_config_dirs: Dict[str, Path]
     ) -> None:
         """
         Verify that extensions.json files have the correct schema:
@@ -68,24 +73,24 @@ class TestEditorConfigs:
                 except json.JSONDecodeError as e:
                     # This case is covered by the syntax test, but fail here to be explicit.
                     pytest.fail(
-                        f"Invalid JSON in {_create_test_id(extensions_path, editor_config_dir)}: {e}"
+                        f"Invalid JSON in {_create_test_id(extensions_path, editor_config_dirs)}: {e}"
                     )
 
             assert isinstance(
                 data, dict
-            ), f"{_create_test_id(extensions_path, editor_config_dir)} should be a JSON object."
+            ), f"{_create_test_id(extensions_path, editor_config_dirs)} should be a JSON object."
             assert (
                 "extensions" in data
-            ), f"Missing 'extensions' key in {_create_test_id(extensions_path, editor_config_dir)}."
+            ), f"Missing 'extensions' key in {_create_test_id(extensions_path, editor_config_dirs)}."
 
             extensions_list = data["extensions"]
             assert isinstance(
                 extensions_list,
                 list,
-            ), f"'extensions' value in {_create_test_id(extensions_path, editor_config_dir)} should be a list."
+            ), f"'extensions' value in {_create_test_id(extensions_path, editor_config_dirs)} should be a list."
 
             for item in extensions_list:
                 assert isinstance(
                     item,
                     str,
-                ), f"All items in the 'extensions' list in {_create_test_id(extensions_path, editor_config_dir)} should be strings."
+                ), f"All items in the 'extensions' list in {_create_test_id(extensions_path, editor_config_dirs)} should be strings."

@@ -5,19 +5,23 @@ import pytest
 
 
 @pytest.fixture(scope="session")
-def version_files(runtime_config_dir: Path) -> list[Path]:
+def version_files(runtime_config_dirs: dict[str, Path]) -> dict[str, Path]:
     """Define the relative paths to the version files."""
-    return [
-        runtime_config_dir / "python/.python-version",
-        runtime_config_dir / "ruby/.ruby-version",
-        runtime_config_dir / "nodejs/.nvmrc",
-    ]
+    return {
+        "python": runtime_config_dirs["python"] / ".python-version",
+        "ruby": runtime_config_dirs["ruby"] / ".ruby-version",
+        "nodejs": runtime_config_dirs["nodejs"] / ".nvmrc",
+    }
 
 
 @pytest.fixture(scope="session")
-def existing_files(version_files: list[Path]) -> dict[str, Path]:
+def existing_files(version_files: dict[str, Path]) -> dict[str, Path]:
     """Filter for files that actually exist to prevent test errors."""
-    return {path.name: path for path in version_files if path.exists()}
+    return {
+        name: path
+        for name, path in version_files.items()
+        if path.exists()
+    }
 
 
 class TestRuntimeVersions:
