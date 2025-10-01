@@ -1,4 +1,4 @@
-name: Setup Node.js and AI Tools
+name: Setup Node.js and LLM Tools
 
 on:
   workflow_call:
@@ -29,9 +29,6 @@ jobs:
 
       - name: Setup Codex
         run: just cmn-codex
-
-      - name: Verify slash config
-        run: python3 -m unittest tests.slash.test_slash
 
       - name: Setup slash commands
         run: just cmn-slash

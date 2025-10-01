@@ -1,34 +1,39 @@
 import json
-import os
-import unittest
+from pathlib import Path
 
-# Get the absolute path to the project root
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-SERVERS_JSON_PATH = os.path.join(PROJECT_ROOT, 'config/common/mcp/servers.json')
+import pytest
 
-class TestMcpServers(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        """Set up the test class by loading the server data once."""
-        if not os.path.exists(SERVERS_JSON_PATH):
-            raise FileNotFoundError(f"File not found: {SERVERS_JSON_PATH}")
-        
-        with open(SERVERS_JSON_PATH, 'r') as f:
-            try:
-                cls.data = json.load(f)
-            except json.JSONDecodeError as e:
-                raise AssertionError(f"Invalid JSON syntax in {SERVERS_JSON_PATH}: {e}") from e
+@pytest.fixture(scope="session")
+def servers_json_path(mcp_config_dir: Path) -> Path:
+    """Path to the mcp/servers.json file."""
+    return mcp_config_dir / "servers.json"
 
-    def test_mcp_servers_structure(self):
+
+@pytest.fixture(scope="session")
+def servers_data(servers_json_path: Path) -> dict:
+    """Load the servers data from the JSON file."""
+    if not servers_json_path.exists():
+        raise FileNotFoundError(f"File not found: {servers_json_path}")
+
+    with servers_json_path.open("r") as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            raise AssertionError(f"Invalid JSON syntax in {servers_json_path}: {e}") from e
+    return data
+
+
+class TestMcpServers:
+    def test_mcp_servers_structure(self, servers_data: dict) -> None:
         """Verify that the JSON root is an object with an 'mcpServers' key."""
-        self.assertIsInstance(self.data, dict, "Root of JSON should be an object.")
-        self.assertIn("mcpServers", self.data, "Missing 'mcpServers' key in the root object.")
-        self.assertIsInstance(self.data["mcpServers"], dict, "'mcpServers' should be an object.")
+        assert isinstance(servers_data, dict), "Root of JSON should be an object."
+        assert "mcpServers" in servers_data, "Missing 'mcpServers' key in the root object."
+        assert isinstance(servers_data["mcpServers"], dict), "'mcpServers' should be an object."
 
-    def test_mcp_server_definitions(self):
+    def test_mcp_server_definitions(self, servers_data: dict) -> None:
         """Check that each server definition has the required fields and correct types."""
-        servers = self.data.get("mcpServers", {})
+        servers = servers_data.get("mcpServers", {})
         required_fields = {
             "type": str,
             "command": str,
@@ -37,21 +42,22 @@ class TestMcpServers(unittest.TestCase):
         }
 
         for server_name, server_config in servers.items():
-            with self.subTest(msg=f"Testing server: {server_name}"):
-                self.assertIsInstance(server_config, dict, f"Server '{server_name}' config should be an object.")
+            assert isinstance(server_config, dict), f"Server '{server_name}' config should be an object."
 
-                for field, field_type in required_fields.items():
-                    self.assertIn(field, server_config, f"Server '{server_name}' is missing required field '{field}'.")
-                    self.assertIsInstance(server_config[field], field_type,
-                        f"Server '{server_name}' field '{field}' should be of type {field_type.__name__}, but got {type(server_config[field]).__name__}.")
+            for field, field_type in required_fields.items():
+                assert field in server_config, f"Server '{server_name}' is missing required field '{field}'."
+                assert isinstance(
+                    server_config[field],
+                    field_type,
+                ), (
+                    f"Server '{server_name}' field '{field}' should be of type {field_type.__name__}, "
+                    f"but got {type(server_config[field]).__name__}."
+                )
 
-                # Check that all elements in 'args' are strings.
-                for arg in server_config["args"]:
-                    self.assertIsInstance(arg, str, f"All items in 'args' for server '{server_name}' should be strings.")
+            # Check that all elements in 'args' are strings.
+            for arg in server_config["args"]:
+                assert isinstance(arg, str), f"All items in 'args' for server '{server_name}' should be strings."
 
-                # If the 'env' field exists, check that it is an object.
-                if "env" in server_config:
-                    self.assertIsInstance(server_config["env"], dict, f"Server '{server_name}' field 'env' should be an object.")
-
-if __name__ == '__main__':
-    unittest.main()
+            # If the 'env' field exists, check that it is an object.
+            if "env" in server_config:
+                assert isinstance(server_config["env"], dict), f"Server '{server_name}' field 'env' should be an object."

@@ -249,10 +249,10 @@ cmn-backup-vscode-extensions:
 # ------------------------------------------------------------------------------
 # Testing
 # ------------------------------------------------------------------------------
-# Run all tests under tests/ directory with python3
+# Run all tests under tests/ directory with pytest
 test:
   @echo "🧪 Running all tests under tests/ directory..."
-  @cd {{repo_root}} && python3 -m unittest discover -s tests -p "test_*.py" -v
+  @uv run pytest tests/
 
 # ------------------------------------------------------------------------------
 # Hidden Recipes

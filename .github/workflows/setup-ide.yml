@@ -18,6 +18,5 @@ jobs:
       - name: Setup VSCode configuration
         run: just cmn-vscode
 
-
       - name: Setup Cursor configuration
         run: just cmn-cursor

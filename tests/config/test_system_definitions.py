@@ -1,46 +1,52 @@
-import os
 import glob
-import unittest
+import os
+from pathlib import Path
+
+import pytest
 import yaml
 
-# Define the absolute path to the project root and the definitions directory.
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-DEFINITIONS_PATH = os.path.join(PROJECT_ROOT, 'config/common/system/definitions/')
 
-# Discover all .yml files in the target directory to be used in tests.
-YML_FILES = glob.glob(os.path.join(DEFINITIONS_PATH, '*.yml'))
+@pytest.fixture(scope="session")
+def definitions_path(system_config_dir: Path) -> Path:
+    """Path to the system definitions directory."""
+    return system_config_dir / "definitions/"
 
-class TestSystemDefinitions(unittest.TestCase):
 
-    def test_definitions(self):
+@pytest.fixture(scope="session")
+def yml_files(definitions_path: Path) -> list[str]:
+    """Discover all .yml files in the target directory to be used in tests."""
+    return glob.glob(os.path.join(definitions_path, "*.yml"))
+
+
+class TestSystemDefinitions:
+    def test_definitions(self, yml_files: list[str]) -> None:
         """
         Verify syntax and schema for all system definition .yml files.
         """
-        if not YML_FILES:
-            self.skipTest("No .yml definition files found to test.")
+        if not yml_files:
+            pytest.skip("No .yml definition files found to test.")
 
-        for yaml_file_path in YML_FILES:
+        for yaml_file_path in yml_files:
             file_basename = os.path.basename(yaml_file_path)
-            with self.subTest(msg=f"Testing file: {file_basename}"):
-                with open(yaml_file_path, 'r') as f:
-                    try:
-                        data = yaml.safe_load(f)
-                    except yaml.YAMLError as e:
-                        self.fail(f"Invalid YAML syntax in {file_basename}: {e}")
+            with open(yaml_file_path, "r") as f:
+                try:
+                    data = yaml.safe_load(f)
+                except yaml.YAMLError as e:
+                    pytest.fail(f"Invalid YAML syntax in {file_basename}: {e}")
 
-                if data is None:
-                    # Skip empty files, they are valid but have no schema to check
-                    continue
+            if data is None:
+                # Skip empty files, they are valid but have no schema to check
+                continue
 
-                definitions = data if isinstance(data, list) else [data]
-                required_keys = ["key", "domain", "type", "default"]
+            definitions = data if isinstance(data, list) else [data]
+            required_keys = ["key", "domain", "type", "default"]
 
-                for i, definition in enumerate(definitions):
-                    self.assertIsInstance(definition, dict,
-                        f"Definition #{i+1} in {file_basename} is not a dictionary.")
-                    for key in required_keys:
-                        self.assertIn(key, definition,
-                            f"Missing required key '{key}' in definition #{i+1} in {file_basename}.")
-
-if __name__ == '__main__':
-    unittest.main()
+            for i, definition in enumerate(definitions):
+                assert isinstance(
+                    definition,
+                    dict,
+                ), f"Definition #{i+1} in {file_basename} is not a dictionary."
+                for key in required_keys:
+                    assert key in definition, (
+                        f"Missing required key '{key}' in definition #{i+1} in {file_basename}."
+                    )
