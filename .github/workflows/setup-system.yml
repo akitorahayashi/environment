@@ -47,14 +47,14 @@ jobs:
         run: |
           just cmn-backup-system
           git diff --exit-code config/common/system/system.yml
-          
+
       - name: Setup GitHub authentication for Homebrew
         run: |
           echo "🔑 Setting up GitHub authentication for CI environment..."
           # Set authentication information in environment variables
-          echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          echo "HOMEBREW_GITHUB_API_TOKEN=${{ github.token }}" >> $GITHUB_ENV
           # Configure Git authentication
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: bearer ${{ github.token }}"
           echo "✅ GitHub authentication setup completed"
         shell: bash
 

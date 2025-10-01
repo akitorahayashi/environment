@@ -52,9 +52,9 @@ class TestSlashIntegration:
             with slash_config_path.open(encoding="utf-8") as f:
                 data = json.load(f, object_pairs_hook=self._object_pairs_hook)
         except json.JSONDecodeError as e:
-            assert False, f"Invalid JSON in {slash_config_path}: {e}"
-        except Exception as e:  # DuplicateKeyError is caught here
-            assert False, str(e)
+            pytest.fail(f"Invalid JSON in {slash_config_path}: {e}")
+        except DuplicateKeyError as e:
+            pytest.fail(str(e))
 
         # 2. Validate schema and check prompt files exist
         self._validate_schema_and_prompts(data, slash_config_dir)

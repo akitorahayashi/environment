@@ -24,5 +24,4 @@ jobs:
     uses: ./.github/workflows/setup-ide.yml
 
   setup-system:
-    secrets: inherit
     uses: ./.github/workflows/setup-system.yml

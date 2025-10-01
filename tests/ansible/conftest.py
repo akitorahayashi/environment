@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -38,7 +39,6 @@ class RoleTaskFile:
 
 def parse_justfile_run_ansible_calls(justfile_path: Path) -> List[JustfileInvocation]:
     """Parse the justfile and return `_run_ansible` invocations with context."""
-    import re
 
     invocations: List[JustfileInvocation] = []
     current_recipe: str | None = None
