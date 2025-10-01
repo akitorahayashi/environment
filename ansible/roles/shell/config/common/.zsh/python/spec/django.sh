@@ -1,3 +1,4 @@
+#!/bin/bash
 # django
 alias dj-stpj="django-admin startproject"
 alias dj-sta="django-admin startapp"

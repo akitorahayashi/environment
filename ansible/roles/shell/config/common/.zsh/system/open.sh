@@ -1,3 +1,4 @@
+#!/bin/bash
 alias op="open"
 alias op-f="open ."
 alias op-s="open -b com.apple.systempreferences"

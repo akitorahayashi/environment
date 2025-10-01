@@ -1,3 +1,5 @@
+#!/bin/bash
+# shellcheck disable=SC2139
 # jupyter
 alias jpl="jupyter lab"
 

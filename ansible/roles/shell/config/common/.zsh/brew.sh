@@ -1,3 +1,4 @@
+#!/bin/bash
 # brew
 alias br="brew"
 alias br-ls="brew list"

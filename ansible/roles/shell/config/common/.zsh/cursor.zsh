@@ -1,1 +1,0 @@
-alias cag="cursor-agent"

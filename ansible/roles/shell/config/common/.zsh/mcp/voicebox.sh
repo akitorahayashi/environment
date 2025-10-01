@@ -1,3 +1,4 @@
+#!/bin/bash
 # VOICEVOX Engine aliases
 alias vce-st='docker run -d -p 50021:50021 --name voicevox-engine voicevox/voicevox_engine:cpu-ubuntu22.04-latest'
 alias vce-sp='docker stop voicevox-engine && docker rm voicevox-engine'

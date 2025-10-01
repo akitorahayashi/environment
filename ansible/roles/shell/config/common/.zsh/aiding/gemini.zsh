@@ -1,3 +1,5 @@
+#!/bin/zsh
+# shellcheck disable=SC1103,SC2296,SC2139
 # Generate Gemini model aliases
 _generate_gemini_aliases() {
     local -A models=(
@@ -22,7 +24,7 @@ _generate_gemini_aliases() {
         for opts_key in ${(k)options}; do
             alias_name="gm-${model_key}${opts_key:+-}${opts_key}"
 
-            alias "$alias_name"="gemini -m ${models[$model_key]} ${options[$opts_key]}"
+            alias "$alias_name"="gemini -m \${models[\$model_key]} \${options[\$opts_key]}"
         done
     done
 }
@@ -65,7 +67,8 @@ gm-ini() {
 
 # Link MCP configuration from root .mcp.json to .gemini/settings.json
 gm-mcp-ln() {
-    local project_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+    local project_root
+    project_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
     local mcp_json="${project_root}/.mcp.json"
     local gemini_dir=".gemini"
     local gemini_settings="${gemini_dir}/settings.json"
@@ -98,16 +101,17 @@ gm-mcp-ln() {
     local mcp_servers
     mcp_servers=$(jq -r '.mcpServers // {}' "$mcp_json" 2>/dev/null)
 
-    if [ $? -ne 0 ] || [ "$mcp_servers" = "null" ]; then
+    if ! jq -r '.mcpServers // {}' "$mcp_json" >/dev/null 2>&1 || [ "$mcp_servers" = "null" ]; then
         echo "❌ Failed to parse .mcp.json or no mcpServers found"
         return 1
     fi
 
     # Update .gemini/settings.json with mcpServers from .mcp.json
-    local temp_file=$(mktemp)
+    local temp_file
+    temp_file=$(mktemp)
     jq --argjson servers "$mcp_servers" '.mcpServers = $servers' "$gemini_settings" > "$temp_file"
 
-    if [ $? -eq 0 ]; then
+    if jq --argjson servers "$mcp_servers" '.mcpServers = $servers' "$gemini_settings" > "$temp_file"; then
         mv "$temp_file" "$gemini_settings"
         echo "✅ Synced mcpServers from $mcp_json to $gemini_settings"
         echo "📊 Servers configured: $(echo "$mcp_servers" | jq -r 'keys | join(", ")')"

@@ -1,28 +1,30 @@
+#!/bin/bash
+# shellcheck disable=SC1090,SC1091
 if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
+	eval "$(pyenv init -)"
 fi
 
 # uv
 alias u="uv"
 alias u-ini="uv init"
 u-v() {
-  if [[ -f ".python-version" ]]; then
-    pyver=$(<.python-version)
-  else
-    echo ".python-version not found. Exiting."
-    return 1
-  fi
+	if [[ -f ".python-version" ]]; then
+		pyver=$(<.python-version)
+	else
+		echo ".python-version not found. Exiting."
+		return 1
+	fi
 
-  if ! pyenv versions --bare | grep -qx "$pyver"; then
-    echo "Python $pyver is not installed. Installing..."
-    pyenv install "$pyver"
-  fi
+	if ! pyenv versions --bare | grep -qx "$pyver"; then
+		echo "Python $pyver is not installed. Installing..."
+		pyenv install "$pyver"
+	fi
 
-  if [[ $# -eq 1 ]]; then
-    uv venv "$1" --python "$(pyenv which python)"
-  else
-    uv venv --python "$(pyenv which python)"
-  fi
+	if [[ $# -eq 1 ]]; then
+		uv venv "$1" --python "$(pyenv which python)"
+	else
+		uv venv --python "$(pyenv which python)"
+	fi
 }
 alias u-a="uv add"
 alias u-s="uv sync"
@@ -43,19 +45,19 @@ alias ux-c="uvx cowsay -t"
 
 # venv
 act() {
-  if [[ $# -eq 1 ]]; then
-    source "./$1/bin/activate"
-  else
-    source "./.venv/bin/activate"
-  fi
+	if [[ $# -eq 1 ]]; then
+		source "./$1/bin/activate"
+	else
+		source "./.venv/bin/activate"
+	fi
 }
 alias dct='deactivate'
 rm-vev() {
-  if [[ $# -eq 1 ]]; then
-    rm -rf "./$1"
-  else
-    rm -rf "./.venv"
-  fi
+	if [[ $# -eq 1 ]]; then
+		rm -rf "./$1"
+	else
+		rm -rf "./.venv"
+	fi
 }
 
 # pipx
@@ -76,10 +78,10 @@ alias pv-l="pyenv local"
 
 # python project cleanup
 py-cln() {
-  echo "🧹 Cleaning up project..."
-  find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-  rm -rf .venv
-  rm -rf .pytest_cache
-  rm -rf .ruff_cache
-  echo "✅ Cleanup completed"
+	echo "🧹 Cleaning up project..."
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	rm -rf .venv
+	rm -rf .pytest_cache
+	rm -rf .ruff_cache
+	echo "✅ Cleanup completed"
 }

@@ -1,3 +1,4 @@
+#!/bin/bash
 # docker
 alias d="docker"
 alias d-i="docker images"
