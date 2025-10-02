@@ -52,7 +52,9 @@ wheels = [
 name = "environment"
 version = "0.1.0"
 source = { virtual = "." }
-dependencies = [
+
+[package.dev-dependencies]
+dev = [
     { name = "black" },
     { name = "pytest" },
     { name = "pytest-xdist" },
@@ -61,7 +63,9 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [
+
+[package.metadata.requires-dev]
+dev = [
     { name = "black", specifier = ">=25.1.0,<26.0.0" },
     { name = "pytest", specifier = ">=8.4.1,<9.0.0" },
     { name = "pytest-xdist", specifier = ">=3.8.0,<4.0.0" },
