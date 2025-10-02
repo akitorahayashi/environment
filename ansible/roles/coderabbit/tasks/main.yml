@@ -22,3 +22,4 @@
   ansible.builtin.shell: |
     /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/coderabbit-install.sh < /dev/null
   when: not coderabbit_binary.stat.exists
+  changed_when: true
