@@ -13,13 +13,7 @@
     mode: "0755"
     checksum: "sha256:e41b25da22e00e42134b7164ddd7b07b61a539ec30e6835de290b2034eab07b8"
 
-- name: "Check if CodeRabbit CLI is already installed"
-  ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/coderabbit"
-  register: coderabbit_binary
-
 - name: "Install CodeRabbit CLI"
-  ansible.builtin.shell: |
-    /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/coderabbit-install.sh < /dev/null
-  when: not coderabbit_binary.stat.exists
-  changed_when: true
+  ansible.builtin.shell: /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/coderabbit-install.sh < /dev/null
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/coderabbit"

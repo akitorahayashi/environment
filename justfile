@@ -42,6 +42,7 @@ common:
   @just cmn-slash
   @just cmn-mcp
   @just cmn-cursor
+  @just cmn-coderabbit
   @just cmn-ruby
   @just cmn-aider
   @just cmn-brew-formulae
