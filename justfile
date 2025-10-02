@@ -42,6 +42,7 @@ common:
   @just cmn-slash
   @just cmn-mcp
   @just cmn-cursor
+  @just cmn-coderabbit
   @just cmn-ruby
   @just cmn-aider
   @just cmn-brew-formulae
@@ -134,6 +135,11 @@ cmn-vscode:
 cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
   @just _run_ansible "cursor" "common" "cursor"
+
+# Setup CodeRabbit CLI
+cmn-coderabbit:
+  @echo "🚀 Running common CodeRabbit setup..."
+  @just _run_ansible "coderabbit" "common" "coderabbit"
 
 # Setup Claude Code settings
 cmn-claude:

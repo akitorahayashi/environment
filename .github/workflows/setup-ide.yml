@@ -23,3 +23,6 @@ jobs:
 
       - name: Setup Cursor configuration
         run: just cmn-cursor
+
+      - name: Setup CodeRabbit CLI
+        run: just cmn-coderabbit

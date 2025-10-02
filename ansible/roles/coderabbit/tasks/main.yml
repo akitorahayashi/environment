@@ -1,0 +1,19 @@
+---
+- name: "Ensure ~/.ansible/tmp directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ansible/tmp"
+    state: directory
+    mode: "0755"
+
+- name: "Download CodeRabbit CLI installer"
+  # Checksum obtained via: curl -s https://cli.coderabbit.ai/install.sh | shasum -a 256
+  ansible.builtin.get_url:
+    url: https://cli.coderabbit.ai/install.sh
+    dest: "{{ ansible_env.HOME }}/.ansible/tmp/coderabbit-install.sh"
+    mode: "0755"
+    checksum: "sha256:e41b25da22e00e42134b7164ddd7b07b61a539ec30e6835de290b2034eab07b8"
+
+- name: "Install CodeRabbit CLI"
+  ansible.builtin.shell: /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/coderabbit-install.sh < /dev/null
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/coderabbit"
