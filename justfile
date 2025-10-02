@@ -135,6 +135,11 @@ cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
   @just _run_ansible "cursor" "common" "cursor"
 
+# Setup CodeRabbit CLI
+cmn-coderabbit:
+  @echo "🚀 Running common CodeRabbit setup..."
+  @just _run_ansible "coderabbit" "common" "coderabbit"
+
 # Setup Claude Code settings
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."

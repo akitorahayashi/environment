@@ -197,6 +197,11 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Ensures consistent containerized development environment across machines.
     -   Provides foundation for containerized development workflows.
 
+17. **CodeRabbit CLI (`coderabbit` role)**
+    -   Installs CodeRabbit CLI for AI-powered code reviews.
+    -   Downloads and executes the official installer from https://cli.coderabbit.ai/install.sh.
+    -   Installs binary to `~/.local/bin/coderabbit` with alias `cr`.
+
 
 ## Automation Policies
 
