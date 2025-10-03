@@ -7,6 +7,7 @@ from typing import Iterable
 
 import pytest
 
+
 @pytest.fixture(scope="session")
 def gh_pr_ls_script_path(gh_config_dir: Path) -> Path:
     """Path to the gh-pr-ls.py script."""

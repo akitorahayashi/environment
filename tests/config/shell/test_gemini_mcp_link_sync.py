@@ -7,6 +7,7 @@ from types import ModuleType
 
 import pytest
 
+
 @pytest.fixture(scope="session")
 def gm_mcp_script_path(shell_config_dir: Path) -> Path:
     """Path to the gm-mcp-ln.py script."""
