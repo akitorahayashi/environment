@@ -8,3 +8,6 @@ for config_file in ~/.zsh/**/*.sh~**/dev/dev.sh; do
         source "$config_file"
     fi
 done
+
+# Set UV_CACHE_DIR to always create cache in current directory
+export UV_CACHE_DIR="./.uv-cache"

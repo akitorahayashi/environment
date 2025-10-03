@@ -19,8 +19,3 @@
   ansible.builtin.import_tasks: tools.yml
   when: python_install_tools | default(true) | bool
   tags: [python, python-tools]
-
-- name: "Install Aider AI coding assistant"
-  ansible.builtin.import_tasks: aider.yml
-  when: python_install_aider | default(false) | bool
-  tags: [python, python-aider]
