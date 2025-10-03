@@ -1,17 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 import importlib.util
 from pathlib import Path
 from types import ModuleType
 from typing import Iterable
 
 import pytest
-
-
-@pytest.fixture(scope="session")
-def gh_pr_ls_script_path(gh_config_dir: Path) -> Path:
-    """Path to the gh-pr-ls.py script."""
-    return gh_config_dir.parent.parent / "scripts" / "gh-pr-ls.py"
 
 
 @pytest.fixture(scope="module")
@@ -26,8 +21,10 @@ def gh_pr_ls_module(gh_pr_ls_script_path: Path) -> ModuleType:
 def test_gather_pull_requests(
     monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: ModuleType
 ) -> None:
+    # Mock responses in the order they will be called
     responses: Iterable[object] = iter(
         [
+            # First: gh pr list
             [
                 {
                     "number": 1,
@@ -46,14 +43,19 @@ def test_gather_pull_requests(
                     "mergeable": "CONFLICTING",
                 },
             ],
+            # Next calls are for actions and CI status - order may vary due to asyncio.gather
+            # feature-1 actions_in_progress
             [{"databaseId": 1}],
-            [{"status": "completed", "conclusion": "success"}],
+            # feature-2 actions_in_progress
             [],
+            # feature-1 ci_status
+            [{"status": "completed", "conclusion": "success"}],
+            # feature-2 ci_status
             [{"status": "in_progress"}],
         ]
     )
 
-    def fake_run_command(*_args, **_kwargs):
+    async def fake_run_command(*_args, **_kwargs):
         try:
             return next(responses)
         except (
@@ -63,8 +65,10 @@ def test_gather_pull_requests(
 
     monkeypatch.setattr(gh_pr_ls_module, "run_command", fake_run_command)
 
-    pull_requests = gh_pr_ls_module.gather_pull_requests(limit=5)
-    assert pull_requests == [
+    pull_requests = asyncio.run(gh_pr_ls_module.gather_pull_requests(limit=5))
+    # Sort results by number for consistent comparison since asyncio.gather order is not guaranteed
+    pull_requests_sorted = sorted(pull_requests, key=lambda x: x["number"])
+    expected_sorted = [
         {
             "number": 1,
             "title": "Fix bug",
@@ -86,6 +90,7 @@ def test_gather_pull_requests(
             "ci_status": "in_progress",
         },
     ]
+    assert pull_requests_sorted == expected_sorted
 
 
 def test_main_prints_results(
@@ -105,11 +110,15 @@ def test_main_prints_results(
             "ci_status": "success",
         }
     ]
+
+    async def mock_gather_pull_requests(limit=20):
+        return sample
+
     monkeypatch.setattr(
-        gh_pr_ls_module, "gather_pull_requests", lambda limit=20: sample
+        gh_pr_ls_module, "gather_pull_requests", mock_gather_pull_requests
     )
 
-    exit_code = gh_pr_ls_module.main()
+    exit_code = asyncio.run(gh_pr_ls_module.main())
     captured = capsys.readouterr()
     assert exit_code == 0
     assert captured.out.strip().splitlines() == [
@@ -120,6 +129,9 @@ def test_main_prints_results(
 def test_gather_pull_requests_invalid_response(
     monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: ModuleType
 ) -> None:
-    monkeypatch.setattr(gh_pr_ls_module, "run_command", lambda *args, **kwargs: {})
+    async def mock_run_command(*args, **kwargs):
+        return {}
+
+    monkeypatch.setattr(gh_pr_ls_module, "run_command", mock_run_command)
     with pytest.raises(SystemExit):
-        gh_pr_ls_module.gather_pull_requests()
+        asyncio.run(gh_pr_ls_module.gather_pull_requests())

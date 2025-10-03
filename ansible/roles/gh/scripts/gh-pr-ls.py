@@ -2,8 +2,8 @@
 """List pull requests with mergeability and CI status details."""
 from __future__ import annotations
 
+import asyncio
 import json
-import subprocess
 import sys
 from typing import Any, Dict, List, Optional
 
@@ -25,7 +25,7 @@ def _parse_json(output: str, description: str) -> Any:
         raise SystemExit(1) from exc
 
 
-def run_command(
+async def run_command(
     command: Command,
     *,
     expect_json: bool = False,
@@ -36,27 +36,27 @@ def run_command(
     """Run a command and optionally parse its JSON output."""
     desc = description or " ".join(command)
     try:
-        completed = subprocess.run(  # noqa: S603,S607 - trusted command construction
-            command,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+        completed = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
             text=True,
         )
+        stdout, stderr = await completed.communicate()
+        if completed.returncode != 0:
+            message = f"Command '{desc}' failed with exit code {completed.returncode}"
+            if stderr:
+                message = f"{message}: {stderr.strip()}"
+            if exit_on_error:
+                _print_error(message)
+                raise SystemExit(completed.returncode or 1)
+            _print_error(message)
+            return default
     except FileNotFoundError as exc:
         _print_error(f"Command not found while executing '{desc}'")
         raise SystemExit(1) from exc
-    except subprocess.CalledProcessError as exc:
-        message = f"Command '{desc}' failed with exit code {exc.returncode}"
-        if exc.stderr:
-            message = f"{message}: {exc.stderr.strip()}"
-        if exit_on_error:
-            _print_error(message)
-            raise SystemExit(exc.returncode or 1) from exc
-        _print_error(message)
-        return default
 
-    output = completed.stdout.strip()
+    output = stdout.strip()
     if expect_json:
         if not output:
             return default
@@ -75,8 +75,8 @@ def _extract_author(pr: Dict[str, Any]) -> Optional[str]:
     return None
 
 
-def _actions_in_progress(branch: str) -> str:
-    data = run_command(
+async def _actions_in_progress(branch: str) -> str:
+    data = await run_command(
         [
             "gh",
             "run",
@@ -100,8 +100,8 @@ def _actions_in_progress(branch: str) -> str:
     return "false"
 
 
-def _latest_ci_status(branch: str) -> str:
-    data = run_command(
+async def _latest_ci_status(branch: str) -> str:
+    data = await run_command(
         [
             "gh",
             "run",
@@ -130,8 +130,8 @@ def _latest_ci_status(branch: str) -> str:
     return "none"
 
 
-def gather_pull_requests(limit: int = 20) -> List[Dict[str, Any]]:
-    prs_raw = run_command(
+async def gather_pull_requests(limit: int = 20) -> List[Dict[str, Any]]:
+    prs_raw = await run_command(
         [
             "gh",
             "pr",
@@ -151,6 +151,10 @@ def gather_pull_requests(limit: int = 20) -> List[Dict[str, Any]]:
         raise SystemExit(1)
 
     results: List[Dict[str, Any]] = []
+    # Collect all branches for parallel execution
+    branches = []
+    pr_entries = []
+
     for pr in prs_raw:
         if not isinstance(pr, dict):
             continue
@@ -173,19 +177,39 @@ def gather_pull_requests(limit: int = 20) -> List[Dict[str, Any]]:
         else:
             entry["mergeable"] = "UNKNOWN"
 
-        entry["actions_in_progress"] = _actions_in_progress(branch)
-        entry["ci_status"] = _latest_ci_status(branch)
-        results.append(entry)
+        pr_entries.append(entry)
+        branches.append(branch)
+
+    # Execute actions and CI status checks in parallel
+    if branches:
+        actions_tasks = [
+            asyncio.create_task(_actions_in_progress(branch)) for branch in branches
+        ]
+        ci_tasks = [
+            asyncio.create_task(_latest_ci_status(branch)) for branch in branches
+        ]
+
+        actions_results = await asyncio.gather(*actions_tasks)
+        ci_results = await asyncio.gather(*ci_tasks)
+
+        for entry, actions_result, ci_result in zip(
+            pr_entries, actions_results, ci_results
+        ):
+            entry["actions_in_progress"] = actions_result
+            entry["ci_status"] = ci_result
+            results.append(entry)
+    else:
+        results = pr_entries
 
     return results
 
 
-def main() -> int:
-    pull_requests = gather_pull_requests()
+async def main() -> int:
+    pull_requests = await gather_pull_requests()
     for pr in pull_requests:
         print(json.dumps(pr, ensure_ascii=False))
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(asyncio.run(main()))

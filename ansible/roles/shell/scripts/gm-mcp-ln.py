@@ -33,7 +33,7 @@ def _read_json(path: Path) -> Dict[str, Any]:
         raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
 
     if not isinstance(data, dict):
-        raise ValueError(f"Expected object at {path}")
+        raise TypeError(f"Expected object at {path}")
     return data
 
 
@@ -54,7 +54,7 @@ def sync_mcp_servers(start_dir: Path) -> tuple[Dict[str, Any], Path]:
     if servers is None:
         raise ValueError(f"No mcpServers key found in {mcp_path}")
     if not isinstance(servers, dict):
-        raise ValueError("mcpServers must be an object")
+        raise TypeError("mcpServers must be an object")
 
     try:
         settings_content = _read_json(gemini_settings)
