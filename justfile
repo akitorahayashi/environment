@@ -34,17 +34,12 @@ common:
   @just cmn-gh
   @just sw-p
   @just cmn-vscode
-  @just cmn-python
-  @just cmn-nodejs
-  @just cmn-claude
-  @just cmn-gemini
-  @just cmn-codex
-  @just cmn-slash
+  @just _setup_python_tools
+  @just _setup_nodejs_tools
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-coderabbit
   @just cmn-ruby
-  @just cmn-aider
   @just cmn-brew-formulae
   @echo "✅ All common setup tasks completed successfully."
 
@@ -171,10 +166,15 @@ cmn-mcp:
   @echo "🚀 Running common MCP setup (requires Codex config to exist)..."
   @just _run_ansible "mcp" "common" "mcp"
 
-# Install Aider Chat
+# Setup Aider configuration
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
-  @just _run_ansible "python" "common" "python-aider"
+  @just _run_ansible "aider" "common" "aider"
+
+# Setup uv configuration
+cmn-uv:
+  @echo "🚀 Running common uv setup..."
+  @just _run_ansible "uv" "common" "uv"
 
 # Install common cask packages only
 cmn-brew-cask:
@@ -285,12 +285,27 @@ clean:
     @rm -rf .ruff_cache
     @rm -rf .aider.tags.cache.v4
     @rm -rf .serena/cache
+    @rm -rf .uv-cache
     @rm -rf .tmp
     @echo "✅ Cleanup completed"
 
 # ------------------------------------------------------------------------------
 # Hidden Recipes
 # ------------------------------------------------------------------------------
+# @hidden
+_setup_python_tools:
+  @just cmn-python
+  @just cmn-uv
+  @just cmn-aider
+
+# @hidden
+_setup_nodejs_tools:
+  @just cmn-nodejs
+  @just cmn-claude
+  @just cmn-gemini
+  @just cmn-codex
+  @just cmn-slash
+
 # @hidden
 _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \

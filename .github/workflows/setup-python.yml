@@ -24,6 +24,9 @@ jobs:
       - name: Run cmn-python-tools setup
         run: just cmn-python-tools
 
+      - name: Run uv setup
+        run: just cmn-uv
+        
       - name: Run aider setup
         run: just cmn-aider
-        
+

@@ -70,7 +70,7 @@ def main() -> int:
     start_dir = Path.cwd()
     try:
         servers, settings_path = sync_mcp_servers(start_dir)
-    except (FileNotFoundError, ValueError) as exc:
+    except (FileNotFoundError, ValueError, TypeError) as exc:
         _print_error(str(exc))
         return 1
 

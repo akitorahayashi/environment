@@ -4,7 +4,9 @@
   connection: local
   roles:
     - { role: brew, tags: ["brew", "brew-formulae", "brew-cask"] }
-    - { role: python, tags: ["python", "python-platform", "python-tools", "python-aider"] }
+    - { role: python, tags: ["python", "python-platform", "python-tools"] }
+    - { role: uv, tags: ["uv"] }
+    - { role: aider, tags: ["aider"] }
     - { role: nodejs, tags: ["nodejs", "nodejs-platform", "nodejs-tools"] }
     - { role: claude, tags: ["claude"] }
     - { role: gemini, tags: ["gemini"] }

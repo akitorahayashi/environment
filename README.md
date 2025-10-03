@@ -161,47 +161,56 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   **Aider Integration**: Installs aider-chat via pipx using the configured Python version when enabled (`--tags python-aider`).
     -   Conditional installation: Can install platform-only, tools-only, or aider-only using tags (`--tags python-platform`, `--tags python-tools`, `--tags python-aider`).
 
-10. **Node.js Runtime & Tools (`nodejs` role)**
+10. **UV Package Manager Configuration (`uv` role)**
+    -   Creates the `~/.config/uv` directory for uv configuration.
+    -   Symlinks `uv.toml` configuration file that sets link mode to "clone" for efficient file linking on macOS, configures prerelease handling, resolution strategy, cache directory, and concurrent downloads.
+    -   Provides optimized settings for the uv Python package manager.
+
+11. **Aider AI Assistant Setup (`aider` role)**
+    -   Installs aider-chat (AI coding assistant) using pipx with a specific Python version read from `.python-version` file.
+    -   Creates the `~/.aider` directory and symlinks configuration files (`.aider.conf.yml`, `.aider.model.settings.yml`) for consistent AI assistant behavior.
+    -   Ensures aider-chat is available with proper Python environment isolation.
+
+12. **Node.js Runtime & Tools (`nodejs` role)**
     -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `ansible/roles/nodejs/config/common/.nvmrc`, installs it, and sets it as the default.
     -   **Tools**: Reads `ansible/roles/nodejs/config/common/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to the home directory.
     -   Focused solely on runtime provisioning so CLI configuration can run independently in follow-on roles.
     -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`).
 
-11. **Claude CLI Configuration (`claude` role)**
+13. **Claude CLI Configuration (`claude` role)**
     -   Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `ansible/roles/claude/config/common`.
     -   Links `CLAUDE.md` and prepares the `commands` directory used by Claude Code.
     -   Runs without invoking the Node.js role and can be targeted via `just cmn-claude` or `ansible-playbook --tags claude`.
 
-12. **Gemini CLI Configuration (`gemini` role)**
+14. **Gemini CLI Configuration (`gemini` role)**
     -   Creates `~/.gemini`, symlinks configuration files from `ansible/roles/gemini/config/common`, and retains templates used by the Gemini CLI.
     -   Performs a best-effort `which gemini` check, warning if the CLI is missing while still applying configuration assets.
     -   Runs independently of Node.js and can be executed with `just cmn-gemini` or `ansible-playbook --tags gemini`.
 
-13. **Codex CLI Configuration (`codex` role)**
+15. **Codex CLI Configuration (`codex` role)**
     -   Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/codex/config/common`.
     -   Provides prompt and agent files without re-triggering the Node.js runtime setup.
     -   Invoked through `just cmn-codex` or `ansible-playbook --tags codex`.
 
-14. **Slash Command Generation (`slash` role)**
+16. **Slash Command Generation (`slash` role)**
     -   Marks the slash generator scripts (`claude.sh`, `gemini.sh`, `codex.sh`) as executable and runs them from the repository root.
     -   Regenerates all custom slash command assets in one pass, independent of the Node.js role.
     -   Accessible via `just cmn-slash` or `ansible-playbook --tags slash`.
 
-15. **MCP Servers Configuration (`mcp` role)**
+17. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
     -   Sets up Context7, Serena, VOICEVOX, and other MCP servers with proper authentication.
     -   Manages server configurations and API token integration for Claude Code and Gemini CLI.
 
-16. **Docker Environment (`docker` role)**
+18. **Docker Environment (`docker` role)**
     -   Pulls and manages Docker images listed in `ansible/roles/docker/config/common/images.txt`.
     -   Ensures consistent containerized development environment across machines.
     -   Provides foundation for containerized development workflows.
 
-17. **CodeRabbit CLI (`coderabbit` role)**
+19. **CodeRabbit CLI (`coderabbit` role)**
     -   Installs CodeRabbit CLI for AI-powered code reviews.
     -   Downloads and executes the official installer from https://cli.coderabbit.ai/install.sh.
     -   Installs binary to `~/.local/bin/coderabbit` with alias `cr`.
-
 
 ## Automation Policies
 
