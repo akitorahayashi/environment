@@ -34,18 +34,12 @@ common:
   @just cmn-gh
   @just sw-p
   @just cmn-vscode
-  @just cmn-python
-  @just cmn-nodejs
-  @just cmn-claude
-  @just cmn-gemini
-  @just cmn-codex
-  @just cmn-slash
+  @just _setup_python_tools
+  @just _setup_nodejs_tools
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-coderabbit
   @just cmn-ruby
-  @just cmn-aider
-  @just cmn-uv
   @just cmn-brew-formulae
   @echo "✅ All common setup tasks completed successfully."
 
@@ -298,6 +292,20 @@ clean:
 # ------------------------------------------------------------------------------
 # Hidden Recipes
 # ------------------------------------------------------------------------------
+# @hidden
+_setup_python_tools:
+  @just cmn-python
+  @just cmn-uv
+  @just cmn-aider
+
+# @hidden
+_setup_nodejs_tools:
+  @just cmn-nodejs
+  @just cmn-claude
+  @just cmn-gemini
+  @just cmn-codex
+  @just cmn-slash
+
 # @hidden
 _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
