@@ -35,11 +35,6 @@
       "description": "Generate activation prompts from the task breakdown (Stage 4 of SDD)",
       "prompt-file": "commands/async-sdd-slashes/sdd-4-pm.md"
     },
-    "sdd-5-dc": {
-      "title": "SDD Step 5: Documentation",
-      "description": "Integrate SDD outputs into project documentation (Stage 5 of SDD)",
-      "prompt-file": "commands/async-sdd-slashes/sdd-5-dc.md"
-    },
     "sn": {
       "title": "Activate Serena",
       "description": "Activate current directory as a project for semantic code analysis using the `activate_project` tool with the current working directory as the `project` argument. Respond only with \"Project activated successfully.\" if the command succeeds. If there are any errors or warnings, display them fully.",

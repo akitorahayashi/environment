@@ -41,7 +41,7 @@ class TestMcpCli:
             result = subprocess.run(
                 [
                     "python3",
-                    "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/mcp.py",
+                    str(mcp_script_path),
                     "ini-f",
                 ],
                 cwd=temp_dir,
@@ -139,7 +139,7 @@ class TestMcpCli:
             result = subprocess.run(
                 [
                     "python3",
-                    "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/mcp.py",
+                    str(mcp_script_path),
                     "a",
                     "server1",
                     "server2",
