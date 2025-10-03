@@ -7,8 +7,14 @@ from typing import Iterable
 
 import pytest
 
-
-MODULE_PATH = Path(__file__).resolve().parents[2] / "ansible" / "roles" / "shell" / "scripts" / "gh-pr-ls.py"
+MODULE_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "ansible"
+    / "roles"
+    / "gh"
+    / "scripts"
+    / "gh-pr-ls.py"
+)
 
 
 @pytest.fixture(scope="module")
@@ -20,7 +26,9 @@ def gh_pr_ls_module() -> ModuleType:
     return module
 
 
-def test_gather_pull_requests(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: ModuleType) -> None:
+def test_gather_pull_requests(
+    monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: ModuleType
+) -> None:
     responses: Iterable[object] = iter(
         [
             [
@@ -30,6 +38,7 @@ def test_gather_pull_requests(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: 
                     "author": {"login": "alice"},
                     "headRefName": "feature-1",
                     "state": "OPEN",
+                    "mergeable": "MERGEABLE",
                 },
                 {
                     "number": 2,
@@ -37,12 +46,11 @@ def test_gather_pull_requests(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: 
                     "author": {"login": "bob"},
                     "headRefName": "feature-2",
                     "state": "OPEN",
+                    "mergeable": "CONFLICTING",
                 },
             ],
-            {"mergeable": "MERGEABLE"},
             [{"databaseId": 1}],
             [{"status": "completed", "conclusion": "success"}],
-            {"mergeable": "CONFLICTING"},
             [],
             [{"status": "in_progress"}],
         ]
@@ -51,7 +59,9 @@ def test_gather_pull_requests(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: 
     def fake_run_command(*_args, **_kwargs):
         try:
             return next(responses)
-        except StopIteration as exc:  # pragma: no cover - ensures test fails if extra call
+        except (
+            StopIteration
+        ) as exc:  # pragma: no cover - ensures test fails if extra call
             raise AssertionError("run_command called more times than expected") from exc
 
     monkeypatch.setattr(gh_pr_ls_module, "run_command", fake_run_command)
@@ -81,7 +91,11 @@ def test_gather_pull_requests(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: 
     ]
 
 
-def test_main_prints_results(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: ModuleType, capsys: pytest.CaptureFixture[str]) -> None:
+def test_main_prints_results(
+    monkeypatch: pytest.MonkeyPatch,
+    gh_pr_ls_module: ModuleType,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     sample = [
         {
             "number": 42,
@@ -94,7 +108,9 @@ def test_main_prints_results(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: M
             "ci_status": "success",
         }
     ]
-    monkeypatch.setattr(gh_pr_ls_module, "gather_pull_requests", lambda limit=20: sample)
+    monkeypatch.setattr(
+        gh_pr_ls_module, "gather_pull_requests", lambda limit=20: sample
+    )
 
     exit_code = gh_pr_ls_module.main()
     captured = capsys.readouterr()
@@ -104,7 +120,9 @@ def test_main_prints_results(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: M
     ]
 
 
-def test_gather_pull_requests_invalid_response(monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: ModuleType) -> None:
+def test_gather_pull_requests_invalid_response(
+    monkeypatch: pytest.MonkeyPatch, gh_pr_ls_module: ModuleType
+) -> None:
     monkeypatch.setattr(gh_pr_ls_module, "run_command", lambda *args, **kwargs: {})
     with pytest.raises(SystemExit):
         gh_pr_ls_module.gather_pull_requests()

@@ -16,3 +16,27 @@
     dest: "{{ ansible_env.HOME }}/.config/gh/config.yml"
     state: link
     force: true
+
+- name: "Ensure ~/.local/bin directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: "0755"
+
+- name: "Find GitHub helper scripts"
+  ansible.builtin.find:
+    paths: "{{ role_path }}/scripts"
+    patterns: "*.py"
+    file_type: file
+  register: gh_helper_scripts
+
+- name: "Symlink GitHub helper scripts to ~/.local/bin"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item.path | basename }}"
+    state: link
+    force: true
+    mode: "0755"
+  loop: "{{ gh_helper_scripts.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"

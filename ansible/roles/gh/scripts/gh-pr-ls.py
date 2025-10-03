@@ -73,20 +73,6 @@ def _extract_author(pr: Dict[str, Any]) -> Optional[str]:
     return None
 
 
-def _mergeable_status(number: int) -> Optional[str]:
-    data = run_command(
-        ["gh", "pr", "view", str(number), "--json", "mergeable"],
-        expect_json=True,
-        default={},
-        description=f"gh pr view {number}",
-    )
-    if isinstance(data, dict):
-        mergeable = data.get("mergeable")
-        if isinstance(mergeable, str):
-            return mergeable
-    return None
-
-
 def _actions_in_progress(branch: str) -> str:
     data = run_command(
         [
@@ -151,7 +137,7 @@ def gather_pull_requests(limit: int = 20) -> List[Dict[str, Any]]:
             "--limit",
             str(limit),
             "--json",
-            "number,title,author,headRefName,state",
+            "number,title,author,headRefName,state,mergeable",
         ],
         expect_json=True,
         default=[],
@@ -179,8 +165,8 @@ def gather_pull_requests(limit: int = 20) -> List[Dict[str, Any]]:
             "state": pr.get("state"),
         }
 
-        mergeable = _mergeable_status(number)
-        if mergeable is not None:
+        mergeable = pr.get("mergeable")
+        if isinstance(mergeable, str):
             entry["mergeable"] = mergeable
         else:
             entry["mergeable"] = "UNKNOWN"

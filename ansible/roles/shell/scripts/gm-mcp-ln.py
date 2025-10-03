@@ -40,7 +40,7 @@ def _write_json(path: Path, payload: Dict[str, Any]) -> None:
         handle.write("\n")
 
 
-def sync_mcp_servers(start_dir: Path) -> Dict[str, Any]:
+def sync_mcp_servers(start_dir: Path) -> tuple[Dict[str, Any], Path]:
     project_root = _find_project_root(start_dir)
     mcp_path = project_root / ".mcp.json"
     gemini_settings = start_dir / ".gemini" / "settings.json"
@@ -56,18 +56,16 @@ def sync_mcp_servers(start_dir: Path) -> Dict[str, Any]:
         settings_content = _read_json(gemini_settings)
     except FileNotFoundError:
         settings_content = {"mcpServers": {}}
-    except ValueError as exc:
-        raise ValueError(str(exc)) from exc
 
     settings_content["mcpServers"] = servers
     _write_json(gemini_settings, settings_content)
-    return servers
+    return servers, gemini_settings
 
 
 def main() -> int:
     start_dir = Path.cwd()
     try:
-        servers = sync_mcp_servers(start_dir)
+        servers, settings_path = sync_mcp_servers(start_dir)
     except (FileNotFoundError, ValueError) as exc:
         _print_error(str(exc))
         return 1
@@ -76,7 +74,7 @@ def main() -> int:
         configured = ", ".join(sorted(servers.keys()))
     else:
         configured = "(none)"
-    print(f"✅ Synced MCP servers to {start_dir / '.gemini' / 'settings.json'}")
+    print(f"✅ Synced MCP servers to {settings_path}")
     print(f"📊 Servers configured: {configured}")
     return 0
 
