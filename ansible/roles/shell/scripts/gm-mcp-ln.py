@@ -16,7 +16,9 @@ def _find_project_root(start: Path) -> Path:
     for path in (start, *start.parents):
         if (path / ".mcp.json").exists():
             return path
-    raise FileNotFoundError("Unable to locate .mcp.json in current or parent directories")
+    raise FileNotFoundError(
+        "Unable to locate .mcp.json in current or parent directories"
+    )
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -25,7 +27,9 @@ def _read_json(path: Path) -> Dict[str, Any]:
             data = json.load(handle)
     except FileNotFoundError as exc:
         raise FileNotFoundError(f"Missing file: {path}") from exc
-    except json.JSONDecodeError as exc:  # pragma: no cover - exercised via error path tests
+    except (
+        json.JSONDecodeError
+    ) as exc:  # pragma: no cover - exercised via error path tests
         raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
 
     if not isinstance(data, dict):

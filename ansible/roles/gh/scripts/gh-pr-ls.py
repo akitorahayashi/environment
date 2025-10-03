@@ -18,7 +18,9 @@ def _print_error(message: str) -> None:
 def _parse_json(output: str, description: str) -> Any:
     try:
         return json.loads(output)
-    except json.JSONDecodeError as exc:  # pragma: no cover - exercised via error path tests
+    except (
+        json.JSONDecodeError
+    ) as exc:  # pragma: no cover - exercised via error path tests
         _print_error(f"Failed to parse JSON from '{description}': {exc}")
         raise SystemExit(1) from exc
 

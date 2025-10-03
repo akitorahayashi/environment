@@ -46,6 +46,9 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
       },
       "description": "GitHub repository management and interaction through MCP"
+    },
+    "server2": {
+      "command": "cmd2"
     }
   }
 }
