@@ -10,6 +10,9 @@ export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
 # Path for cli tools
 export PATH="$HOME/.local/bin:$PATH"
 
+# Path for Python scripts symlinks
+export PATH="$HOME/.scripts/python:$PATH"
+
 # Path for pipx ansible venv (ansible-playbook, ansible-lint, etc.)
 export PATH="$HOME/.local/pipx/venvs/ansible/bin:$PATH"
 

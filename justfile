@@ -251,16 +251,16 @@ cmn-backup-vscode-extensions:
 # Format code with black and ruff --fix
 format:
     @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
-    @uv run black tests/
-    @uv run ruff check tests/ --fix
+    @uv run black tests/ ansible/
+    @uv run ruff check tests/ ansible/ --fix
     @files=$(find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | grep -v "\.git" | grep -v async-sdd-slashes | grep -v "gemini.zsh"); echo "Found $(echo "$files" | wc -l) shell files to format"; for file in $files; do shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; done
     @ansible-lint ansible/ --fix
 
 # Lint code with black check, ruff, shellcheck, and ansible-lint
 lint:
     @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
-    @uv run black --check tests/
-    @uv run ruff check tests/
+    @uv run black --check tests/ ansible/
+    @uv run ruff check tests/ ansible/
     @files=$(find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | grep -v "\.git" | grep -v async-sdd-slashes | grep -v "gemini.zsh"); echo "Found $(echo "$files" | wc -l) shell files to lint"; for file in $files; do shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; done
     @ansible-lint ansible/
     
