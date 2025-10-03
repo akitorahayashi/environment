@@ -67,57 +67,5 @@ gm-ini() {
 
 # Link MCP configuration from root .mcp.json to .gemini/settings.json
 gm-mcp-ln() {
-    local project_root
-    project_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-    local mcp_json="${project_root}/.mcp.json"
-    local gemini_dir=".gemini"
-    local gemini_settings="${gemini_dir}/settings.json"
-
-    # Create .gemini directory if it doesn't exist
-    if [ ! -d "$gemini_dir" ]; then
-        mkdir -p "$gemini_dir"
-        echo "📁 Created .gemini directory"
-    fi
-
-    # Initialize settings.json if it doesn't exist
-    if [ ! -f "$gemini_settings" ]; then
-        echo '{"mcpServers": {}}' > "$gemini_settings"
-        echo "📄 Created .gemini/settings.json"
-    fi
-
-    # Check if .mcp.json exists in project root
-    if [ ! -f "$mcp_json" ]; then
-        echo "❌ No .mcp.json found in project root: $project_root"
-        return 1
-    fi
-
-    # Read .mcp.json content and extract servers
-    if ! command -v jq >/dev/null 2>&1; then
-        echo "❌ jq is required but not installed"
-        return 1
-    fi
-
-    # Extract mcpServers from .mcp.json and merge into .gemini/settings.json
-    local mcp_servers
-    mcp_servers=$(jq -r '.mcpServers // {}' "$mcp_json" 2>/dev/null)
-
-    if ! jq -r '.mcpServers // {}' "$mcp_json" >/dev/null 2>&1 || [ "$mcp_servers" = "null" ]; then
-        echo "❌ Failed to parse .mcp.json or no mcpServers found"
-        return 1
-    fi
-
-    # Update .gemini/settings.json with mcpServers from .mcp.json
-    local temp_file
-    temp_file=$(mktemp)
-    jq --argjson servers "$mcp_servers" '.mcpServers = $servers' "$gemini_settings" > "$temp_file"
-
-    if jq --argjson servers "$mcp_servers" '.mcpServers = $servers' "$gemini_settings" > "$temp_file"; then
-        mv "$temp_file" "$gemini_settings"
-        echo "✅ Synced mcpServers from $mcp_json to $gemini_settings"
-        echo "📊 Servers configured: $(echo "$mcp_servers" | jq -r 'keys | join(", ")')"
-    else
-        rm -f "$temp_file"
-        echo "❌ Failed to update .gemini/settings.json"
-        return 1
-    fi
+    command gm-mcp-ln.py "$@"
 }
