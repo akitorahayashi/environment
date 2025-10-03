@@ -17,9 +17,9 @@
     state: link
     force: true
 
-- name: "Ensure ~/.local/bin directory exists"
+- name: "Ensure ~/.scripts/python directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/bin"
+    path: "{{ ansible_env.HOME }}/.scripts/python"
     state: directory
     mode: "0755"
 
@@ -30,10 +30,10 @@
     file_type: file
   register: gh_helper_scripts
 
-- name: "Symlink GitHub helper scripts to ~/.local/bin"
+- name: "Symlink GitHub helper scripts to ~/.scripts/python"
   ansible.builtin.file:
     src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item.path | basename }}"
+    dest: "{{ ansible_env.HOME }}/.scripts/python/{{ item.path | basename }}"
     state: link
     force: true
     mode: "0755"

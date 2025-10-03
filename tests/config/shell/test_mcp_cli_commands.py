@@ -9,13 +9,13 @@ from pathlib import Path
 class TestMcpCli:
     """Test MCP CLI commands via subprocess."""
 
-    def test_cmd_ini(self, tmp_path):
+    def test_cmd_ini(self, tmp_path, mcp_script_path):
         """Test mcp.py ini creates .mcp.json."""
         with tempfile.TemporaryDirectory() as temp_dir:
             result = subprocess.run(
                 [
                     "python3",
-                    "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/mcp.py",
+                    str(mcp_script_path),
                     "ini",
                 ],
                 cwd=temp_dir,
@@ -29,7 +29,7 @@ class TestMcpCli:
             data = json.loads(config.read_text())
             assert data == {"mcpServers": {}}
 
-    def test_cmd_ini_f(self, tmp_path):
+    def test_cmd_ini_f(self, tmp_path, mcp_script_path):
         """Test mcp.py ini-f copies from global."""
         global_config = tmp_path / ".mcp.json"
         global_config.write_text(
@@ -56,7 +56,7 @@ class TestMcpCli:
             data = json.loads(local_config.read_text())
             assert "server1" in data["mcpServers"]
 
-    def test_cmd_ls(self, tmp_path):
+    def test_cmd_ls(self, tmp_path, mcp_script_path):
         """Test mcp.py ls lists servers."""
         global_config = tmp_path / ".mcp.json"
         global_config.write_text(
@@ -74,7 +74,7 @@ class TestMcpCli:
         result = subprocess.run(
             [
                 "python3",
-                "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/mcp.py",
+                str(mcp_script_path),
                 "ls",
             ],
             env=env,
@@ -86,7 +86,7 @@ class TestMcpCli:
         assert "server1" in result.stdout
         assert "server2" in result.stdout
 
-    def test_cmd_a_single(self, tmp_path):
+    def test_cmd_a_single(self, tmp_path, mcp_script_path):
         """Test mcp.py a adds a single server."""
         global_config = tmp_path / ".mcp.json"
         global_config.write_text(
@@ -102,7 +102,7 @@ class TestMcpCli:
             result = subprocess.run(
                 [
                     "python3",
-                    "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/mcp.py",
+                    str(mcp_script_path),
                     "a",
                     "server1",
                 ],
@@ -116,7 +116,7 @@ class TestMcpCli:
             data = json.loads(local_config.read_text())
             assert "server1" in data["mcpServers"]
 
-    def test_cmd_a_multiple(self, tmp_path):
+    def test_cmd_a_multiple(self, tmp_path, mcp_script_path):
         """Test mcp.py a adds multiple servers."""
         global_config = tmp_path / ".mcp.json"
         global_config.write_text(
@@ -156,7 +156,7 @@ class TestMcpCli:
             assert "server1" in data["mcpServers"]
             assert "server2" in data["mcpServers"]
 
-    def test_cmd_rm(self, tmp_path):
+    def test_cmd_rm(self, tmp_path, mcp_script_path):
         """Test mcp.py rm removes a server."""
         with tempfile.TemporaryDirectory() as temp_dir:
             local_config = Path(temp_dir) / ".mcp.json"
@@ -167,7 +167,7 @@ class TestMcpCli:
             result = subprocess.run(
                 [
                     "python3",
-                    "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/mcp.py",
+                    str(mcp_script_path),
                     "rm",
                     "server1",
                 ],
@@ -180,7 +180,7 @@ class TestMcpCli:
             data = json.loads(local_config.read_text())
             assert "server1" not in data["mcpServers"]
 
-    def test_cmd_cmd(self, tmp_path):
+    def test_cmd_cmd(self, tmp_path, mcp_script_path):
         """Test mcp.py cmd shows command."""
         global_config = tmp_path / ".mcp.json"
         global_config.write_text(
@@ -193,7 +193,7 @@ class TestMcpCli:
         result = subprocess.run(
             [
                 "python3",
-                "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/mcp.py",
+                str(mcp_script_path),
                 "cmd",
                 "server1",
             ],

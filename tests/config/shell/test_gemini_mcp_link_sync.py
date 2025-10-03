@@ -7,19 +7,15 @@ from types import ModuleType
 
 import pytest
 
-MODULE_PATH = (
-    Path(__file__).resolve().parents[2]
-    / "ansible"
-    / "roles"
-    / "shell"
-    / "scripts"
-    / "gm-mcp-ln.py"
-)
+@pytest.fixture(scope="session")
+def gm_mcp_script_path(shell_config_dir: Path) -> Path:
+    """Path to the gm-mcp-ln.py script."""
+    return shell_config_dir.parent.parent / "scripts" / "gm-mcp-ln.py"
 
 
 @pytest.fixture(scope="module")
-def gm_mcp_module() -> ModuleType:
-    spec = importlib.util.spec_from_file_location("gm_mcp_ln", MODULE_PATH)
+def gm_mcp_module(gm_mcp_script_path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location("gm_mcp_ln", gm_mcp_script_path)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(module)

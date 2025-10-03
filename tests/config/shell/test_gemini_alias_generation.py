@@ -6,12 +6,12 @@ import subprocess
 class TestGenGeminiAliases:
     """Test gen_gemini_aliases.py output."""
 
-    def test_output_contains_expected_aliases(self):
+    def test_output_contains_expected_aliases(self, gen_gemini_aliases_script_path):
         """Test that the script outputs expected aliases."""
         result = subprocess.run(
             [
                 "python3",
-                "/Users/akitorahayashi/environment/ansible/roles/shell/scripts/gen_gemini_aliases.py",
+                str(gen_gemini_aliases_script_path),
             ],
             capture_output=True,
             text=True,

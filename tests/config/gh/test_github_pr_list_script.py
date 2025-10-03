@@ -7,19 +7,15 @@ from typing import Iterable
 
 import pytest
 
-MODULE_PATH = (
-    Path(__file__).resolve().parents[2]
-    / "ansible"
-    / "roles"
-    / "gh"
-    / "scripts"
-    / "gh-pr-ls.py"
-)
+@pytest.fixture(scope="session")
+def gh_pr_ls_script_path(gh_config_dir: Path) -> Path:
+    """Path to the gh-pr-ls.py script."""
+    return gh_config_dir.parent.parent / "scripts" / "gh-pr-ls.py"
 
 
 @pytest.fixture(scope="module")
-def gh_pr_ls_module() -> ModuleType:
-    spec = importlib.util.spec_from_file_location("gh_pr_ls", MODULE_PATH)
+def gh_pr_ls_module(gh_pr_ls_script_path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location("gh_pr_ls", gh_pr_ls_script_path)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(module)
