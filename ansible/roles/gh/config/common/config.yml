@@ -5,8 +5,17 @@ prompt: disabled
 spinner: enabled
 aliases:
   # gh repo aliases
-  re-ls: 'repo list --limit 18 --json name,url,pushedAt --jq "sort_by(.pushedAt) | reverse | .[] | \"【\\(.name)】: \\(.url)\""'
+  re-ls: |
+    !gh repo list \
+      --limit 18 \
+      --json name,url,pushedAt \
+      --jq 'sort_by(.pushedAt) | reverse | .[] | "【\(.name)】: \(.url)"'
   re-cl: repo clone
+  or: org
+  or-ls: org list
+  or-re-ls: |
+    !gh api "orgs/$1/repos?per_page=18" \
+      --jq 'sort_by(.pushed_at) | reverse | .[] | "【\(.name)】: \(.html_url)"'
   # gh branch aliases
   br-df: |
     !f() {
