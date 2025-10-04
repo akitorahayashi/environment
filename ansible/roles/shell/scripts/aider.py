@@ -18,7 +18,6 @@ import sys
 from pathlib import Path
 from typing import Iterable, List
 
-
 MODEL_ENV = "AIDER_OLLAMA_MODEL"
 
 
@@ -204,7 +203,9 @@ def main(argv: list[str] | None = None) -> int:
         subparser = argparse.ArgumentParser(prog="aider.py")
         subparsers = subparser.add_subparsers(dest="command", required=True)
 
-        parser_set = subparsers.add_parser("set-model", help="Set the default Ollama model for aider.")
+        parser_set = subparsers.add_parser(
+            "set-model", help="Set the default Ollama model for aider."
+        )
         parser_set.add_argument("model", nargs="?")
 
         subparsers.add_parser("unset-model", help="Unset the configured Ollama model.")

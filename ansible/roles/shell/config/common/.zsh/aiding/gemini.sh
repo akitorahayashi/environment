@@ -28,5 +28,5 @@ gm_ini() {
 # Link MCP configuration from root .mcp.json to .gemini/settings.json
 alias gm-mcp-ln=gm_mcp_ln
 gm_mcp_ln() {
-	command gm-mcp-ln.py "$@"
+	command gm_mcp_ln.py "$@"
 }

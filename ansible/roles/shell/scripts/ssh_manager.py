@@ -10,7 +10,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 VALID_KEY_TYPES = ("ed25519", "rsa", "ecdsa")
 HOST_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
 
@@ -143,17 +142,23 @@ def _handle_remove(args: argparse.Namespace) -> int:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Manage SSH keys and host configurations.")
+    parser = argparse.ArgumentParser(
+        description="Manage SSH keys and host configurations."
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    parser_gk = subparsers.add_parser("gk", help="Generate a key and config snippet for a host.")
+    parser_gk = subparsers.add_parser(
+        "gk", help="Generate a key and config snippet for a host."
+    )
     parser_gk.add_argument("type", help="SSH key type", choices=list(VALID_KEY_TYPES))
     parser_gk.add_argument("host", help="Host alias")
 
     parser_ls = subparsers.add_parser("ls", help="List configured hosts.")
     parser_ls.set_defaults(func=_handle_list)
 
-    parser_rm = subparsers.add_parser("rm", help="Remove a host configuration and associated keys.")
+    parser_rm = subparsers.add_parser(
+        "rm", help="Remove a host configuration and associated keys."
+    )
     parser_rm.add_argument("host", help="Host alias")
 
     parser_gk.set_defaults(func=_handle_generate_key)
