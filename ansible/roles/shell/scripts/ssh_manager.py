@@ -170,10 +170,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
-    handler = getattr(args, "func", None)
-    if handler is None:
-        parser.print_help()
-        return 1
+    handler = args.func
     return handler(args)
 
 

@@ -13,5 +13,5 @@ def gh_config_dir(project_root: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def gh_pr_ls_script_path(gh_config_dir: Path) -> Path:
-    """Path to the gh-pr-ls.py script."""
-    return gh_config_dir.parent.parent / "scripts" / "gh-pr-ls.py"
+    """Path to the gh_pr_ls.py script."""
+    return gh_config_dir.parent.parent / "scripts" / "gh_pr_ls.py"

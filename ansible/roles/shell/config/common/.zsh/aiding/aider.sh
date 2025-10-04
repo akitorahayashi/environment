@@ -1,12 +1,17 @@
 #!/bin/bash
+
 # ==============================================================================
+
 # Aider Chat Aliases and Functions
+
 # ==============================================================================
 
 # --- Core aider functions with Ollama models ---
 
 # Base aider command with environment variable model
+
 # Usage: ai [files...]
+
 ai() {
 	aider.py "$@"
 }

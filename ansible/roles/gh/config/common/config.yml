@@ -28,7 +28,7 @@ aliases:
       echo "=== CHANGES ==="
       git diff "$base_branch...$target_branch"
     }; f "$@"
-  pr-ls: '!gh-pr-ls.py "$@"'
+  pr-ls: '!gh_pr_ls.py "$@"'
   pr-ct: |
     !f() {
       local pr_id="$1"

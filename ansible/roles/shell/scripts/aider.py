@@ -16,7 +16,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable
 
 MODEL_ENV = "AIDER_OLLAMA_MODEL"
 
@@ -90,11 +90,8 @@ def _iter_extension_matches(extensions: Iterable[str]) -> Iterable[str]:
                     yield str(path)
 
 
-def _flatten(nested: Iterable[Iterable[str]]) -> List[str]:
-    result: List[str] = []
-    for group in nested:
-        result.extend(group)
-    return result
+def _flatten(nested: Iterable[Iterable[str]]) -> list[str]:
+    return [item for group in nested for item in group]
 
 
 def _run_aider(args: argparse.Namespace) -> int:
@@ -108,7 +105,7 @@ def _run_aider(args: argparse.Namespace) -> int:
 
     provider_model = model if "/" in model else f"ollama/{model}"
 
-    command: List[str] = [
+    command: list[str] = [
         "aider",
         "--model",
         provider_model,
@@ -122,7 +119,7 @@ def _run_aider(args: argparse.Namespace) -> int:
     if args.message:
         command.extend(["--message", args.message])
 
-    targets: List[str] = []
+    targets: list[str] = []
     targets.extend(args.directories or [])
     targets.extend(_iter_extension_matches(args.extensions or []))
     targets.extend(_flatten(args.files or []))

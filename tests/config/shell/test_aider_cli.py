@@ -111,15 +111,79 @@ def test_collects_extension_and_files(tmp_path, aider_stub):
     assert "README.md" in targets
 
 
-def test_fails_without_model_environment(tmp_path):
+@pytest.fixture()
+def ollama_stub(tmp_path):
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    stub = bin_dir / "ollama"
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "if sys.argv[1:] == ['list']:\n"
+        "    print('NAME')\n"
+        "    print('llama3.2')\n"
+        "    print('qwen2.5')\n"
+    )
+    stub.chmod(0o755)
+    return bin_dir
+
+
+def _run_aider_subcommand(tmp_path, args, env_overrides, ollama_bin_dir=None):
     env = os.environ.copy()
-    env.pop("AIDER_OLLAMA_MODEL", None)
+    env.update(env_overrides)
+    if ollama_bin_dir:
+        env["PATH"] = f"{ollama_bin_dir}:{env.get('PATH', '')}"
     result = subprocess.run(
-        [sys.executable, str(AIDER_SCRIPT)],
+        [sys.executable, str(AIDER_SCRIPT), *args],
         env=env,
         cwd=tmp_path,
         capture_output=True,
         text=True,
     )
+    return result
+
+
+def test_set_model(tmp_path):
+    result = _run_aider_subcommand(tmp_path, ["set-model", "llama3.2"], {})
+    assert result.returncode == 0
+    assert "export AIDER_OLLAMA_MODEL=llama3.2" in result.stdout
+    assert 'echo "✅ Set AIDER_OLLAMA_MODEL to: llama3.2"' in result.stdout
+
+
+def test_set_model_no_arg(tmp_path):
+    env = {"AIDER_OLLAMA_MODEL": "existing"}
+    result = _run_aider_subcommand(tmp_path, ["set-model"], env)
     assert result.returncode == 1
-    assert "AIDER_OLLAMA_MODEL" in result.stderr
+    assert "Usage: set-model <model_name>" in result.stderr
+    assert "Current AIDER_OLLAMA_MODEL: existing" in result.stderr
+
+
+def test_unset_model(tmp_path):
+    env = {"AIDER_OLLAMA_MODEL": "llama3.2"}
+    result = _run_aider_subcommand(tmp_path, ["unset-model"], env)
+    assert result.returncode == 0
+    assert "unset AIDER_OLLAMA_MODEL" in result.stdout
+    assert 'echo "✅ Unset AIDER_OLLAMA_MODEL"' in result.stdout
+
+
+def test_unset_model_not_set(tmp_path):
+    result = _run_aider_subcommand(tmp_path, ["unset-model"], {})
+    assert result.returncode == 0
+    assert 'echo "AIDER_OLLAMA_MODEL is already not set"' in result.stdout
+
+
+def test_list_models(tmp_path, ollama_stub):
+    bin_dir = ollama_stub
+    result = _run_aider_subcommand(tmp_path, ["list-models"], {}, bin_dir)
+    assert result.returncode == 0
+    assert "Available Ollama models for aider:" in result.stdout
+    assert "  llama3.2" in result.stdout
+    assert "  qwen2.5" in result.stdout
+    assert "Current AIDER_OLLAMA_MODEL: not set" in result.stdout
+
+
+def test_list_models_no_ollama(tmp_path):
+    env = {"PATH": ""}
+    result = _run_aider_subcommand(tmp_path, ["list-models"], env)
+    assert result.returncode == 1
+    assert "Ollama is not installed" in result.stderr
