@@ -253,7 +253,11 @@ format:
     @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
     @uv run black tests/ ansible/
     @uv run ruff check tests/ ansible/ --fix
-    @files=$(find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | grep -v "\.git" | grep -v async-sdd-slashes | grep -v "gemini.zsh"); echo "Found $(echo "$files" | wc -l) shell files to format"; for file in $files; do shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; done
+    @files=$(just _find_shell_files); \
+    echo "Found $(echo "$files" | wc -l) shell files to format"; \
+    for file in $files; do \
+        shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; \
+    done
     @ansible-lint ansible/ --fix
 
 # Lint code with black check, ruff, shellcheck, and ansible-lint
@@ -261,7 +265,11 @@ lint:
     @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
     @uv run black --check tests/ ansible/
     @uv run ruff check tests/ ansible/
-    @files=$(find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | grep -v "\.git" | grep -v async-sdd-slashes | grep -v "gemini.zsh"); echo "Found $(echo "$files" | wc -l) shell files to lint"; for file in $files; do shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; done
+    @files=$(just _find_shell_files); \
+    echo "Found $(echo "$files" | wc -l) shell files to lint"; \
+    for file in $files; do \
+        shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; \
+    done
     @ansible-lint ansible/
     
 # ------------------------------------------------------------------------------
@@ -297,3 +305,11 @@ _run_ansible role profile tag *args="":
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
   ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}
+
+# @hidden
+_find_shell_files:
+  @find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | \
+    grep -v "\.git" | \
+    grep -v async-sdd-slashes | \
+    grep -v "gemini.zsh" | \
+    grep -v "\.uv-cache"
