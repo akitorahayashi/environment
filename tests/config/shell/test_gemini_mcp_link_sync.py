@@ -10,8 +10,8 @@ import pytest
 
 @pytest.fixture(scope="session")
 def gm_mcp_script_path(shell_config_dir: Path) -> Path:
-    """Path to the gm-mcp-ln.py script."""
-    return shell_config_dir.parent.parent / "scripts" / "gm-mcp-ln.py"
+    """Path to the gm_mcp_ln.py script."""
+    return shell_config_dir.parent.parent / "scripts" / "gm_mcp_ln.py"
 
 
 @pytest.fixture(scope="module")

@@ -1,6 +1,7 @@
 """Tests for MCP CLI tool."""
 
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -189,7 +190,7 @@ class TestMcpCli:
             )
         )
 
-        env = {"HOME": str(tmp_path)}
+        env = {"HOME": str(tmp_path), "PATH": os.environ.get("PATH", "")}
         result = subprocess.run(
             [
                 "python3",
