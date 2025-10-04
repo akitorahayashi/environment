@@ -29,6 +29,7 @@ alias u-lk="uv lock"
 alias u-rv="rm-vev;u-v;u-s"
 alias u-r="uv run"
 alias u-e="uv export --format requirements.txt > requirements.txt"
+alias u-cln="rm -rf ~/.cache/uv"
 
 # uvx
 alias ux="uvx"

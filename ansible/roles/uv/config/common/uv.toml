@@ -7,8 +7,5 @@ prerelease = "if-necessary-or-explicit"
 # Always resolve to the highest compatible version of packages.
 resolution = "highest"
 
-# Specify the cache directory.
-cache-dir = "~/.cache/uv"
-
 # Set the number of concurrent downloads.
 concurrent-downloads = 50
