@@ -34,6 +34,7 @@ exclude = '''
 /(
     \.git
     | \.mypy_cache
+    | \.uv-cache
     | \.venv
     | venv
     | env
@@ -49,6 +50,7 @@ target-version = "py312"
 exclude = [
     "__pycache__",
     "*.pyc",
+    ".uv-cache",
     ".venv",
     "venv",
     "env",
