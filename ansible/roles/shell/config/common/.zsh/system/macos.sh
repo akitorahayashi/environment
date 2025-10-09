@@ -41,4 +41,3 @@ sw() {
 		find "${2:-.}" -type f ! -path "*/.*" ! -name "*.log" ! -name ".DS_Store" -exec grep -n "$1" {} \; 2>/dev/null
 	fi
 }
-

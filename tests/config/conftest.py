@@ -6,14 +6,11 @@ import pytest
 
 
 @pytest.fixture(scope="session")
-def editor_config_dirs(project_root: Path) -> dict[str, Path]:
-    """Mapping of editor identifiers to their configuration directories."""
-    return {
-        "vscode": project_root / "ansible/roles/vscode/config/common",
-        "cursor": project_root / "ansible/roles/cursor/config/common",
-    }
+def editor_config_base(project_root: Path) -> Path:
+    """Base directory containing shared editor configuration files."""
+    return project_root / "ansible/roles/editor/config/common"
 
 
 __all__ = [
-    "editor_config_dirs",
+    "editor_config_base",
 ]

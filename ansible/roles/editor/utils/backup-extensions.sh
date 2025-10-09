@@ -15,16 +15,16 @@ if [ -z "${1-}" ]; then
 fi
 
 # ================================================
-# Get the current VSCode extension list and generate extensions.json
+# Get the current VSCode extension list and generate vscode-extensions.json
 # ================================================
 #
 # Usage:
 # 1. Grant execution permission:
-#    $ chmod +x ansible/roles/vscode/utils/backup-extensions.sh
+#    $ chmod +x ansible/roles/editor/utils/backup-extensions.sh
 # 2. Run the script:
-#    $ ./ansible/roles/vscode/utils/backup-extensions.sh ansible/roles/vscode/config/common
+#    $ ./ansible/roles/editor/utils/backup-extensions.sh ansible/roles/editor/config/common
 #
-# The script will create/update ansible/roles/vscode/config/common/extensions.json with the current list of VSCode extensions.
+# The script will create/update ansible/roles/editor/config/common/vscode-extensions.json with the current list of VSCode extensions.
 #
 # ================================================
 
@@ -32,7 +32,7 @@ fi
 # Backup file path
 
 # Set output file path
-EXT_FILE="$CONFIG_DIR/extensions.json"
+EXT_FILE="$CONFIG_DIR/vscode-extensions.json"
 mkdir -p "$(dirname "$EXT_FILE")"
 
 # Detect VSCode command

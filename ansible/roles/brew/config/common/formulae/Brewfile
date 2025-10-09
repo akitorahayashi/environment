@@ -37,5 +37,5 @@ brew "shfmt"
 # brew "displayplacer" # installed by ansible/roles/system
 
 ## Cask
-# cask "visual-studio-code" # installed by ansible/roles/vscode
+# cask "visual-studio-code" # installed by ansible/roles/editor
 # Cask packages moved to ansible/roles/brew/config/common and ansible/roles/brew/config/profiles/mac-mini/cask targets: cmn-cask, mmn-cask

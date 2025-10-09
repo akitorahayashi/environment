@@ -1,0 +1,37 @@
+---
+- name: "Install Visual Studio Code"
+  community.general.homebrew_cask:
+    name: visual-studio-code
+    state: present
+
+- name: "Ensure VS Code User directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Library/Application Support/Code/User"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink VS Code shared config files"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Code/User/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - settings.json
+    - keybindings.json
+
+- name: "Read VS Code extensions list"
+  ansible.builtin.slurp:
+    src: "{{ role_path }}/config/common/vscode-extensions.json"
+  register: editor_vscode_extensions_content
+
+- name: "Parse VS Code extensions JSON"
+  ansible.builtin.set_fact:
+    editor_vscode_extensions: "{{ (editor_vscode_extensions_content.content | b64decode | from_json).extensions }}"
+
+- name: "Install VS Code extensions"
+  ansible.builtin.command: "code --install-extension {{ item }} --force"
+  loop: "{{ editor_vscode_extensions }}"
+  ignore_errors: true
+  register: editor_vscode_install_result
+  changed_when: "'was successfully installed' in editor_vscode_install_result.stdout"
