@@ -14,6 +14,7 @@ This project automates the setup of a consistent development environment across 
 │   └── workflows/
 ├── ansible/
 │   ├── roles/
+│   ├── services/
 │   ├── hosts
 │   └── playbook.yml
 ├── tests/

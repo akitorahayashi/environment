@@ -30,7 +30,8 @@ common:
   @just cmn-shell
   @just cmn-ssh
   @just cmn-apply-system
-  @just cmn-vcs
+  @just cmn-git
+  @just cmn-jj
   @just cmn-gh
   @just sw-p
   @just cmn-vscode
@@ -55,11 +56,6 @@ cmn-apply-system:
 cmn-brew-formulae:
   @echo "  -> Running Homebrew formulae setup with config: ansible/roles/brew/config"
   @just _run_ansible "brew" "common" "brew-formulae"
-
-# Configure VCS (Version Control Systems)
-cmn-vcs:
-  @echo "🚀 Running common VCS setup..."
-  @just _run_ansible "vcs" "common" "vcs"
 
 # Configure Git settings only
 cmn-git:

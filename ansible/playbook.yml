@@ -13,7 +13,7 @@
     - { role: codex, tags: ["codex"] }
     - { role: slash, tags: ["slash"] }
     - { role: ruby, tags: ["ruby"] }
-    - { role: vcs, tags: ["vcs", "git", "jj"] }
+    - { role: vcs, tags: ["git", "jj"] }
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell"] }
     - { role: ssh, tags: ["ssh"] }
