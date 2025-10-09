@@ -20,8 +20,8 @@ def _commands_dir() -> Path:
 def _iter_aliases(commands_dir: Path) -> list[str]:
     """Return alias definitions for all prompt files in the directory."""
     aliases: list[str] = []
-    for prompt_file in sorted(commands_dir.glob("*.md")):
-        command_name = prompt_file.stem.strip()
+    for prompt_file in sorted(commands_dir.rglob("*.md")):
+        command_name = str(prompt_file.relative_to(commands_dir).with_suffix('')).replace(os.sep, '-')
         if not command_name:
             continue
         alias_name = f"sl-{command_name}"
