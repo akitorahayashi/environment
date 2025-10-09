@@ -21,3 +21,16 @@
   changed_when: false
   loop_control:
     label: "{{ item }}"
+
+- name: "Ensure ~/.local/slash directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/slash"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink slash command prompts directory"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/commands"
+    dest: "{{ ansible_env.HOME }}/.local/slash/commands"
+    state: link
+    force: true

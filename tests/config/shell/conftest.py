@@ -20,6 +20,18 @@ def gen_gemini_aliases_script_path(shell_config_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
+def gen_slash_aliases_script_path(shell_config_dir: Path) -> Path:
+    """Path to the gen_slash_aliases.py script."""
+    return shell_config_dir.parent.parent / "scripts" / "gen_slash_aliases.py"
+
+
+@pytest.fixture(scope="session")
+def slash_cmd_copier_script_path(shell_config_dir: Path) -> Path:
+    """Path to the slash_cmd_copier.py script."""
+    return shell_config_dir.parent.parent / "scripts" / "slash_cmd_copier.py"
+
+
+@pytest.fixture(scope="session")
 def mcp_script_path(shell_config_dir: Path) -> Path:
     """Path to the mcp.py script."""
     return shell_config_dir.parent.parent / "scripts" / "mcp.py"
