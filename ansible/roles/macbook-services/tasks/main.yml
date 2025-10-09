@@ -1,0 +1,12 @@
+---
+- name: "Deploy all services for macbook"
+  community.docker.docker_compose_v2:
+    project_src: "{{ repo_root_path }}/ansible/services/macbook/compose/"
+    state: present
+    restarted: true
+
+- name: "Wait for ollama-service to become available"
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 11434
+    timeout: 60

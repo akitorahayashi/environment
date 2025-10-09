@@ -194,6 +194,11 @@ mbk-brew-cask:
   @echo "🚀 Installing MacBook-specific Brew Casks..."
   @just _run_ansible "brew" "macbook" "brew-cask"
 
+# Deploy MacBook services
+mbk-services:
+  @echo "🚀 Deploying all MacBook services..."
+  @just _run_ansible "macbook-services" "macbook" "macbook-services"
+
 # ------------------------------------------------------------------------------
 # Mac Mini-Specific Recipes
 # ------------------------------------------------------------------------------
@@ -201,6 +206,11 @@ mbk-brew-cask:
 mmn-brew-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
   @just _run_ansible "brew" "mac-mini" "brew-cask"
+
+# Deploy Mac Mini services
+mmn-services:
+  @echo "🚀 Deploying all Mac Mini services..."
+  @just _run_ansible "mac-mini-services" "mac-mini" "mac-mini-services"
 
 # ------------------------------------------------------------------------------
 # VCS Profile Switching

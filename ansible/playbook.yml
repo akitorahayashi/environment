@@ -23,3 +23,5 @@
     - { role: mcp, tags: ["mcp"] }
     - { role: system, tags: ["system"] }
     - { role: docker, tags: ["docker"] }
+    - { role: macbook-services, tags: ["macbook-services"] }
+    - { role: mac-mini-services, tags: ["mac-mini-services"] }

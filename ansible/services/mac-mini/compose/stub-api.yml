@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  stub-api:
+    image: traefik/whoami
+    container_name: stub-api
+    ports:
+      - "8080:80"
+    restart: always
