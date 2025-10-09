@@ -5,6 +5,8 @@ if command -v pyenv 1>/dev/null 2>&1; then
 	eval "$(pyenv init -)"
 fi
 
+export CUR_DIR="$(pwd)"
+
 # Load all configuration files from ~/.zsh/ recursively (excluding dev.zsh which is already sourced)
 setopt extended_glob glob_star_short
 for config_file in ~/.zsh/**/*.sh~**/dev/dev.sh; do

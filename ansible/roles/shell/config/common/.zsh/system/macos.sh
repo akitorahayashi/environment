@@ -26,6 +26,9 @@ alias cl="clear"
 alias tmp="echo 'template' | pbcopy && echo '✅ Copied \"template\" to clipboard'"
 alias pcp="echo 'pbcopy' | pbcopy && echo '✅ Copied \"pbcopy\" to clipboard'"
 alias gip="ipconfig getifaddr"
+alias u="cd .."
+alias uu="cd ../.."
+alias rt="cd ${CUR_DIR}"
 
 sw() {
 	[[ -z "$1" ]] && {
@@ -38,3 +41,4 @@ sw() {
 		find "${2:-.}" -type f ! -path "*/.*" ! -name "*.log" ! -name ".DS_Store" -exec grep -n "$1" {} \; 2>/dev/null
 	fi
 }
+
