@@ -28,7 +28,7 @@ alias pcp="echo 'pbcopy' | pbcopy && echo '✅ Copied \"pbcopy\" to clipboard'"
 alias gip="ipconfig getifaddr"
 alias u="cd .."
 alias uu="cd ../.."
-alias rt="cd ${CUR_DIR}"
+alias rt="cd ${SHELL_START_DIR}"
 
 sw() {
 	[[ -z "$1" ]] && {
