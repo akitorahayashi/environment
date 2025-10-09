@@ -1,4 +1,4 @@
-version: "3.8"
+---
 services:
   stub-api:
     image: traefik/whoami

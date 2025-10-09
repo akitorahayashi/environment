@@ -13,5 +13,15 @@
   "git.enableSmartCommit": true,
   "git.autofetch": true,
   "workbench.settings.applyToAllProfiles": [],
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "terminal.integrated.allowedLinkSchemes": [
+    "file",
+    "http",
+    "https",
+    "mailto",
+    "vscode",
+    "vscode-insiders",
+    "docker-desktop"
+  ],
+  "chat.editing.confirmEditRequestRetry": false
 }
