@@ -86,7 +86,7 @@ class TestSlashCmdCopier:
             "capture = os.environ.get('PB_COPY_CAPTURE_PATH')\n"
             "data = sys.stdin.read()\n"
             "if capture:\n"
-            "\tpathlib.Path(capture).write_text(data)\n"
+            "    pathlib.Path(capture).write_text(data)\n"
         )
         pbcopy_stub.chmod(0o755)
 
@@ -112,8 +112,6 @@ class TestSlashCmdCopier:
         slash_cmd_copier_script_path: Path,
     ) -> None:
         home_dir = _prepare_commands_dir(tmp_path)
-        commands_dir = home_dir / ".local" / "slash" / "commands"
-        commands_dir.mkdir(parents=True, exist_ok=True)
 
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()

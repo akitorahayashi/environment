@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Copy slash command prompts to the clipboard."""
+"""Copy slash command prompts to the clipboard.
+
+Supports macOS (pbcopy), Linux (wl-copy or xclip), and Windows (clip).
+"""
 
 from __future__ import annotations
 
+import os
+import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -10,7 +15,29 @@ from pathlib import Path
 
 def _commands_dir() -> Path:
     """Return the path to the slash commands directory."""
-    return Path.home() / ".local" / "slash" / "commands"
+    return Path(
+        os.environ.get(
+            "SLASH_COMMANDS_DIR", Path.home() / ".local" / "slash" / "commands"
+        )
+    )
+
+
+def _get_clipboard_cmd() -> list[str]:
+    """Return the command to copy to clipboard based on the platform."""
+    system = platform.system()
+    if system == "Darwin":
+        return ["pbcopy"]
+    elif system == "Linux":
+        # Try wl-copy first, then xclip
+        try:
+            subprocess.run(["wl-copy", "--version"], capture_output=True, check=True)
+            return ["wl-copy"]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return ["xclip", "-selection", "clipboard"]
+    elif system == "Windows":
+        return ["clip"]
+    else:
+        raise RuntimeError(f"Unsupported platform: {system}")
 
 
 def _copy_prompt(command_name: str) -> int:
@@ -32,13 +59,17 @@ def _copy_prompt(command_name: str) -> int:
         return 1
 
     try:
-        subprocess.run(["pbcopy"], input=content.encode("utf-8"), check=True)
+        clipboard_cmd = _get_clipboard_cmd()
+        subprocess.run(clipboard_cmd, input=content.encode("utf-8"), check=True)
     except FileNotFoundError:
-        print("Error: 'pbcopy' command not found on this system.", file=sys.stderr)
+        print(
+            f"Error: Clipboard command not found on this system ({clipboard_cmd[0]}).",
+            file=sys.stderr,
+        )
         return 1
     except subprocess.CalledProcessError as exc:
         print(
-            f"Error: pbcopy failed with exit code {exc.returncode}",
+            f"Error: Clipboard command failed with exit code {exc.returncode}",
             file=sys.stderr,
         )
         return 1

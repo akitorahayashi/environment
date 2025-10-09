@@ -3,12 +3,18 @@
 
 from __future__ import annotations
 
+import os
+import sys
 from pathlib import Path
 
 
 def _commands_dir() -> Path:
     """Return the path to the slash commands directory."""
-    return Path.home() / ".local" / "slash" / "commands"
+    return Path(
+        os.environ.get(
+            "SLASH_COMMANDS_DIR", Path.home() / ".local" / "slash" / "commands"
+        )
+    )
 
 
 def _iter_aliases(commands_dir: Path) -> list[str]:
@@ -36,4 +42,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
