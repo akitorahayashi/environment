@@ -64,12 +64,12 @@ cmn-vcs:
 # Configure Git settings only
 cmn-git:
   @echo "🚀 Running common Git setup..."
-  @just _run_ansible "vcs" "common" "vcs-git"
+  @just _run_ansible "vcs" "common" "git"
 
 # Configure JJ (Jujutsu) settings only
 cmn-jj:
   @echo "🚀 Running common JJ setup..."
-  @just _run_ansible "vcs" "common" "vcs-jj"
+  @just _run_ansible "vcs" "common" "jj"
 
 # Configure GitHub CLI settings
 cmn-gh:
@@ -124,12 +124,12 @@ cmn-ssh:
 # Setup VS Code settings and extensions
 cmn-vscode:
   @echo "🚀 Running common VS Code setup..."
-  @just _run_ansible "vscode" "common" "vscode"
+  @just _run_ansible "editor" "common" "vscode"
 
 # Setup Cursor settings and CLI
 cmn-cursor:
   @echo "🚀 Running common Cursor setup..."
-  @just _run_ansible "cursor" "common" "cursor"
+  @just _run_ansible "editor" "common" "cursor"
 
 # Setup CodeRabbit CLI
 cmn-coderabbit:
@@ -251,7 +251,7 @@ cmn-backup-system:
 # Backup current VSCode extensions
 cmn-backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."
-  @{{repo_root}}/ansible/roles/vscode/utils/backup-extensions.sh "{{repo_root}}/ansible/roles/vscode/config/common"
+  @{{repo_root}}/ansible/roles/editor/utils/backup-extensions.sh "{{repo_root}}/ansible/roles/editor/config/common"
   @echo "✅ VSCode extensions backup completed."
 
 # ==============================================================================

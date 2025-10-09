@@ -20,6 +20,7 @@
     a = add
     ad = add
     df = diff
+    cpd = !git diff | pbcopy
     ts = status
     
     sh = stash

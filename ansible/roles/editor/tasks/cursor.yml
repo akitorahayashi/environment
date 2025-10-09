@@ -29,34 +29,29 @@
     state: directory
     mode: "0755"
 
-- name: "Find Cursor config files"
-  ansible.builtin.find:
-    paths: "{{ role_path }}/config/common"
-    patterns: ["settings.json", "keybindings.json"]
-    file_type: any
-  register: cursor_config_files
-
-- name: "Symlink Cursor config files"
+- name: "Symlink Cursor shared config files"
   ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item.path | basename }}"
+    src: "{{ role_path }}/config/common/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item }}"
     state: link
     force: true
     follow: false
-  loop: "{{ cursor_config_files.files }}"
+  loop:
+    - settings.json
+    - keybindings.json
 
 - name: "Read Cursor extensions list"
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/extensions.json"
-  register: cursor_extensions_content
+    src: "{{ role_path }}/config/common/cursor-extensions.json"
+  register: editor_cursor_extensions_content
 
 - name: "Parse Cursor extensions JSON"
   ansible.builtin.set_fact:
-    cursor_extensions: "{{ (cursor_extensions_content.content | b64decode | from_json).extensions }}"
+    editor_cursor_extensions: "{{ (editor_cursor_extensions_content.content | b64decode | from_json).extensions }}"
 
 - name: "Install Cursor extensions"
   ansible.builtin.command: "cursor --install-extension {{ item }} --force"
-  loop: "{{ cursor_extensions }}"
+  loop: "{{ editor_cursor_extensions }}"
   ignore_errors: true
-  register: cursor_install_result
-  changed_when: "'is successfully installed' in cursor_install_result.stdout"
+  register: editor_cursor_install_result
+  changed_when: "'is successfully installed' in editor_cursor_install_result.stdout"

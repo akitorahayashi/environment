@@ -13,12 +13,11 @@
     - { role: codex, tags: ["codex"] }
     - { role: slash, tags: ["slash"] }
     - { role: ruby, tags: ["ruby"] }
-    - { role: vcs, tags: ["vcs", "vcs-git", "vcs-jj"] }
+    - { role: vcs, tags: ["vcs", "git", "jj"] }
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: vscode, tags: ["editor", "vscode"] }
-    - { role: cursor, tags: ["editor", "cursor"] }
+    - { role: editor, tags: ["editor", "vscode", "cursor"] }
     - { role: coderabbit, tags: ["coderabbit"] }
     - { role: mcp, tags: ["mcp"] }
     - { role: system, tags: ["system"] }

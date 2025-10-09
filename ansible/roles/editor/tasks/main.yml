@@ -1,0 +1,8 @@
+---
+- name: "Install and configure Visual Studio Code"
+  ansible.builtin.import_tasks: vscode.yml
+  tags: [vscode]
+
+- name: "Install and configure Cursor"
+  ansible.builtin.import_tasks: cursor.yml
+  tags: [cursor]

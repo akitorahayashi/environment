@@ -2,9 +2,9 @@
 - name: "Setup Git version control"
   ansible.builtin.import_tasks: git.yml
   when: vcs_setup_git | default(true) | bool
-  tags: [vcs, vcs-git]
+  tags: [git]
 
 - name: "Setup Jujutsu (jj) version control"
   ansible.builtin.import_tasks: jj.yml
   when: vcs_setup_jj | default(true) | bool
-  tags: [vcs, vcs-jj]
+  tags: [jj]

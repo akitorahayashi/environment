@@ -122,7 +122,7 @@ This project uses Ansible to automate the setup of a complete development enviro
 3.  **Version Control Systems (`vcs` role)**
     -   **Git**: Installs `git` via Homebrew, copies `.gitconfig` to `~/.config/git/config`, symlinks `.gitignore_global`, and sets global excludesfile configuration.
     -   **Jujutsu (JJ)**: Installs `jj` via Homebrew, copies `config.toml` to `~/.config/jj/config.toml`, and sets up conf.d directory structure.
-    -   Conditional installation: Can install git-only or jj-only using tags (`--tags vcs-git`, `--tags vcs-jj`).
+    -   Conditional installation: Can install git-only or jj-only using tags (`--tags git`, `--tags jj`).
     -   Enables both traditional Git and next-generation VCS workflows.
 
 4.  **GitHub CLI Configuration (`gh` role)**
@@ -149,10 +149,10 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs the specified Ruby version and sets it as the global default.
     -   Installs a specific version of the `bundler` gem.
 
-8.  **Editor Configuration (`vscode` and `cursor` roles)**
-    Manages the setup for VS Code and Cursor, which are now in separate, modular roles.
-    -   **VS Code (`vscode` role)**: Installs Visual Studio Code, symlinks configuration files from `ansible/roles/vscode/config/common/`, and installs extensions.
-    -   **Cursor (`cursor` role)**: Installs Cursor, downloads its CLI, symlinks configuration files from `ansible/roles/cursor/config/common/`, and installs extensions.
+8.  **Editor Configuration (`editor` role)**
+    Consolidates the setup for both VS Code and Cursor into a single role with shared configuration assets.
+    -   **Visual Studio Code**: Installs the application, symlinks shared configuration files from `ansible/roles/editor/config/common/`, and installs extensions listed in `vscode-extensions.json`.
+    -   **Cursor**: Installs the application and CLI, symlinks the same shared configuration files, and installs extensions listed in `cursor-extensions.json`.
     -   **Conditional Installation**: The playbook installs both editors by default. You can target a specific one by using Ansible tags: `--tags vscode` or `--tags cursor`.
 
 9.  **Python Runtime & Tools (`python` role)**
