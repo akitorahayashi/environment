@@ -21,6 +21,8 @@ dev_alias_as() {
 	alias "${prefix}-s=${cmd_prefix} setup"
 	alias "${prefix}-f=${cmd_prefix} format"
 	alias "${prefix}-l=${cmd_prefix} lint"
+	alias "${prefix}-b=${cmd_prefix} build"
+	alias "${prefix}-rb=${cmd_prefix} rebuild"
 	alias "${prefix}-r=${cmd_prefix} run"
 	alias "${prefix}-t=${cmd_prefix} test"
 	alias "${prefix}-cln=${cmd_prefix} clean"
