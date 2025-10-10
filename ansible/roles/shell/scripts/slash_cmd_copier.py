@@ -10,7 +10,7 @@ import os
 import platform
 import subprocess
 import sys
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePath
 
 
 def _commands_dir() -> Path:
@@ -48,8 +48,8 @@ def _build_prompt_path(commands_dir: Path, command_name: str) -> Path | None:
     """
 
     try:
-        command_path = PurePosixPath(command_name)
-    except ValueError as exc:  # pragma: no cover - PurePosixPath is lenient
+        command_path = PurePath(command_name)
+    except ValueError as exc:  # pragma: no cover - PurePath is lenient
         print(f"Error: Invalid command name '{command_name}'. {exc}", file=sys.stderr)
         return None
 

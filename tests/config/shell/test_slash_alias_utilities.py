@@ -24,8 +24,8 @@ def mock_clipboard(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     capture_path = tmp_path / "clipboard_capture.txt"
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    pbcopy_stub = bin_dir / "pbcopy"
-    pbcopy_stub.write_text(
+
+    stub_script = (
         "#!/usr/bin/env python3\n"
         "import os, sys, pathlib\n"
         "capture = os.environ.get('PB_COPY_CAPTURE_PATH')\n"
@@ -33,10 +33,17 @@ def mock_clipboard(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         "if capture:\n"
         "    pathlib.Path(capture).write_text(data)\n"
     )
-    pbcopy_stub.chmod(0o755)
 
-    env_path = f"{bin_dir}:{os.environ.get('PATH', '')}"
-    monkeypatch.setenv("PATH", env_path)
+    for cmd in ["pbcopy", "wl-copy", "xclip", "clip"]:
+        stub = bin_dir / cmd
+        stub.write_text(stub_script)
+        stub.chmod(0o755)
+
+    existing_path = os.environ.get("PATH", "")
+    components = [str(bin_dir)]
+    if existing_path:
+        components.append(existing_path)
+    monkeypatch.setenv("PATH", os.pathsep.join(components))
     monkeypatch.setenv("PB_COPY_CAPTURE_PATH", str(capture_path))
 
     return capture_path
@@ -127,9 +134,7 @@ class TestGenSlashAliases:
         )
 
         assert result.returncode == 0
-        lines = [
-            line.rstrip("\n") for line in result.stdout.splitlines() if line.strip()
-        ]
+        lines = [line for line in result.stdout.splitlines() if line.strip()]
         parsed = [tuple(line.split(maxsplit=1)) for line in lines]
         assert parsed == [
             ("sl-async-sdd-slashes-sdd-3-tk", "/async-sdd-slashes/sdd-3-tk"),
@@ -200,9 +205,7 @@ class TestGenSlashAliases:
         )
 
         assert result.returncode == 0
-        lines = [
-            line.rstrip("\n") for line in result.stdout.splitlines() if line.strip()
-        ]
+        lines = [line for line in result.stdout.splitlines() if line.strip()]
         parsed = [tuple(line.split(maxsplit=1)) for line in lines]
         # Should only have the cm alias, not the documentation files
         assert parsed == [("sl-cm", "/cm")]

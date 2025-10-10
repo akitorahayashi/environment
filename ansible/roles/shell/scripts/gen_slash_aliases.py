@@ -9,6 +9,8 @@ import shlex
 import sys
 from pathlib import Path
 
+_DOC_FILENAMES = frozenset(("README", "AGENTS", "CLAUDE", "GEMINI"))
+
 
 def _commands_dir() -> Path:
     """Return the path to the slash commands directory."""
@@ -33,7 +35,7 @@ def _collect_alias_entries(commands_dir: Path) -> list[tuple[str, str]]:
             continue
 
         # Skip documentation files
-        if relative_path.name in ("README", "AGENTS", "CLAUDE", "GEMINI"):
+        if relative_path.name in _DOC_FILENAMES:
             continue
 
         alias_name = f"sl-{command_path.replace('/', '-')}"
@@ -49,9 +51,6 @@ def _collect_alias_entries(commands_dir: Path) -> list[tuple[str, str]]:
             continue
 
         command_path = next(iter(command_paths))
-        if "/" not in command_path:
-            # Root-level prompts already have the short alias.
-            continue
 
         alias_name = f"sl-{basename}"
         if alias_name in seen_aliases:
