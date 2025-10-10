@@ -18,6 +18,30 @@ def _prepare_commands_dir(tmp_path: Path) -> Path:
     return home_dir
 
 
+@pytest.fixture
+def mock_clipboard(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Set up a mock clipboard command and environment."""
+    capture_path = tmp_path / "clipboard_capture.txt"
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    pbcopy_stub = bin_dir / "pbcopy"
+    pbcopy_stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import os, sys, pathlib\n"
+        "capture = os.environ.get('PB_COPY_CAPTURE_PATH')\n"
+        "data = sys.stdin.read()\n"
+        "if capture:\n"
+        "    pathlib.Path(capture).write_text(data)\n"
+    )
+    pbcopy_stub.chmod(0o755)
+
+    env_path = f"{bin_dir}:{os.environ.get('PATH', '')}"
+    monkeypatch.setenv("PATH", env_path)
+    monkeypatch.setenv("PB_COPY_CAPTURE_PATH", str(capture_path))
+
+    return capture_path
+
+
 class TestGenSlashAliases:
     """Validate alias generation output."""
 
@@ -103,7 +127,9 @@ class TestGenSlashAliases:
         )
 
         assert result.returncode == 0
-        lines = [line.rstrip("\n") for line in result.stdout.splitlines() if line.strip()]
+        lines = [
+            line.rstrip("\n") for line in result.stdout.splitlines() if line.strip()
+        ]
         parsed = [tuple(line.split(maxsplit=1)) for line in lines]
         assert parsed == [
             ("sl-async-sdd-slashes-sdd-3-tk", "/async-sdd-slashes/sdd-3-tk"),
@@ -135,30 +161,15 @@ class TestSlashCmdCopier:
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
         slash_cmd_copier_script_path: Path,
+        mock_clipboard: Path,
     ) -> None:
         home_dir = _prepare_commands_dir(tmp_path)
         commands_dir = home_dir / ".local" / "slash" / "commands"
         prompt_content = "Use /cm prompt"
         (commands_dir / "cm.md").write_text(prompt_content, encoding="utf-8")
 
-        capture_path = tmp_path / "pbcopy_capture.txt"
-        bin_dir = tmp_path / "bin"
-        bin_dir.mkdir()
-        xclip_stub = bin_dir / "xclip"
-        xclip_stub.write_text(
-            "#!/usr/bin/env python3\n"
-            "import os, sys, pathlib\n"
-            "capture = os.environ.get('PB_COPY_CAPTURE_PATH')\n"
-            "data = sys.stdin.read()\n"
-            "if capture:\n"
-            "    pathlib.Path(capture).write_text(data)\n"
-        )
-        xclip_stub.chmod(0o755)
-
-        env_path = f"{bin_dir}:{os.environ.get('PATH', '')}"
+        capture_path = mock_clipboard
         monkeypatch.setenv("HOME", str(home_dir))
-        monkeypatch.setenv("PATH", env_path)
-        monkeypatch.setenv("PB_COPY_CAPTURE_PATH", str(capture_path))
 
         result = subprocess.run(
             [sys.executable, str(slash_cmd_copier_script_path), "cm"],
@@ -175,6 +186,7 @@ class TestSlashCmdCopier:
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
         slash_cmd_copier_script_path: Path,
+        mock_clipboard: Path,
     ) -> None:
         home_dir = _prepare_commands_dir(tmp_path)
         commands_dir = home_dir / ".local" / "slash" / "commands"
@@ -183,24 +195,8 @@ class TestSlashCmdCopier:
         prompt_content = "Use /async-sdd-slashes/sdd-3-tk prompt"
         (nested_dir / "sdd-3-tk.md").write_text(prompt_content, encoding="utf-8")
 
-        capture_path = tmp_path / "pbcopy_capture.txt"
-        bin_dir = tmp_path / "bin"
-        bin_dir.mkdir()
-        xclip_stub = bin_dir / "xclip"
-        xclip_stub.write_text(
-            "#!/usr/bin/env python3\n"
-            "import os, sys, pathlib\n"
-            "capture = os.environ.get('PB_COPY_CAPTURE_PATH')\n"
-            "data = sys.stdin.read()\n"
-            "if capture:\n"
-            "    pathlib.Path(capture).write_text(data)\n"
-        )
-        xclip_stub.chmod(0o755)
-
-        env_path = f"{bin_dir}:{os.environ.get('PATH', '')}"
+        capture_path = mock_clipboard
         monkeypatch.setenv("HOME", str(home_dir))
-        monkeypatch.setenv("PATH", env_path)
-        monkeypatch.setenv("PB_COPY_CAPTURE_PATH", str(capture_path))
 
         result = subprocess.run(
             [
@@ -213,7 +209,10 @@ class TestSlashCmdCopier:
         )
 
         assert result.returncode == 0
-        assert "✅ Copied prompt for '/async-sdd-slashes/sdd-3-tk' to clipboard" in result.stdout
+        assert (
+            "✅ Copied prompt for '/async-sdd-slashes/sdd-3-tk' to clipboard"
+            in result.stdout
+        )
         assert capture_path.read_text(encoding="utf-8") == prompt_content
 
     def test_missing_prompt_returns_error(

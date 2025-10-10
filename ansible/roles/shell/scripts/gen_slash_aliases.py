@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import argparse
 import os
-import sys
 import shlex
+import sys
 from pathlib import Path
 
 
@@ -60,20 +60,18 @@ def _collect_alias_entries(commands_dir: Path) -> list[tuple[str, str]]:
     return entries
 
 
-def _iter_aliases(commands_dir: Path) -> list[str]:
+def _iter_aliases(alias_entries: list[tuple[str, str]]) -> list[str]:
     """Return alias definitions for all prompt files in the directory."""
 
-    alias_entries = _collect_alias_entries(commands_dir)
     return [
         f'alias {alias_name}="slash_cmd_copier.py {shlex.quote(command_path)}"'
         for alias_name, command_path in alias_entries
     ]
 
 
-def _format_alias_listing(commands_dir: Path) -> str:
+def _format_alias_listing(alias_entries: list[tuple[str, str]]) -> str:
     """Return a formatted list of alias mappings."""
 
-    alias_entries = _collect_alias_entries(commands_dir)
     if not alias_entries:
         return ""
 
@@ -106,15 +104,17 @@ def main() -> int:
     if not commands_dir.exists() or not commands_dir.is_dir():
         return 0
 
+    alias_entries = _collect_alias_entries(commands_dir)
+
     if args.list:
-        listing = _format_alias_listing(commands_dir)
+        listing = _format_alias_listing(alias_entries)
         if listing:
             print(listing)
-        return 0
+    else:
+        aliases = _iter_aliases(alias_entries)
+        if aliases:
+            print("\n".join(aliases))
 
-    aliases = _iter_aliases(commands_dir)
-    if aliases:
-        print("\n".join(aliases))
     return 0
 
 
