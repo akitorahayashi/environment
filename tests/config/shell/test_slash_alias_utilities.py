@@ -152,6 +152,61 @@ class TestGenSlashAliases:
         assert result.returncode == 0
         assert result.stdout.strip() == ""
 
+    def test_excludes_documentation_files(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        gen_slash_aliases_script_path: Path,
+    ) -> None:
+        home_dir = _prepare_commands_dir(tmp_path)
+        commands_dir = home_dir / ".local" / "slash" / "commands"
+        (commands_dir / "cm.md").write_text("/cm prompt", encoding="utf-8")
+        (commands_dir / "README.md").write_text("Documentation", encoding="utf-8")
+        (commands_dir / "AGENTS.md").write_text("Agent docs", encoding="utf-8")
+        (commands_dir / "CLAUDE.md").write_text("Claude docs", encoding="utf-8")
+        (commands_dir / "GEMINI.md").write_text("Gemini docs", encoding="utf-8")
+
+        monkeypatch.setenv("HOME", str(home_dir))
+        result = subprocess.run(
+            [sys.executable, str(gen_slash_aliases_script_path)],
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0
+        lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        # Should only have the cm alias, not the documentation files
+        assert lines == ['alias sl-cm="slash_cmd_copier.py cm"']
+
+    def test_excludes_documentation_files_in_list(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        gen_slash_aliases_script_path: Path,
+    ) -> None:
+        home_dir = _prepare_commands_dir(tmp_path)
+        commands_dir = home_dir / ".local" / "slash" / "commands"
+        (commands_dir / "cm.md").write_text("/cm prompt", encoding="utf-8")
+        (commands_dir / "README.md").write_text("Documentation", encoding="utf-8")
+        nested_dir = commands_dir / "docs"
+        nested_dir.mkdir()
+        (nested_dir / "AGENTS.md").write_text("Agent docs", encoding="utf-8")
+
+        monkeypatch.setenv("HOME", str(home_dir))
+        result = subprocess.run(
+            [sys.executable, str(gen_slash_aliases_script_path), "--list"],
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0
+        lines = [
+            line.rstrip("\n") for line in result.stdout.splitlines() if line.strip()
+        ]
+        parsed = [tuple(line.split(maxsplit=1)) for line in lines]
+        # Should only have the cm alias, not the documentation files
+        assert parsed == [("sl-cm", "/cm")]
+
 
 class TestSlashCmdCopier:
     """Validate prompt copying script."""

@@ -32,6 +32,10 @@ def _collect_alias_entries(commands_dir: Path) -> list[tuple[str, str]]:
         if not command_path:
             continue
 
+        # Skip documentation files
+        if relative_path.name in ("README", "AGENTS", "CLAUDE", "GEMINI"):
+            continue
+
         alias_name = f"sl-{command_path.replace('/', '-')}"
         if alias_name not in seen_aliases:
             seen_aliases.add(alias_name)
