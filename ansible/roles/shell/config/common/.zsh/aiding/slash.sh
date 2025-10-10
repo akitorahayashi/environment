@@ -4,3 +4,11 @@
 if command -v gen_slash_aliases.py >/dev/null 2>&1; then
 	eval "$(gen_slash_aliases.py)"
 fi
+
+sl-ls() {
+	if command -v gen_slash_aliases.py >/dev/null 2>&1; then
+		gen_slash_aliases.py --list
+	else
+		alias | grep '^sl-' | sed 's/^alias //'
+	fi
+}
