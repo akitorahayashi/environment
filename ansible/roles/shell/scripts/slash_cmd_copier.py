@@ -10,7 +10,7 @@ import os
 import platform
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 def _commands_dir() -> Path:
@@ -40,10 +40,40 @@ def _get_clipboard_cmd() -> list[str]:
         raise RuntimeError(f"Unsupported platform: {system}")
 
 
+def _build_prompt_path(commands_dir: Path, command_name: str) -> Path | None:
+    """Return the full prompt path for a command name.
+
+    The command name is expressed using POSIX separators. Reject attempts to
+    traverse outside of the commands directory.
+    """
+
+    try:
+        command_path = PurePosixPath(command_name)
+    except ValueError as exc:  # pragma: no cover - PurePosixPath is lenient
+        print(f"Error: Invalid command name '{command_name}'. {exc}", file=sys.stderr)
+        return None
+
+    if not command_path.parts:
+        print("Error: Command name cannot be empty.", file=sys.stderr)
+        return None
+
+    if command_path.is_absolute() or any(part == ".." for part in command_path.parts):
+        print(
+            f"Error: Invalid command path '{command_name}'. Directory traversal is not allowed.",
+            file=sys.stderr,
+        )
+        return None
+
+    return commands_dir.joinpath(*command_path.parts).with_suffix(".md")
+
+
 def _copy_prompt(command_name: str) -> int:
     """Copy the specified prompt file to the clipboard."""
     commands_dir = _commands_dir()
-    prompt_file = commands_dir / f"{command_name}.md"
+    prompt_file = _build_prompt_path(commands_dir, command_name)
+
+    if prompt_file is None:
+        return 1
 
     if not prompt_file.is_file():
         print(
