@@ -39,8 +39,8 @@ This project automates the setup of a consistent development environment across 
 Before running the numbered steps, create any directory where you want this repository to live, move into it, and unpack the tarball snapshot:
 
 ```sh
-mkdir -p environment
-cd environment
+mkdir -p menv
+cd menv
 curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --strip-components=1
 ```
 
