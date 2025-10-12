@@ -37,10 +37,11 @@
     cm = !git add . && git commit -m
     amd = !git add . && git commit --amend --no-edit
     sb = submodule
-    sb-ini = submodule init
-    sb-u = submodule update --init --remote --recursive
     sb-a = submodule add
-    sb-d = submodule deinit
+    sb-u = submodule update --init --recursive
+    sb-u-r = submodule update --remote
+    sb-ts = submodule status
+    sb-d = !delete_git_submodule.py
 
     ps = push
     ps-u-o = push -u origin

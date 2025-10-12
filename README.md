@@ -1,4 +1,4 @@
-# MacOS Environment Setup
+# macOS Environment Setup
 
 This project automates the setup of a consistent development environment across different Macs.
 

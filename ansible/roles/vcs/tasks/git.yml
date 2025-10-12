@@ -29,3 +29,27 @@
     name: core.excludesfile
     scope: global
     value: "{{ ansible_env.HOME }}/.gitignore_global"
+
+- name: "Ensure ~/.scripts/python directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.scripts/python"
+    state: directory
+    mode: "0755"
+
+- name: "Find git helper scripts"
+  ansible.builtin.find:
+    paths: "{{ role_path }}/scripts"
+    patterns: "*.py"
+    file_type: file
+  register: git_helper_scripts
+
+- name: "Symlink git helper scripts to ~/.scripts/python"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.scripts/python/{{ item.path | basename }}"
+    state: link
+    force: true
+    mode: "0755"
+  loop: "{{ git_helper_scripts.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
