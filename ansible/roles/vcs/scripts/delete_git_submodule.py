@@ -17,9 +17,12 @@ subprocess.run(["rm", "-rf", f".git/modules/{submodule_path}"])
 # Ensure .git/config entry is removed
 result = subprocess.run(
     ["git", "config", "--remove-section", f"submodule.{submodule_path}"],
-    capture_output=True
+    capture_output=True,
 )
 if result.returncode != 0 and b"No such section" not in result.stderr:
-    print(f"Warning: Could not remove config section: {result.stderr.decode()}", file=sys.stderr)
+    print(
+        f"Warning: Could not remove config section: {result.stderr.decode()}",
+        file=sys.stderr,
+    )
 
 print(f"✅ Submodule {submodule_path} deleted successfully.")
