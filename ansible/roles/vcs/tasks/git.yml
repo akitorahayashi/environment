@@ -41,7 +41,7 @@
     paths: "{{ role_path }}/scripts"
     patterns: "*.py"
     file_type: file
-  register: git_helper_scripts
+  register: vcs_git_helper_scripts
 
 - name: "Symlink git helper scripts to ~/.scripts/python"
   ansible.builtin.file:
@@ -50,6 +50,6 @@
     state: link
     force: true
     mode: "0755"
-  loop: "{{ git_helper_scripts.files }}"
+  loop: "{{ vcs_git_helper_scripts.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
