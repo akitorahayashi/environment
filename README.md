@@ -41,7 +41,7 @@ Before running the numbered steps, create any directory where you want this repo
 ```sh
 mkdir -p menv
 cd menv
-curl -L https://github.com/akitorahayashi/environment/tarball/main | tar xz --strip-components=1
+curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-components=1
 ```
 
 1.  **Bootstrap Setup**
