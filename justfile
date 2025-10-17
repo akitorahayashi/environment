@@ -36,6 +36,7 @@ common:
   @just sw-p
   @just cmn-vscode
   @just cmn-python
+  @just cmn-uv
   @just cmn-nodejs
   @just cmn-mcp
   @just cmn-cursor
@@ -142,16 +143,16 @@ cmn-coderabbit:
 # Setup Claude Code settings
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "llm" "common" "claude"
+  @just _run_ansible "nodejs" "common" "claude"
 
 # Setup Gemini CLI settings
 cmn-gemini:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "llm" "common" "gemini"
+  @just _run_ansible "nodejs" "common" "gemini"
 
 cmn-codex:
   @echo "🚀 Running common Codex CLI setup..."
-  @just _run_ansible "llm" "common" "codex"
+  @just _run_ansible "nodejs" "common" "codex"
 
 # Run Codex before MCP so the Codex config symlink exists for synchronization
 cmn-codex-mcp:
@@ -173,6 +174,11 @@ cmn-mcp:
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
   @just _run_ansible "python" "common" "aider"
+
+# Setup uv configuration
+cmn-uv:
+  @echo "🚀 Running common uv setup..."
+  @just _run_ansible "python" "common" "uv"
 
 # Install common cask packages only
 cmn-brew-cask:

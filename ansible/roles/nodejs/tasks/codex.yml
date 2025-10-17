@@ -1,4 +1,13 @@
 ---
+- name: "Install @openai/codex via pnpm"
+  ansible.builtin.shell:
+    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @openai/codex@latest"
+  changed_when: false
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
+    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
+
 - name: "Ensure Codex configuration directories exist"
   ansible.builtin.file:
     path: "{{ item }}"
@@ -10,13 +19,13 @@
 
 - name: "Copy Codex configuration file"
   ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/codex.toml"
+    src: "{{ role_path }}/config/common/llm/codex.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
     mode: "0644"
 
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
-    src: "{{ role_path }}/config/common/AGENTS.md"
+    src: "{{ role_path }}/config/common/llm/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
     state: link
     force: true

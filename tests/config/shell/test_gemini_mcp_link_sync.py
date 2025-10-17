@@ -8,12 +8,6 @@ from types import ModuleType
 import pytest
 
 
-@pytest.fixture(scope="session")
-def gm_mcp_script_path(project_root: Path) -> Path:
-    """Path to the gm_mcp_ln.py script."""
-    return project_root / "ansible/scripts/shell/gm_mcp_ln.py"
-
-
 @pytest.fixture(scope="module")
 def gm_mcp_module(gm_mcp_script_path: Path) -> ModuleType:
     spec = importlib.util.spec_from_file_location("gm_mcp_ln", gm_mcp_script_path)
