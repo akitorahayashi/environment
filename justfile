@@ -35,8 +35,9 @@ common:
   @just cmn-gh
   @just sw-p
   @just cmn-vscode
-  @just _setup_python_tools
-  @just _setup_nodejs_tools
+  @just cmn-python
+  @just cmn-uv
+  @just cmn-nodejs
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-coderabbit
@@ -75,7 +76,12 @@ cmn-gh:
 # Setup Node.js platform and tools
 cmn-nodejs:
   @echo "🚀 Running common Node.js setup..."
-  @just _run_ansible "nodejs" "common" "nodejs"
+  @just cmn-nodejs-platform
+  @just cmn-nodejs-tools
+  @just cmn-claude
+  @just cmn-gemini
+  @just cmn-codex
+  @just cmn-slash
 
 # Setup Node.js platform only
 cmn-nodejs-platform:
@@ -90,7 +96,9 @@ cmn-nodejs-tools:
 # Setup Python platform and tools
 cmn-python:
   @echo "🚀 Running common Python setup..."
-  @just _run_ansible "python" "common" "python"
+  @just cmn-python-platform
+  @just cmn-python-tools
+  @just cmn-aider
 
 # Setup Python platform only
 cmn-python-platform:
@@ -135,16 +143,16 @@ cmn-coderabbit:
 # Setup Claude Code settings
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "claude" "common" "claude"
+  @just _run_ansible "nodejs" "common" "claude"
 
 # Setup Gemini CLI settings
 cmn-gemini:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "gemini" "common" "gemini"
+  @just _run_ansible "nodejs" "common" "gemini"
 
 cmn-codex:
   @echo "🚀 Running common Codex CLI setup..."
-  @just _run_ansible "codex" "common" "codex"
+  @just _run_ansible "nodejs" "common" "codex"
 
 # Run Codex before MCP so the Codex config symlink exists for synchronization
 cmn-codex-mcp:
@@ -165,12 +173,12 @@ cmn-mcp:
 # Setup Aider configuration
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
-  @just _run_ansible "aider" "common" "aider"
+  @just _run_ansible "python" "common" "aider"
 
 # Setup uv configuration
 cmn-uv:
   @echo "🚀 Running common uv setup..."
-  @just _run_ansible "uv" "common" "uv"
+  @just _run_ansible "python" "common" "uv"
 
 # Install common cask packages only
 cmn-brew-cask:
@@ -306,20 +314,6 @@ clean:
 # ==============================================================================
 # Hidden Recipes
 # ==============================================================================
-# @hidden
-_setup_python_tools:
-  @just cmn-python
-  @just cmn-uv
-  @just cmn-aider
-
-# @hidden
-_setup_nodejs_tools:
-  @just cmn-nodejs
-  @just cmn-claude
-  @just cmn-gemini
-  @just cmn-codex
-  @just cmn-slash
-
 # @hidden
 _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \

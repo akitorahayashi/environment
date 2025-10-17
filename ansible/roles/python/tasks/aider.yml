@@ -1,17 +1,8 @@
 ---
-- name: "Set Python version variable from file"
-  ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/.python-version"
-  register: aider_python_version_file
-
-- name: "Set Python version fact"
-  ansible.builtin.set_fact:
-    aider_python_version: "{{ aider_python_version_file.content | b64decode | trim }}"
-
 - name: "Install aider-chat with pipx using specific Python version"
   community.general.pipx:
     name: aider-chat
-    python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ aider_python_version }}/bin/python"
+    python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python"
     state: present
     executable: /opt/homebrew/bin/pipx
 

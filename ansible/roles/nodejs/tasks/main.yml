@@ -1,14 +1,31 @@
 ---
-- name: "Read Node.js version"
-  ansible.builtin.import_tasks: version.yml
-  tags: [nodejs, nodejs-platform, nodejs-tools]
+- name: "Set Node.js version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ role_path }}/config/common/.nvmrc"
+  register: nodejs_version_file
+  tags: [nodejs-platform, nodejs-tools, claude, gemini, codex]
+
+- name: "Set Node.js version fact"
+  ansible.builtin.set_fact:
+    nodejs_version: "{{ nodejs_version_file.content | b64decode | trim }}"
+  tags: [nodejs-platform, nodejs-tools, claude, gemini, codex]
 
 - name: "Setup Node.js platform"
   ansible.builtin.import_tasks: platform.yml
-  when: nodejs_setup_platform | default(true) | bool
-  tags: [nodejs, nodejs-platform]
+  tags: [nodejs-platform]
 
 - name: "Install Node.js tools and packages"
   ansible.builtin.import_tasks: tools.yml
-  when: nodejs_install_tools | default(true) | bool
-  tags: [nodejs, nodejs-tools]
+  tags: [nodejs-tools]
+
+- name: "Install and configure Claude"
+  ansible.builtin.import_tasks: claude.yml
+  tags: [claude]
+
+- name: "Install and configure Gemini"
+  ansible.builtin.import_tasks: gemini.yml
+  tags: [gemini]
+
+- name: "Install and configure Codex"
+  ansible.builtin.import_tasks: codex.yml
+  tags: [codex]

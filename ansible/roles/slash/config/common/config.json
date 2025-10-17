@@ -13,27 +13,27 @@
     "sdd-0-rq": {
       "title": "SDD Step 0: Requirements",
       "description": "Create requirements specification (Stage 0 of SDD)",
-      "prompt-file": "commands/async-sdd-slashes/sdd-0-rq.md"
+      "prompt-file": "commands/async-sdd/sdd-0-rq.md"
     },
     "sdd-1-d": {
       "title": "SDD Step 1: Design",
       "description": "Create detailed design specification (Stage 1 of SDD)",
-      "prompt-file": "commands/async-sdd-slashes/sdd-1-d.md"
+      "prompt-file": "commands/async-sdd/sdd-1-d.md"
     },
     "sdd-2-td": {
       "title": "SDD Step 2: Test Design",
       "description": "Create comprehensive test specification (Stage 2 of SDD)",
-      "prompt-file": "commands/async-sdd-slashes/sdd-2-td.md"
+      "prompt-file": "commands/async-sdd/sdd-2-td.md"
     },
     "sdd-3-tk": {
       "title": "SDD Step 3: Task Breakdown",
       "description": "Break down design into implementable tasks (Stage 3 of SDD)",
-      "prompt-file": "commands/async-sdd-slashes/sdd-3-tk.md"
+      "prompt-file": "commands/async-sdd/sdd-3-tk.md"
     },
     "sdd-4-pm": {
       "title": "SDD Step 4: Prompt Messaging",
       "description": "Generate activation prompts from the task breakdown (Stage 4 of SDD)",
-      "prompt-file": "commands/async-sdd-slashes/sdd-4-pm.md"
+      "prompt-file": "commands/async-sdd/sdd-4-pm.md"
     },
     "sn": {
       "title": "Activate Serena",

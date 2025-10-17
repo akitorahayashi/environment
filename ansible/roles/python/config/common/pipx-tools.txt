@@ -1,5 +1,4 @@
 uv
-huggingface_hub
 mlx-lm
-vllm
+mlx-hub
 jupyterlab

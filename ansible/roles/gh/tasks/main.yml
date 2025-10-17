@@ -25,7 +25,7 @@
 
 - name: "Find GitHub helper scripts"
   ansible.builtin.find:
-    paths: "{{ role_path }}/scripts"
+    paths: "{{ repo_root_path }}/ansible/scripts/gh"
     patterns: "*.py"
     file_type: file
   register: gh_helper_scripts

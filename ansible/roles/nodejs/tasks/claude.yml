@@ -1,0 +1,35 @@
+---
+- name: "Install @anthropic-ai/claude-code via pnpm"
+  ansible.builtin.shell:
+    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @anthropic-ai/claude-code@latest"
+  changed_when: false
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
+    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
+
+- name: "Ensure Claude configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Claude settings.json"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/llm/claude.json"
+    dest: "{{ ansible_env.HOME }}/.claude/settings.json"
+    state: link
+    force: true
+
+- name: "Symlink Claude AGENTS file"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/llm/AGENTS.md"
+    dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
+    state: link
+    force: true
+
+- name: "Create Claude commands directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude/commands"
+    state: directory
+    mode: "0755"

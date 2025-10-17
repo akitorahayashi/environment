@@ -12,6 +12,6 @@ def gh_config_dir(project_root: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def gh_pr_ls_script_path(gh_config_dir: Path) -> Path:
+def gh_pr_ls_script_path(project_root: Path) -> Path:
     """Path to the gh_pr_ls.py script."""
-    return gh_config_dir.parent.parent / "scripts" / "gh_pr_ls.py"
+    return project_root / "ansible/scripts/gh/gh_pr_ls.py"
