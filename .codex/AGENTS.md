@@ -7,7 +7,7 @@ A comprehensive automation project for setting up consistent macOS development e
 
 ### Entry Points
 1. **`Makefile`** - Initial setup entry point (you should not execute)
-   - `make base`: Installs Homebrew, Just, and Ansible
+   - `make base`: Installs pyenv, Python 3.12, uv, and core dependencies
    - `make macbook` / `make mac-mini`: Runs full machine-specific setup
 
 2. **`justfile`** - Individual task runner and command orchestrator
@@ -16,10 +16,11 @@ A comprehensive automation project for setting up consistent macOS development e
    - Backup utilities (`just cmn-backup-*`)
    - Role additions and customizations
 
-3. **`README.md`** - Comprehensive project documentation
-   - Directory structure and architecture explanation
-   - Usage instructions and command reference
-   - Detailed Ansible role functionality
+3. **`.github/actions/setup-base`** - CI composite action for consistent base environment setup
+   - Python 3.12 with pip caching
+   - Just command runner via `extractions/setup-just@v2`
+   - Pipx and uv package managers
+   - Ansible dependencies via `uv sync --frozen`
 
 ## Design Rules
 
@@ -51,7 +52,20 @@ To keep the repository lightweight while enabling richer validation, the `tests/
 ### CI Orchestration
 
 CI/CD pipeline orchestration is centrally managed in the `ci-workflows.yml` file.
-Each module defines its workflows in separate YAML files, specifying module-specific tasks and jobs. 
+Each module defines its workflows in separate YAML files, specifying module-specific tasks and jobs.
+
+### CI Environment Setup
+
+All CI workflows use the reusable `.github/actions/setup-base` composite action for consistent base environment setup:
+
+- **Python 3.12** with pip caching for faster builds
+- **Just** command runner via `extractions/setup-just@v2`
+- **Pipx** with proper PATH configuration
+- **Uv** package manager with installation verification
+- **Ansible dependencies** via `uv sync --frozen`
+- **Proper PATH setup** for uv virtual environments
+
+This ensures consistent tooling across all CI jobs while leveraging GitHub Actions' caching and optimization features. 
 
 ### Symlink Enforcement
 **Core Principle**: Any automation that creates symbolic links must overwrite the destination regardless of its current state.

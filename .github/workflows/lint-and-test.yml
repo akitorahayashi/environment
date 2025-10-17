@@ -23,18 +23,14 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
-      - name: Install just
-        uses: extractions/setup-just@v2
-
       - name: Run tests
         run: just test
 
-      - name: Install linting tools
-        run: |
-          brew install shellcheck
-          pipx install ansible
-          pipx inject ansible ansible-lint
-          echo "$HOME/.local/pipx/venvs/ansible/bin" >> $GITHUB_PATH
+      - name: Setup base environment for linting
+        uses: ./.github/actions/setup-base
+
+      - name: Install shellcheck
+        run: brew install shellcheck
 
       - name: Run Linters
         run: just lint
