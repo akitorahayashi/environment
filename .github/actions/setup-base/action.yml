@@ -10,6 +10,16 @@ runs:
         python-version: '3.12'
         cache: 'pip'
 
+    - name: Create .env file
+      shell: bash
+      run: |
+        if [ ! -f .env ]; then
+          cp .env.example .env
+          echo "Created .env file from .env.example"
+        else
+          echo ".env file already exists"
+        fi
+
     - name: Install just
       uses: extractions/setup-just@v2
 
