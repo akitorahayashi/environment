@@ -54,25 +54,14 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "[WARN] Homebrew command not available; subsequent installs may fail."; \
 	fi
 
-	@echo "[INSTALL] git, just, pipx..."; \
-	brew install git just pipx; \
+	@echo "[INSTALL] just, pipx..."; \
+	brew install just pipx; \
 	export PATH="$$HOME/.local/bin:$$PATH"
 
 	@echo "[INSTALL] ansible and inject ansible-lint..."; \
 	pipx install ansible; \
 	pipx inject ansible ansible-lint
 	export PATH="$$HOME/.local/pipx/venvs/ansible/bin:$$PATH"
-
-	@if [ -d .git ]; then \
-		if command -v git &> /dev/null; then \
-			echo "[SYNC] Updating git submodules..."; \
-			git submodule update --init --recursive; \
-		else \
-			echo "[WARN] Git is not available; skipping submodule update."; \
-		fi; \
-	else \
-		echo "[SKIP] No git repository detected; skipping submodule update."; \
-	fi
 	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
 
 .PHONY: macbook

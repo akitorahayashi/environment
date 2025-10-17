@@ -1,5 +1,5 @@
 ## Version Control
-# brew "git" # installed during `make base`
+# brew "git" # installed by ansible/roles/vcs
 # brew "gh" # installed by ansible/roles/git
 
 ## Development Tools

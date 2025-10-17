@@ -15,7 +15,6 @@ A comprehensive automation project for setting up consistent macOS development e
    - Profile switching (`just sw-p` / `just sw-w`)
    - Backup utilities (`just cmn-backup-*`)
    - Role additions and customizations
-   - Service orchestration now lives in the sibling `universe/` repository; see `universe/justfile` for Compose/Ansible helpers
 
 3. **`README.md`** - Comprehensive project documentation
    - Directory structure and architecture explanation

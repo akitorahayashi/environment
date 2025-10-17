@@ -55,11 +55,9 @@ curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-com
     - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
     - Install Homebrew if not already installed
-    - Install Git if not already installed
     - Install Ansible if not already installed
     - Inject ansible-lint into the Ansible environment for code quality validation
     - Install the `just` command runner
-    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
 
     **Important**: After running `make base`, edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
 
