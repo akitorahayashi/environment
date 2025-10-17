@@ -1,2 +1,12 @@
 ---
 services_macbook_ollama_service_port: 11434
+services_macbook_ollama_context_length: 4096
+services_macbook_ollama_max_loaded_models: 1
+services_macbook_ollama_num_parallel: 1
+services_macbook_ollama_max_queue: 512
+services_macbook_ollama_flash_attention: true
+services_macbook_ollama_keep_alive: 10m
+services_macbook_ollama_gpu_overhead: 1024
+services_macbook_ollama_kv_cache_type: q8_0
+services_macbook_mlx_service_port: 8080
+services_macbook_mlx_model: "mlx-community/Llama-3.2-3B-Instruct-4bit"

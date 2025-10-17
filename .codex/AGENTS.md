@@ -14,6 +14,7 @@ A comprehensive automation project for setting up consistent macOS development e
    - Individual component setup commands (`just cmn-*`, `just mbk-*`, `just mmn-*`)
    - Profile switching (`just sw-p` / `just sw-w`)
    - Backup utilities (`just cmn-backup-*`)
+   - LLM service lifecycle helpers (`just mbk-llm-serve` / `just mbk-llm-serve-down`, `just mmn-llm-serve` / `just mmn-llm-serve-down`)
    - Role additions and customizations
 
 3. **`README.md`** - Comprehensive project documentation
