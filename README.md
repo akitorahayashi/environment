@@ -14,12 +14,9 @@ This project automates the setup of a consistent development environment across 
 │   └── workflows/
 ├── ansible/
 │   ├── roles/
+│   ├── scripts/
 │   ├── hosts
 │   └── playbook.yml
-├── universe/
-│   ├── services/
-│   ├── scripts/
-│   └── references/
 ├── tests/
 ├── .env.example
 ├── .gitignore
@@ -91,9 +88,6 @@ These commands are recommended to be run manually once after initial setup (Ansi
 
 - **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
-
-> **Note**
-> Service orchestration (Ollama/MLX, Nexus, Starprobe, Obsidian Galaxy, etc.) has moved to the standalone `universe/` directory. Refer to `universe/README.md` for Docker Compose and Ansible commands dedicated to that stack.
 
 ### Codex ↔ MCP Synchronization
 

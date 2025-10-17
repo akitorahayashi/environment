@@ -1,9 +1,0 @@
-[submodule "references/nexus"]
-	path = references/nexus
-	url = https://github.com/asterismhq/nexus
-[submodule "references/starprobe"]
-	path = references/starprobe
-	url = https://github.com/asterismhq/starprobe
-[submodule "references/obs-glx"]
-	path = references/obs-glx
-	url = https://github.com/asterismhq/obs-glx
