@@ -1,20 +1,25 @@
 ---
+- name: "Set Python version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ role_path }}/config/common/.python-version"
+  register: python_version_file
+
+- name: "Set Python version fact"
+  ansible.builtin.set_fact:
+    python_version: "{{ python_version_file.content | b64decode | trim }}"
+
 - name: "Setup Python platform"
   ansible.builtin.include_tasks: platform.yml
   when: "'python-platform' in ansible_run_tags"
-  tags: [always]
 
 - name: "Install Python tools"
   ansible.builtin.include_tasks: tools.yml
   when: "'python-tools' in ansible_run_tags"
-  tags: [always]
 
 - name: "Install and configure Aider"
   ansible.builtin.include_tasks: aider.yml
   when: "'aider' in ansible_run_tags"
-  tags: [always]
 
 - name: "Setup uv configuration"
   ansible.builtin.include_tasks: uv.yml
   when: "'uv' in ansible_run_tags"
-  tags: [always]

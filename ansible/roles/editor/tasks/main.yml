@@ -2,9 +2,7 @@
 - name: "Install and configure Visual Studio Code"
   ansible.builtin.include_tasks: vscode.yml
   when: "'vscode' in ansible_run_tags"
-  tags: [always]
 
 - name: "Install and configure Cursor"
   ansible.builtin.include_tasks: cursor.yml
   when: "'cursor' in ansible_run_tags"
-  tags: [always]
