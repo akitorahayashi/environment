@@ -315,6 +315,5 @@ _run_ansible role profile tag *args="":
 _find_shell_files:
   @find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
-    grep -v async-sdd-slashes | \
     grep -v "gemini.zsh" | \
     grep -v "\.uv-cache"

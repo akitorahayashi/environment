@@ -38,11 +38,6 @@ def _collect_alias_entries(commands_dir: Path) -> list[tuple[str, str]]:
         if relative_path.name in _DOC_FILENAMES:
             continue
 
-        alias_name = f"sl-{command_path.replace('/', '-')}"
-        if alias_name not in seen_aliases:
-            seen_aliases.add(alias_name)
-            entries.append((alias_name, command_path))
-
         basename = relative_path.name
         basename_index.setdefault(basename, set()).add(command_path)
 

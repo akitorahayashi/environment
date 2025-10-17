@@ -62,10 +62,10 @@ class TestGenSlashAliases:
         commands_dir = home_dir / ".local" / "slash" / "commands"
         (commands_dir / "cm.md").write_text("/cm prompt", encoding="utf-8")
         (commands_dir / "prm.md").write_text("/prm prompt", encoding="utf-8")
-        nested_dir = commands_dir / "async-sdd-slashes"
+        nested_dir = commands_dir / "async-sdd"
         nested_dir.mkdir()
-        (nested_dir / "sdd-3-tk.md").write_text(
-            "/async-sdd-slashes/sdd-3-tk prompt",
+        (nested_dir / "sdd-0-rq.md").write_text(
+            "/async-sdd/sdd-0-rq prompt",
             encoding="utf-8",
         )
 
@@ -79,10 +79,9 @@ class TestGenSlashAliases:
         assert result.returncode == 0
         lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         assert lines == [
-            'alias sl-async-sdd-slashes-sdd-3-tk="slash_cmd_copier.py async-sdd-slashes/sdd-3-tk"',
             'alias sl-cm="slash_cmd_copier.py cm"',
             'alias sl-prm="slash_cmd_copier.py prm"',
-            'alias sl-sdd-3-tk="slash_cmd_copier.py async-sdd-slashes/sdd-3-tk"',
+            'alias sl-sdd-0-rq="slash_cmd_copier.py async-sdd/sdd-0-rq"',
         ]
 
     def test_short_alias_not_generated_when_duplicate_basename(
@@ -110,8 +109,8 @@ class TestGenSlashAliases:
         assert result.returncode == 0
         lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         assert 'alias sl-shared="slash_cmd_copier.py alpha/shared"' not in lines
-        assert 'alias sl-alpha-shared="slash_cmd_copier.py alpha/shared"' in lines
-        assert 'alias sl-beta-shared="slash_cmd_copier.py beta/shared"' in lines
+        assert 'alias sl-shared="slash_cmd_copier.py beta/shared"' not in lines
+        # Since basename "shared" is duplicated, no short aliases are generated
 
     def test_list_formatting(
         self,
@@ -122,9 +121,9 @@ class TestGenSlashAliases:
         home_dir = _prepare_commands_dir(tmp_path)
         commands_dir = home_dir / ".local" / "slash" / "commands"
         (commands_dir / "cm.md").write_text("/cm prompt", encoding="utf-8")
-        nested_dir = commands_dir / "async-sdd-slashes"
+        nested_dir = commands_dir / "async-sdd"
         nested_dir.mkdir()
-        (nested_dir / "sdd-3-tk.md").write_text("/nested", encoding="utf-8")
+        (nested_dir / "sdd-0-rq.md").write_text("/nested", encoding="utf-8")
 
         monkeypatch.setenv("HOME", str(home_dir))
         result = subprocess.run(
@@ -137,9 +136,8 @@ class TestGenSlashAliases:
         lines = [line for line in result.stdout.splitlines() if line.strip()]
         parsed = [tuple(line.split(maxsplit=1)) for line in lines]
         assert parsed == [
-            ("sl-async-sdd-slashes-sdd-3-tk", "/async-sdd-slashes/sdd-3-tk"),
             ("sl-cm", "/cm"),
-            ("sl-sdd-3-tk", "/async-sdd-slashes/sdd-3-tk"),
+            ("sl-sdd-0-rq", "/async-sdd/sdd-0-rq"),
         ]
 
     def test_no_output_when_directory_missing(
@@ -248,10 +246,10 @@ class TestSlashCmdCopier:
     ) -> None:
         home_dir = _prepare_commands_dir(tmp_path)
         commands_dir = home_dir / ".local" / "slash" / "commands"
-        nested_dir = commands_dir / "async-sdd-slashes"
+        nested_dir = commands_dir / "async-sdd"
         nested_dir.mkdir()
-        prompt_content = "Use /async-sdd-slashes/sdd-3-tk prompt"
-        (nested_dir / "sdd-3-tk.md").write_text(prompt_content, encoding="utf-8")
+        prompt_content = "Use /async-sdd/sdd-0-rq prompt"
+        (nested_dir / "sdd-0-rq.md").write_text(prompt_content, encoding="utf-8")
 
         capture_path = mock_clipboard
         monkeypatch.setenv("HOME", str(home_dir))
@@ -260,7 +258,7 @@ class TestSlashCmdCopier:
             [
                 sys.executable,
                 str(slash_cmd_copier_script_path),
-                "async-sdd-slashes/sdd-3-tk",
+                "async-sdd/sdd-0-rq",
             ],
             capture_output=True,
             text=True,
@@ -268,7 +266,7 @@ class TestSlashCmdCopier:
 
         assert result.returncode == 0
         assert (
-            "✅ Copied prompt for '/async-sdd-slashes/sdd-3-tk' to clipboard"
+            "✅ Copied prompt for '/async-sdd/sdd-0-rq' to clipboard"
             in result.stdout
         )
         assert capture_path.read_text(encoding="utf-8") == prompt_content
