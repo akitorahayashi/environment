@@ -215,6 +215,11 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Downloads and executes the official installer from https://cli.coderabbit.ai/install.sh.
     -   Installs binary to `~/.local/bin/coderabbit` with alias `cr`.
 
+20. **LLM Runtimes (`llm` role)**
+    -   Manages local LLM runtimes like Ollama and MLX through a dedicated Python script.
+    -   Provides `just` recipes for starting, stopping, and checking the status of LLM services for different profiles (`mbk`, `mmn`).
+    -   Commands: `just llm-up <profile>`, `just llm-down <profile>`, `just llm-ps <profile>`, `just llm-logs <profile>` (`<profile>` is `mbk` or `mmn`).
+
 ## Automation Policies
 
 This section outlines key policies that govern how automation is implemented in this project.

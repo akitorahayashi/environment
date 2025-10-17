@@ -22,6 +22,13 @@ A comprehensive automation project for setting up consistent macOS development e
    - Pipx and uv package managers
    - Ansible dependencies via `uv sync --frozen`
 
+## LLM Runtime Management
+Local LLM runtimes (Ollama, MLX) are managed via `just` commands.
+- `just llm-up mbk|mmn`: Start services for the specified profile.
+- `just llm-down mbk|mmn`: Stop services.
+- `just llm-ps mbk|mmn`: Check service status.
+- `just llm-logs mbk|mmn`: Show log file locations.
+
 ## Design Rules
 
 ### Configuration Path Resolution

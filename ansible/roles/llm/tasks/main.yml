@@ -1,0 +1,20 @@
+---
+- name: "Ensure ~/.scripts/python directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.scripts/python"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink LLM manager script"
+  ansible.builtin.file:
+    src: "{{ repo_root_path }}/ansible/scripts/shell/llm_manager.py"
+    dest: "{{ ansible_env.HOME }}/.scripts/python/llm_manager.py"
+    state: link
+    force: true
+    mode: "0755"
+
+- name: "Ensure .tmp directory exists for PID files"
+  ansible.builtin.file:
+    path: "{{ repo_root_path }}/.tmp"
+    state: directory
+    mode: "0700"
