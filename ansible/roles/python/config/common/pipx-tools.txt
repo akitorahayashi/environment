@@ -1,2 +1,5 @@
-jupyterlab
 uv
+huggingface_hub
+mlx-lm
+vllm
+jupyterlab

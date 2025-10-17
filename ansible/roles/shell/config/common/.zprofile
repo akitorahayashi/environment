@@ -13,9 +13,9 @@ export PATH="$HOME/.local/bin:$PATH"
 # Path for Python scripts symlinks
 export PATH="$HOME/.scripts/python:$PATH"
 
-# Path for pipx ansible venv (ansible-playbook, ansible-lint, etc.)
+# Path for pipx tools
 export PATH="$HOME/.local/pipx/venvs/ansible/bin:$PATH"
-
+export PATH="$HOME/.local/pipx/venvs/mlx-lm/bin:$PATH"
 
 # Android SDK environment variables
 if [[ -z "$ANDROID_HOME" ]]; then
