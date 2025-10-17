@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 import stat
+import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
@@ -23,7 +25,7 @@ def slash_config_path(slash_config_dir: Path) -> Path:
 class TestSlashIntegration:
     """Integrated tests for slash command configuration and assets."""
 
-    scripts_to_check = ["claude.sh", "codex.sh", "gemini.sh"]
+    scripts_to_check = ["claude.py", "codex.py", "gemini.py"]
 
     @staticmethod
     def _object_pairs_hook(pairs: List[Tuple[str, Any]]) -> Dict[str, Any]:
@@ -68,6 +70,61 @@ class TestSlashIntegration:
             assert mode & (
                 stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
             ), f"Script is not executable: {script_path}"
+
+    def test_generators_render_prompts(
+        self,
+        slash_config_dir: Path,
+        project_root: Path,
+        tmp_path: Path,
+    ) -> None:
+        """Run each generator script and ensure outputs are created."""
+
+        env = os.environ.copy()
+        env["HOME"] = str(tmp_path)
+
+        config_path = slash_config_dir / "config.json"
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        commands = config["commands"]
+        first_name, first_spec = next(iter(commands.items()))
+        prompt_file = slash_config_dir / first_spec["prompt-file"]
+        prompt_content = prompt_file.read_text(encoding="utf-8")
+
+        destinations = {
+            "claude.py": tmp_path / ".claude/commands",
+            "codex.py": tmp_path / ".codex/prompts",
+            "gemini.py": tmp_path / ".gemini/commands",
+        }
+
+        for script_name, dest_dir in destinations.items():
+            result = subprocess.run(
+                [str(slash_config_dir / script_name)],
+                cwd=project_root,
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+            assert (
+                result.returncode == 0
+            ), f"{script_name} failed with stderr: {result.stderr}"
+            assert dest_dir.is_dir(), f"Destination directory missing: {dest_dir}"
+            assert any(dest_dir.iterdir()), f"Destination directory empty: {dest_dir}"
+
+        claude_output = (destinations["claude.py"] / f"{first_name}.md").read_text(
+            encoding="utf-8"
+        )
+        assert claude_output.startswith("---\n"), "Claude output missing front matter"
+        assert prompt_content.strip() in claude_output
+
+        codex_output = (destinations["codex.py"] / f"{first_name}.md").read_text(
+            encoding="utf-8"
+        )
+        assert codex_output == prompt_content
+
+        gemini_output = (destinations["gemini.py"] / f"{first_name}.toml").read_text(
+            encoding="utf-8"
+        )
+        assert "prompt = \"\"\"" in gemini_output
+        assert prompt_content.strip() in gemini_output
 
     def _validate_schema_and_prompts(
         self, data: Dict[str, Any], slash_config_dir: Path

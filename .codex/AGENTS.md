@@ -65,7 +65,13 @@ All CI workflows use the reusable `.github/actions/setup-base` composite action 
 - **Ansible dependencies** via `uv sync --frozen`
 - **Proper PATH setup** for uv virtual environments
 
-This ensures consistent tooling across all CI jobs while leveraging GitHub Actions' caching and optimization features. 
+This ensures consistent tooling across all CI jobs while leveraging GitHub Actions' caching and optimization features.
+
+### Script Implementation Guidelines
+
+- Favor Python entry points over shell scripts for automation. Utilities that previously relied on tools such as `jq`, `yq`, or complex pipelines should now live as Python modules that leverage the standard library or vetted dependencies (e.g., `PyYAML`, `httpx`, `typer`).
+- Keep these scripts executable (`chmod +x`) and colocated with their configuration assets so Ansible roles can reference them directly.
+- Tests should exercise the Python entry points rather than mocking external binaries, using facilities like `httpx.MockTransport` for network interactions.
 
 ### Symlink Enforcement
 **Core Principle**: Any automation that creates symbolic links must overwrite the destination regardless of its current state.

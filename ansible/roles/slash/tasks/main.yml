@@ -4,9 +4,9 @@
     path: "{{ role_path }}/config/common/{{ item }}"
     mode: "0755"
   loop:
-    - claude.sh
-    - gemini.sh
-    - codex.sh
+    - claude.py
+    - gemini.py
+    - codex.py
 
 - name: "Regenerate slash commands"
   ansible.builtin.command:
@@ -15,9 +15,9 @@
   args:
     chdir: "{{ repo_root_path }}"
   loop:
-    - claude.sh
-    - gemini.sh
-    - codex.sh
+    - claude.py
+    - gemini.py
+    - codex.py
   changed_when: false
   loop_control:
     label: "{{ item }}"
