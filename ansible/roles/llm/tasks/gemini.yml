@@ -1,0 +1,37 @@
+---
+- name: "Ensure Gemini configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gemini"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Gemini settings.json"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/gemini.json"
+    dest: "{{ ansible_env.HOME }}/.gemini/settings.json"
+    state: link
+    force: true
+
+- name: "Symlink Gemini AGENTS file"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/AGENTS.md"
+    dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
+    state: link
+    force: true
+
+- name: "Check if Gemini CLI is available"
+  ansible.builtin.command: which gemini
+  register: gemini_cli_check
+  failed_when: false
+  changed_when: false
+
+- name: "Warning if Gemini CLI not available"
+  ansible.builtin.debug:
+    msg: "Gemini CLI not found. Configuration files symlinked but MCP servers not installed via CLI."
+  when: gemini_cli_check.rc != 0
+
+- name: "Create Gemini commands directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gemini/commands"
+    state: directory
+    mode: "0755"

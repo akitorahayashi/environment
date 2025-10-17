@@ -4,13 +4,10 @@
   connection: local
   roles:
     - { role: brew, tags: ["brew", "brew-formulae", "brew-cask"] }
-    - { role: python, tags: ["python", "python-platform", "python-tools"] }
+    - { role: python, tags: ["python", "python-platform", "python-tools", "aider"] }
     - { role: uv, tags: ["uv"] }
-    - { role: aider, tags: ["aider"] }
     - { role: nodejs, tags: ["nodejs", "nodejs-platform", "nodejs-tools"] }
-    - { role: claude, tags: ["claude"] }
-    - { role: gemini, tags: ["gemini"] }
-    - { role: codex, tags: ["codex"] }
+    - { role: llm, tags: ["llm", "claude", "gemini", "codex"] }
     - { role: slash, tags: ["slash"] }
     - { role: ruby, tags: ["ruby"] }
     - { role: vcs, tags: ["git", "jj"] }

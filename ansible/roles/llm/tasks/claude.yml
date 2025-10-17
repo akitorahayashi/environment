@@ -1,0 +1,26 @@
+---
+- name: "Ensure Claude configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Claude settings.json"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/claude.json"
+    dest: "{{ ansible_env.HOME }}/.claude/settings.json"
+    state: link
+    force: true
+
+- name: "Symlink Claude AGENTS file"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/AGENTS.md"
+    dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
+    state: link
+    force: true
+
+- name: "Create Claude commands directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude/commands"
+    state: directory
+    mode: "0755"

@@ -135,16 +135,16 @@ cmn-coderabbit:
 # Setup Claude Code settings
 cmn-claude:
   @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "claude" "common" "claude"
+  @just _run_ansible "llm" "common" "claude"
 
 # Setup Gemini CLI settings
 cmn-gemini:
   @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "gemini" "common" "gemini"
+  @just _run_ansible "llm" "common" "gemini"
 
 cmn-codex:
   @echo "🚀 Running common Codex CLI setup..."
-  @just _run_ansible "codex" "common" "codex"
+  @just _run_ansible "llm" "common" "codex"
 
 # Run Codex before MCP so the Codex config symlink exists for synchronization
 cmn-codex-mcp:
@@ -165,7 +165,7 @@ cmn-mcp:
 # Setup Aider configuration
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
-  @just _run_ansible "aider" "common" "aider"
+  @just _run_ansible "python" "common" "aider"
 
 # Setup uv configuration
 cmn-uv:

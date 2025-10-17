@@ -10,7 +10,7 @@
 
 - name: "Copy Codex configuration file"
   ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/config.toml"
+    src: "{{ role_path }}/config/common/codex.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
     mode: "0644"
 
