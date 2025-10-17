@@ -63,7 +63,7 @@
 
 - name: "Find Python helper scripts"
   ansible.builtin.find:
-    paths: "{{ role_path }}/scripts"
+    paths: "{{ repo_root_path }}/ansible/scripts/shell"
     patterns: "*.py"
     file_type: file
   register: shell_helper_scripts

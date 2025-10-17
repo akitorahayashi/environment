@@ -38,7 +38,7 @@
 
 - name: "Find git helper scripts"
   ansible.builtin.find:
-    paths: "{{ role_path }}/scripts"
+    paths: "{{ repo_root_path }}/ansible/scripts/vcs"
     patterns: "*.py"
     file_type: file
   register: vcs_git_helper_scripts

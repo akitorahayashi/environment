@@ -21,14 +21,14 @@
 
 - name: "Check if Gemini CLI is available"
   ansible.builtin.command: which gemini
-  register: gemini_cli_check
+  register: llm_gemini_cli_check
   failed_when: false
   changed_when: false
 
 - name: "Warning if Gemini CLI not available"
   ansible.builtin.debug:
     msg: "Gemini CLI not found. Configuration files symlinked but MCP servers not installed via CLI."
-  when: gemini_cli_check.rc != 0
+  when: llm_gemini_cli_check.rc != 0
 
 - name: "Create Gemini commands directory"
   ansible.builtin.file:

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
-AIDER_SCRIPT = ROOT / "ansible/roles/shell/scripts/aider.py"
+AIDER_SCRIPT = ROOT / "ansible/scripts/shell/aider.py"
 
 
 @pytest.fixture()
