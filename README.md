@@ -14,10 +14,12 @@ This project automates the setup of a consistent development environment across 
 │   └── workflows/
 ├── ansible/
 │   ├── roles/
-│   ├── services/
-│   ├── scripts/
 │   ├── hosts
 │   └── playbook.yml
+├── universe/
+│   ├── services/
+│   ├── scripts/
+│   └── references/
 ├── tests/
 ├── .env.example
 ├── .gitignore
@@ -89,8 +91,9 @@ These commands are recommended to be run manually once after initial setup (Ansi
 
 - **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
-- **LLM Service Management**: `just mbk-llm-serve` / `just mbk-llm-serve-down` (MacBook) and `just mmn-llm-serve` / `just mmn-llm-serve-down` (Mac mini) - Starts or stops the Ollama + MLX Docker stack for the selected profile.
-- **Mac Mini Service Stack**: `just mmn-serve` / `just mmn-serve-down` - Brings up or tears down nexus, starprobe, obs-glx API + worker, PostgreSQL (15432), and Redis (16379) on the mac mini profile. HTTP services bind to 18000 (nexus), 18001 (starprobe), and 18002 (obs-glx API).
+
+> **Note**
+> Service orchestration (Ollama/MLX, Nexus, Starprobe, Obsidian Galaxy, etc.) has moved to the standalone `universe/` directory. Refer to `universe/README.md` for Docker Compose and Ansible commands dedicated to that stack.
 
 ### Codex ↔ MCP Synchronization
 
@@ -215,12 +218,6 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs CodeRabbit CLI for AI-powered code reviews.
     -   Downloads and executes the official installer from https://cli.coderabbit.ai/install.sh.
     -   Installs binary to `~/.local/bin/coderabbit` with alias `cr`.
-
-20. **LLM Services (`services` role)**
-    -   Deploys `ollama` and `mlx` containers via Docker Compose using profile-specific parameters for MacBook and Mac mini.
-    -   Exposes Ollama on port 11434 (MacBook) / 11435 (Mac mini) and MLX on port 8080 (MacBook) / 8081 (Mac mini) to avoid conflicts when both hosts run simultaneously.
-    -   Provides `just mbk-llm-serve` and `just mmn-llm-serve` helpers for ad-hoc startup and `*-llm-serve-down` for graceful shutdown outside the Ansible run.
-    -   Adds a mac-mini specific `mmn-serve`/`mmn-serve-down` pair that orchestrates the nexus → starprobe → obs-glx stack alongside PostgreSQL and Redis using GHCR images.
 
 ## Automation Policies
 

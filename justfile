@@ -198,21 +198,6 @@ mbk-brew-cask:
   @echo "🚀 Installing MacBook-specific Brew Casks..."
   @just _run_ansible "brew" "macbook" "brew-cask"
 
-# Deploy MacBook services
-mbk-services:
-  @echo "🚀 Deploying all MacBook services..."
-  @just _run_ansible "services" "macbook" "services"
-
-# Start LLM services (Ollama & MLX) for MacBook
-mbk-llm-serve:
-  @echo "🚀 Starting LLM services for MacBook..."
-  @docker compose -f {{repo_root}}/ansible/services/macbook/compose/llm-services.yml up -d
-
-# Stop LLM services for MacBook
-mbk-llm-serve-down:
-  @echo "🛑 Stopping LLM services for MacBook..."
-  @docker compose -f {{repo_root}}/ansible/services/macbook/compose/llm-services.yml down
-
 # ==============================================================================
 # Mac Mini-Specific Recipes
 # ==============================================================================
@@ -220,31 +205,6 @@ mbk-llm-serve-down:
 mmn-brew-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
   @just _run_ansible "brew" "mac-mini" "brew-cask"
-
-# Deploy Mac Mini services
-mmn-services:
-  @echo "🚀 Deploying all Mac Mini services..."
-  @just _run_ansible "services" "mac-mini" "services"
-
-# Start full service stack for Mac Mini
-mmn-serve:
-  @echo "🚀 Starting Mac Mini service stack..."
-  @docker compose -f {{repo_root}}/ansible/services/mac-mini/compose/mmn-services.yml up -d
-
-# Stop full service stack for Mac Mini
-mmn-serve-down:
-  @echo "🛑 Stopping Mac Mini service stack..."
-  @docker compose -f {{repo_root}}/ansible/services/mac-mini/compose/mmn-services.yml down
-
-# Start LLM services (Ollama & MLX) for Mac Mini
-mmn-llm-serve:
-  @echo "🚀 Starting LLM services for Mac Mini..."
-  @docker compose -f {{repo_root}}/ansible/services/mac-mini/compose/llm-services.yml up -d
-
-# Stop LLM services for Mac Mini
-mmn-llm-serve-down:
-  @echo "🛑 Stopping LLM services for Mac Mini..."
-  @docker compose -f {{repo_root}}/ansible/services/mac-mini/compose/llm-services.yml down
 
 # ==============================================================================
 # VCS Profile Switching

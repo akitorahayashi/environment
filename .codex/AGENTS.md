@@ -14,9 +14,8 @@ A comprehensive automation project for setting up consistent macOS development e
    - Individual component setup commands (`just cmn-*`, `just mbk-*`, `just mmn-*`)
    - Profile switching (`just sw-p` / `just sw-w`)
    - Backup utilities (`just cmn-backup-*`)
-   - LLM service lifecycle helpers (`just mbk-llm-serve` / `just mbk-llm-serve-down`, `just mmn-llm-serve` / `just mmn-llm-serve-down`)
-   - Mac mini service stack orchestration (`just mmn-serve` / `just mmn-serve-down`)
    - Role additions and customizations
+   - Service orchestration now lives in the sibling `universe/` repository; see `universe/justfile` for Compose/Ansible helpers
 
 3. **`README.md`** - Comprehensive project documentation
    - Directory structure and architecture explanation
