@@ -266,8 +266,7 @@ class TestSlashCmdCopier:
 
         assert result.returncode == 0
         assert (
-            "✅ Copied prompt for '/async-sdd/sdd-0-rq' to clipboard"
-            in result.stdout
+            "✅ Copied prompt for '/async-sdd/sdd-0-rq' to clipboard" in result.stdout
         )
         assert capture_path.read_text(encoding="utf-8") == prompt_content
 
