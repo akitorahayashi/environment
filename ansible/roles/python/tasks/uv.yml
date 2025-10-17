@@ -1,4 +1,10 @@
 ---
+- name: "Install uv with pipx"
+  community.general.pipx:
+    name: uv
+    state: present
+    executable: /opt/homebrew/bin/pipx
+
 - name: "Ensure .config/uv directory exists"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/uv"

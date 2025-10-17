@@ -35,8 +35,8 @@ common:
   @just cmn-gh
   @just sw-p
   @just cmn-vscode
-  @just _setup_python_tools
-  @just _setup_nodejs_tools
+  @just cmn-python
+  @just cmn-nodejs
   @just cmn-mcp
   @just cmn-cursor
   @just cmn-coderabbit
@@ -75,7 +75,12 @@ cmn-gh:
 # Setup Node.js platform and tools
 cmn-nodejs:
   @echo "🚀 Running common Node.js setup..."
-  @just _run_ansible "nodejs" "common" "nodejs"
+  @just cmn-nodejs-platform
+  @just cmn-nodejs-tools
+  @just cmn-claude
+  @just cmn-gemini
+  @just cmn-codex
+  @just cmn-slash
 
 # Setup Node.js platform only
 cmn-nodejs-platform:
@@ -90,7 +95,9 @@ cmn-nodejs-tools:
 # Setup Python platform and tools
 cmn-python:
   @echo "🚀 Running common Python setup..."
-  @just _run_ansible "python" "common" "python"
+  @just cmn-python-platform
+  @just cmn-python-tools
+  @just cmn-aider
 
 # Setup Python platform only
 cmn-python-platform:
@@ -166,11 +173,6 @@ cmn-mcp:
 cmn-aider:
   @echo "🚀 Running common Aider setup..."
   @just _run_ansible "python" "common" "aider"
-
-# Setup uv configuration
-cmn-uv:
-  @echo "🚀 Running common uv setup..."
-  @just _run_ansible "uv" "common" "uv"
 
 # Install common cask packages only
 cmn-brew-cask:
@@ -306,20 +308,6 @@ clean:
 # ==============================================================================
 # Hidden Recipes
 # ==============================================================================
-# @hidden
-_setup_python_tools:
-  @just cmn-python
-  @just cmn-uv
-  @just cmn-aider
-
-# @hidden
-_setup_nodejs_tools:
-  @just cmn-nodejs
-  @just cmn-claude
-  @just cmn-gemini
-  @just cmn-codex
-  @just cmn-slash
-
 # @hidden
 _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \

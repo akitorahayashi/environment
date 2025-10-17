@@ -1,7 +1,14 @@
 ---
-- name: "Read Node.js version"
-  ansible.builtin.import_tasks: version.yml
-  tags: [nodejs, nodejs-platform, nodejs-tools]
+- name: "Set Node.js version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ role_path }}/config/common/.nvmrc"
+  register: nodejs_version_file
+  tags: [nodejs-platform, nodejs-tools]
+
+- name: "Set Node.js version fact"
+  ansible.builtin.set_fact:
+    nodejs_version: "{{ nodejs_version_file.content | b64decode | trim }}"
+  tags: [nodejs-platform, nodejs-tools]
 
 - name: "Setup Node.js platform"
   ansible.builtin.import_tasks: platform.yml
