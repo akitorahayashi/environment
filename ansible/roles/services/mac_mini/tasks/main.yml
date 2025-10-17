@@ -1,18 +1,28 @@
 ---
-- name: "Deploy all services for mac-mini"
+- name: "Deploy LLM services for mac-mini"
   community.docker.docker_compose_v2:
     project_src: "{{ repo_root_path }}/ansible/services/mac-mini/compose/"
     files: ["llm-services.yml"]
     state: present
     recreate: auto
 
-- name: "Wait for LLM service ports to become available"
+- name: "Deploy mac-mini application services"
+  community.docker.docker_compose_v2:
+    project_src: "{{ repo_root_path }}/ansible/services/mac-mini/compose/"
+    files: ["mmn-services.yml"]
+    state: present
+    recreate: auto
+
+- name: "Wait for mac-mini service ports to become available"
   ansible.builtin.wait_for:
     host: 127.0.0.1
     port: "{{ item.port }}"
-    timeout: 60
+    timeout: 90
   loop:
     - { name: "ollama", port: "{{ services_mac_mini_ollama_service_port | default(11435) }}" }
     - { name: "mlx", port: "{{ services_mac_mini_mlx_service_port | default(8081) }}" }
+    - { name: "nexus", port: "{{ services_mac_mini_nexus_host_port | default(18000) }}" }
+    - { name: "starprobe", port: "{{ services_mac_mini_starprobe_host_port | default(18001) }}" }
+    - { name: "obs-glx", port: "{{ services_mac_mini_obs_glx_host_port | default(18002) }}" }
   loop_control:
     label: "{{ item.name }}"

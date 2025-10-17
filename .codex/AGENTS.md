@@ -15,6 +15,7 @@ A comprehensive automation project for setting up consistent macOS development e
    - Profile switching (`just sw-p` / `just sw-w`)
    - Backup utilities (`just cmn-backup-*`)
    - LLM service lifecycle helpers (`just mbk-llm-serve` / `just mbk-llm-serve-down`, `just mmn-llm-serve` / `just mmn-llm-serve-down`)
+   - Mac mini service stack orchestration (`just mmn-serve` / `just mmn-serve-down`)
    - Role additions and customizations
 
 3. **`README.md`** - Comprehensive project documentation

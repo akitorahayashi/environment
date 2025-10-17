@@ -226,6 +226,16 @@ mmn-services:
   @echo "🚀 Deploying all Mac Mini services..."
   @just _run_ansible "services" "mac-mini" "services"
 
+# Start full service stack for Mac Mini
+mmn-serve:
+  @echo "🚀 Starting Mac Mini service stack..."
+  @docker compose -f {{repo_root}}/ansible/services/mac-mini/compose/mmn-services.yml up -d
+
+# Stop full service stack for Mac Mini
+mmn-serve-down:
+  @echo "🛑 Stopping Mac Mini service stack..."
+  @docker compose -f {{repo_root}}/ansible/services/mac-mini/compose/mmn-services.yml down
+
 # Start LLM services (Ollama & MLX) for Mac Mini
 mmn-llm-serve:
   @echo "🚀 Starting LLM services for Mac Mini..."
