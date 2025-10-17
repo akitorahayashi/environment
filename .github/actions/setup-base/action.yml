@@ -1,0 +1,52 @@
+name: Setup Base Environment
+description: Install Python, pipx, uv, and Ansible dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Create .env file
+      shell: bash
+      run: |
+        if [ ! -f .env ]; then
+          cp .env.example .env
+          echo "Created .env file from .env.example"
+        else
+          echo ".env file already exists"
+        fi
+
+    - name: Install just
+      uses: extractions/setup-just@v2
+
+    - name: Install pipx
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pipx
+        python -m pipx ensurepath
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Install uv via pipx
+      shell: bash
+      run: pipx install uv
+
+    - name: Verify uv installation
+      shell: bash
+      run: |
+        which uv
+        uv --version
+
+    - name: Install Ansible and dependencies with uv
+      shell: bash
+      run: uv sync --frozen
+
+    - name: Add uv virtualenv to PATH
+      shell: bash
+      run: |
+        UV_BIN_DIR="$(uv run which ansible | xargs dirname)"
+        echo "$UV_BIN_DIR" >> "$GITHUB_PATH"

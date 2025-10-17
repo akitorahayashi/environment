@@ -12,11 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Homebrew and just
-        run: make base
-
-      - name: Add ansible venv to PATH
-        run: echo "$HOME/.local/pipx/venvs/ansible/bin" >> $GITHUB_PATH
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
 
       - name: Setup VSCode configuration
         run: just cmn-vscode

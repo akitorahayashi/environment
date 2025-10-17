@@ -1,8 +1,8 @@
 ---
 - name: "Setup Git version control"
-  ansible.builtin.import_tasks: git.yml
-  tags: [git]
+  ansible.builtin.include_tasks: git.yml
+  when: "'git' in ansible_run_tags"
 
 - name: "Setup Jujutsu (jj) version control"
-  ansible.builtin.import_tasks: jj.yml
-  tags: [jj]
+  ansible.builtin.include_tasks: jj.yml
+  when: "'jj' in ansible_run_tags"

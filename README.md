@@ -14,7 +14,7 @@ This project automates the setup of a consistent development environment across 
 │   └── workflows/
 ├── ansible/
 │   ├── roles/
-│   ├── services/
+│   ├── scripts/
 │   ├── hosts
 │   └── playbook.yml
 ├── tests/
@@ -55,13 +55,14 @@ curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-com
     - Install Xcode Command Line Tools if not already installed
     - Create a `.env` file from `.env.example` if it doesn't exist
     - Install Homebrew if not already installed
-    - Install Git if not already installed
-    - Install Ansible if not already installed
-    - Inject ansible-lint into the Ansible environment for code quality validation
+    - Install pyenv and Python 3.12 for local development
+    - Install pipx and uv for Python package management
+    - Install Ansible and development dependencies via uv
     - Install the `just` command runner
-    - Update all git submodules (`git submodule update --init --recursive`) when running inside a git checkout
 
     **Important**: After running `make base`, edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
+
+    **Note**: CI workflows use the optimized `.github/actions/setup-base` composite action instead of `make base` for faster, cached environment setup.
 
 2.  **Install Various Tools and Packages**
 
@@ -263,3 +264,16 @@ The following GitHub Actions workflows validate the automated setup process:
 - **`setup-alias.yml`**: Validates Git, JJ, shell, SSH, and MCP configuration with alias testing
 - **`setup-system.yml`**: Validates macOS system defaults application and backup verification
 - **`run-tests.yml`**: Validates the slash command configuration by running tests.
+
+### CI Environment Setup
+
+All CI workflows use the reusable `.github/actions/setup-base` composite action for consistent base environment setup:
+
+- **Python 3.12** with pip caching for faster builds
+- **Just** command runner via `extractions/setup-just@v2`
+- **Pipx** with proper PATH configuration
+- **Uv** package manager with installation verification
+- **Ansible dependencies** via `uv sync --frozen`
+- **Proper PATH setup** for uv virtual environments
+
+This ensures consistent tooling across all CI jobs while leveraging GitHub Actions' caching and optimization features.

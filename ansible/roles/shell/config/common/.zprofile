@@ -14,7 +14,6 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.scripts/python:$PATH"
 
 # Path for pipx tools
-export PATH="$HOME/.local/pipx/venvs/ansible/bin:$PATH"
 export PATH="$HOME/.local/pipx/venvs/mlx-lm/bin:$PATH"
 export PATH="$HOME/.local/pipx/venvs/mlx-hub/bin:$PATH"
 

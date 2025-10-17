@@ -13,7 +13,7 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[^_][a-zA-Z0-9_-]*:.*?## / {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: base
-base: ## Installs Homebrew and the 'just' command runner
+base: ## Installs pyenv, Python 3.12, uv, and core dependencies
 	@echo "🚀 Starting bootstrap setup..."
 
 	@if command -v xcode-select &> /dev/null; then \
@@ -38,7 +38,7 @@ base: ## Installs Homebrew and the 'just' command runner
 	@if ! command -v brew &> /dev/null; then \
 		echo "[INSTALL] Homebrew ..."; \
 		echo "[INFO] Homebrewインストールスクリプトを実行します..."; \
-		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+		/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
 		if ! command -v brew &> /dev/null; then \
 			echo "[ERROR] Homebrewのインストールに失敗しました"; \
 			exit 1; \
@@ -54,25 +54,49 @@ base: ## Installs Homebrew and the 'just' command runner
 		echo "[WARN] Homebrew command not available; subsequent installs may fail."; \
 	fi
 
-	@echo "[INSTALL] git, just, pipx..."; \
-	brew install git just pipx; \
-	export PATH="$$HOME/.local/bin:$$PATH"
-
-	@echo "[INSTALL] ansible and inject ansible-lint..."; \
-	pipx install ansible; \
-	pipx inject ansible ansible-lint
-	export PATH="$$HOME/.local/pipx/venvs/ansible/bin:$$PATH"
-
-	@if [ -d .git ]; then \
-		if command -v git &> /dev/null; then \
-			echo "[SYNC] Updating git submodules..."; \
-			git submodule update --init --recursive; \
-		else \
-			echo "[WARN] Git is not available; skipping submodule update."; \
-		fi; \
+	@echo "[INSTALL] pyenv..."; \
+	if ! command -v pyenv &> /dev/null; then \
+		brew install pyenv; \
 	else \
-		echo "[SKIP] No git repository detected; skipping submodule update."; \
+		echo "[SUCCESS] pyenv is already installed."; \
 	fi
+
+	@echo "[INSTALL] Python 3.12 via pyenv..."; \
+	if ! pyenv versions | grep -q '3.12'; then \
+		pyenv install 3.12; \
+	else \
+		echo "[SUCCESS] Python 3.12 is already installed."; \
+	fi; \
+	pyenv global 3.12
+
+	@echo "[INSTALL] pipx..."; \
+	eval "$$(pyenv init -)"; \
+	if ! command -v pipx &> /dev/null; then \
+		python -m pip install --user pipx; \
+		python -m pipx ensurepath; \
+	else \
+		echo "[SUCCESS] pipx is already installed."; \
+	fi
+
+	@echo "[INSTALL] uv..."; \
+	export PATH="$$HOME/.local/bin:$$PATH"; \
+	if ! command -v uv &> /dev/null; then \
+		pipx install uv; \
+	else \
+		echo "[SUCCESS] uv is already installed."; \
+	fi
+
+	@echo "[INSTALL] Ansible and development tools via uv..."; \
+	eval "$$(pyenv init -)"; \
+	uv sync
+
+	@echo "[INSTALL] just..."; \
+	if ! command -v just &> /dev/null; then \
+		brew install just; \
+	else \
+		echo "[SUCCESS] just is already installed."; \
+	fi
+
 	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
 
 .PHONY: macbook

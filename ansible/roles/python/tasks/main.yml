@@ -3,25 +3,23 @@
   ansible.builtin.slurp:
     src: "{{ role_path }}/config/common/.python-version"
   register: python_version_file
-  tags: [python-platform, python-tools, aider]
 
 - name: "Set Python version fact"
   ansible.builtin.set_fact:
     python_version: "{{ python_version_file.content | b64decode | trim }}"
-  tags: [python-platform, python-tools, aider]
 
 - name: "Setup Python platform"
-  ansible.builtin.import_tasks: platform.yml
-  tags: [python-platform]
+  ansible.builtin.include_tasks: platform.yml
+  when: "'python-platform' in ansible_run_tags"
 
 - name: "Install Python tools"
-  ansible.builtin.import_tasks: tools.yml
-  tags: [python-tools]
+  ansible.builtin.include_tasks: tools.yml
+  when: "'python-tools' in ansible_run_tags"
 
 - name: "Install and configure Aider"
-  ansible.builtin.import_tasks: aider.yml
-  tags: [aider]
+  ansible.builtin.include_tasks: aider.yml
+  when: "'aider' in ansible_run_tags"
 
 - name: "Setup uv configuration"
-  ansible.builtin.import_tasks: uv.yml
-  tags: [uv]
+  ansible.builtin.include_tasks: uv.yml
+  when: "'uv' in ansible_run_tags"

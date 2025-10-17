@@ -198,11 +198,6 @@ mbk-brew-cask:
   @echo "🚀 Installing MacBook-specific Brew Casks..."
   @just _run_ansible "brew" "macbook" "brew-cask"
 
-# Deploy MacBook services
-mbk-services:
-  @echo "🚀 Deploying all MacBook services..."
-  @just _run_ansible "services" "macbook" "services"
-
 # ==============================================================================
 # Mac Mini-Specific Recipes
 # ==============================================================================
@@ -210,11 +205,6 @@ mbk-services:
 mmn-brew-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
   @just _run_ansible "brew" "mac-mini" "brew-cask"
-
-# Deploy Mac Mini services
-mmn-services:
-  @echo "🚀 Deploying all Mac Mini services..."
-  @just _run_ansible "services" "mac-mini" "services"
 
 # ==============================================================================
 # VCS Profile Switching
@@ -272,7 +262,7 @@ format:
     for file in $files; do \
         shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; \
     done
-    @ansible-lint ansible/ --fix
+    @uv run ansible-lint ansible/ --fix
 
 # Lint code with black check, ruff, shellcheck, and ansible-lint
 lint:
@@ -284,7 +274,7 @@ lint:
     for file in $files; do \
         shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; \
     done
-    @ansible-lint ansible/
+    @uv run ansible-lint ansible/
     
 # ==============================================================================
 # Testing
@@ -319,12 +309,12 @@ _run_ansible role profile tag *args="":
   @if [ ! -f .env ]; then echo "❌ Error: .env file not found. Please run 'make base' first."; exit 1; fi && \
   export $(grep -v '^#' .env | xargs) && \
   export ANSIBLE_CONFIG={{repo_root}}/ansible/ansible.cfg && \
-  ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}
+  uv run ansible-playbook -i {{inventory}} {{playbook}} --limit localhost --tags "{{tag}}" -e "profile={{profile}}" -e "repo_root_path={{repo_root}}" {{args}}
 
 # @hidden
 _find_shell_files:
   @find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
-    grep -v async-sdd-slashes | \
     grep -v "gemini.zsh" | \
-    grep -v "\.uv-cache"
+    grep -v "\.uv-cache" | \
+    grep -v "\.venv"

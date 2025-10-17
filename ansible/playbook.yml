@@ -17,4 +17,3 @@
     - { role: mcp, tags: ["mcp"] }
     - { role: system, tags: ["system"] }
     - { role: docker, tags: ["docker"] }
-    - { role: services, tags: ["services"] }

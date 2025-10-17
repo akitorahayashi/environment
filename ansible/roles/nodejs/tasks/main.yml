@@ -3,29 +3,27 @@
   ansible.builtin.slurp:
     src: "{{ role_path }}/config/common/.nvmrc"
   register: nodejs_version_file
-  tags: [nodejs-platform, nodejs-tools, claude, gemini, codex]
 
 - name: "Set Node.js version fact"
   ansible.builtin.set_fact:
     nodejs_version: "{{ nodejs_version_file.content | b64decode | trim }}"
-  tags: [nodejs-platform, nodejs-tools, claude, gemini, codex]
 
 - name: "Setup Node.js platform"
-  ansible.builtin.import_tasks: platform.yml
-  tags: [nodejs-platform]
+  ansible.builtin.include_tasks: platform.yml
+  when: "'nodejs-platform' in ansible_run_tags"
 
 - name: "Install Node.js tools and packages"
-  ansible.builtin.import_tasks: tools.yml
-  tags: [nodejs-tools]
+  ansible.builtin.include_tasks: tools.yml
+  when: "'nodejs-tools' in ansible_run_tags"
 
 - name: "Install and configure Claude"
-  ansible.builtin.import_tasks: claude.yml
-  tags: [claude]
+  ansible.builtin.include_tasks: claude.yml
+  when: "'claude' in ansible_run_tags"
 
 - name: "Install and configure Gemini"
-  ansible.builtin.import_tasks: gemini.yml
-  tags: [gemini]
+  ansible.builtin.include_tasks: gemini.yml
+  when: "'gemini' in ansible_run_tags"
 
 - name: "Install and configure Codex"
-  ansible.builtin.import_tasks: codex.yml
-  tags: [codex]
+  ansible.builtin.include_tasks: codex.yml
+  when: "'codex' in ansible_run_tags"

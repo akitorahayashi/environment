@@ -1,8 +1,5 @@
 {
   "dependencies": {
-    "@openai/codex": "latest",
-    "@google/gemini-cli": "latest",
-    "@anthropic-ai/claude-code": "latest",
     "@github/copilot": "latest",
     "@marp-team/marp-cli": "latest",
     "md-to-pdf": "latest"
