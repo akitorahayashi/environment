@@ -7,9 +7,10 @@
   environment:
     PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
 
-- name: "Install pipx using global Python user install"
+- name: "Install pipx using pyenv Python"
   ansible.builtin.shell: |
     eval "$(pyenv init -)"
+    pyenv shell {{ python_version }}
     python -m pip install --user pipx
     python -m pipx ensurepath
   args:

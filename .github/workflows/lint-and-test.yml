@@ -20,6 +20,14 @@ jobs:
       - name: Install shellcheck
         run: brew install shellcheck
 
+      - name: Create mlx-lm venv
+        run: uv venv mlx-lm
+
+      - name: Install mlx dependencies
+        env:
+          UV_PROJECT_ENVIRONMENT: ./mlx-lm
+        run: uv sync --only-group mlx
+        
       - name: Run tests
         run: just test
 

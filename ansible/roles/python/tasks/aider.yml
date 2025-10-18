@@ -1,4 +1,25 @@
 ---
+- name: "Check if pipx is installed"
+  ansible.builtin.command: "command -v pipx"
+  register: python_pipx_check
+  ignore_errors: true
+  changed_when: false
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+
+- name: "Install pipx using pyenv Python"
+  ansible.builtin.shell: |
+    eval "$(pyenv init -)"
+    pyenv shell {{ python_version }}
+    python -m pip install --user pipx
+    python -m pipx ensurepath
+  args:
+    executable: /bin/bash
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+  when: python_pipx_check.rc != 0
+  changed_when: python_pipx_check.rc != 0
+
 - name: "Install aider-chat with pipx using specific Python version"
   community.general.pipx:
     name: aider-chat
