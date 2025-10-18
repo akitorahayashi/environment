@@ -85,12 +85,13 @@ def ensure_prompt_exists(prompt_root: Path, prompt_file: str) -> Path:
     """Return the resolved path to a prompt file, ensuring it exists."""
 
     prompt_path = (prompt_root / prompt_file).resolve()
-    if not prompt_path.is_file():
-        raise SlashGeneratorError(f"Prompt file not found: {prompt_path}")
-    if Path(prompt_root).resolve() not in prompt_path.parents:
+    root = Path(prompt_root).resolve()
+    if root not in prompt_path.parents:
         raise SlashGeneratorError(
             f"Prompt file must be inside the prompt directory: {prompt_path}"
         )
+    if not prompt_path.is_file():
+        raise SlashGeneratorError(f"Prompt file not found: {prompt_path}")
     return prompt_path
 
 

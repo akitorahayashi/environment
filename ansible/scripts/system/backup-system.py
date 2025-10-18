@@ -37,7 +37,10 @@ class BackupError(RuntimeError):
 
 
 def _load_yaml_file(path: Path) -> Iterable[dict]:
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        raise BackupError(f"Invalid YAML in {path}: {exc}") from exc
     if data is None:
         return []
     if not isinstance(data, list):
@@ -171,6 +174,9 @@ def backup_settings(definitions_dir: Path, output_file: Path) -> None:
     output_file.parent.mkdir(parents=True, exist_ok=True)
     lines: List[str] = ["---"]
 
+    if not definitions_dir.exists():
+        raise BackupError(f"Definitions directory not found: {definitions_dir}")
+
     for definition in iter_definitions(definitions_dir):
         raw_value = _run_defaults(definition.domain, definition.key, definition.default)
         formatted = format_value(definition, raw_value)
@@ -217,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[ERROR] Unexpected failure: {exc}", file=sys.stderr)
         return 1
 
-    print(f"Generated system defaults script: {output_file}")
+    print(f"Generated system defaults YAML: {output_file}")
     return 0
 
 

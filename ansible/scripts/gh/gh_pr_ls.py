@@ -127,7 +127,10 @@ async def _post_graphql(
     except httpx.HTTPError as exc:
         raise GitHubAPIError(f"GitHub GraphQL request failed: {exc}") from exc
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise GitHubAPIError("GitHub GraphQL response was not valid JSON.") from exc
     if errors := data.get("errors"):
         message = "; ".join(error.get("message", "Unknown error") for error in errors)
         raise GitHubAPIError(f"GitHub GraphQL response contained errors: {message}")
@@ -224,7 +227,7 @@ async def gather_pull_requests(
 
     try:
         nodes = await _post_graphql(
-            client, owner=owner, repo=repo, limit=min(limit, 50), headers=headers
+            client, owner=owner, repo=repo, limit=min(limit, 100), headers=headers
         )
         entries: List[Dict[str, Any]] = []
         for node in nodes:

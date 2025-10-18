@@ -91,7 +91,7 @@ def _handle_generate_key(host: str, key_type: str) -> None:
     try:
         _run_ssh_keygen(key_type, key_path, host)
         _write_host_config(host, key_type, config_path)
-    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError) as exc:
         # Best-effort cleanup
         for p in (key_path, Path(str(key_path) + ".pub")):
             try:
@@ -136,7 +136,7 @@ def remove_host(
     # Validate and constrain to conf.d
     if not HOST_PATTERN.match(host):
         err_console.print(f"Error: Invalid host '{host}' (allowed: [A-Za-z0-9._-]+).")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     conf_dir = _conf_dir()
     base = conf_dir.resolve()
     config_path = (conf_dir / f"{host}.conf").resolve()

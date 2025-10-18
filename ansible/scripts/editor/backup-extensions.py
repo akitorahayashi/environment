@@ -41,10 +41,15 @@ def list_extensions(command: str) -> List[str]:
             capture_output=True,
             text=True,
             check=True,
+            timeout=10,
         )
     except FileNotFoundError as exc:
         raise ExtensionBackupError(
             f"Command '{command}' is not available on this system."
+        ) from exc
+    except subprocess.TimeoutExpired as exc:
+        raise ExtensionBackupError(
+            f"Timed out while running '{command} --list-extensions'."
         ) from exc
     except subprocess.CalledProcessError as exc:
         raise ExtensionBackupError(
