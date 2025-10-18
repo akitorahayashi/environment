@@ -1,32 +1,11 @@
 ---
-- name: "Check if pipx is installed"
-  ansible.builtin.command: "command -v pipx"
-  register: python_pipx_check
-  ignore_errors: true
-  changed_when: false
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
-
-- name: "Install pipx using pyenv Python"
+- name: "Install aider-chat with pipx using specific Python version"
   ansible.builtin.shell: |
     eval "$(pyenv init -)"
-    pyenv shell {{ python_version }}
-    python -m pip install --user pipx
-    python -m pipx ensurepath
+    pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python aider-chat
   args:
     executable: /bin/bash
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
-  when: python_pipx_check.rc != 0
-  changed_when: python_pipx_check.rc != 0
-
-- name: "Install aider-chat with pipx using specific Python version"
-  community.general.pipx:
-    name: aider-chat
-    python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python"
-    state: present
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+  changed_when: false
 
 - name: "Ensure .aider directory exists"
   ansible.builtin.file:

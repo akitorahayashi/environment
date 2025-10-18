@@ -61,13 +61,13 @@ base: ## Installs pyenv, Python 3.12, uv, and core dependencies
 		echo "[SUCCESS] pyenv is already installed."; \
 	fi
 
-	@echo "[INSTALL] Python 3.12 via pyenv..."; \
-	if ! pyenv versions | grep -q '3.12'; then \
-		pyenv install 3.12; \
+	@echo "[INSTALL] Python 3.12.11 via pyenv..."; \
+	if ! pyenv versions | grep -q '3.12.11'; then \
+		pyenv install 3.12.11; \
 	else \
-		echo "[SUCCESS] Python 3.12 is already installed."; \
+		echo "[SUCCESS] Python 3.12.11 is already installed."; \
 	fi; \
-	pyenv global 3.12
+	pyenv global 3.12.11
 
 	@echo "[INSTALL] pipx..."; \
 	eval "$$(pyenv init -)"; \

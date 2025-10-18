@@ -1,32 +1,12 @@
 ---
-- name: "Check if pipx is installed"
-  ansible.builtin.command: "command -v pipx"
-  register: python_pipx_check
-  ignore_errors: true
-  changed_when: false
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
-
-- name: "Install pipx using pyenv Python"
+- name: "Install pipx tools"
   ansible.builtin.shell: |
     eval "$(pyenv init -)"
-    pyenv shell {{ python_version }}
-    python -m pip install --user pipx
-    python -m pipx ensurepath
+    pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python {{ item }}
   args:
     executable: /bin/bash
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
-  when: python_pipx_check.rc != 0
-  changed_when: python_pipx_check.rc != 0
-
-- name: "Install pipx tools"
-  ansible.builtin.command:
-    cmd: "pipx install {{ item }}"
   loop: "{{ lookup('file', role_path + '/config/common/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
   changed_when: false
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
 
 - name: "Check if mlx-lm venv exists"
   ansible.builtin.stat:
