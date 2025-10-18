@@ -9,7 +9,7 @@ import pytest
 
 @pytest.fixture()
 def backup_system_module(project_root: Path) -> ModuleType:
-    script_path = project_root / "ansible/roles/system/utils/backup-system.py"
+    script_path = project_root / "ansible/scripts/system/backup-system.py"
     spec = importlib.util.spec_from_file_location("backup_system", script_path)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
