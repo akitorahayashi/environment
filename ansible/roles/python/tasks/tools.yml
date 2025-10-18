@@ -7,17 +7,24 @@
   environment:
     PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
 
-- name: "Find executables in mlx-lm venv"
-  ansible.builtin.find:
-    paths: "{{ role_path }}/../../mlx-lm/bin"
-    file_type: file
-  register: python_mlx_lm_executables
+- name: "Check if mlx-lm venv exists"
+  ansible.builtin.stat:
+    path: "{{ repo_root_path }}/mlx-lm"
+  register: python_mlx_lm_venv
 
-- name: "Symlink mlx-lm executables to user's local bin"
+- name: "Fail if mlx-lm venv is missing"
+  ansible.builtin.fail:
+    msg: "mlx-lm venv not found at {{ repo_root_path }}/mlx-lm. Run 'make base' first."
+  when: not python_mlx_lm_venv.stat.exists
+
+- name: "Create mlx-lm directory in user's local"
   ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item.path | basename }}"
+    path: "{{ ansible_env.HOME }}/.local/mlx_lm"
+    state: directory
+
+- name: "Symlink mlx-lm bin directory to user's local bin"
+  ansible.builtin.file:
+    src: "{{ repo_root_path }}/mlx-lm/bin"
+    dest: "{{ ansible_env.HOME }}/.local/mlx_lm/bin"
     state: link
     force: true
-  loop: "{{ python_mlx_lm_executables.files }}"
-  when: python_mlx_lm_executables.matched > 0

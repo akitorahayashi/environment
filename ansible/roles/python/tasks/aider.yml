@@ -4,7 +4,8 @@
     name: aider-chat
     python: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python"
     state: present
-    executable: /opt/homebrew/bin/pipx
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
 
 - name: "Ensure .aider directory exists"
   ansible.builtin.file:

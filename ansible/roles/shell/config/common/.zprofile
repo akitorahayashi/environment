@@ -17,6 +17,9 @@ export PATH="$HOME/.scripts/python:$PATH"
 export PATH="$HOME/.local/pipx/venvs/mlx-lm/bin:$PATH"
 export PATH="$HOME/.local/pipx/venvs/mlx-hub/bin:$PATH"
 
+# Path for mlx-lm tools
+export PATH="$HOME/.local/mlx_lm/bin:$PATH"
+
 # Android SDK environment variables
 if [[ -z "$ANDROID_HOME" ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
