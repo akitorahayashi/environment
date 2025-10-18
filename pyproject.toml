@@ -20,6 +20,9 @@ dev = [
     "ruff>=0.12.10,<1.0.0",
     "ansible-lint>=25.0.0",
 ]
+mlx = [
+    "mlx-lm>=0.28.3",
+]
 
 [build-system]
 requires = ["hatchling"]

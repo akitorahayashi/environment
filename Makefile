@@ -90,6 +90,17 @@ base: ## Installs pyenv, Python 3.12, uv, and core dependencies
 	eval "$$(pyenv init -)"; \
 	uv sync
 
+	@echo "[CREATE] Creating venv at ./mlx-lm"
+	@if [ ! -d "mlx-lm" ]; then \
+		uv venv mlx-lm; \
+	else \
+		echo "[INFO] ./mlx-lm already exists."; \
+	fi
+
+	@echo "[INSTALL] Installing mlx dependency-group into ./mlx-lm"
+	UV_PROJECT_ENVIRONMENT=./mlx-lm uv sync --only-group mlx
+	@echo "✅ mlx-lm venv prepared."
+
 	@echo "[INSTALL] just..."; \
 	if ! command -v just &> /dev/null; then \
 		brew install just; \

@@ -6,3 +6,11 @@
   changed_when: false
   environment:
     PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+
+- name: "Create symlink for mlx-lm venv to pipx location"
+  ansible.builtin.file:
+    src: "{{ role_path }}/../../mlx-lm"
+    dest: "{{ ansible_env.HOME }}/.local/pipx/venvs/mlx-lm"
+    state: link
+    force: true
+  when: lookup('ansible.builtin.stat', '{{ role_path }}/../../mlx-lm').stat.exists
