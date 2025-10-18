@@ -207,30 +207,6 @@ mmn-brew-cask:
   @just _run_ansible "brew" "mac-mini" "brew-cask"
 
 # ==============================================================================
-# LLM Runtimes
-# ==============================================================================
-
-# Start all LLM runtimes for a given profile (mbk or mmn)
-llm-up profile:
-  @echo "🚀 Starting {{profile}} LLM runtimes..."
-  @uv run python ansible/scripts/shell/llm_manager.py {{profile}} up
-
-# Stop all LLM runtimes for a given profile
-llm-down profile:
-  @echo "🛑 Stopping {{profile}} LLM runtimes..."
-  @uv run python ansible/scripts/shell/llm_manager.py {{profile}} down
-
-# Show status of LLM services for a given profile
-llm-ps profile:
-  @echo "ℹ️  Status of {{profile}} LLM services:"
-  @uv run python ansible/scripts/shell/llm_manager.py {{profile}} ps
-
-# Show logs of LLM services for a given profile
-llm-logs profile:
-  @echo "📜 Logs for {{profile}} LLM services:"
-  @uv run python ansible/scripts/shell/llm_manager.py {{profile}} logs
-
-# ==============================================================================
 # VCS Profile Switching
 # ==============================================================================
 sw-p:

@@ -8,9 +8,9 @@
 - name: "Substitute environment variables in MCP configuration"
   ansible.builtin.replace:
     path: "{{ ansible_env.HOME }}/.mcp.json"
-    regexp: "\\$\\{GITHUB_PERSONAL_ACCESS_TOKEN\\}"
-    replace: "{{ lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') }}"
-  when: lookup('env', 'GITHUB_PERSONAL_ACCESS_TOKEN') != ""
+    regexp: "\\$\\{MENV_GITHUB_PAT\\}"
+    replace: "{{ lookup('env', 'MENV_GITHUB_PAT') }}"
+  when: lookup('env', 'MENV_GITHUB_PAT') != ""
 
 - name: "Check for existing Codex configuration"
   ansible.builtin.stat:

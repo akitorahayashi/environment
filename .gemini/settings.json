@@ -43,7 +43,7 @@
         "@modelcontextprotocol/server-github"
       ],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${MENV_GITHUB_PAT}"
       },
       "description": "GitHub repository management and interaction through MCP"
     }
