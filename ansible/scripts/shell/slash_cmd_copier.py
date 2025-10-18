@@ -30,7 +30,12 @@ def _get_clipboard_cmd() -> list[str]:
     elif system == "Linux":
         # Try wl-copy first, then xclip
         try:
-            subprocess.run(["wl-copy", "--version"], capture_output=True, check=True)
+            subprocess.run(
+                ["wl-copy", "--version"],
+                input=b"",
+                capture_output=True,
+                check=True,
+            )
             return ["wl-copy"]
         except (subprocess.CalledProcessError, FileNotFoundError):
             return ["xclip", "-selection", "clipboard"]
