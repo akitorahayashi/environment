@@ -1,6 +1,0 @@
----
-- name: "Ensure .tmp directory exists for PID files"
-  ansible.builtin.file:
-    path: "{{ repo_root_path }}/.tmp"
-    state: directory
-    mode: "0700"

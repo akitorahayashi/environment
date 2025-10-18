@@ -15,6 +15,5 @@
     - { role: editor, tags: ["editor", "vscode", "cursor"] }
     - { role: coderabbit, tags: ["coderabbit"] }
     - { role: mcp, tags: ["mcp"] }
-    - { role: llm, tags: ["llm"] }
     - { role: system, tags: ["system"] }
     - { role: docker, tags: ["docker"] }
