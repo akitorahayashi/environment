@@ -58,6 +58,7 @@ curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-com
     - Install pyenv and Python 3.12 for local development
     - Install pipx and uv for Python package management
     - Install Ansible and development dependencies via uv
+    - Create the `./mlx-lm` uv virtual environment and install the `mlx` dependency group
     - Install the `just` command runner
 
     **Important**: After running `make base`, edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
