@@ -7,10 +7,17 @@
   environment:
     PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
 
-- name: "Create symlink for mlx-lm venv to pipx location"
+- name: "Find executables in mlx-lm venv"
+  ansible.builtin.find:
+    paths: "{{ role_path }}/../../mlx-lm/bin"
+    file_type: file
+  register: python_mlx_lm_executables
+
+- name: "Symlink mlx-lm executables to user's local bin"
   ansible.builtin.file:
-    src: "{{ role_path }}/../../mlx-lm"
-    dest: "{{ ansible_env.HOME }}/.local/pipx/venvs/mlx-lm"
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item.path | basename }}"
     state: link
     force: true
-  when: lookup('ansible.builtin.stat', '{{ role_path }}/../../mlx-lm').stat.exists
+  loop: "{{ python_mlx_lm_executables.files }}"
+  when: python_mlx_lm_executables.matched > 0
