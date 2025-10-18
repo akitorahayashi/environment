@@ -6,3 +6,18 @@
   changed_when: false
   environment:
     PATH: "{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.PATH }}"
+
+- name: "Find executables in mlx-lm venv"
+  ansible.builtin.find:
+    paths: "{{ role_path }}/../../mlx-lm/bin"
+    file_type: file
+  register: python_mlx_lm_executables
+
+- name: "Symlink mlx-lm executables to user's local bin"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ python_mlx_lm_executables.files }}"
+  when: python_mlx_lm_executables.matched > 0

@@ -1,4 +1,2 @@
-uv
-mlx-lm
 mlx-hub
 jupyterlab
