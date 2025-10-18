@@ -69,9 +69,7 @@ def _handle_generate_key(host: str, key_type: str) -> None:
         raise typer.Exit(1)
 
     if not HOST_PATTERN.match(host):
-        err_console.print(
-            f"Error: Invalid host '{host}' (allowed: [A-Za-z0-9._-]+)."
-        )
+        err_console.print(f"Error: Invalid host '{host}' (allowed: [A-Za-z0-9._-]+).")
         raise typer.Exit(1)
 
     ssh_dir = _ssh_dir()
@@ -87,13 +85,22 @@ def _handle_generate_key(host: str, key_type: str) -> None:
         raise typer.Exit(1)
 
     if key_path.exists() or Path(str(key_path) + ".pub").exists():
-        err_console.print(
-            f"Error: Key files already exist: '{key_path}'(.pub)."
-        )
+        err_console.print(f"Error: Key files already exist: '{key_path}'(.pub).")
         raise typer.Exit(1)
 
-    _run_ssh_keygen(key_type, key_path, host)
-    _write_host_config(host, key_type, config_path)
+    try:
+        _run_ssh_keygen(key_type, key_path, host)
+        _write_host_config(host, key_type, config_path)
+    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+        # Best-effort cleanup
+        for p in (key_path, Path(str(key_path) + ".pub")):
+            try:
+                if p.exists():
+                    p.unlink()
+            except OSError:
+                pass
+        err_console.print(f"Error: {exc}")
+        raise typer.Exit(1)
 
     pub_key_path = Path(str(key_path) + ".pub")
     console.print(f"✅ SSH key and config for '{host}' created.")
@@ -126,7 +133,18 @@ def list_hosts() -> None:
 def remove_host(
     host: str = typer.Argument(..., help="Host alias"),
 ) -> None:
-    config_path = _conf_dir() / f"{host}.conf"
+    # Validate and constrain to conf.d
+    if not HOST_PATTERN.match(host):
+        err_console.print(f"Error: Invalid host '{host}' (allowed: [A-Za-z0-9._-]+).")
+        raise typer.Exit(1)
+    conf_dir = _conf_dir()
+    base = conf_dir.resolve()
+    config_path = (conf_dir / f"{host}.conf").resolve()
+    try:
+        config_path.relative_to(base)
+    except ValueError:
+        err_console.print(f"Error: Refusing to operate outside {base}.")
+        raise typer.Exit(1)
 
     if not config_path.exists():
         err_console.print(f"Error: Config for host '{host}' not found.")

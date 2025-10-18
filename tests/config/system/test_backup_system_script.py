@@ -64,11 +64,12 @@ def test_backup_system_writes_expected_yaml(
     backup_system_module.backup_settings(definitions_dir, output_file)
 
     output = output_file.read_text(encoding="utf-8")
-    assert "- { key: \"SampleBool\", type: \"bool\", value: false }" in output
+    assert '- { key: "SampleBool", type: "bool", value: false }' in output
     assert (
-        "- { key: \"location\", domain: \"com.apple.screencapture\", type: \"string\", value: \"$HOME/Pictures\" }"
+        '- { key: "location", domain: "com.apple.screencapture", type: "string", value: "$HOME/Pictures" }'
         in output
     )
     assert (
-        "- { key: \"SampleInt\", domain: \"custom.domain\", type: \"int\", value: 7 }" in output
+        '- { key: "SampleInt", domain: "custom.domain", type: "int", value: 7 }'
+        in output
     )

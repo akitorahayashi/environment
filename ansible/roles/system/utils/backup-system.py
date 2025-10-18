@@ -95,7 +95,9 @@ def _run_defaults(domain: str, key: str, default: object) -> str:
             text=True,
         )
     except FileNotFoundError as exc:
-        raise BackupError("The 'defaults' command is not available on this system.") from exc
+        raise BackupError(
+            "The 'defaults' command is not available on this system."
+        ) from exc
     except subprocess.CalledProcessError:
         return str(default)
 
@@ -203,9 +205,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     config_dir: Path = args.config_dir
-    if not config_dir:
-        print("[ERROR] A configuration directory must be provided.", file=sys.stderr)
-        return 1
     definitions_dir = args.definitions_dir or (config_dir / "definitions")
     output_file = args.output or (config_dir / "system.yml")
 

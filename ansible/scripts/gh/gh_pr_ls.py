@@ -58,7 +58,9 @@ def _parse_repo_string(value: str) -> Tuple[str, str]:
     remainder = remainder.rstrip("/").removesuffix(".git")
     parts = [part for part in remainder.split("/") if part]
     if len(parts) < 2:
-        raise GitHubAPIError(f"Unable to determine repository owner/name from '{value}'.")
+        raise GitHubAPIError(
+            f"Unable to determine repository owner/name from '{value}'."
+        )
     return parts[-2], parts[-1]
 
 
@@ -75,9 +77,13 @@ def _detect_repository() -> Tuple[str, str]:
             check=True,
         )
     except FileNotFoundError as exc:
-        raise GitHubAPIError("Git is not installed; cannot determine repository.") from exc
+        raise GitHubAPIError(
+            "Git is not installed; cannot determine repository."
+        ) from exc
     except subprocess.CalledProcessError as exc:
-        raise GitHubAPIError("Unable to determine repository from git configuration.") from exc
+        raise GitHubAPIError(
+            "Unable to determine repository from git configuration."
+        ) from exc
 
     url = completed.stdout.strip()
     if not url:
@@ -111,7 +117,10 @@ async def _post_graphql(
     limit: int,
     headers: Dict[str, str],
 ) -> Iterable[Dict[str, Any]]:
-    payload = {"query": GRAPHQL_QUERY, "variables": {"owner": owner, "repo": repo, "limit": limit}}
+    payload = {
+        "query": GRAPHQL_QUERY,
+        "variables": {"owner": owner, "repo": repo, "limit": limit},
+    }
     try:
         response = await client.post("/graphql", json=payload, headers=headers)
         response.raise_for_status()
@@ -214,7 +223,9 @@ async def gather_pull_requests(
         close_client = True
 
     try:
-        nodes = await _post_graphql(client, owner=owner, repo=repo, limit=min(limit, 50), headers=headers)
+        nodes = await _post_graphql(
+            client, owner=owner, repo=repo, limit=min(limit, 50), headers=headers
+        )
         entries: List[Dict[str, Any]] = []
         for node in nodes:
             if not isinstance(node, dict):
@@ -266,7 +277,9 @@ async def gather_pull_requests(
         actions_results = await asyncio.gather(*actions_tasks)
         ci_results = await asyncio.gather(*ci_tasks)
 
-        for entry, actions_result, ci_result in zip(entries, actions_results, ci_results):
+        for entry, actions_result, ci_result in zip(
+            entries, actions_results, ci_results
+        ):
             entry["actions_in_progress"] = actions_result
             entry["ci_status"] = ci_result
 

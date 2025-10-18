@@ -123,7 +123,7 @@ class TestSlashIntegration:
         gemini_output = (destinations["gemini.py"] / f"{first_name}.toml").read_text(
             encoding="utf-8"
         )
-        assert "prompt = \"\"\"" in gemini_output
+        assert 'prompt = """' in gemini_output
         assert prompt_content.strip() in gemini_output
 
     def _validate_schema_and_prompts(

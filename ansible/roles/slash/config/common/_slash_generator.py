@@ -106,7 +106,7 @@ def clean_destination(directory: Path) -> None:
 def _escape_yaml_string(value: str) -> str:
     """Escape a string for inclusion in simple YAML front matter."""
 
-    escaped = value.replace("\\", "\\\\").replace("\"", "\\\"")
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
     return escaped
 
 
@@ -151,10 +151,6 @@ def generate_codex(
             raise SlashGeneratorError(
                 f"Invalid command key '{command.key}' (contains unsafe characters)."
             )
-        if safe_key != command.key:
-            raise SlashGeneratorError(
-                f"Command key '{command.key}' does not round-trip to safe filename."
-            )
 
         output_file = destination / f"{safe_key}.md"
         prompt_content = prompt_path.read_text(encoding="utf-8")
@@ -179,8 +175,8 @@ def generate_gemini(
         output_file = destination / f"{command.key}.toml"
         toml_body = (
             f"description = {description_json}\n\n"
-            "prompt = \"\"\"\n"
+            'prompt = """\n'
             f"{prompt_content}\n"
-            "\"\"\"\n"
+            '"""\n'
         )
         output_file.write_text(toml_body, encoding="utf-8")

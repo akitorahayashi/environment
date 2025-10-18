@@ -59,7 +59,9 @@ def list_extensions(command: str) -> List[str]:
 def write_backup(destination: Path, extensions: List[str]) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     payload = {"extensions": extensions}
-    destination.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    destination.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

@@ -128,7 +128,9 @@ def test_main_prints_results(
     async def mock_gather_pull_requests(*args, **kwargs):
         return sample
 
-    monkeypatch.setattr(gh_pr_ls_module, "_detect_repository", lambda: ("owner", "repo"))
+    monkeypatch.setattr(
+        gh_pr_ls_module, "_detect_repository", lambda: ("owner", "repo")
+    )
     monkeypatch.setattr(gh_pr_ls_module, "_get_token", lambda: "token")
     monkeypatch.setattr(
         gh_pr_ls_module, "gather_pull_requests", mock_gather_pull_requests
