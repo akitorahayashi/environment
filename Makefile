@@ -10,7 +10,7 @@
 help: ## Show this help message
 	@echo "Usage: make [target]"
 	@echo "Available targets:"
-	@awk 'BEGIN {FS = ":.*?## "} /^[^_][a-zA-Z0-9_-]*:.*?## / {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[^_][a-zA-Z0-9_-]*:.*?## / {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: base
 base: ## Installs pyenv, Python 3.12, uv, and core dependencies
