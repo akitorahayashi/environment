@@ -28,6 +28,7 @@ help:
 common:
   @echo "🚀 Starting all common setup tasks..."
   @just cmn-shell
+  @just cmn-menv
   @just cmn-ssh
   @just cmn-apply-system
   @just cmn-git
@@ -119,6 +120,11 @@ cmn-ruby:
 cmn-shell:
   @echo "🚀 Linking common shell configuration..."
   @just _run_ansible "shell" "common" "shell"
+
+# Install menv convenience wrapper
+cmn-menv:
+  @echo "🚀 Installing menv command wrapper..."
+  @just _run_ansible "menv" "common" "menv"
 
 # Setup SSH configuration
 cmn-ssh:

@@ -90,6 +90,16 @@ These commands are recommended to be run manually once after initial setup (Ansi
 
 - **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
+- **Regenerate menv wrapper**: `just cmn-menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
+
+### menv Command Wrapper
+
+The `menv` command launches tasks from the repository root no matter where you are in the filesystem.
+
+- Run `menv just cmn-shell` to invoke a Just recipe without manually `cd`-ing into the project.
+- Invoke `menv git status` to inspect version control state from any directory.
+- Call `menv` with no arguments to open an interactive shell session rooted at the project.
+- If the helper script ever drifts, rerun `just cmn-menv` to regenerate it via Ansible.
 
 ### Codex ↔ MCP Synchronization
 
@@ -215,6 +225,11 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs CodeRabbit CLI for AI-powered code reviews.
     -   Downloads and executes the official installer from https://cli.coderabbit.ai/install.sh.
     -   Installs binary to `~/.local/bin/coderabbit` with alias `cr`.
+
+20. **menv Command Wrapper (`menv` role)**
+    -   Generates the `menv` helper script in `~/.local/bin/menv` so repository commands run from the project root automatically.
+    -   Respects the `repo_root_path` variable provided by the playbook to stay relocatable.
+    -   Drops directly into an interactive shell when invoked without additional arguments.
 
 ## Automation Policies
 
