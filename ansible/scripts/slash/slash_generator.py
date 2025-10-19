@@ -124,12 +124,9 @@ def _render_commands(
             raise SlashGeneratorError(
                 f"Renderer returned invalid output path: {relative_name!r}"
             )
-        if len(relative_path.parts) > 1:
-            raise SlashGeneratorError(
-                f"Renderer must return simple filenames; got {relative_name!r}."
-            )
 
         output_file = destination / relative_path
+        output_file.parent.mkdir(parents=True, exist_ok=True)
         output_file.write_text(output_content, encoding="utf-8")
 
 
