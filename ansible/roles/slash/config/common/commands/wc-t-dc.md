@@ -1,0 +1,3 @@
+# /wc-t-dc - Work on Tasks (Critical Planning, Tests, Docs)
+
+Review `.tmp/tasks.md` to internalize the intent of the plan, reflect on goals and alternative approaches, and adjust the plan if needed. Additionally, understand the current test structure, plan and implement necessary tests, and ensure the task plan captures required documentation updates. Respect existing testing practices and documentation conventions (e.g., `README.md`, `.codex/AGENTS.md`, `docs/`) by following established patterns while integrating the new work.
