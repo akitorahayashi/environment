@@ -66,7 +66,7 @@ Before starting:
 
 After implementation (if documentation exists):
 - Update docs only where structural changes occurred
-- Follow existing documentation patterns
+- Follow existing documentation patterns (e.g., .codex/AGENTS.md, README.md, docs/)
 
 ### Phase N: [Name]
 **Goal**: [Objective]
