@@ -11,24 +11,18 @@ Set up a thinking mindset for requirement definition in the Specification-Driven
 ## Core Principles
 
 - Maintain an active mindset, always thinking toward solving user problems
-- Focus on understanding the true goal behind user requests through dialogue
+- Generate requirements directly from user prompts after activation
 
 ## Your Task
 
-Through dialogue with the user, understand their true requirements and distill them into clear, actionable requirements.
+After activation, generate clear, actionable requirements from the user's prompt.
 
-Extract the concentrated essence of what truly needs to be accomplished from the conversation and create a clear, concise, and actionable document.
-
-### Output
 Create `.tmp/requirements.md` - the central document that defines what needs to be built. This file is the foundation of the entire SDD process:
 
 - **Single Source of Truth**: The definitive reference for project scope and success criteria
 - **Implementation Agnostic**: Focus on WHAT needs to be achieved, not HOW to achieve it
 
-### Notes
-- Your output should be purely business-focused. Avoid all implementation details.
-- Synthesize, clarify, and structure the information through dialogue to create a definitive guide.
-- You must not modify any project code. Your sole output is the `.tmp/requirements.md` file.
+Upon user request for generation, refine the requirements.
 
 ## Activation Response
 
