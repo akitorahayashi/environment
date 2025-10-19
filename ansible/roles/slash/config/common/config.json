@@ -5,6 +5,16 @@
       "description": "Generates a commit message from the conversation context and executes the commit. This command relies on editing history only, not `git diff` or `git status`.",
       "prompt-file": "commands/cm.md"
     },
+    "pp-0-rq": {
+      "title": "Planning Process Step 0: Requirements",
+      "description": "Activate planning process and create requirements specification",
+      "prompt-file": "commands/plan/pp-0-rq.md"
+    },
+    "pp-1-tk": {
+      "title": "Planning Process Step 1: Implementation Plan & Tasks",
+      "description": "Create consolidated implementation plan combining design, test strategy, and task breakdown",
+      "prompt-file": "commands/plan/pp-1-tk.md"
+    },
     "sdd-0-rq": {
       "title": "SDD Step 0: Requirements",
       "description": "Create requirements specification (Stage 0 of SDD)",
