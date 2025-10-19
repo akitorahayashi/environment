@@ -1,0 +1,19 @@
+---
+- name: "Ensure ~/.local/bin directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: "0755"
+
+- name: "Assert repo_root_path is provided"
+  ansible.builtin.assert:
+    that:
+      - repo_root_path is defined
+      - repo_root_path | length > 0
+    fail_msg: "repo_root_path must be supplied to render the menv wrapper script."
+
+- name: "Install menv command wrapper"
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/menv.sh.j2"
+    dest: "{{ ansible_env.HOME }}/.local/bin/menv"
+    mode: "0755"

@@ -22,7 +22,7 @@ def gen_gemini_aliases_script_path(project_root: Path) -> Path:
 @pytest.fixture(scope="session")
 def gen_slash_aliases_script_path(project_root: Path) -> Path:
     """Path to the gen_slash_aliases.py script."""
-    return project_root / "ansible/scripts/slash/gen_slash_aliases.py"
+    return project_root / "ansible/scripts/shell/gen_slash_aliases.py"
 
 
 @pytest.fixture(scope="session")

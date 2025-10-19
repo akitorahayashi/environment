@@ -3,7 +3,7 @@
   hosts: localhost
   connection: local
   roles:
-    - { role: brew, tags: ["brew", "brew-formulae", "brew-cask"] }
+    - { role: brew, tags: ["brew-formulae", "brew-cask"] }
     - { role: python, tags: ["python-platform", "python-tools", "aider", "uv"] }
     - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "claude", "gemini", "codex"] }
     - { role: slash, tags: ["slash"] }
@@ -11,6 +11,7 @@
     - { role: vcs, tags: ["git", "jj"] }
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell"] }
+    - { role: menv, tags: ["menv"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: editor, tags: ["editor", "vscode", "cursor"] }
     - { role: coderabbit, tags: ["coderabbit"] }

@@ -124,8 +124,8 @@ mac-mini: ## Runs the full setup for a Mac mini (requires 'base' to be run first
 
 .PHONY: system-backup
 system-backup: ## Backup current macOS system defaults
-	@just cmn-backup-system
+	@just backup-system
 
 .PHONY: vscode-extensions-backup
 vscode-extensions-backup: ## Backup current VSCode extensions
-	@just cmn-backup-vscode-extensions
+	@just backup-vscode-extensions

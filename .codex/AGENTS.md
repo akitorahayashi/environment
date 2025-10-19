@@ -11,9 +11,9 @@ A comprehensive automation project for setting up consistent macOS development e
    - `make macbook` / `make mac-mini`: Runs full machine-specific setup
 
 2. **`justfile`** - Individual task runner and command orchestrator
-   - Individual component setup commands (`just cmn-*`, `just mbk-*`, `just mmn-*`)
+   - Individual component setup commands (`just *`, `just mbk-*`, `just mmn-*`)
    - Profile switching (`just sw-p` / `just sw-w`)
-   - Backup utilities (`just cmn-backup-*`)
+   - Backup utilities (`just backup-*`)
    - Role additions and customizations
 
 3. **`.github/actions/setup-base`** - CI composite action for consistent base environment setup
@@ -82,6 +82,6 @@ This ensures consistent tooling across all CI jobs while leveraging GitHub Actio
 - Treat broken symlinks as unacceptable debt—rewriting links is lightweight and prevents configuration drift.
 
 **Rationale**:
-- We observed a skipped symlink task during `just cmn-claude`, revealing that conditional guards can leave stale or broken links in place.
+- We observed a skipped symlink task during `just claude`, revealing that conditional guards can leave stale or broken links in place.
 - Source paths change over time; unconditional recreation ensures our configuration always converges to the desired state.
 - This policy keeps developer environments predictable and reduces time spent debugging missing or outdated resources.

@@ -1,7 +1,7 @@
 [project]
 name = "menv"
 version = "0.1.0"
-description = "Ansible playbook for my entire MacOS environment."
+description = "My Entire macOS Environment"
 authors = [{ name = "akitorahayashi" }]
 requires-python = ">=3.12,<3.13"
 dependencies = [
@@ -48,6 +48,7 @@ exclude = '''
     | env
     | build
     | dist
+    | mlx-lm
     | .*/(bin|lib|share|etc)
     | .*/pyvenv\.cfg
 )/
@@ -62,6 +63,7 @@ exclude = [
     ".venv",
     "venv",
     "env",
+    "mlx-lm",
     "*/bin/**",
     "*/lib/**",
     "*/share/**",

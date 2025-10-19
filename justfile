@@ -27,166 +27,173 @@ help:
 # Run all common setup tasks
 common:
   @echo "🚀 Starting all common setup tasks..."
-  @just cmn-shell
-  @just cmn-ssh
-  @just cmn-apply-system
-  @just cmn-git
-  @just cmn-jj
-  @just cmn-gh
+  @just shell
+  @just menv
+  @just ssh
+  @just apply-system
+  @just git
+  @just jj
+  @just gh
   @just sw-p
-  @just cmn-vscode
-  @just cmn-python
-  @just cmn-uv
-  @just cmn-nodejs
-  @just cmn-mcp
-  @just cmn-cursor
-  @just cmn-coderabbit
-  @just cmn-ruby
-  @just cmn-brew-formulae
+  @just vscode
+  @just python
+  @just uv
+  @just nodejs
+  @just mcp
+  @just cursor
+  @just coderabbit
+  @just ruby
+  @just brew-formulae
   @echo "✅ All common setup tasks completed successfully."
 
 # ==============================================================================
 # Common Setup Recipes
 # ==============================================================================
 # Apply macOS system defaults
-cmn-apply-system:
+apply-system:
   @echo "🚀 Applying common system defaults..."
   @just _run_ansible "system" "common" "system"
 
 # Setup common Homebrew formulae packages only
-cmn-brew-formulae:
+brew-formulae:
   @echo "  -> Running Homebrew formulae setup with config: ansible/roles/brew/config"
   @just _run_ansible "brew" "common" "brew-formulae"
 
 # Configure Git settings only
-cmn-git:
+git:
   @echo "🚀 Running common Git setup..."
   @just _run_ansible "vcs" "common" "git"
 
 # Configure JJ (Jujutsu) settings only
-cmn-jj:
+jj:
   @echo "🚀 Running common JJ setup..."
   @just _run_ansible "vcs" "common" "jj"
 
 # Configure GitHub CLI settings
-cmn-gh:
+gh:
   @echo "🚀 Running GitHub CLI setup..."
   @just _run_ansible "gh" "common" "gh"
 
 # Setup Node.js platform and tools
-cmn-nodejs:
+nodejs:
   @echo "🚀 Running common Node.js setup..."
-  @just cmn-nodejs-platform
-  @just cmn-nodejs-tools
-  @just cmn-claude
-  @just cmn-gemini
-  @just cmn-codex
-  @just cmn-slash
+  @just nodejs-platform
+  @just nodejs-tools
+  @just claude
+  @just gemini
+  @just codex
+  @just slash
 
 # Setup Node.js platform only
-cmn-nodejs-platform:
+nodejs-platform:
   @echo "🚀 Running common Node.js platform setup..."
   @just _run_ansible "nodejs" "common" "nodejs-platform"
 
 # Install Node.js tools only
-cmn-nodejs-tools:
+nodejs-tools:
   @echo "🚀 Installing common Node.js tools from config: ansible/roles/nodejs/config/common"
   @just _run_ansible "nodejs" "common" "nodejs-tools"
 
 # Setup Python platform and tools
-cmn-python:
+python:
   @echo "🚀 Running common Python setup..."
-  @just cmn-python-platform
-  @just cmn-python-tools
-  @just cmn-aider
+  @just python-platform
+  @just python-tools
+  @just aider
 
 # Setup Python platform only
-cmn-python-platform:
+python-platform:
   @echo "🚀 Running common Python platform setup..."
   @just _run_ansible "python" "common" "python-platform"
 
 # Install Python tools only
-cmn-python-tools:
+python-tools:
   @echo "🚀 Installing common Python tools from config: ansible/roles/python/config/common"
   @just _run_ansible "python" "common" "python-tools"
 
 # Setup Ruby environment with rbenv
-cmn-ruby:
+ruby:
   @echo "🚀 Running common Ruby setup..."
   @just _run_ansible "ruby" "common" "ruby"
 
 # Link common shell configuration files
-cmn-shell:
+shell:
   @echo "🚀 Linking common shell configuration..."
   @just _run_ansible "shell" "common" "shell"
 
+# Install menv convenience wrapper
+menv:
+  @echo "🚀 Installing menv command wrapper..."
+  @just _run_ansible "menv" "common" "menv"
+
 # Setup SSH configuration
-cmn-ssh:
+ssh:
   @echo "🚀 Running common SSH setup..."
   @just _run_ansible "ssh" "common" "ssh"
 
 # Setup VS Code settings and extensions
-cmn-vscode:
+vscode:
   @echo "🚀 Running common VS Code setup..."
   @just _run_ansible "editor" "common" "vscode"
 
 # Setup Cursor settings and CLI
-cmn-cursor:
+cursor:
   @echo "🚀 Running common Cursor setup..."
   @just _run_ansible "editor" "common" "cursor"
 
 # Setup CodeRabbit CLI
-cmn-coderabbit:
+coderabbit:
   @echo "🚀 Running common CodeRabbit setup..."
   @just _run_ansible "coderabbit" "common" "coderabbit"
 
 # Setup Claude Code settings
-cmn-claude:
+claude:
   @echo "🚀 Running common Claude Code setup..."
   @just _run_ansible "nodejs" "common" "claude"
 
 # Setup Gemini CLI settings
-cmn-gemini:
+gemini:
   @echo "🚀 Running common Gemini CLI setup..."
   @just _run_ansible "nodejs" "common" "gemini"
 
-cmn-codex:
+# Setup Codex CLI settings
+codex:
   @echo "🚀 Running common Codex CLI setup..."
   @just _run_ansible "nodejs" "common" "codex"
 
 # Run Codex before MCP so the Codex config symlink exists for synchronization
-cmn-codex-mcp:
+codex-mcp:
   @echo "🚀 Running Codex setup followed by MCP synchronization..."
-  @just cmn-codex
-  @just cmn-mcp
+  @just codex
+  @just mcp
 
 # Regenerate AI slash commands
-cmn-slash:
+slash:
   @echo "🚀 Regenerating AI slash commands..."
   @just _run_ansible "slash" "common" "slash"
 
 # Setup MCP servers configuration
-cmn-mcp:
+mcp:
   @echo "🚀 Running common MCP setup (requires Codex config to exist)..."
   @just _run_ansible "mcp" "common" "mcp"
 
 # Setup Aider configuration
-cmn-aider:
+aider:
   @echo "🚀 Running common Aider setup..."
   @just _run_ansible "python" "common" "aider"
 
 # Setup uv configuration
-cmn-uv:
+uv:
   @echo "🚀 Running common uv setup..."
   @just _run_ansible "python" "common" "uv"
 
 # Install common cask packages only
-cmn-brew-cask:
+brew-cask:
   @echo "🚀 Installing common Brew Casks..."
   @just _run_ansible "brew" "common" "brew-cask"
 
 # Pull Docker images
-cmn-docker-images:
+docker-images:
   @echo "🚀 Checking/verifying Docker images..."
   @just _run_ansible "docker" "common" "docker"
 
@@ -201,7 +208,7 @@ mbk-brew-cask:
 # ==============================================================================
 # Mac Mini-Specific Recipes
 # ==============================================================================
-
+# Install Mac Mini-specific cask packages
 mmn-brew-cask:
   @echo "🚀 Installing Mac Mini-specific Brew Casks..."
   @just _run_ansible "brew" "mac-mini" "brew-cask"
@@ -209,6 +216,7 @@ mmn-brew-cask:
 # ==============================================================================
 # VCS Profile Switching
 # ==============================================================================
+# Switch to personal VCS configuration
 sw-p:
   @echo "🔄 Switching to personal configuration..."
   @git config --global user.name "{{env('PERSONAL_VCS_NAME')}}"
@@ -221,6 +229,7 @@ sw-p:
   @echo "Git user: `git config --get user.name` <`git config --get user.email`>"
   @echo "jj  user: `jj config get user.name` <`jj config get user.email`>"
 
+# Switch to work VCS configuration
 sw-w:
   @echo "🔄 Switching to work configuration..."
   @git config --global user.name "{{env('WORK_VCS_NAME')}}"
@@ -237,13 +246,13 @@ sw-w:
 # Utility Recipes
 # ==============================================================================
 # Backup current macOS system defaults
-cmn-backup-system:
+backup-system:
   @echo "🚀 Backing up current macOS system defaults..."
   @{{repo_root}}/ansible/scripts/system/backup-system.py "{{repo_root}}/ansible/roles/system/config/common"
   @echo "✅ macOS system defaults backup completed."
 
 # Backup current VSCode extensions
-cmn-backup-vscode-extensions:
+backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."
   @{{repo_root}}/ansible/scripts/editor/backup-extensions.py "{{repo_root}}/ansible/roles/editor/config/common"
   @echo "✅ VSCode extensions backup completed."
@@ -293,6 +302,7 @@ clean:
     @echo "🧹 Cleaning up project..."
     @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
     @rm -rf .venv
+    @rm -rf mlx-lm
     @rm -rf .pytest_cache
     @rm -rf .ruff_cache
     @rm -rf .aider.tags.cache.v4
@@ -317,4 +327,5 @@ _find_shell_files:
     grep -v "\.git" | \
     grep -v "gemini.zsh" | \
     grep -v "\.uv-cache" | \
-    grep -v "\.venv"
+    grep -v "\.venv" | \
+    grep -v "mlx-lm"

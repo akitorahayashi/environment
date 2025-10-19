@@ -16,4 +16,4 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup ruby
-        run: just cmn-ruby
+        run: just ruby

@@ -88,12 +88,22 @@ curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-com
 
 These commands are recommended to be run manually once after initial setup (Ansible collections are refreshed automatically when `just common` runs):
 
-- **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
-- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
+- **Install Brew Casks**: `just brew-cask`, `just mbk-brew-cask`, `just mmn-brew-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
+- **Pull Docker images**: `just docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
+- **Regenerate menv wrapper**: `just menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
+
+### menv Command Wrapper
+
+The `menv` command launches tasks from the repository root no matter where you are in the filesystem.
+
+- Run `menv just shell` to invoke a Just recipe without manually `cd`-ing into the project.
+- Invoke `menv git status` to inspect version control state from any directory.
+- Call `menv` with no arguments to open an interactive shell session rooted at the project.
+- If the helper script ever drifts, rerun `just menv` to regenerate it via Ansible.
 
 ### Codex ↔ MCP Synchronization
 
-- Run `just cmn-codex` before `just cmn-mcp` (or simply execute `just cmn-codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
+- Run `just codex` before `just mcp` (or simply execute `just codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
 - The authoritative catalogue lives in `ansible/roles/mcp/config/common/servers.json`; edits there are converted into the `[mcp_servers]` block within `ansible/roles/codex/config/common/config.toml`.
 - When `~/.codex/config.toml` is missing, the synchronization block is skipped to avoid overwriting repository files.
 - After catalogue changes, rerun the combined recipe and confirm the play output reports the managed block as updated once and idempotent on the subsequent run.
@@ -184,22 +194,22 @@ This project uses Ansible to automate the setup of a complete development enviro
 13. **Claude CLI Configuration (`claude` role)**
     -   Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `ansible/roles/claude/config/common`.
     -   Links `CLAUDE.md` and prepares the `commands` directory used by Claude Code.
-    -   Runs without invoking the Node.js role and can be targeted via `just cmn-claude` or `ansible-playbook --tags claude`.
+    -   Runs without invoking the Node.js role and can be targeted via `just claude` or `ansible-playbook --tags claude`.
 
 14. **Gemini CLI Configuration (`gemini` role)**
     -   Creates `~/.gemini`, symlinks configuration files from `ansible/roles/gemini/config/common`, and retains templates used by the Gemini CLI.
     -   Performs a best-effort `which gemini` check, warning if the CLI is missing while still applying configuration assets.
-    -   Runs independently of Node.js and can be executed with `just cmn-gemini` or `ansible-playbook --tags gemini`.
+    -   Runs independently of Node.js and can be executed with `just gemini` or `ansible-playbook --tags gemini`.
 
 15. **Codex CLI Configuration (`codex` role)**
     -   Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/codex/config/common`.
     -   Provides prompt and agent files without re-triggering the Node.js runtime setup.
-    -   Invoked through `just cmn-codex` or `ansible-playbook --tags codex`.
+    -   Invoked through `just codex` or `ansible-playbook --tags codex`.
 
 16. **Slash Command Generation (`slash` role)**
     -   Marks the slash generator scripts (`claude.py`, `gemini.py`, `codex.py`) as executable and runs them from the repository root.
     -   Regenerates all custom slash command assets in one pass, independent of the Node.js role.
-    -   Accessible via `just cmn-slash` or `ansible-playbook --tags slash`.
+    -   Accessible via `just slash` or `ansible-playbook --tags slash`.
 
 17. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
@@ -215,6 +225,11 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs CodeRabbit CLI for AI-powered code reviews.
     -   Downloads and executes the official installer from https://cli.coderabbit.ai/install.sh.
     -   Installs binary to `~/.local/bin/coderabbit` with alias `cr`.
+
+20. **menv Command Wrapper (`menv` role)**
+    -   Generates the `menv` helper script in `~/.local/bin/menv` so repository commands run from the project root automatically.
+    -   Respects the `repo_root_path` variable provided by the playbook to stay relocatable.
+    -   Drops directly into an interactive shell when invoked without additional arguments.
 
 ## Automation Policies
 
@@ -253,19 +268,17 @@ just test
 All tests use properly-scoped fixtures in `conftest.py` files to share context and avoid code duplication.
 
 
-## CI/CD Pipeline Verification Items
+## CI Workflows
 
-The following GitHub Actions workflows validate the automated setup process:
+The project's integrity and automation are verified by a set of GitHub Actions workflows.
 
-- **`ci-workflows.yml`**: Main CI pipeline orchestrating all setup workflows
-- **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
-- **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning along with the Claude, Gemini, Codex, and slash configuration roles
-- **`setup-sublang.yml`**: Validates Ruby and Java environment setup
-- **`setup-ide.yml`**: Validates unified editor (VS Code/Cursor) configuration and extension management
-- **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types
-- **`setup-alias.yml`**: Validates Git, JJ, shell, SSH, and MCP configuration with alias testing
-- **`setup-system.yml`**: Validates macOS system defaults application and backup verification
-- **`run-tests.yml`**: Validates the slash command configuration by running tests.
+- **`ci-workflows.yml`**: The main CI workflows that orchestrates all other setup and validation jobs. It ensures that the entire environment can be provisioned successfully.
+- **`lint-and-test.yml`**: Runs a comprehensive suite of quality checks, including code formatting (black, shfmt), linting (ruff, shellcheck, ansible-lint), and executes the entire `pytest` test suite to validate configuration and script integrity.
+- **`setup-python.yml`**: Validates the complete Python environment setup, including `pyenv`, the correct Python version, and tools installed via `pipx`.
+- **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning via `nvm`, global `pnpm` packages, and the configuration for related AI CLIs (Claude, Gemini, Codex).
+- **`setup-ruby.yml`**: Validates the Ruby environment setup using `rbenv`, including the correct Ruby version and `bundler` installation.
+- **`setup-ide.yml`**: Validates the setup for both VS Code and Cursor, ensuring configuration is applied and extensions are managed correctly.
+- **`setup-system.yml`**: Validates the application of macOS system defaults.
 
 ### CI Environment Setup
 
