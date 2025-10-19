@@ -8,12 +8,12 @@
     "pp-0-rq": {
       "title": "Planning Process Step 0: Requirements",
       "description": "Activate planning process and create requirements specification",
-      "prompt-file": "commands/plan/pp-0-rq.md"
+      "prompt-file": "commands/plan-pros/pp-0-rq.md"
     },
     "pp-1-tk": {
       "title": "Planning Process Step 1: Implementation Plan & Tasks",
       "description": "Create consolidated implementation plan combining design, test strategy, and task breakdown",
-      "prompt-file": "commands/plan/pp-1-tk.md"
+      "prompt-file": "commands/plan-pros/pp-1-tk.md"
     },
     "sdd-0-rq": {
       "title": "SDD Step 0: Requirements",
@@ -44,11 +44,6 @@
       "title": "Activate Serena",
       "description": "Activate current directory as a project for semantic code analysis using the `activate_project` tool with the current working directory as the `project` argument. Respond only with \"Project activated successfully.\" if the command succeeds. If there are any errors or warnings, display them fully.",
       "prompt-file": "commands/sn.md"
-    },
-    "tst": {
-      "title": "Run Tests",
-      "description": "Run various test commands with automated fix cycle",
-      "prompt-file": "commands/tst.md"
     },
     "vc-dct": {
       "title": "Deactivate voice notifications",

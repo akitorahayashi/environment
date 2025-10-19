@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List
+from typing import Callable, Dict, Iterable, List, Tuple
 
 
 class SlashGeneratorError(RuntimeError):
@@ -111,6 +111,39 @@ def _escape_yaml_string(value: str) -> str:
     return escaped
 
 
+Renderer = Callable[[SlashCommand, str], Tuple[str, str]]
+
+
+def _render_commands(
+    commands: Iterable[SlashCommand],
+    *,
+    prompt_root: Path,
+    destination: Path,
+    renderer: Renderer,
+) -> None:
+    """Generate files by delegating filename/content creation to ``renderer``."""
+
+    clean_destination(destination)
+
+    for command in commands:
+        prompt_path = ensure_prompt_exists(prompt_root, command.prompt_file)
+        prompt_content = prompt_path.read_text(encoding="utf-8")
+        relative_name, output_content = renderer(command, prompt_content)
+
+        relative_path = Path(relative_name)
+        if relative_path.is_absolute() or ".." in relative_path.parts:
+            raise SlashGeneratorError(
+                f"Renderer returned invalid output path: {relative_name!r}"
+            )
+        if len(relative_path.parts) > 1:
+            raise SlashGeneratorError(
+                f"Renderer must return simple filenames; got {relative_name!r}."
+            )
+
+        output_file = destination / relative_path
+        output_file.write_text(output_content, encoding="utf-8")
+
+
 def generate_claude(
     commands: Iterable[SlashCommand],
     *,
@@ -119,20 +152,21 @@ def generate_claude(
 ) -> None:
     """Generate Markdown prompt files for Claude."""
 
-    clean_destination(destination)
-
-    for command in commands:
-        prompt_path = ensure_prompt_exists(prompt_root, command.prompt_file)
-        output_file = destination / f"{command.key}.md"
-
+    def render(command: SlashCommand, prompt_content: str) -> Tuple[str, str]:
         front_matter = (
             "---\n"
             f'title: "{_escape_yaml_string(command.title)}"\n'
             f'description: "{_escape_yaml_string(command.description)}"\n'
             "---\n\n"
         )
-        prompt_content = prompt_path.read_text(encoding="utf-8")
-        output_file.write_text(front_matter + prompt_content, encoding="utf-8")
+        return f"{command.key}.md", front_matter + prompt_content
+
+    _render_commands(
+        commands,
+        prompt_root=prompt_root,
+        destination=destination,
+        renderer=render,
+    )
 
 
 def generate_codex(
@@ -143,19 +177,20 @@ def generate_codex(
 ) -> None:
     """Generate Markdown prompt files for Codex."""
 
-    clean_destination(destination)
-
-    for command in commands:
-        prompt_path = ensure_prompt_exists(prompt_root, command.prompt_file)
+    def render(command: SlashCommand, prompt_content: str) -> Tuple[str, str]:
         safe_key = command.key
         if not all(ch.isalnum() or ch in {"_", "-", "."} for ch in safe_key):
             raise SlashGeneratorError(
                 f"Invalid command key '{command.key}' (contains unsafe characters)."
             )
+        return f"{safe_key}.md", prompt_content
 
-        output_file = destination / f"{safe_key}.md"
-        prompt_content = prompt_path.read_text(encoding="utf-8")
-        output_file.write_text(prompt_content, encoding="utf-8")
+    _render_commands(
+        commands,
+        prompt_root=prompt_root,
+        destination=destination,
+        renderer=render,
+    )
 
 
 def generate_gemini(
@@ -166,18 +201,19 @@ def generate_gemini(
 ) -> None:
     """Generate TOML prompt files for Gemini."""
 
-    clean_destination(destination)
-
-    for command in commands:
-        prompt_path = ensure_prompt_exists(prompt_root, command.prompt_file)
-        prompt_content = prompt_path.read_text(encoding="utf-8")
+    def render(command: SlashCommand, prompt_content: str) -> Tuple[str, str]:
         description_json = json.dumps(command.description, ensure_ascii=False)
-
-        output_file = destination / f"{command.key}.toml"
         toml_body = (
             f"description = {description_json}\n\n"
             'prompt = """\n'
             f"{prompt_content}\n"
             '"""\n'
         )
-        output_file.write_text(toml_body, encoding="utf-8")
+        return f"{command.key}.toml", toml_body
+
+    _render_commands(
+        commands,
+        prompt_root=prompt_root,
+        destination=destination,
+        renderer=render,
+    )
