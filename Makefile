@@ -1,7 +1,7 @@
 # Makefile: The entrypoint for initial environment setup.
 #
 # This Makefile has two main steps:
-# 1. `make base`: Installs Homebrew and Just.
+# 1. `make base`: Bootstraps macOS prerequisites, Python tooling, uv dependencies, and prepares the mlx-lm environment.
 # 2. `make macbook` or `make mac-mini`: Runs the actual setup using Just.
 
 .DEFAULT_GOAL := help
@@ -13,7 +13,7 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[^_][a-zA-Z0-9_-]*:.*?## / {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: base
-base: ## Installs pyenv, Python 3.12, uv, and core dependencies
+base: ## Installs pyenv, Python 3.12, uv, core dependencies, and prepares the mlx-lm environment
 	@echo "🚀 Starting bootstrap setup..."
 
 	@if command -v xcode-select &> /dev/null; then \
