@@ -299,6 +299,7 @@ clean:
     @echo "🧹 Cleaning up project..."
     @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
     @rm -rf .venv
+    @rm -rf mlx-lm
     @rm -rf .pytest_cache
     @rm -rf .ruff_cache
     @rm -rf .aider.tags.cache.v4
@@ -323,4 +324,5 @@ _find_shell_files:
     grep -v "\.git" | \
     grep -v "gemini.zsh" | \
     grep -v "\.uv-cache" | \
-    grep -v "\.venv"
+    grep -v "\.venv" | \
+    grep -v "mlx-lm"

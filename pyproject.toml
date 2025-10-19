@@ -48,6 +48,7 @@ exclude = '''
     | env
     | build
     | dist
+    | mlx-lm
     | .*/(bin|lib|share|etc)
     | .*/pyvenv\.cfg
 )/
@@ -62,6 +63,7 @@ exclude = [
     ".venv",
     "venv",
     "env",
+    "mlx-lm",
     "*/bin/**",
     "*/lib/**",
     "*/share/**",

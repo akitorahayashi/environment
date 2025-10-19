@@ -268,19 +268,17 @@ just test
 All tests use properly-scoped fixtures in `conftest.py` files to share context and avoid code duplication.
 
 
-## CI/CD Pipeline Verification Items
+## CI Workflows
 
-The following GitHub Actions workflows validate the automated setup process:
+The project's integrity and automation are verified by a set of GitHub Actions workflows.
 
-- **`ci-workflows.yml`**: Main CI pipeline orchestrating all setup workflows
-- **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
-- **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning along with the Claude, Gemini, Codex, and slash configuration roles
-- **`setup-sublang.yml`**: Validates Ruby and Java environment setup
-- **`setup-ide.yml`**: Validates unified editor (VS Code/Cursor) configuration and extension management
-- **`setup-homebrew.yml`**: Validates Homebrew package installation across all machine types
-- **`setup-alias.yml`**: Validates Git, JJ, shell, SSH, and MCP configuration with alias testing
-- **`setup-system.yml`**: Validates macOS system defaults application and backup verification
-- **`run-tests.yml`**: Validates the slash command configuration by running tests.
+- **`ci-workflows.yml`**: The main CI workflows that orchestrates all other setup and validation jobs. It ensures that the entire environment can be provisioned successfully.
+- **`lint-and-test.yml`**: Runs a comprehensive suite of quality checks, including code formatting (black, shfmt), linting (ruff, shellcheck, ansible-lint), and executes the entire `pytest` test suite to validate configuration and script integrity.
+- **`setup-python.yml`**: Validates the complete Python environment setup, including `pyenv`, the correct Python version, and tools installed via `pipx`.
+- **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning via `nvm`, global `pnpm` packages, and the configuration for related AI CLIs (Claude, Gemini, Codex).
+- **`setup-ruby.yml`**: Validates the Ruby environment setup using `rbenv`, including the correct Ruby version and `bundler` installation.
+- **`setup-ide.yml`**: Validates the setup for both VS Code and Cursor, ensuring configuration is applied and extensions are managed correctly.
+- **`setup-system.yml`**: Validates the application of macOS system defaults.
 
 ### CI Environment Setup
 
