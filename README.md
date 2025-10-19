@@ -88,22 +88,22 @@ curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-com
 
 These commands are recommended to be run manually once after initial setup (Ansible collections are refreshed automatically when `just common` runs):
 
-- **Install Brew Casks**: `just cmn-cask`, `just mbk-cask`, `just mmn-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
-- **Pull Docker images**: `just cmn-docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
-- **Regenerate menv wrapper**: `just cmn-menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
+- **Install Brew Casks**: `just brew-cask`, `just mbk-brew-cask`, `just mmn-brew-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
+- **Pull Docker images**: `just docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
+- **Regenerate menv wrapper**: `just menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
 
 ### menv Command Wrapper
 
 The `menv` command launches tasks from the repository root no matter where you are in the filesystem.
 
-- Run `menv just cmn-shell` to invoke a Just recipe without manually `cd`-ing into the project.
+- Run `menv just shell` to invoke a Just recipe without manually `cd`-ing into the project.
 - Invoke `menv git status` to inspect version control state from any directory.
 - Call `menv` with no arguments to open an interactive shell session rooted at the project.
-- If the helper script ever drifts, rerun `just cmn-menv` to regenerate it via Ansible.
+- If the helper script ever drifts, rerun `just menv` to regenerate it via Ansible.
 
 ### Codex ↔ MCP Synchronization
 
-- Run `just cmn-codex` before `just cmn-mcp` (or simply execute `just cmn-codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
+- Run `just codex` before `just mcp` (or simply execute `just codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
 - The authoritative catalogue lives in `ansible/roles/mcp/config/common/servers.json`; edits there are converted into the `[mcp_servers]` block within `ansible/roles/codex/config/common/config.toml`.
 - When `~/.codex/config.toml` is missing, the synchronization block is skipped to avoid overwriting repository files.
 - After catalogue changes, rerun the combined recipe and confirm the play output reports the managed block as updated once and idempotent on the subsequent run.
@@ -194,22 +194,22 @@ This project uses Ansible to automate the setup of a complete development enviro
 13. **Claude CLI Configuration (`claude` role)**
     -   Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `ansible/roles/claude/config/common`.
     -   Links `CLAUDE.md` and prepares the `commands` directory used by Claude Code.
-    -   Runs without invoking the Node.js role and can be targeted via `just cmn-claude` or `ansible-playbook --tags claude`.
+    -   Runs without invoking the Node.js role and can be targeted via `just claude` or `ansible-playbook --tags claude`.
 
 14. **Gemini CLI Configuration (`gemini` role)**
     -   Creates `~/.gemini`, symlinks configuration files from `ansible/roles/gemini/config/common`, and retains templates used by the Gemini CLI.
     -   Performs a best-effort `which gemini` check, warning if the CLI is missing while still applying configuration assets.
-    -   Runs independently of Node.js and can be executed with `just cmn-gemini` or `ansible-playbook --tags gemini`.
+    -   Runs independently of Node.js and can be executed with `just gemini` or `ansible-playbook --tags gemini`.
 
 15. **Codex CLI Configuration (`codex` role)**
     -   Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/codex/config/common`.
     -   Provides prompt and agent files without re-triggering the Node.js runtime setup.
-    -   Invoked through `just cmn-codex` or `ansible-playbook --tags codex`.
+    -   Invoked through `just codex` or `ansible-playbook --tags codex`.
 
 16. **Slash Command Generation (`slash` role)**
     -   Marks the slash generator scripts (`claude.py`, `gemini.py`, `codex.py`) as executable and runs them from the repository root.
     -   Regenerates all custom slash command assets in one pass, independent of the Node.js role.
-    -   Accessible via `just cmn-slash` or `ansible-playbook --tags slash`.
+    -   Accessible via `just slash` or `ansible-playbook --tags slash`.
 
 17. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.

@@ -16,16 +16,16 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup Git configuration
-        run: just cmn-git
+        run: just git
 
       - name: Setup GitHub CLI configuration
-        run: just cmn-gh
+        run: just gh
 
       - name: Setup JJ configuration
-        run: just cmn-jj
+        run: just jj
 
       - name: Setup shell configuration
-        run: just cmn-shell
+        run: just shell
         
       - name: Test shell aliases functionality
         shell: zsh {0}
@@ -35,13 +35,13 @@ jobs:
           mk --version
 
       - name: Setup SSH configuration
-        run: just cmn-ssh
+        run: just ssh
 
       - name: Setup MCP configuration
-        run: just cmn-mcp
+        run: just mcp
 
       - name: Apply macOS system defaults
-        run: just cmn-apply-system
+        run: just apply-system
 
       - name: Setup GitHub authentication for Homebrew
         run: |
@@ -54,4 +54,4 @@ jobs:
         shell: bash
 
       - name: Run Homebrew formulae setup for common
-        run: just cmn-brew-formulae
+        run: just brew-formulae

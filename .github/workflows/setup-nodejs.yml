@@ -16,19 +16,19 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Run nodejs-platform setup
-        run: just cmn-nodejs-platform
+        run: just nodejs-platform
 
-      - name: Run cmn-nodejs-tools setup
-        run: just cmn-nodejs-tools
+      - name: Run nodejs-tools setup
+        run: just nodejs-tools
 
       - name: Setup Claude Code
-        run: just cmn-claude
+        run: just claude
 
       - name: Setup Gemini CLI
-        run: just cmn-gemini
+        run: just gemini
 
       - name: Setup Codex
-        run: just cmn-codex
+        run: just codex
 
       - name: Setup slash commands
-        run: just cmn-slash
+        run: just slash

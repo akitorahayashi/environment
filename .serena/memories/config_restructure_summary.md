@@ -44,7 +44,7 @@ config/
 - Maintains all existing automation functionality
 
 ## Testing Status
-- ✅ Individual commands (just cmn-git) work correctly
+- ✅ Individual commands (just git) work correctly
 - ✅ File symlinks are created properly  
 - ✅ All automation preserved
 - ✅ Clean directory structure with no orphaned files
