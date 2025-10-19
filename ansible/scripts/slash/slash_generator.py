@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Utilities for generating slash command assets from JSON configuration."""
+"""Generate slash command assets from shared configuration."""
 
 from __future__ import annotations
 
 import json
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Tuple
@@ -26,7 +27,7 @@ class SlashCommand:
 def _read_json(path: Path) -> Dict[str, object]:
     try:
         raw = path.read_text(encoding="utf-8")
-    except FileNotFoundError as exc:  # pragma: no cover - handled in caller
+    except FileNotFoundError as exc:  # pragma: no cover - handled by caller
         raise SlashGeneratorError(f"Config file not found: {path}") from exc
     except OSError as exc:  # pragma: no cover - unexpected IO error
         raise SlashGeneratorError(f"Failed to read config file: {path}") from exc
@@ -104,25 +105,13 @@ def clean_destination(directory: Path) -> None:
             path.unlink()
 
 
-def _escape_yaml_string(value: str) -> str:
-    """Escape a string for inclusion in simple YAML front matter."""
-
-    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
-    return escaped
-
-
-Renderer = Callable[[SlashCommand, str], Tuple[str, str]]
-
-
 def _render_commands(
     commands: Iterable[SlashCommand],
     *,
     prompt_root: Path,
     destination: Path,
-    renderer: Renderer,
+    renderer: Callable[[SlashCommand, str], Tuple[str, str]],
 ) -> None:
-    """Generate files by delegating filename/content creation to ``renderer``."""
-
     clean_destination(destination)
 
     for command in commands:
@@ -144,76 +133,91 @@ def _render_commands(
         output_file.write_text(output_content, encoding="utf-8")
 
 
-def generate_claude(
-    commands: Iterable[SlashCommand],
-    *,
-    prompt_root: Path,
-    destination: Path,
-) -> None:
-    """Generate Markdown prompt files for Claude."""
+class BaseSlashGenerator(ABC):
+    """Base class for slash command generators."""
 
-    def render(command: SlashCommand, prompt_content: str) -> Tuple[str, str]:
-        front_matter = (
-            "---\n"
-            f'title: "{_escape_yaml_string(command.title)}"\n'
-            f'description: "{_escape_yaml_string(command.description)}"\n'
-            "---\n\n"
+    _REPO_ANSIBLE_DIR = Path(__file__).resolve().parents[2]
+    DEFAULT_CONFIG = _REPO_ANSIBLE_DIR / "roles/slash/config/common/config.json"
+    DEFAULT_PROMPT_ROOT = DEFAULT_CONFIG.parent
+
+    @abstractmethod
+    def render(self, command: SlashCommand, prompt_content: str) -> Tuple[str, str]:
+        """Render a command to filename and content."""
+
+    @property
+    @abstractmethod
+    def default_destination(self) -> Path:
+        """Default destination directory."""
+
+    def generate(
+        self,
+        commands: Iterable[SlashCommand],
+        *,
+        prompt_root: Path,
+        destination: Path,
+    ) -> None:
+        def renderer(cmd: SlashCommand, content: str) -> Tuple[str, str]:
+            return self.render(cmd, content)
+
+        _render_commands(
+            commands,
+            prompt_root=prompt_root,
+            destination=destination,
+            renderer=renderer,
         )
-        return f"{command.key}.md", front_matter + prompt_content
 
-    _render_commands(
-        commands,
-        prompt_root=prompt_root,
-        destination=destination,
-        renderer=render,
-    )
+    @staticmethod
+    def parse_args(
+        generator_class: type["BaseSlashGenerator"],
+        argv: List[str] | None = None,
+    ) -> Tuple[Path, Path, Path]:
+        import argparse
 
+        parser = argparse.ArgumentParser(description="Generate slash command assets")
+        parser.add_argument(
+            "--config",
+            type=Path,
+            default=BaseSlashGenerator.DEFAULT_CONFIG,
+            help="Path to config.json",
+        )
+        parser.add_argument(
+            "--destination",
+            type=Path,
+            default=None,
+            help="Destination directory",
+        )
+        parser.add_argument(
+            "--prompt-root",
+            type=Path,
+            default=BaseSlashGenerator.DEFAULT_PROMPT_ROOT,
+            help="Prompt root directory",
+        )
+        args = parser.parse_args(argv)
+        destination = args.destination or generator_class().default_destination
+        return args.config, args.prompt_root, destination
 
-def generate_codex(
-    commands: Iterable[SlashCommand],
-    *,
-    prompt_root: Path,
-    destination: Path,
-) -> None:
-    """Generate Markdown prompt files for Codex."""
+    @staticmethod
+    def _escape_yaml_string(value: str) -> str:
+        """Escape characters that break simple YAML double-quoted strings."""
 
-    def render(command: SlashCommand, prompt_content: str) -> Tuple[str, str]:
-        safe_key = command.key
-        if not all(ch.isalnum() or ch in {"_", "-", "."} for ch in safe_key):
-            raise SlashGeneratorError(
-                f"Invalid command key '{command.key}' (contains unsafe characters)."
+        return value.replace("\\", "\\\\").replace('"', '\\"')
+
+    @staticmethod
+    def main(generator_class, argv: List[str] | None = None) -> int:
+        import sys
+
+        config, prompt_root, destination = BaseSlashGenerator.parse_args(
+            generator_class, argv
+        )
+        try:
+            commands = load_commands(config)
+            generator = generator_class()
+            generator.generate(
+                commands,
+                prompt_root=prompt_root,
+                destination=destination,
             )
-        return f"{safe_key}.md", prompt_content
-
-    _render_commands(
-        commands,
-        prompt_root=prompt_root,
-        destination=destination,
-        renderer=render,
-    )
-
-
-def generate_gemini(
-    commands: Iterable[SlashCommand],
-    *,
-    prompt_root: Path,
-    destination: Path,
-) -> None:
-    """Generate TOML prompt files for Gemini."""
-
-    def render(command: SlashCommand, prompt_content: str) -> Tuple[str, str]:
-        description_json = json.dumps(command.description, ensure_ascii=False)
-        toml_body = (
-            f"description = {description_json}\n\n"
-            'prompt = """\n'
-            f"{prompt_content}\n"
-            '"""\n'
-        )
-        return f"{command.key}.toml", toml_body
-
-    _render_commands(
-        commands,
-        prompt_root=prompt_root,
-        destination=destination,
-        renderer=render,
-    )
+        except SlashGeneratorError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+        return 0

@@ -61,10 +61,10 @@ class TestSlashIntegration:
         # 2. Validate schema and check prompt files exist
         self._validate_schema_and_prompts(data, slash_config_dir)
 
-    def test_generator_scripts_are_executable(self, slash_config_dir: Path) -> None:
+    def test_generator_scripts_are_executable(self, slash_script_dir: Path) -> None:
         """Verify that slash command generator scripts exist and are executable."""
         for script_name in self.scripts_to_check:
-            script_path = slash_config_dir / script_name
+            script_path = slash_script_dir / script_name
             assert script_path.is_file(), f"Script not found: {script_path}"
             mode = script_path.stat().st_mode
             assert mode & (
@@ -74,6 +74,7 @@ class TestSlashIntegration:
     def test_generators_render_prompts(
         self,
         slash_config_dir: Path,
+        slash_script_dir: Path,
         project_root: Path,
         tmp_path: Path,
     ) -> None:
@@ -97,7 +98,13 @@ class TestSlashIntegration:
 
         for script_name, dest_dir in destinations.items():
             result = subprocess.run(
-                [str(slash_config_dir / script_name)],
+                [
+                    str(slash_script_dir / script_name),
+                    "--config",
+                    str(slash_config_dir / "config.json"),
+                    "--prompt-root",
+                    str(slash_config_dir),
+                ],
                 cwd=project_root,
                 env=env,
                 capture_output=True,
