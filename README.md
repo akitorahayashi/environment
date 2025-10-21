@@ -15,6 +15,7 @@ This project automates the setup of a consistent development environment across 
 ├── ansible/
 │   ├── roles/
 │   ├── scripts/
+│   ├── utils/
 │   ├── hosts
 │   └── playbook.yml
 ├── tests/
@@ -91,6 +92,7 @@ These commands are recommended to be run manually once after initial setup (Ansi
 - **Install Brew Casks**: `just brew-cask`, `just mbk-brew-cask`, `just mmn-brew-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
 - **Regenerate menv wrapper**: `just menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
+- **Desktop cache cleanup**: `just clean-desktop`, `just clean-desktop-dryrun` - Remove build/test caches from the Desktop (override the target directory by passing an argument; use the dry-run variant to preview deletions).
 
 ### menv Command Wrapper
 

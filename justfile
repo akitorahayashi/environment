@@ -311,6 +311,16 @@ clean:
     @rm -rf .tmp
     @echo "✅ Cleanup completed"
 
+# Remove cache artefacts from a Desktop (or custom) directory
+clean-desktop directory='':
+    @uv run python {{repo_root}}/ansible/utils/clean_desktop_caches.py -d "{{ if directory == '' { env('HOME') + '/Desktop' } else { directory } }}"
+    @echo "✅ Desktop cache cleanup completed."
+
+# Simulate cache cleanup without deleting files
+clean-desktop-dryrun directory='':
+    @uv run python {{repo_root}}/ansible/utils/clean_desktop_caches.py -d "{{ if directory == '' { env('HOME') + '/Desktop' } else { directory } }}" --dry-run
+    @echo "✅ Dry run simulation completed."
+
 # ==============================================================================
 # Hidden Recipes
 # ==============================================================================

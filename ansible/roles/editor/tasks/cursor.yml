@@ -11,12 +11,10 @@
     mode: "0755"
 
 - name: "Download Cursor CLI installer"
-  # Checksum obtained via: curl -s https://cursor.com/install | shasum -a 256
   ansible.builtin.get_url:
     url: https://cursor.com/install
     dest: "{{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh"
     mode: "0755"
-    checksum: "sha256:5ce1b01619f1bb15158edd10971d334bdd842cc3a6705727dd3e15c9d86b3a25"
 
 - name: "Install Cursor CLI"
   ansible.builtin.command: /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh
