@@ -7,10 +7,10 @@ import argparse
 import shutil
 import sys
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable
 
 # Directories we consider disposable build or cache artifacts.
-TARGET_DIR_NAMES: List[str] = [
+TARGET_DIR_NAMES: tuple[str, ...] = (
     "__pycache__",
     "DerivedData",
     "build",
@@ -21,11 +21,11 @@ TARGET_DIR_NAMES: List[str] = [
     ".mypy_cache",
     ".venv",
     ".uv-cache",
-]
+)
 
 # Individual files that can be safely deleted. Finder's `.DS_Store` files are left
 # intact because they are lightweight metadata that macOS recreates automatically.
-TARGET_FILE_NAMES: List[str] = []
+TARGET_FILE_NAMES: tuple[str, ...] = ()
 
 
 def _collect_matches(root: Path, name: str, want_directory: bool) -> list[Path]:
@@ -88,29 +88,22 @@ def clean_caches(root: Path, dry_run: bool = False) -> int:
     planned_count = 0
     failure_count = 0
 
-    for directory_name in TARGET_DIR_NAMES:
-        print(f"  scanning for directories named '{directory_name}'...")
-        matches = _collect_matches(root, directory_name, want_directory=True)
-        if not matches:
-            print("    none found.")
-            continue
-        for match in matches:
-            if _remove_directory(match, dry_run):
-                planned_count += 1
-            else:
-                failure_count += 1
-
-    for file_name in TARGET_FILE_NAMES:
-        print(f"  scanning for files named '{file_name}'...")
-        matches = _collect_matches(root, file_name, want_directory=False)
-        if not matches:
-            print("    none found.")
-            continue
-        for match in matches:
-            if _remove_file(match, dry_run):
-                planned_count += 1
-            else:
-                failure_count += 1
+    targets_to_process = [
+        (TARGET_DIR_NAMES, True, _remove_directory, "directories"),
+        (TARGET_FILE_NAMES, False, _remove_file, "files"),
+    ]
+    for names, is_dir, remover, item_type in targets_to_process:
+        for name in names:
+            print(f"  scanning for {item_type} named '{name}'...")
+            matches = _collect_matches(root, name, want_directory=is_dir)
+            if not matches:
+                print("    none found.")
+                continue
+            for match in matches:
+                if remover(match, dry_run):
+                    planned_count += 1
+                else:
+                    failure_count += 1
 
     if planned_count == 0:
         print("Finished. No cache entries found.")
@@ -143,12 +136,12 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Report what would be deleted without removing anything.",
     )
-    return parser.parse_args(list(argv) if argv is not None else None)
+    return parser.parse_args(argv)
 
 
 def main(argv: Iterable[str] | None = None) -> int:
     args = parse_args(argv)
-    target_dir = Path(args.directory).expanduser().resolve()
+    target_dir = args.directory.expanduser().resolve()
 
     if not target_dir.exists() or not target_dir.is_dir():
         print(f"error: directory not found: {target_dir}", file=sys.stderr)
