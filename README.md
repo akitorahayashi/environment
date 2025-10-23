@@ -283,7 +283,7 @@ The project's integrity and automation are verified by a set of GitHub Actions w
 - **`lint-and-test.yml`**: Runs a comprehensive suite of quality checks, including code formatting (black, shfmt), linting (ruff, shellcheck, ansible-lint), and executes the entire `pytest` test suite to validate configuration and script integrity.
 - **`setup-python.yml`**: Validates the complete Python environment setup, including `pyenv`, the correct Python version, and tools installed via `pipx`.
 - **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning via `nvm`, global `pnpm` packages, and the configuration for related AI CLIs (Claude, Gemini, Codex).
-- **`setup-ruby.yml`**: Validates the Ruby environment setup using `rbenv`, including the correct Ruby version and `bundler` installation.
+- **`setup-runtime.yml`**: Validates the Ruby and Rust runtime environments, including `rbenv` with correct Ruby version and `bundler`, plus Rust toolchain with `rustup`.
 - **`setup-ide.yml`**: Validates the setup for both VS Code and Cursor, ensuring configuration is applied and extensions are managed correctly.
 - **`setup-system.yml`**: Validates the application of macOS system defaults.
 

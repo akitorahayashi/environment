@@ -1,10 +1,10 @@
-name: Setup Runtime Languages
+name: Setup Runtime
 
 on:
   workflow_call:
 
 jobs:
-  setup-ruby:
+  setup-runtime:
     runs-on: macos-15
     permissions:
       contents: read
