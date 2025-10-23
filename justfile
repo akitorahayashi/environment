@@ -43,6 +43,7 @@ common:
   @just cursor
   @just coderabbit
   @just ruby
+  @just rust
   @just brew-formulae
   @echo "✅ All common setup tasks completed successfully."
 
@@ -115,6 +116,11 @@ python-tools:
 ruby:
   @echo "🚀 Running common Ruby setup..."
   @just _run_ansible "ruby" "common" "ruby"
+
+# Setup Rust environment with rustup
+rust:
+  @echo "🚀 Running common Rust setup..."
+  @just _run_ansible "rust" "common" "rust"
 
 # Link common shell configuration files
 shell:

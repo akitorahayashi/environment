@@ -1,0 +1,5 @@
+# Declare one Cargo crate per line to document commonly installed developer utilities.
+# These entries are informational today; automation can iterate over this file in the future.
+# Examples:
+# cargo-edit
+# cargo-watch
