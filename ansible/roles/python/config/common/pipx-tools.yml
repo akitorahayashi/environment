@@ -1,0 +1,8 @@
+---
+# Python packages to install via pipx
+# Each tool can specify:
+#   - name: package name (required)
+#   - python_version: specific Python version to use (optional, defaults to python_version var)
+tools:
+  - name: mlx-hub
+  - name: jupyterlab

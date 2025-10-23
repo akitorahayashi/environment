@@ -8,7 +8,7 @@
     - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "claude", "gemini", "codex"] }
     - { role: slash, tags: ["slash"] }
     - { role: ruby, tags: ["ruby"] }
-    - { role: rust, tags: ["rust"] }
+    - { role: rust, tags: ["rust-platform", "rust-tools"] }
     - { role: vcs, tags: ["git", "jj"] }
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell"] }

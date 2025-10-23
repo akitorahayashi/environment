@@ -1,34 +1,17 @@
 ---
-- name: "Install rustup-init via Homebrew"
-  community.general.homebrew:
-    name: "rustup-init"
-    state: present
+- name: "Set Rust version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ role_path }}/config/common/.rust-version"
+  register: rust_version_file
 
-- name: "Bootstrap rustup with minimal stable toolchain"
-  ansible.builtin.command:
-    cmd: "rustup-init -y --no-modify-path --profile minimal --default-toolchain stable"
-  args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+- name: "Set Rust version fact"
+  ansible.builtin.set_fact:
+    rust_version: "{{ rust_version_file.content | b64decode | trim }}"
 
-- name: Provision Rust toolchain and components
-  vars:
-    rustup_bin: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.cargo/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  block:
-    - name: "Install stable toolchain via rustup"
-      ansible.builtin.command:
-        cmd: "{{ rustup_bin }} toolchain install stable --profile minimal"
-      register: rust_rustup_install
-      changed_when: "'is up to date' not in rust_rustup_install.stdout"
+- name: "Setup Rust platform"
+  ansible.builtin.include_tasks: platform.yml
+  when: "'rust-platform' in ansible_run_tags"
 
-    - name: "Ensure Rust components are available"
-      ansible.builtin.command:
-        cmd: "{{ rustup_bin }} component add {{ item }}"
-      loop:
-        - rustfmt
-        - clippy
-      register: rust_component_add_result
-      changed_when: "'is up to date' not in rust_component_add_result.stdout"
+- name: "Install cargo tools"
+  ansible.builtin.include_tasks: tools.yml
+  when: "'rust-tools' in ansible_run_tags"

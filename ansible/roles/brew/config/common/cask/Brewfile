@@ -13,10 +13,8 @@ cask "android-studio"
 cask "android-commandlinetools"
 cask "docker"
 
-# Web Browsers
+# Web Browsers & Communication
 cask "google-chrome"
-
-# Communication & Collaboration
 cask "slack"
 cask "zoom"
 
