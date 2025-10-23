@@ -1,3 +1,5 @@
+alias me="menv"
+
 # Source dev.zsh first to make dev_alias_as function available
 source ~/.alias/dev/dev.sh
 
@@ -14,5 +16,3 @@ for config_file in ~/.alias/**/*.sh~**/dev/dev.sh; do
         source "$config_file"
     fi
 done
-
-alias me="menv"
