@@ -16,6 +16,7 @@
     uv venv {{ repo_root_path }}/mlx-lm
   args:
     creates: "{{ repo_root_path }}/mlx-lm"
+  when: repo_root_path is defined
 
 - name: "Install mlx dependency-group into mlx-lm venv"
   ansible.builtin.shell: |

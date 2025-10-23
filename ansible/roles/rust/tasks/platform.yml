@@ -1,30 +1,41 @@
 ---
-- name: "Install rustup via Homebrew"
-  community.general.homebrew:
-    name: rustup
-    state: present
+- name: "Download rustup installer"
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-init.sh
+    mode: '0755'
 
-- name: "Install specific Rust version via rustup"
+- name: "Install rustup"
   ansible.builtin.command:
-    cmd: rustup toolchain install {{ rust_version }} --profile minimal
+    cmd: /tmp/rustup-init.sh -y --no-modify-path --profile minimal --default-toolchain {{ rust_version }}
   args:
-    creates: "{{ ansible_env.HOME }}/.rustup/toolchains/{{ rust_version }}-{{ ansible_architecture }}-apple-darwin"
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
   changed_when: false
+
+- name: "Remove rustup installer"
+  ansible.builtin.file:
+    path: /tmp/rustup-init.sh
+    state: absent
 
 - name: "Get current default Rust toolchain"
   ansible.builtin.command:
-    cmd: rustup default
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup default"
   register: rust_current_default
   changed_when: false
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
 
 - name: "Set default Rust toolchain"
   ansible.builtin.command:
-    cmd: rustup default {{ rust_version }}
-  register: rust_default_set
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup default {{ rust_version }}"
   changed_when: "rust_version not in rust_current_default.stdout"
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Load Rust components configuration"
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/config/common/rust-components.yml"
+    name: rust_components_config
+
+- name: "Ensure Rust components are available"
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup component add {{ item }}"
+  loop: "{{ rust_components_config.components }}"
+  register: rust_component_add_result
+  changed_when: "'is up to date' not in rust_component_add_result.stdout"

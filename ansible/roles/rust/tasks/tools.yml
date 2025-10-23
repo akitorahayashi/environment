@@ -7,17 +7,14 @@
 - name: "Install cargo tools"
   ansible.builtin.command:
     cmd: >
-      cargo install
+      {{ ansible_env.HOME }}/.cargo/bin/cargo install --force
       {% if item.git is defined %}--git {{ item.git }}{% endif %}
       {% if item.tag is defined %}--tag {{ item.tag }}{% endif %}
       {{ item.name }}
       {{ item.options | default('') }}
-  args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.name }}"
   loop: "{{ cargo_tools_config.tools }}"
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  changed_when: false
+  register: cargo_install_result
+  changed_when: "'Installing' in cargo_install_result.stderr"
   when: cargo_tools_config.tools | length > 0
 
 - name: "Clean up cargo cache after installation"

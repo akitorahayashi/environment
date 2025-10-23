@@ -12,23 +12,6 @@
   ansible.builtin.include_tasks: platform.yml
   when: "'rust-platform' in ansible_run_tags"
 
-- name: Provision Rust components
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: "'rust-platform' in ansible_run_tags"
-  block:
-    - name: "Load Rust components configuration"
-      ansible.builtin.include_vars:
-        file: "{{ role_path }}/config/common/rust-components.yml"
-        name: rust_components_config
-
-    - name: "Ensure Rust components are available"
-      ansible.builtin.command:
-        cmd: rustup component add {{ item }}
-      loop: "{{ rust_components_config.components }}"
-      register: rust_component_add_result
-      changed_when: "'is up to date' not in rust_component_add_result.stdout"
-
 - name: "Install cargo tools"
   ansible.builtin.include_tasks: tools.yml
   when: "'rust-tools' in ansible_run_tags"
