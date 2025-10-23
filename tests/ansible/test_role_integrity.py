@@ -114,6 +114,9 @@ def _collect_src_references(
                 resolved = _resolve_template_literal(raw_value, project_root, role_path)
                 if resolved is None:
                     continue
+                # Skip generated venv directories
+                if "mlx-lm/bin" in str(resolved):
+                    continue
                 references.append(
                     FileReference(
                         kind="src",

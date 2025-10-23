@@ -12,19 +12,23 @@
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
 
-- name: "Install stable toolchain via rustup"
-  ansible.builtin.command:
-    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup toolchain install stable --profile minimal"
-  changed_when: false
+- name: Provision Rust toolchain and components
+  vars:
+    rustup_bin: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
   environment:
     PATH: "{{ ansible_env.HOME }}/.cargo/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  block:
+    - name: "Install stable toolchain via rustup"
+      ansible.builtin.command:
+        cmd: "{{ rustup_bin }} toolchain install stable --profile minimal"
+      register: rust_rustup_install
+      changed_when: "'is up to date' not in rust_rustup_install.stdout"
 
-- name: "Ensure Rust components are available"
-  ansible.builtin.command:
-    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup component add {{ item }}"
-  loop:
-    - rustfmt
-    - clippy
-  changed_when: false
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.cargo/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    - name: "Ensure Rust components are available"
+      ansible.builtin.command:
+        cmd: "{{ rustup_bin }} component add {{ item }}"
+      loop:
+        - rustfmt
+        - clippy
+      register: rust_component_add_result
+      changed_when: "'is up to date' not in rust_component_add_result.stdout"

@@ -91,6 +91,11 @@ if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"*
     export PATH="$HOME/fvm/default/bin:$PATH"
 fi
 
+# Path for Rust tools
+if [ -d "$HOME/.cargo/bin" ] && [[ ":$PATH:" != *":$HOME/.cargo/bin:"* ]]; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
 # Automatic startup and reuse of SSH Agent
 SSH_AGENT_PID_FILE="$HOME/.ssh/ssh-agent.pid"
 SSH_AUTH_SOCK_FILE="$HOME/.ssh/ssh-agent.sock"

@@ -339,7 +339,7 @@ _run_ansible role profile tag *args="":
 
 # @hidden
 _find_shell_files:
-  @find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | \
+  @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
     grep -v "gemini.zsh" | \
     grep -v "\.uv-cache" | \
