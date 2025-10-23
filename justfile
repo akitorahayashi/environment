@@ -117,10 +117,21 @@ ruby:
   @echo "🚀 Running common Ruby setup..."
   @just _run_ansible "ruby" "common" "ruby"
 
-# Setup Rust environment with rustup
+# Install Rust platform (rustup)
+rust-platform:
+  @echo "🚀 Installing common Rust platform (rustup)..."
+  @just _run_ansible "rust" "common" "rust-platform"
+
+# Install Rust CLI tools
+rust-tools:
+  @echo "🚀 Installing common Rust CLI tools..."
+  @just _run_ansible "rust" "common" "rust-tools"
+
+# Setup Rust environment with rustup and tools
 rust:
   @echo "🚀 Running common Rust setup..."
-  @just _run_ansible "rust" "common" "rust"
+  @just rust-platform
+  @just rust-tools
 
 # Link common shell configuration files
 shell:

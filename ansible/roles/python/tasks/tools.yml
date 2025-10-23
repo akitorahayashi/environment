@@ -1,12 +1,18 @@
 ---
+- name: "Load pipx tools configuration"
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/config/common/pipx-tools.yml"
+    name: pipx_tools_config
+
 - name: "Install pipx tools"
   ansible.builtin.shell: |
     eval "$(pyenv init -)"
-    pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python {{ item }}
+    pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ item.python_version | default(python_version) }}/bin/python {{ item.name }}
   args:
     executable: /bin/bash
-  loop: "{{ lookup('file', role_path + '/config/common/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
+  loop: "{{ pipx_tools_config.tools }}"
   changed_when: false
+  when: pipx_tools_config.tools | length > 0
 
 - name: "Create mlx-lm venv"
   ansible.builtin.shell: |

@@ -92,6 +92,8 @@ These commands are recommended to be run manually once after initial setup (Ansi
 - **Pull Docker images**: `just docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
 - **Regenerate menv wrapper**: `just menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
 - **Bootstrap Rust toolchain**: `just rust` - Installs Rust via rustup, adds core components, and ensures Cargo binaries are available on your PATH.
+- **Rust platform only**: `just rust-platform` - Runs only the rustup bootstrap and component provisioning tasks.
+- **Rust CLI tools only**: `just rust-tools` - Installs Cargo binaries declared in `ansible/roles/rust/config/common`.
 - **Desktop cache cleanup**: `just clean-desktop`, `just clean-desktop-dryrun` - Remove build/test caches from the Desktop (override the target directory by passing an argument; use the dry-run variant to preview deletions).
 
 ### menv Command Wrapper

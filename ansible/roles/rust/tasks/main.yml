@@ -3,6 +3,7 @@
   community.general.homebrew:
     name: "rustup-init"
     state: present
+  when: "'rust-platform' in ansible_run_tags"
 
 - name: "Bootstrap rustup with minimal stable toolchain"
   ansible.builtin.command:
@@ -11,12 +12,15 @@
     creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  changed_when: false
+  when: "'rust-platform' in ansible_run_tags"
 
 - name: Provision Rust toolchain and components
   vars:
     rustup_bin: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
   environment:
     PATH: "{{ ansible_env.HOME }}/.cargo/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: "'rust-platform' in ansible_run_tags"
   block:
     - name: "Install stable toolchain via rustup"
       ansible.builtin.command:
@@ -32,3 +36,11 @@
         - clippy
       register: rust_component_add_result
       changed_when: "'is up to date' not in rust_component_add_result.stdout"
+
+- name: "Install cargo tools from crates.io"
+  ansible.builtin.include_tasks: cargo-tools.yml
+  when: "'rust-tools' in ansible_run_tags"
+
+- name: "Install custom Rust tools from Git"
+  ansible.builtin.include_tasks: rust-tools.yml
+  when: "'rust-tools' in ansible_run_tags"

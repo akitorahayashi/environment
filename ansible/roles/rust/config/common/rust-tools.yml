@@ -1,0 +1,7 @@
+# ansible/roles/rust/config/common/rust-tools.yml
+- name: kpv
+  repo: https://github.com/akitorahayashi/kpv.git
+  tag: v0.1.0
+# - name: another-tool
+#   repo: https://github.com/user/another-tool.git
+#   tag: v1.2.0

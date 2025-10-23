@@ -1,0 +1,16 @@
+---
+- name: "Load cargo tools configuration"
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/config/common/cargo-tools.yml"
+    name: cargo_tools_config
+
+- name: "Install cargo tools from crates.io"
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/cargo install {{ item.name }} {{ item.options | default('') }}"
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.name }}"
+  loop: "{{ cargo_tools_config.tools }}"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.cargo/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  changed_when: false
+  when: cargo_tools_config.tools | length > 0
