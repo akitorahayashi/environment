@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/bash
 # cargo.sh - convenient cargo aliases and helper functions for zsh
 # Provides small wrappers for common workflows (installing components,
 # building, running, formatting, linting, testing, and cleaning).
