@@ -14,3 +14,5 @@ for config_file in ~/.zsh/**/*.sh~**/dev/dev.sh; do
         source "$config_file"
     fi
 done
+
+alias me="menv"
