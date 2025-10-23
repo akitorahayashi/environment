@@ -42,7 +42,9 @@
       "Glob",
       "Grep",
       "Bash(less:*)",
-      "Bash(more:*)"
+      "Bash(more:*)",
+      "Bash(pip:*)",
+      "Bash(pip3:*)"
     ],
     "ask": [
       "Bash(rm:*)",
@@ -50,6 +52,5 @@
       "Bash(rm -rf:*)",
       "Bash(rm -r:*)"
     ]
-  },
-  "alwaysThinkingEnabled": false
+  }
 }
