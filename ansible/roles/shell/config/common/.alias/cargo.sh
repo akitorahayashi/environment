@@ -14,7 +14,13 @@ alias cr-b="cargo build"
 alias cr-b-r="cargo build --release"
 
 # Running
-alias cr-r="if [ $# -eq 0 ]; then cargo run; else cargo run -- '$@'; fi"
+cr-r() {
+	if [ $# -eq 0 ]; then
+		cargo run
+	else
+		cargo run -- "$@"
+	fi
+}
 
 # Setup
 alias cr-setup="cargo fetch --locked || echo '(fetch skipped: lockfile not frozen)'"

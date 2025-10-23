@@ -13,8 +13,8 @@
       {{ item.name }}
       {{ item.options | default('') }}
   loop: "{{ cargo_tools_config.tools }}"
-  register: cargo_install_result
-  changed_when: "'Installing' in cargo_install_result.stderr"
+  register: rust_cargo_install_result
+  changed_when: "'Installing' in rust_cargo_install_result.stderr"
   when: cargo_tools_config.tools | length > 0
 
 - name: "Clean up cargo cache after installation"
