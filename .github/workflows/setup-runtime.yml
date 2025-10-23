@@ -1,4 +1,4 @@
-name: Setup Sub Languages
+name: Setup Runtime Languages
 
 on:
   workflow_call:
@@ -17,3 +17,6 @@ jobs:
 
       - name: Setup ruby
         run: just ruby
+
+      - name: Setup rust
+        run: just rust
