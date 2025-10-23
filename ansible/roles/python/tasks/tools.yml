@@ -6,28 +6,19 @@
 
 - name: "Install pipx tools"
   ansible.builtin.shell: |
-    eval "$(pyenv init -)"
     pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ item.python_version | default(python_version) }}/bin/python {{ item.name }}
-  args:
-    executable: /bin/bash
   loop: "{{ pipx_tools_config.tools }}"
   changed_when: false
   when: pipx_tools_config.tools | length > 0
 
 - name: "Create mlx-lm venv"
   ansible.builtin.shell: |
-    eval "$(pyenv init -)"
     uv venv {{ repo_root_path }}/mlx-lm
-  args:
-    executable: /bin/bash
     creates: "{{ repo_root_path }}/mlx-lm"
 
 - name: "Install mlx dependency-group into mlx-lm venv"
   ansible.builtin.shell: |
-    eval "$(pyenv init -)"
     UV_PROJECT_ENVIRONMENT={{ repo_root_path }}/mlx-lm uv sync --only-group mlx
-  args:
-    executable: /bin/bash
   changed_when: false
 
 - name: "Remove existing mlx_lm bin directory"

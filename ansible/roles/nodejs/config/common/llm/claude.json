@@ -52,5 +52,6 @@
       "Bash(rm -rf:*)",
       "Bash(rm -r:*)"
     ]
-  }
+  },
+  "alwaysThinkingEnabled": false
 }

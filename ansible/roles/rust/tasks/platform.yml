@@ -1,0 +1,30 @@
+---
+- name: "Install rustup via Homebrew"
+  community.general.homebrew:
+    name: rustup
+    state: present
+
+- name: "Install specific Rust version via rustup"
+  ansible.builtin.command:
+    cmd: rustup toolchain install {{ rust_version }} --profile minimal
+  args:
+    creates: "{{ ansible_env.HOME }}/.rustup/toolchains/{{ rust_version }}-{{ ansible_architecture }}-apple-darwin"
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  changed_when: false
+
+- name: "Get current default Rust toolchain"
+  ansible.builtin.command:
+    cmd: rustup default
+  register: rust_current_default
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+
+- name: "Set default Rust toolchain"
+  ansible.builtin.command:
+    cmd: rustup default {{ rust_version }}
+  register: rust_default_set
+  changed_when: "rust_version not in rust_current_default.stdout"
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"

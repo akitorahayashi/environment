@@ -21,6 +21,11 @@
   args:
     creates: "{{ ansible_env.HOME }}/.local/bin/cursor-agent"
 
+- name: "Remove Cursor installer"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh"
+    state: absent
+
 - name: "Ensure Cursor User directory exists"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User"

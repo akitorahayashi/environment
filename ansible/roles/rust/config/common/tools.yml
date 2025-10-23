@@ -1,0 +1,13 @@
+---
+# Cargo tools to install
+# Each tool can specify:
+#   - name: crate/binary name (required)
+#   - git: Git repository URL (optional, omit for crates.io)
+#   - tag: Git tag (optional, requires git)
+#   - options: additional cargo install flags (optional)
+tools:
+  - name: kpv
+    git: https://github.com/akitorahayashi/kpv.git
+    tag: v0.1.0
+  # - name: cargo-edit
+  #   options: "--locked"

@@ -1,0 +1,31 @@
+---
+- name: "Load cargo tools configuration"
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/config/common/tools.yml"
+    name: cargo_tools_config
+
+- name: "Install cargo tools"
+  ansible.builtin.command:
+    cmd: >
+      cargo install
+      {% if item.git is defined %}--git {{ item.git }}{% endif %}
+      {% if item.tag is defined %}--tag {{ item.tag }}{% endif %}
+      {{ item.name }}
+      {{ item.options | default('') }}
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.name }}"
+  loop: "{{ cargo_tools_config.tools }}"
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  changed_when: false
+  when: cargo_tools_config.tools | length > 0
+
+- name: "Clean up cargo cache after installation"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.cargo/{{ item }}"
+    state: absent
+  loop:
+    - registry/cache
+    - registry/src
+    - git/checkouts
+  when: cargo_tools_config.tools | length > 0

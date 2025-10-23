@@ -17,3 +17,8 @@
   ansible.builtin.shell: /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/coderabbit-install.sh < /dev/null
   args:
     creates: "{{ ansible_env.HOME }}/.local/bin/coderabbit"
+
+- name: "Remove CodeRabbit installer"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ansible/tmp/coderabbit-install.sh"
+    state: absent

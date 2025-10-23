@@ -91,9 +91,9 @@ These commands are recommended to be run manually once after initial setup (Ansi
 - **Install Brew Casks**: `just brew-cask`, `just mbk-brew-cask`, `just mmn-brew-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
 - **Regenerate menv wrapper**: `just menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
-- **Bootstrap Rust toolchain**: `just rust` - Installs Rust via rustup, adds core components, and ensures Cargo binaries are available on your PATH.
-- **Rust platform only**: `just rust-platform` - Runs only the rustup bootstrap and component provisioning tasks.
-- **Rust CLI tools only**: `just rust-tools` - Installs Cargo binaries declared in `ansible/roles/rust/config/common`.
+- **Bootstrap Rust toolchain**: `just rust` - Installs Rust via Homebrew rustup, adds core components, and ensures Cargo binaries are available on your PATH.
+- **Rust platform only**: `just rust-platform` - Runs only the rustup installation and version-specific toolchain provisioning tasks.
+- **Rust tools only**: `just rust-tools` - Installs Cargo tools declared in `ansible/roles/rust/config/common/tools.yml`.
 - **Desktop cache cleanup**: `just clean-desktop`, `just clean-desktop-dryrun` - Remove build/test caches from the Desktop (override the target directory by passing an argument; use the dry-run variant to preview deletions).
 
 ### menv Command Wrapper
@@ -168,9 +168,11 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs a specific version of the `bundler` gem.
 
 8.  **Rust Toolchain (`rust` role)**
-    -   Installs the `rustup-init` formula with Homebrew and runs `rustup-init` in minimal mode.
-    -   Provisions the stable toolchain and core components such as `rustfmt` and `clippy` for formatting and linting.
-    -   Adds `~/.cargo/bin` to the shell `PATH` so Cargo-installed binaries are usable immediately.
+    -   Installs `rustup` via Homebrew for consistent package management.
+    -   Provisions a specific Rust version (defined in `.rust-version`) with minimal profile.
+    -   Installs core components such as `rustfmt` and `clippy` for formatting and linting.
+    -   Installs Cargo tools from both crates.io and Git repositories (defined in `tools.yml`).
+    -   Automatically cleans up build artifacts and cache after tool installation.
 
 9.  **Editor Configuration (`editor` role)**
     Consolidates the setup for both VS Code and Cursor into a single role with shared configuration assets.

@@ -1,10 +1,7 @@
 ---
 - name: "Install aider-chat with pipx using specific Python version"
   ansible.builtin.shell: |
-    eval "$(pyenv init -)"
     pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}/bin/python aider-chat
-  args:
-    executable: /bin/bash
   changed_when: false
 
 - name: "Ensure .aider directory exists"
