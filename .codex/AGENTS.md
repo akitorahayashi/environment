@@ -7,7 +7,7 @@ A comprehensive automation project for setting up consistent macOS development e
 
 ### Entry Points
 1. **`Makefile`** - Initial setup entry point (you should not execute)
-   - `make base`: Installs pyenv, Python 3.12, uv, and core dependencies
+   - `make base`: Installs pyenv, Python 3.12, pipx, uv, Ansible, and just
    - `make macbook` / `make mac-mini`: Runs full machine-specific setup
 
 2. **`justfile`** - Individual task runner and command orchestrator

@@ -8,15 +8,26 @@
   loop: "{{ lookup('file', role_path + '/config/common/pipx-tools.txt').splitlines() | reject('match', '^#') | reject('equalto', '') }}"
   changed_when: false
 
-- name: "Check if mlx-lm venv exists"
-  ansible.builtin.stat:
-    path: "{{ repo_root_path }}/mlx-lm"
-  register: python_mlx_lm_venv
+- name: "Create mlx-lm venv"
+  ansible.builtin.shell: |
+    eval "$(pyenv init -)"
+    uv venv {{ repo_root_path }}/mlx-lm
+  args:
+    executable: /bin/bash
+    creates: "{{ repo_root_path }}/mlx-lm"
 
-- name: "Fail if mlx-lm venv is missing"
-  ansible.builtin.fail:
-    msg: "mlx-lm venv not found at {{ repo_root_path }}/mlx-lm. Run 'make base' first."
-  when: not python_mlx_lm_venv.stat.exists
+- name: "Install mlx dependency-group into mlx-lm venv"
+  ansible.builtin.shell: |
+    eval "$(pyenv init -)"
+    UV_PROJECT_ENVIRONMENT={{ repo_root_path }}/mlx-lm uv sync --only-group mlx
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: "Remove existing mlx_lm bin directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/mlx_lm/bin"
+    state: absent
 
 - name: "Create mlx-lm directory in user's local"
   ansible.builtin.file:
@@ -24,9 +35,9 @@
     state: directory
     mode: "0755"
 
-- name: "Symlink mlx-lm bin directory to user's local bin"
-  ansible.builtin.file:
-    src: "{{ repo_root_path }}/mlx-lm/bin"
-    dest: "{{ ansible_env.HOME }}/.local/mlx_lm/bin"
-    state: link
+- name: "Copy mlx-lm bin directory to user's local bin"
+  ansible.builtin.copy:
+    src: "{{ repo_root_path }}/mlx-lm/bin/"
+    dest: "{{ ansible_env.HOME }}/.local/mlx_lm/bin/"
+    mode: preserve
     force: true

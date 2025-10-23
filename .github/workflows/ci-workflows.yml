@@ -17,8 +17,8 @@ jobs:
   setup-nodejs:
     uses: ./.github/workflows/setup-nodejs.yml
 
-  setup-ruby:
-    uses: ./.github/workflows/setup-ruby.yml
+  setup-runtime:
+    uses: ./.github/workflows/setup-runtime.yml
 
   setup-ide:
     uses: ./.github/workflows/setup-ide.yml

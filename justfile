@@ -43,6 +43,7 @@ common:
   @just cursor
   @just coderabbit
   @just ruby
+  @just rust
   @just brew-formulae
   @echo "✅ All common setup tasks completed successfully."
 
@@ -115,6 +116,11 @@ python-tools:
 ruby:
   @echo "🚀 Running common Ruby setup..."
   @just _run_ansible "ruby" "common" "ruby"
+
+# Setup Rust environment with rustup
+rust:
+  @echo "🚀 Running common Rust setup..."
+  @just _run_ansible "rust" "common" "rust"
 
 # Link common shell configuration files
 shell:
@@ -333,7 +339,7 @@ _run_ansible role profile tag *args="":
 
 # @hidden
 _find_shell_files:
-  @find . -type f \( -name "*.sh" -o -name "*.zsh" -o -name "*.bash" \) | \
+  @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
     grep -v "gemini.zsh" | \
     grep -v "\.uv-cache" | \

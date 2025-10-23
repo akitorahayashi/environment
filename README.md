@@ -59,7 +59,6 @@ curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-com
     - Install pyenv and Python 3.12 for local development
     - Install pipx and uv for Python package management
     - Install Ansible and development dependencies via uv
-    - Create the `./mlx-lm` uv virtual environment and install the `mlx` dependency group
     - Install the `just` command runner
 
     **Important**: After running `make base`, edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
@@ -79,7 +78,7 @@ curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-com
     ```sh
     make mac-mini
     ```
-    These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes, which now execute Ansible playbooks for improved idempotency and maintainability.
+    These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, Rust, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes, which now execute Ansible playbooks for improved idempotency and maintainability.
 
 3.  **Restart macOS**
 
@@ -92,6 +91,7 @@ These commands are recommended to be run manually once after initial setup (Ansi
 - **Install Brew Casks**: `just brew-cask`, `just mbk-brew-cask`, `just mmn-brew-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
 - **Regenerate menv wrapper**: `just menv` - Rebuilds the `menv` command-line helper and places it in `~/.local/bin`.
+- **Bootstrap Rust toolchain**: `just rust` - Installs Rust via rustup, adds core components, and ensures Cargo binaries are available on your PATH.
 - **Desktop cache cleanup**: `just clean-desktop`, `just clean-desktop-dryrun` - Remove build/test caches from the Desktop (override the target directory by passing an argument; use the dry-run variant to preview deletions).
 
 ### menv Command Wrapper
@@ -165,70 +165,75 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Installs the specified Ruby version and sets it as the global default.
     -   Installs a specific version of the `bundler` gem.
 
-8.  **Editor Configuration (`editor` role)**
+8.  **Rust Toolchain (`rust` role)**
+    -   Installs the `rustup-init` formula with Homebrew and runs `rustup-init` in minimal mode.
+    -   Provisions the stable toolchain and core components such as `rustfmt` and `clippy` for formatting and linting.
+    -   Adds `~/.cargo/bin` to the shell `PATH` so Cargo-installed binaries are usable immediately.
+
+9.  **Editor Configuration (`editor` role)**
     Consolidates the setup for both VS Code and Cursor into a single role with shared configuration assets.
     -   **Visual Studio Code**: Installs the application, symlinks shared configuration files from `ansible/roles/editor/config/common/`, and installs extensions listed in `vscode-extensions.json`.
     -   **Cursor**: Installs the application and CLI, symlinks the same shared configuration files, and installs extensions listed in `cursor-extensions.json`.
     -   **Conditional Installation**: The playbook installs both editors by default. You can target a specific one by using Ansible tags: `--tags vscode` or `--tags cursor`.
 
-9.  **Python Runtime & Tools (`python` role)**
+10. **Python Runtime & Tools (`python` role)**
     -   **Platform**: Installs `pyenv`, reads the target Python version from `ansible/roles/python/config/common/.python-version`, installs it, and sets it as the global default.
-    -   **Tools**: Installs Python tools from `ansible/roles/python/config/common/pipx-tools.txt` using `pipx install`.
+    -   **Tools**: Installs Python tools from `ansible/roles/python/config/common/pipx-tools.txt` using `pipx install`. Creates the `./mlx-lm` uv virtual environment, installs the `mlx` dependency group, and copies the bin directory to `~/.local/mlx_lm/bin/` for MLX-based AI model inference.
     -   **Aider Integration**: Installs aider-chat via pipx using the configured Python version when enabled (`--tags python-aider`).
     -   Conditional installation: Can install platform-only, tools-only, or aider-only using tags (`--tags python-platform`, `--tags python-tools`, `--tags python-aider`).
 
-10. **UV Package Manager Configuration (`uv` role)**
+11. **UV Package Manager Configuration (`uv` role)**
     -   Creates the `~/.config/uv` directory for uv configuration.
     -   Symlinks `uv.toml` configuration file that sets link mode to "clone" for efficient file linking on macOS, configures prerelease handling, resolution strategy, cache directory, and concurrent downloads.
     -   Provides optimized settings for the uv Python package manager.
 
-11. **Aider AI Assistant Setup (`aider` role)**
+12. **Aider AI Assistant Setup (`aider` role)**
     -   Installs aider-chat (AI coding assistant) using pipx with a specific Python version read from `.python-version` file.
     -   Creates the `~/.aider` directory and symlinks configuration files (`.aider.conf.yml`, `.aider.model.settings.yml`) for consistent AI assistant behavior.
     -   Ensures aider-chat is available with proper Python environment isolation.
 
-12. **Node.js Runtime & Tools (`nodejs` role)**
+13. **Node.js Runtime & Tools (`nodejs` role)**
     -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `ansible/roles/nodejs/config/common/.nvmrc`, installs it, and sets it as the default.
     -   **Tools**: Reads `ansible/roles/nodejs/config/common/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to the home directory.
     -   Focused solely on runtime provisioning so CLI configuration can run independently in follow-on roles.
     -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`).
 
-13. **Claude CLI Configuration (`claude` role)**
+14. **Claude CLI Configuration (`claude` role)**
     -   Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `ansible/roles/claude/config/common`.
     -   Links `CLAUDE.md` and prepares the `commands` directory used by Claude Code.
     -   Runs without invoking the Node.js role and can be targeted via `just claude` or `ansible-playbook --tags claude`.
 
-14. **Gemini CLI Configuration (`gemini` role)**
+15. **Gemini CLI Configuration (`gemini` role)**
     -   Creates `~/.gemini`, symlinks configuration files from `ansible/roles/gemini/config/common`, and retains templates used by the Gemini CLI.
     -   Performs a best-effort `which gemini` check, warning if the CLI is missing while still applying configuration assets.
     -   Runs independently of Node.js and can be executed with `just gemini` or `ansible-playbook --tags gemini`.
 
-15. **Codex CLI Configuration (`codex` role)**
+16. **Codex CLI Configuration (`codex` role)**
     -   Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/codex/config/common`.
     -   Provides prompt and agent files without re-triggering the Node.js runtime setup.
     -   Invoked through `just codex` or `ansible-playbook --tags codex`.
 
-16. **Slash Command Generation (`slash` role)**
+17. **Slash Command Generation (`slash` role)**
     -   Marks the slash generator scripts (`claude.py`, `gemini.py`, `codex.py`) as executable and runs them from the repository root.
     -   Regenerates all custom slash command assets in one pass, independent of the Node.js role.
     -   Accessible via `just slash` or `ansible-playbook --tags slash`.
 
-17. **MCP Servers Configuration (`mcp` role)**
+18. **MCP Servers Configuration (`mcp` role)**
     -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
     -   Sets up Context7, Serena, VOICEVOX, and other MCP servers with proper authentication.
     -   Manages server configurations and API token integration for Claude Code and Gemini CLI.
 
-18. **Docker Environment (`docker` role)**
+19. **Docker Environment (`docker` role)**
     -   Pulls and manages Docker images listed in `ansible/roles/docker/config/common/images.txt`.
     -   Ensures consistent containerized development environment across machines.
     -   Provides foundation for containerized development workflows.
 
-19. **CodeRabbit CLI (`coderabbit` role)**
+20. **CodeRabbit CLI (`coderabbit` role)**
     -   Installs CodeRabbit CLI for AI-powered code reviews.
     -   Downloads and executes the official installer from https://cli.coderabbit.ai/install.sh.
     -   Installs binary to `~/.local/bin/coderabbit` with alias `cr`.
 
-20. **menv Command Wrapper (`menv` role)**
+21. **menv Command Wrapper (`menv` role)**
     -   Generates the `menv` helper script in `~/.local/bin/menv` so repository commands run from the project root automatically.
     -   Respects the `repo_root_path` variable provided by the playbook to stay relocatable.
     -   Drops directly into an interactive shell when invoked without additional arguments.
@@ -278,7 +283,7 @@ The project's integrity and automation are verified by a set of GitHub Actions w
 - **`lint-and-test.yml`**: Runs a comprehensive suite of quality checks, including code formatting (black, shfmt), linting (ruff, shellcheck, ansible-lint), and executes the entire `pytest` test suite to validate configuration and script integrity.
 - **`setup-python.yml`**: Validates the complete Python environment setup, including `pyenv`, the correct Python version, and tools installed via `pipx`.
 - **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning via `nvm`, global `pnpm` packages, and the configuration for related AI CLIs (Claude, Gemini, Codex).
-- **`setup-ruby.yml`**: Validates the Ruby environment setup using `rbenv`, including the correct Ruby version and `bundler` installation.
+- **`setup-runtime.yml`**: Validates the Ruby and Rust runtime environments, including `rbenv` with correct Ruby version and `bundler`, plus Rust toolchain with `rustup`.
 - **`setup-ide.yml`**: Validates the setup for both VS Code and Cursor, ensuring configuration is applied and extensions are managed correctly.
 - **`setup-system.yml`**: Validates the application of macOS system defaults.
 
