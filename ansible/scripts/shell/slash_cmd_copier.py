@@ -112,7 +112,8 @@ def _copy_prompt(command_name: str) -> int:
         print(f"Error: Failed to copy prompt. {exc}", file=sys.stderr)
         return 1
 
-    print(f"✅ Copied prompt for '/{command_name}' to clipboard")
+    display_name = PurePath(command_name).name
+    print(f"✅ Copied prompt for '/{display_name}' to clipboard")
     return 0
 
 

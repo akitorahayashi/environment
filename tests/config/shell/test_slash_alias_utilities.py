@@ -137,7 +137,7 @@ class TestGenSlashAliases:
         parsed = [tuple(line.split(maxsplit=1)) for line in lines]
         assert parsed == [
             ("sl-cm", "/cm"),
-            ("sl-sdd-0-rq", "/async-sdd/sdd-0-rq"),
+            ("sl-sdd-0-rq", "/sdd-0-rq"),
         ]
 
     def test_no_output_when_directory_missing(
@@ -265,9 +265,7 @@ class TestSlashCmdCopier:
         )
 
         assert result.returncode == 0
-        assert (
-            "✅ Copied prompt for '/async-sdd/sdd-0-rq' to clipboard" in result.stdout
-        )
+        assert "✅ Copied prompt for '/sdd-0-rq' to clipboard" in result.stdout
         assert capture_path.read_text(encoding="utf-8") == prompt_content
 
     def test_missing_prompt_returns_error(

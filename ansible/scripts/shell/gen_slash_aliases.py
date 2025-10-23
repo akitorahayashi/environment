@@ -75,7 +75,7 @@ def _format_alias_listing(alias_entries: list[tuple[str, str]]) -> str:
 
     width = max(len(alias_name) for alias_name, _ in alias_entries)
     lines = [
-        f"{alias_name.ljust(width)}  /{command_path}"
+        f"{alias_name.ljust(width)}  /{Path(command_path).name}"
         for alias_name, command_path in alias_entries
     ]
     return "\n".join(lines)
