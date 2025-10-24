@@ -11,6 +11,9 @@ tools:
     tag: v0.1.0
   - name: mms
     git: https://github.com/akitorahayashi/mms.git
+    tag: v0.1.1
+  - name: pure
+    git: https://github.com/akitorahayashi/pure.git
     tag: v0.1.0
   # - name: cargo-edit
   #   options: "--locked"
