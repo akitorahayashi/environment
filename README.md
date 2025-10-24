@@ -94,7 +94,6 @@ These commands are recommended to be run manually once after initial setup (Ansi
 - **Bootstrap Rust toolchain**: `just rust` - Installs Rust via official rustup installer, adds core components, and ensures Cargo binaries are available on your PATH.
 - **Rust platform only**: `just rust-platform` - Runs only the rustup installation and version-specific toolchain provisioning tasks.
 - **Rust tools only**: `just rust-tools` - Installs Cargo tools declared in `ansible/roles/rust/config/common/tools.yml`.
-- **Desktop cache cleanup**: `just clean-desktop`, `just clean-desktop-dryrun` - Remove build/test caches from the Desktop (override the target directory by passing an argument; use the dry-run variant to preview deletions).
 
 ### menv Command Wrapper
 
