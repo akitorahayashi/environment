@@ -1,0 +1,8 @@
+# SSH Host Configuration Template
+# Copy this file and rename it to <hostname>.conf
+
+Host <hostname>
+  HostName <ip_or_domain>
+  User <username>
+  IdentityFile ~/.ssh/id_ed25519_<keyname>
+  IdentitiesOnly yes
