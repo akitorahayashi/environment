@@ -22,6 +22,12 @@ A comprehensive automation project for setting up consistent macOS development e
    - Pipx and uv package managers
    - Ansible dependencies via `uv sync --frozen`
 
+### MCP Catalog Management
+
+- The dedicated MCP Ansible role and Python helpers have been removed in favor of the Rust-based `mms` CLI.
+- Install or refresh the tool through `just rust-tools`; it pulls `mms` from `https://github.com/akitorahayashi/mms.git` at tag `v0.1.0`.
+- Use `mms` commands (for example `mms list` and `mms sync`) to manage `.mcp.json` and keep Codex/Gemini settings synchronized.
+
 ## Design Rules
 
 ### Configuration Path Resolution

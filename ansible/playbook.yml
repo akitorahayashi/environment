@@ -16,6 +16,5 @@
     - { role: ssh, tags: ["ssh"] }
     - { role: editor, tags: ["editor", "vscode", "cursor"] }
     - { role: coderabbit, tags: ["coderabbit"] }
-    - { role: mcp, tags: ["mcp"] }
     - { role: system, tags: ["system"] }
     - { role: docker, tags: ["docker"] }

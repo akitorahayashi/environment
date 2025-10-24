@@ -31,18 +31,6 @@ def slash_cmd_copier_script_path(project_root: Path) -> Path:
     return project_root / "ansible/scripts/shell/slash_cmd_copier.py"
 
 
-@pytest.fixture(scope="session")
-def mcp_script_path(project_root: Path) -> Path:
-    """Path to the mcp.py script."""
-    return project_root / "ansible/scripts/shell/mcp.py"
-
-
-@pytest.fixture(scope="session")
-def gm_mcp_script_path(project_root: Path) -> Path:
-    """Path to the gm_mcp_ln.py script."""
-    return project_root / "ansible/scripts/shell/gm_mcp_ln.py"
-
-
 @pytest.fixture(autouse=True)
 def ensure_pbcopy(
     monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory

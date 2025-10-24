@@ -37,9 +37,6 @@ jobs:
       - name: Setup SSH configuration
         run: just ssh
 
-      - name: Setup MCP configuration
-        run: just mcp
-
       - name: Apply macOS system defaults
         run: just apply-system
 
