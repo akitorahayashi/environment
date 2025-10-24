@@ -26,7 +26,7 @@ cr-r() {
 alias cr-setup="cargo fetch --locked || echo '(fetch skipped: lockfile not frozen)'"
 
 # Linting
-alias cr-l="cargo fmt --check; cargo clippy --all-targets --all-features -- -D warnings"
+alias cr-chk="cargo check; cargo fmt --check; cargo clippy --all-targets --all-features -- -D warnings"
 
 # Testing
 alias cr-t="RUST_TEST_THREADS=1 cargo test --all-targets --all-features"
