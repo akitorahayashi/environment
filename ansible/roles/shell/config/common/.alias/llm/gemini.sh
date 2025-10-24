@@ -24,4 +24,3 @@ gm_ini() {
 
 	echo "✅ Initialized project-specific .gemini configuration"
 }
-
