@@ -9,5 +9,8 @@ tools:
   - name: kpv
     git: https://github.com/akitorahayashi/kpv.git
     tag: v0.1.0
+  - name: mms
+    git: https://github.com/akitorahayashi/mms.git
+    tag: v0.1.0
   # - name: cargo-edit
   #   options: "--locked"

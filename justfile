@@ -39,7 +39,6 @@ common:
   @just python
   @just uv
   @just nodejs
-  @just mcp
   @just cursor
   @just coderabbit
   @just ruby
@@ -178,21 +177,10 @@ codex:
   @echo "🚀 Running common Codex CLI setup..."
   @just _run_ansible "nodejs" "common" "codex"
 
-# Run Codex before MCP so the Codex config symlink exists for synchronization
-codex-mcp:
-  @echo "🚀 Running Codex setup followed by MCP synchronization..."
-  @just codex
-  @just mcp
-
 # Regenerate AI slash commands
 slash:
   @echo "🚀 Regenerating AI slash commands..."
   @just _run_ansible "slash" "common" "slash"
-
-# Setup MCP servers configuration
-mcp:
-  @echo "🚀 Running common MCP setup (requires Codex config to exist)..."
-  @just _run_ansible "mcp" "common" "mcp"
 
 # Setup Aider configuration
 aider:

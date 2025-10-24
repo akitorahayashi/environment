@@ -105,13 +105,12 @@ The `menv` command launches tasks from the repository root no matter where you a
 - Call `menv` with no arguments to open an interactive shell session rooted at the project.
 - If the helper script ever drifts, rerun `just menv` to regenerate it via Ansible.
 
-### Codex ↔ MCP Synchronization
+### MCP Catalog Management with `mms`
 
-- Run `just codex` before `just mcp` (or simply execute `just codex-mcp`) so the Codex role has already created the `~/.codex/config.toml` symlink for the MCP tasks.
-- The authoritative catalogue lives in `ansible/roles/mcp/config/common/servers.json`; edits there are converted into the `[mcp_servers]` block within `ansible/roles/codex/config/common/config.toml`.
-- When `~/.codex/config.toml` is missing, the synchronization block is skipped to avoid overwriting repository files.
-- After catalogue changes, rerun the combined recipe and confirm the play output reports the managed block as updated once and idempotent on the subsequent run.
-- Inspect the `# BEGIN MCP servers (managed by Ansible)` block in `ansible/roles/codex/config/common/config.toml` to verify the definitions match expectations while comments elsewhere remain intact.
+- The `mms` CLI now owns MCP server catalog management and replaces the legacy Ansible role plus helper scripts.
+- Install or update the tool via `just rust-tools`; the recipe installs `mms` from `https://github.com/akitorahayashi/mms.git` pinned to `v0.1.0`.
+- Use `mms list` to review the catalog defined in `~/.mcp.json` and `mms sync` to propagate updates into `~/.codex/config.toml` and `.gemini/settings.json`.
+- Because synchronization occurs through `mms`, the repository no longer includes `just mcp` or `just codex-mcp`; manage catalog changes with the CLI directly.
 
 ### VCS User Profile Switching
 
@@ -222,10 +221,10 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   Regenerates all custom slash command assets in one pass, independent of the Node.js role.
     -   Accessible via `just slash` or `ansible-playbook --tags slash`.
 
-18. **MCP Servers Configuration (`mcp` role)**
-    -   Configures Model Context Protocol (MCP) servers for enhanced AI capabilities.
-    -   Sets up Context7, Serena, VOICEVOX, and other MCP servers with proper authentication.
-    -   Manages server configurations and API token integration for Claude Code and Gemini CLI.
+18. **MCP Catalog Tooling (`mms` via `rust` role)**
+    -   The Rust tools inventory installs the `mms` CLI, providing catalog management for Model Context Protocol servers.
+    -   `mms` reads from `~/.mcp.json` and synchronizes Codex and Gemini configuration files on demand.
+    -   This replaces the previous `mcp` Ansible role and associated Python helpers with a purpose-built Rust utility.
 
 19. **Docker Environment (`docker` role)**
     -   Pulls and manages Docker images listed in `ansible/roles/docker/config/common/images.txt`.
@@ -271,7 +270,6 @@ just test
 
 **Configuration Validation (`tests/config/`)**
 - **Editor Configs**: Validates JSON syntax and schema for VS Code/Cursor configuration files
-- **MCP Servers**: Verifies MCP server definitions have required fields and correct types
 - **Runtime Versions**: Checks `.python-version`, `.ruby-version`, `.nvmrc` format
 - **Slash Commands**: Validates configuration JSON, verifies prompt files exist, checks generator script executability
 - **System Definitions**: Verifies YAML syntax and required schema for macOS system settings

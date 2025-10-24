@@ -25,8 +25,3 @@ gm_ini() {
 	echo "✅ Initialized project-specific .gemini configuration"
 }
 
-# Link MCP configuration from root .mcp.json to .gemini/settings.json
-alias gm-mcp-ln=gm_mcp_ln
-gm_mcp_ln() {
-	command gm_mcp_ln.py "$@"
-}
