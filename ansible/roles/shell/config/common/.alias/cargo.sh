@@ -7,29 +7,55 @@ alias cr-i="cargo install"
 alias cr-i-g="cargo install --git"
 
 # Formatting
-alias cr-f="cargo fmt"
+cr-f() {
+	echo "Running: cargo fmt"
+	cargo fmt && echo "✔︎ Format completed"
+}
 
 # Building
-alias cr-b="cargo build"
-alias cr-b-r="cargo build --release"
+cr-b() {
+	echo "Running: cargo build"
+	cargo build && echo "✔︎ Build completed"
+}
+
+cr-b-r() {
+	echo "Running: cargo build --release"
+	cargo build --release && echo "✔︎ Release build completed"
+}
 
 # Running
 cr-r() {
 	if [ $# -eq 0 ]; then
-		cargo run
+		echo "Running: cargo run"
+		cargo run && echo "✔︎ Run completed"
 	else
-		cargo run -- "$@"
+		echo "Running: cargo run -- $*"
+		cargo run -- "$@" && echo "✔︎ Run with args completed"
 	fi
 }
 
-# Setup
-alias cr-setup="cargo fetch --locked || echo '(fetch skipped: lockfile not frozen)'"
-
 # Linting
-alias cr-chk="cargo check; cargo fmt --check; cargo clippy --all-targets --all-features -- -D warnings"
+cr-l() {
+	(
+		set -e
+		echo "Running: cargo check"
+		cargo check
+		echo "Running: cargo fmt --check"
+		cargo fmt --check
+		echo "Running: cargo clippy --all-targets --all-features -- -D warnings"
+		cargo clippy --all-targets --all-features -- -D warnings
+		echo "✔︎ Linting completed"
+	)
+}
 
 # Testing
-alias cr-t="RUST_TEST_THREADS=1 cargo test --all-targets --all-features"
+cr-t() {
+	echo "Running: RUST_TEST_THREADS=1 cargo test --all-targets --all-features"
+	RUST_TEST_THREADS=1 cargo test --all-targets --all-features && echo "✔︎ Tests completed"
+}
 
 # Cleanup
-alias cr-cln="rm -rf target coverage dist"
+cr-cln() {
+	echo "Running: rm -rf target coverage dist"
+	rm -rf target coverage dist && echo "✔︎ Cleanup completed"
+}
