@@ -61,7 +61,6 @@ def _collect_alias_entries(commands_dir: Path) -> list[tuple[str, str]]:
 def _iter_aliases(alias_entries: list[tuple[str, str]]) -> list[str]:
     """Return alias definitions for all prompt files in the directory."""
 
-    copier_script = "ansible/scripts/shell/slash_cmd_copier.py"
     return [
         f'alias {alias_name}="slash_cmd_copier.py {shlex.quote(command_path)}"'
         for alias_name, command_path in alias_entries

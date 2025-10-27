@@ -1,11 +1,10 @@
 ---
-- name: "Template .zprofile with repo root path"
-  ansible.builtin.template:
+- name: "Symlink .zprofile"
+  ansible.builtin.file:
     src: "{{ role_path }}/config/common/.zprofile"
     dest: "{{ ansible_env.HOME }}/.zprofile"
-    mode: "0644"
-  vars:
-    repo_root_path: "{{ repo_root_path }}"
+    state: link
+    force: true
 
 - name: "Symlink .zshrc"
   ansible.builtin.file:
@@ -55,5 +54,3 @@
     state: link
     force: true
   loop: "{{ shell_config_files.files }}"
-
-

@@ -187,6 +187,3 @@ def test_list_models_no_ollama(tmp_path):
     result = _run_aider_subcommand(tmp_path, ["list-models"], env)
     assert result.returncode == 1
     assert "Ollama is not installed" in result.stderr
-
-
-

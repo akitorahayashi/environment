@@ -185,9 +185,7 @@ class TestGenSlashAliases:
         assert result.returncode == 0
         lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         # Should only have the cm alias, not the documentation files
-        assert lines == [
-            'alias sl-cm="slash_cmd_copier.py cm"'
-        ]
+        assert lines == ['alias sl-cm="slash_cmd_copier.py cm"']
 
     def test_excludes_documentation_files_in_list(
         self,
