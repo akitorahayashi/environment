@@ -14,6 +14,6 @@ Run via `just slash`. The `just nodejs` recipe also calls it after installing AI
 
 ## Configuration
 - `config/common/config.json` maps slash command identifiers to prompt files.
-- Prompt files live under `config/common/commands/`, organized by feature (e.g., `plan-pros/`, `async-sdd/`, `w/`).
+- Prompt files live under `config/common/commands/`, organized by feature (e.g., `sdd/`, `w/`).
 
 Regenerate slash commands whenever prompts change by running `just slash`.
