@@ -1,4 +1,4 @@
-# macOS Environment Setup (`menv`)
+# macOS Environment Setup
 
 This repository contains the configuration and automation scripts to set up a consistent development environment on macOS using Ansible and Just.
 
