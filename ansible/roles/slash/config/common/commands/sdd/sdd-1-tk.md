@@ -4,20 +4,12 @@
 
 Technical Lead combining Software Architect, QA Engineer, and Engineering Manager responsibilities
 
-## Context
-
-- `.tmp/requirements.md` is the authoritative source defining what needs to be built
-- This phase combines design, test planning, and task breakdown into one efficient step
-
 ## Your Task
 
-### 1. Review Requirements
+### 1. Design the Solution
 
-- Read `.tmp/requirements.md` as the definitive brief
 - Examine existing codebase to understand current architecture, patterns, and test practices
 - Identify files, modules, and services that will be touched
-
-### 2. Design the Solution
 
 **Architecture alignment**:
 - Describe how the change fits into existing architecture and respects current patterns
@@ -28,7 +20,7 @@ Technical Lead combining Software Architect, QA Engineer, and Engineering Manage
 - List schema changes, migrations, environment variables
 - Document any breaking changes or migration steps
 
-### 3. Plan Test Coverage
+### 2. Plan Test Coverage
 
 **Respect existing test culture**:
 - Map to existing test suites, frameworks, and CI jobs
@@ -36,7 +28,7 @@ Technical Lead combining Software Architect, QA Engineer, and Engineering Manage
 - Note required test data, mocks, or manual validation
 - Skip formal test planning if project has minimal testing practices
 
-### 4. Break Down Tasks
+### 3. Break Down Tasks
 
 **Structure work efficiently**:
 - Organize into phases minimizing dependencies
@@ -48,11 +40,22 @@ Technical Lead combining Software Architect, QA Engineer, and Engineering Manage
 - Integration (coordinate shared file changes)
 - Testing (mocks → tests → CI updates → verification)
 - Quality (linting, formatting)
-- Documentation (update only changed areas, follow existing patterns)
+- Update summary (write concise change summary to `docs/updates/[feature-name].md`)
 
-### 5. Create `.tmp/tasks.md`
+### 4. Create `.tmp/sdd/tasks.md`
 
 Write a consolidated task breakdown using the template below.
+
+## Notes
+
+- Do not write code during this planning phase—outputs stay in `.tmp/sdd/`
+- Token efficiency: Merge redundant sections, reference existing assets
+- Flexibility: Omit sections that don't apply; keep it lean but complete
+- Actionable: Every task should have a clear file path and action verb
+
+## Reference
+
+- `.tmp/sdd/requirements.md` - What needs to be built
 
 ---
 
@@ -105,7 +108,6 @@ Write a consolidated task breakdown using the template below.
 ## Task Breakdown
 
 ### Before Starting
-- Read `.tmp/requirements.md` and `.tmp/tasks.md`
 - Follow project conventions
 - Mark completed tasks with ✅
 
@@ -119,19 +121,14 @@ Write a consolidated task breakdown using the template below.
 - [ ] [Task with file path]
 - [ ] [Task with file path]
 
-### Phase 3: Quality & Documentation
+### Phase 3: Quality & Summary
 - [ ] Run linter/formatter on changed files
-- [ ] Update documentation for structural changes (if documentation exists, follow existing patterns (e.g., .codex/AGENTS.md, README.md, docs/))
+- [ ] Write concise change summary to `docs/updates/[feature-name].md`
 - [ ] Verify tests pass (respect project testing culture - skip if minimal testing practices)
 - [ ] Review and commit changes
+
+**Note**: `docs/` files are reference only—do not update unless explicitly requested by user.
 
 ## Coordination Notes
 [Critical synchronization points between phases, if any]
 ```
-
-## Notes
-
-- **Do not write code** during this planning phase—outputs stay in `.tmp/`
-- **Token efficiency**: Merge redundant sections, reference existing assets
-- **Flexibility**: Omit sections that don't apply; keep it lean but complete
-- **Actionable**: Every task should have a clear file path and action verb

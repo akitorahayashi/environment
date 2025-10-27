@@ -20,20 +20,15 @@
       "description": "Create consolidated implementation plan combining design, test strategy, and task breakdown",
       "prompt-file": "commands/sdd/sdd-1-tk.md"
     },
-    "sdd-2-td": {
-      "title": "SDD Step 2: Test Design",
-      "description": "Create comprehensive test specification (Stage 2 of SDD)",
-      "prompt-file": "commands/sdd/sdd-2-td.md"
+    "asdd-2-tk": {
+      "title": "Async SDD Step 2: Task Breakdown",
+      "description": "Break down design into implementable tasks (Stage 2 of SDD)",
+      "prompt-file": "commands/sdd/asdd/asdd-2-tk.md"
     },
-    "asdd-3-tk": {
-      "title": "Async SDD Step 3: Task Breakdown",
-      "description": "Break down design into implementable tasks (Stage 3 of SDD)",
-      "prompt-file": "commands/sdd/asdd/asdd-3-tk.md"
-    },
-    "asdd-4-pm": {
-      "title": "Async SDD Step 4: Prompt Messaging",
-      "description": "Generate activation prompts from the task breakdown (Stage 4 of SDD)",
-      "prompt-file": "commands/sdd/asdd/asdd-4-pm.md"
+    "asdd-3-pm": {
+      "title": "Async SDD Step 3: Prompt Messaging",
+      "description": "Generate activation prompts from the task breakdown (Stage 3 of SDD)",
+      "prompt-file": "commands/sdd/asdd/asdd-3-pm.md"
     },
     "sn": {
       "title": "Activate Serena",
