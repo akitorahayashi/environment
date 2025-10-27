@@ -40,6 +40,17 @@ A comprehensive automation project for setting up consistent macOS development e
 - **Fallback logic**: Roles must implement profile-specific → common fallback for optional overrides
 - **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile
 
+### Python Script Execution Model
+**Core Principle**: Helper scripts are location-agnostic and accessed via symlinks in `~/.menv/scripts/`, eliminating dependency on the repository's physical location.
+
+**Rules**:
+- **Dynamic Symlinks**: Ansible creates `~/.menv/scripts` as a symlink to `{{ repo_root_path }}/ansible/scripts`
+- **PATH Configuration**: `.zprofile` adds `$HOME/.menv/scripts/shell` to `PATH`
+- **Script Execution**: Python helper scripts (e.g., `gen_gemini_aliases.py`, `gen_slash_aliases.py`) are invoked directly by name from shell aliases
+- **Environment Management**: `uv` automatically detects `pyproject.toml` in the repository root, activates the project-local virtual environment, and executes the script within that environment
+- **No Hardcoding**: No hardcoded paths; all resolution uses symlinks that always point to the active repository
+- **No Environment Variables**: Scripts don't depend on `MENV_DIR` or similar variables; the symlink ensures the correct location
+
 ### tests/ Directory Rules
 
 To keep the repository lightweight while enabling richer validation, the `tests/` tree now relies on `pytest` with optional dependencies scoped to that directory.
@@ -73,12 +84,6 @@ All CI workflows use the reusable `.github/actions/setup-base` composite action 
 
 This ensures consistent tooling across all CI jobs while leveraging GitHub Actions' caching and optimization features.
 
-### Script Implementation Guidelines
-
-- Favor Python entry points over shell scripts for automation. Utilities that previously relied on tools such as `jq`, `yq`, or complex pipelines should now live as Python modules that leverage the standard library or vetted dependencies (e.g., `PyYAML`, `httpx`, `typer`).
-- Keep these scripts executable (`chmod +x`) and colocated with their configuration assets so Ansible roles can reference them directly.
-- Tests should exercise the Python entry points rather than mocking external binaries, using facilities like `httpx.MockTransport` for network interactions.
-
 ### Symlink Enforcement
 **Core Principle**: Any automation that creates symbolic links must overwrite the destination regardless of its current state.
 
@@ -91,3 +96,15 @@ This ensures consistent tooling across all CI jobs while leveraging GitHub Actio
 - We observed a skipped symlink task during `just claude`, revealing that conditional guards can leave stale or broken links in place.
 - Source paths change over time; unconditional recreation ensures our configuration always converges to the desired state.
 - This policy keeps developer environments predictable and reduces time spent debugging missing or outdated resources.
+
+### Repository Location Independence
+**Core Principle**: The entire setup must work regardless of where the repository is cloned or moved.
+
+**Rules**:
+- **No Hardcoded Paths**: Never embed specific filesystem paths (e.g., `/Users/username/menv`) in shell configs, aliases, or scripts
+- **Dynamic Resolution**: Use the `menv` wrapper or `~/.menv` symlinks for all repository references
+- **Symlink Strategy**: Critical paths use symlinks:
+  - `~/.menv` → actual repository location (managed by installer/migration logic)
+  - `~/.menv/scripts` → `{{ repo_root_path }}/ansible/scripts` (managed by Ansible)
+  - `~/.menv/alias` → aliasing directory (managed by Ansible)
+- **Testing**: All setup must be validated on fresh machines and after repository relocation

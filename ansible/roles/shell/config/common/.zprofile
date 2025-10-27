@@ -4,21 +4,20 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # Disable Homebrew auto-update
 export HOMEBREW_NO_AUTO_UPDATE=1
 
+# Path for menv helper scripts
+export PATH="$HOME/.menv/scripts/shell:$PATH"
+
 # Path for poppler
 export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
 
 # Path for cli tools
 export PATH="$HOME/.local/bin:$PATH"
 
-# Path for Python scripts symlinks
-export PATH="$HOME/.scripts/python:$PATH"
-
 # Path for pipx tools
-export PATH="$HOME/.local/pipx/venvs/mlx-lm/bin:$PATH"
 export PATH="$HOME/.local/pipx/venvs/mlx-hub/bin:$PATH"
 
-# Path for mlx-lm tools
-export PATH="$HOME/.local/mlx_lm/bin:$PATH"
+# Path for mlx-lm tools under menv
+export PATH="$HOME/.menv/venvs/mlx-lm/bin:$PATH"
 
 # Android SDK environment variables
 if [[ -z "$ANDROID_HOME" ]]; then

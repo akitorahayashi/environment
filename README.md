@@ -11,11 +11,11 @@ This project automates the setup of a consistent development environment across 
 ├── .gemini/
 ├── .serena/
 ├── .github/
+│   ├── actions/
 │   └── workflows/
 ├── ansible/
 │   ├── roles/
 │   ├── scripts/
-│   ├── utils/
 │   ├── hosts
 │   └── playbook.yml
 ├── tests/
@@ -133,6 +133,9 @@ This project uses Ansible to automate the setup of a complete development enviro
 2.  **Shell Configuration (`shell` role)**
     -   Sets up the shell environment by creating symbolic links for `.zprofile`, `.zshrc`, and all files within the `.zsh/` directory.
     -   All shell configuration files are sourced from `ansible/roles/shell/config/common/`.
+    -   Creates `~/.menv/alias/` directory and symlinks alias files for shell functions and commands.
+    -   Creates `~/.menv/scripts/` as a symlink to the repository's `ansible/scripts/` directory.
+    -   Adds `~/.menv/scripts/shell` to `PATH` so scripts are accessible without relying on hardcoded repository paths.
 
 3.  **Version Control Systems (`vcs` role)**
     -   **Git**: Installs `git` via Homebrew, copies `.gitconfig` to `~/.config/git/config`, symlinks `.gitignore_global`, and sets global excludesfile configuration.
@@ -180,7 +183,7 @@ This project uses Ansible to automate the setup of a complete development enviro
 
 10. **Python Runtime & Tools (`python` role)**
     -   **Platform**: Installs `pyenv`, reads the target Python version from `ansible/roles/python/config/common/.python-version`, installs it, and sets it as the global default.
-    -   **Tools**: Installs Python tools from `ansible/roles/python/config/common/pipx-tools.txt` using `pipx install`. Creates the `./mlx-lm` uv virtual environment, installs the `mlx` dependency group, and copies the bin directory to `~/.local/mlx_lm/bin/` for MLX-based AI model inference.
+    -   **Tools**: Installs Python tools from `ansible/roles/python/config/common/pipx-tools.txt` using `pipx install`. Provisions the `~/.menv/venvs/mlx-lm` uv virtual environment in place, installs the `mlx` dependency group into it, and relies on the repository-managed binaries (no more copies into `~/.local/mlx_lm/bin/`).
     -   **Aider Integration**: Installs aider-chat via pipx using the configured Python version when enabled (`--tags python-aider`).
     -   Conditional installation: Can install platform-only, tools-only, or aider-only using tags (`--tags python-platform`, `--tags python-tools`, `--tags python-aider`).
 
@@ -252,6 +255,31 @@ To ensure a consistent and reliable environment, all symbolic link creation task
 - **No Existence Checks**: Automation does not check if a symlink already exists before running the creation task. This guarantees that links are always up-to-date and point to the correct source, eliminating the risk of stale or broken links.
 
 This policy ensures that the environment's state always reflects the configuration defined in this repository.
+
+### Python Script Execution Model
+
+**Core Principle**: Helper scripts are location-agnostic and accessed via symlinks in `~/.menv/scripts/`, eliminating dependency on the repository's physical location.
+
+**Rules**:
+- **Dynamic Symlinks**: Ansible creates `~/.menv/scripts` as a symlink to `{{ repo_root_path }}/ansible/scripts`
+- **PATH Configuration**: `.zprofile` adds `$HOME/.menv/scripts/shell` to `PATH`
+- **Script Execution**: Python helper scripts (e.g., `gen_gemini_aliases.py`, `gen_slash_aliases.py`) are invoked directly by name from shell aliases
+- **Environment Management**: `uv` automatically detects `pyproject.toml` in the repository root, activates the project-local virtual environment, and executes the script within that environment
+- **No Hardcoding**: No hardcoded paths; all resolution uses symlinks that always point to the active repository
+- **No Environment Variables**: Scripts don't depend on `MENV_DIR` or similar variables; the symlink ensures the correct location
+
+### Repository Location Independence
+
+**Core Principle**: The entire setup must work regardless of where the repository is cloned or moved.
+
+**Rules**:
+- **No Hardcoded Paths**: Never embed specific filesystem paths (e.g., `/Users/username/menv`) in shell configs, aliases, or scripts
+- **Dynamic Resolution**: Use the `menv` wrapper or `~/.menv` symlinks for all repository references
+- **Symlink Strategy**: Critical paths use symlinks:
+  - `~/.menv` → actual repository location (managed by installer/migration logic)
+  - `~/.menv/scripts` → `{{ repo_root_path }}/ansible/scripts` (managed by Ansible)
+  - `~/.menv/alias` → aliasing directory (managed by Ansible)
+- **Testing**: All setup must be validated on fresh machines and after repository relocation
 
 ## Tests
 

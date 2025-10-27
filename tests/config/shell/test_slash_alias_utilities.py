@@ -108,8 +108,14 @@ class TestGenSlashAliases:
 
         assert result.returncode == 0
         lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-        assert 'alias sl-shared="slash_cmd_copier.py alpha/shared"' not in lines
-        assert 'alias sl-shared="slash_cmd_copier.py beta/shared"' not in lines
+        assert (
+            'alias sl-shared="menv_python ansible/scripts/shell/slash_cmd_copier.py alpha/shared"'
+            not in lines
+        )
+        assert (
+            'alias sl-shared="menv_python ansible/scripts/shell/slash_cmd_copier.py beta/shared"'
+            not in lines
+        )
         # Since basename "shared" is duplicated, no short aliases are generated
 
     def test_list_formatting(

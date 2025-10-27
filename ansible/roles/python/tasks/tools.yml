@@ -11,32 +11,24 @@
   changed_when: false
   when: pipx_tools_config.tools | length > 0
 
+- name: "Ensure menv venv directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.menv/venvs"
+    state: directory
+    mode: "0755"
+
 - name: "Create mlx-lm venv"
   ansible.builtin.shell: |
-    uv venv {{ repo_root_path }}/mlx-lm
+    uv venv {{ ansible_env.HOME }}/.menv/venvs/mlx-lm
   args:
-    creates: "{{ repo_root_path }}/mlx-lm"
+    creates: "{{ ansible_env.HOME }}/.menv/venvs/mlx-lm"
+    chdir: "{{ repo_root_path }}"
   when: repo_root_path is defined
 
 - name: "Install mlx dependency-group into mlx-lm venv"
   ansible.builtin.shell: |
-    UV_PROJECT_ENVIRONMENT={{ repo_root_path }}/mlx-lm uv sync --only-group mlx
+    UV_PROJECT_ENVIRONMENT={{ ansible_env.HOME }}/.menv/venvs/mlx-lm uv sync --only-group mlx
+  args:
+    chdir: "{{ repo_root_path }}"
   changed_when: false
-
-- name: "Remove existing mlx_lm bin directory"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/mlx_lm/bin"
-    state: absent
-
-- name: "Create mlx-lm directory in user's local"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/mlx_lm"
-    state: directory
-    mode: "0755"
-
-- name: "Copy mlx-lm bin directory to user's local bin"
-  ansible.builtin.copy:
-    src: "{{ repo_root_path }}/mlx-lm/bin/"
-    dest: "{{ ansible_env.HOME }}/.local/mlx_lm/bin/"
-    mode: preserve
-    force: true
+  when: repo_root_path is defined
