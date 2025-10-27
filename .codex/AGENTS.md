@@ -22,12 +22,6 @@ A comprehensive automation project for setting up consistent macOS development e
    - Pipx and uv package managers
    - Ansible dependencies via `uv sync --frozen`
 
-### MCP Catalog Management
-
-- The dedicated MCP Ansible role and Python helpers have been removed in favor of the Rust-based `mms` CLI.
-- Install or refresh the tool through `just rust-tools`; it pulls `mms` from `https://github.com/akitorahayashi/mms.git` at tag `v0.1.0`.
-- Use `mms` commands (for example `mms list` and `mms sync`) to manage `.mcp.json` and keep Codex/Gemini settings synchronized.
-
 ## Design Rules
 
 ### Configuration Path Resolution
@@ -73,14 +67,7 @@ Each module defines its workflows in separate YAML files, specifying module-spec
 
 ### CI Environment Setup
 
-All CI workflows use the reusable `.github/actions/setup-base` composite action for consistent base environment setup:
-
-- **Python 3.12** with pip caching for faster builds
-- **Just** command runner via `extractions/setup-just@v2`
-- **Pipx** with proper PATH configuration
-- **Uv** package manager with installation verification
-- **Ansible dependencies** via `uv sync --frozen`
-- **Proper PATH setup** for uv virtual environments
+All CI workflows use the reusable `.github/actions/setup-base` composite action for consistent base environment setup
 
 This ensures consistent tooling across all CI jobs while leveraging GitHub Actions' caching and optimization features.
 
