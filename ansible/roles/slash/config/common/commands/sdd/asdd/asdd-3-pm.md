@@ -6,29 +6,28 @@ Prompt Engineer
 
 ## Your task
 
-### 1. Draft activation messaging
+### 1. Read phase files
 
-- Focus on the **All Tasks Summary** section in `.tmp/sdd/tasks.md` to capture every phase/agent assignment
+- Read all `.tmp/sdd/tasks/phase_*.md` and `.tmp/sdd/tasks/overview.md`
+- Extract agent roles and task assignments from each phase
 
-- Turn each checkbox entry into a direct instruction that references `.tmp/sdd/tasks.md`
-- Keep agent numbering and phase order identical to the task list
-- Carry over any coordination or conflict notes mentioned alongside the tasks
+### 2. Generate prompts
 
-### 2. Record the prompts
-
-- Write `.tmp/sdd/prompts.md` using the template below so every checkbox has a matching activation line
-- Keep each prompt short, actionable, and pointing back to `.tmp/sdd/tasks.md`
+- Create one prompt per agent per phase in `.tmp/sdd/prompts.md`
+- Include role description from task files
+- Generate simplified prompts for sub-agents
+- Add final review phase prompt (new LLM reviews codebase critically)
 
 ## Notes
 
-- Do not edit `.tmp/sdd/tasks.md` or any other artefact—your sole deliverable is `.tmp/sdd/prompts.md`
-- When a phase assigns multiple checklist items to the same agent, consolidate them into a single prompt line for that agent within that phase
+- Do not edit task files—your sole deliverable is `.tmp/sdd/prompts.md`
+- Keep prompts short and actionable
 
 ## Reference
 
 - `.tmp/sdd/requirements.md` - What needs to be built
 - `.tmp/sdd/design.md` - Implementation design (if exists)
-- `.tmp/sdd/tasks.md` - Task breakdown
+- `.tmp/sdd/tasks/` - Phase task files
 
 ---
 
@@ -36,29 +35,20 @@ Prompt Engineer
 # Activation Prompts - [Task Name]
 
 ## Guidance
-- Prompts must stay in sync with `.tmp/sdd/tasks.md` (especially All Tasks Summary)
-- Coordinate at phase boundaries exactly as the plan requires
-- Update this file whenever the task list changes
+- Prompts must stay in sync with phase task files in `.tmp/sdd/tasks/`
+- Update this file whenever task files change
 
 ## Prompts by Phase
 
-### Phase 1
-- **Agent 1**: "You are agent1. Execute Phase 1 tasks assigned to Agent 1 in `.tmp/sdd/tasks.md`."
-- **Agent 2**: "You are agent2. Execute Phase 1 tasks assigned to Agent 2 in `.tmp/sdd/tasks.md`."
-- **Agent 3**: "You are agent3. Execute Phase 1 tasks assigned to Agent 3 in `.tmp/sdd/tasks.md`."
-- **Agent 4**: "You are agent4. Execute Phase 1 tasks assigned to Agent 4 in `.tmp/sdd/tasks.md`."
-- **Reviewer**: "Phase 1 agent work complete. Review merged changes, resolve conflicts, verify build and tests pass."
+### Phase 1: [Name]
+- **Agent 1 (Backend API)**: "Execute Phase 1 tasks in `.tmp/sdd/tasks/phase_1.md` for Agent 1."
+- **Agent 2 (Frontend)**: "Execute Phase 1 tasks in `.tmp/sdd/tasks/phase_1.md` for Agent 2."
+- **Sub-Agent 1 (Import cleanup)**: "Execute Phase 1 tasks in `.tmp/sdd/tasks/phase_1.md` for Sub-Agent 1."
 
-### Phase 2
-- **Agent 1**: "Phase 1 integration is complete. Execute your Phase 2 tasks for Agent 1 in `.tmp/sdd/tasks.md`."
-- **Agent 2**: "Phase 1 integration is complete. Execute your Phase 2 tasks for Agent 2 in `.tmp/sdd/tasks.md`."
-- **Reviewer**: "Phase 2 agent work complete. Review merged changes, resolve conflicts, verify build and tests pass."
+### Phase 2: [Name]
+- **Agent 1 (Integration)**: "Execute Phase 2 tasks in `.tmp/sdd/tasks/phase_2.md` for Agent 1."
 
-### Phase 3
-- **Agent 1**: "Phase 2 integration is complete. Execute your Phase 3 tasks for Agent 1 in `.tmp/sdd/tasks.md`, closing out testing and documentation."
-- **Agent 2**: "Phase 2 integration is complete. Execute your Phase 3 tasks for Agent 2 in `.tmp/sdd/tasks.md`, completing launch readiness and comms."
-- **Agent 3**: "Phase 2 integration is complete. Execute your Phase 3 tasks for Agent 3 in `.tmp/sdd/tasks.md`."
-- **Reviewer**: "Phase 3 agent work complete. Review merged changes, resolve conflicts, verify build and tests pass."
-```
-
-Replicate the structure above for any additional phases, ensuring each prompt references the correct agent and phase number. Add a Reviewer prompt after each phase for human orchestration. 
+### Phase N: Quality & Review
+- **Sub-Agent (Linter/Formatter)**: "Run linter and formatter on all changed files in `.tmp/sdd/tasks/phase_N.md`."
+- **Reviewer**: "Read `.tmp/sdd/requirements.md`, `.tmp/sdd/design.md`, and all phase task files. Review codebase state critically against requirements. Edit code if permitted to fix issues, otherwise report findings."
+``` 
