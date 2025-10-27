@@ -41,14 +41,15 @@ A comprehensive automation project for setting up consistent macOS development e
 - **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile
 
 ### Python Script Execution Model
-**Core Principle**: Helper scripts are managed within the repository and executed directly by adding the script directory to `PATH` at setup time. This approach is repository-location-agnostic and avoids polluting the global `PATH` or user's home directory.
+**Core Principle**: Helper scripts are location-agnostic and accessed via symlinks in `~/.menv/scripts/`, eliminating dependency on the repository's physical location.
 
 **Rules**:
-- **Repository-Agnostic**: No environment variable dependency on repository location; the path is injected by Ansible at setup time.
-- **Script Directory**: Helper Python scripts (from `ansible/scripts/shell/`, `ansible/scripts/vcs/`, etc.) are placed directly in their source directories within the repository.
-- **PATH Configuration**: During setup, Ansible templates `.zprofile` with the actual repository root path and adds the script directory to the user's `PATH`.
-- **Execution**: Scripts (e.g., `aider.py`, `ssh_manager.py`) are invoked directly by their name from aliases or commands.
-- **Environment Management**: `uv` automatically detects the `pyproject.toml` in the repository root, activates the project-local virtual environment, and executes the script within that environment, ensuring all dependencies are correctly resolved without a wrapper function or environment variable dependency.
+- **Dynamic Symlinks**: Ansible creates `~/.menv/scripts` as a symlink to `{{ repo_root_path }}/ansible/scripts`
+- **PATH Configuration**: `.zprofile` adds `$HOME/.menv/scripts/shell` to `PATH`
+- **Script Execution**: Python helper scripts (e.g., `gen_gemini_aliases.py`, `gen_slash_aliases.py`) are invoked directly by name from shell aliases
+- **Environment Management**: `uv` automatically detects `pyproject.toml` in the repository root, activates the project-local virtual environment, and executes the script within that environment
+- **No Hardcoding**: No hardcoded paths; all resolution uses symlinks that always point to the active repository
+- **No Environment Variables**: Scripts don't depend on `MENV_DIR` or similar variables; the symlink ensures the correct location
 
 ### tests/ Directory Rules
 
@@ -95,3 +96,15 @@ This ensures consistent tooling across all CI jobs while leveraging GitHub Actio
 - We observed a skipped symlink task during `just claude`, revealing that conditional guards can leave stale or broken links in place.
 - Source paths change over time; unconditional recreation ensures our configuration always converges to the desired state.
 - This policy keeps developer environments predictable and reduces time spent debugging missing or outdated resources.
+
+### Repository Location Independence
+**Core Principle**: The entire setup must work regardless of where the repository is cloned or moved.
+
+**Rules**:
+- **No Hardcoded Paths**: Never embed specific filesystem paths (e.g., `/Users/username/menv`) in shell configs, aliases, or scripts
+- **Dynamic Resolution**: Use the `menv` wrapper or `~/.menv` symlinks for all repository references
+- **Symlink Strategy**: Critical paths use symlinks:
+  - `~/.menv` → actual repository location (managed by installer/migration logic)
+  - `~/.menv/scripts` → `{{ repo_root_path }}/ansible/scripts` (managed by Ansible)
+  - `~/.menv/alias` → aliasing directory (managed by Ansible)
+- **Testing**: All setup must be validated on fresh machines and after repository relocation

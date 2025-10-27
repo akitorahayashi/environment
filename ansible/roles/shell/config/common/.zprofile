@@ -4,6 +4,9 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # Disable Homebrew auto-update
 export HOMEBREW_NO_AUTO_UPDATE=1
 
+# Path for menv helper scripts
+export PATH="$HOME/.menv/scripts/shell:$PATH"
+
 # Path for poppler
 export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
 

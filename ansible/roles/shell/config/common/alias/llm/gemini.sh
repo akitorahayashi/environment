@@ -1,8 +1,6 @@
 #!/bin/sh
 # Generate Gemini model aliases
-if [ -f "$MENV_DIR/ansible/scripts/shell/gen_gemini_aliases.py" ]; then
-	eval "$(gen_gemini_aliases.py)"
-fi
+eval "$(gen_gemini_aliases.py)"
 
 # Basic gm alias (defaults to flash model)
 alias gm="gemini -m gemini-2.5-flash"
