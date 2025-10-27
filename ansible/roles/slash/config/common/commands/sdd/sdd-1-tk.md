@@ -127,8 +127,6 @@ Write a consolidated task breakdown using the template below.
 - [ ] Verify tests pass (respect project testing culture - skip if minimal testing practices)
 - [ ] Review and commit changes
 
-**Note**: `docs/` files are reference only—do not update unless explicitly requested by user.
-
 ## Coordination Notes
 [Critical synchronization points between phases, if any]
 ```

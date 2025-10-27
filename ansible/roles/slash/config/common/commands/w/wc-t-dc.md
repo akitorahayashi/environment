@@ -16,6 +16,4 @@ This command is for tasks that require changes to tests or documentation in addi
 
 4.  **Implement:** Execute all changes defined in the comprehensive plan, including code and tests.
 5.  **Write Update Summary:** Create concise change summary in `docs/updates/[feature-name].md`.
-
-**Note**: `docs/` files are reference only—do not update unless explicitly requested by user.
 6.  **Verify:** Run tests and validate that all parts of the plan are complete.

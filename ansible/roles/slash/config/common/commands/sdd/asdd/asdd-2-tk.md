@@ -95,5 +95,4 @@ N. Phase N: Quality & Review - Linting/formatting + critical codebase review
 ## Notes
 - Follow project conventions
 - Write concise change summary to `docs/updates/[feature-name].md` after implementation
-- `docs/` files are reference only—do not update unless explicitly requested by user
 ```
