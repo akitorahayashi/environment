@@ -40,6 +40,16 @@ A comprehensive automation project for setting up consistent macOS development e
 - **Fallback logic**: Roles must implement profile-specific → common fallback for optional overrides
 - **No hardcoded paths**: Avoid embedding specific config subdirectories in justfile
 
+### Python Script Execution Model
+**Core Principle**: Helper scripts are managed within the repository and executed directly by adding the script directory to `PATH` at setup time. This approach is repository-location-agnostic and avoids polluting the global `PATH` or user's home directory.
+
+**Rules**:
+- **Repository-Agnostic**: No environment variable dependency on repository location; the path is injected by Ansible at setup time.
+- **Script Directory**: Helper Python scripts (from `ansible/scripts/shell/`, `ansible/scripts/vcs/`, etc.) are placed directly in their source directories within the repository.
+- **PATH Configuration**: During setup, Ansible templates `.zprofile` with the actual repository root path and adds the script directory to the user's `PATH`.
+- **Execution**: Scripts (e.g., `aider.py`, `ssh_manager.py`) are invoked directly by their name from aliases or commands.
+- **Environment Management**: `uv` automatically detects the `pyproject.toml` in the repository root, activates the project-local virtual environment, and executes the script within that environment, ensuring all dependencies are correctly resolved without a wrapper function or environment variable dependency.
+
 ### tests/ Directory Rules
 
 To keep the repository lightweight while enabling richer validation, the `tests/` tree now relies on `pytest` with optional dependencies scoped to that directory.
@@ -72,12 +82,6 @@ All CI workflows use the reusable `.github/actions/setup-base` composite action 
 - **Proper PATH setup** for uv virtual environments
 
 This ensures consistent tooling across all CI jobs while leveraging GitHub Actions' caching and optimization features.
-
-### Script Implementation Guidelines
-
-- Favor Python entry points over shell scripts for automation. Utilities that previously relied on tools such as `jq`, `yq`, or complex pipelines should now live as Python modules that leverage the standard library or vetted dependencies (e.g., `PyYAML`, `httpx`, `typer`).
-- Keep these scripts executable (`chmod +x`) and colocated with their configuration assets so Ansible roles can reference them directly.
-- Tests should exercise the Python entry points rather than mocking external binaries, using facilities like `httpx.MockTransport` for network interactions.
 
 ### Symlink Enforcement
 **Core Principle**: Any automation that creates symbolic links must overwrite the destination regardless of its current state.

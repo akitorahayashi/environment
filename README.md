@@ -11,11 +11,11 @@ This project automates the setup of a consistent development environment across 
 ├── .gemini/
 ├── .serena/
 ├── .github/
+│   ├── actions/
 │   └── workflows/
 ├── ansible/
 │   ├── roles/
 │   ├── scripts/
-│   ├── utils/
 │   ├── hosts
 │   └── playbook.yml
 ├── tests/
@@ -133,6 +133,8 @@ This project uses Ansible to automate the setup of a complete development enviro
 2.  **Shell Configuration (`shell` role)**
     -   Sets up the shell environment by creating symbolic links for `.zprofile`, `.zshrc`, and all files within the `.zsh/` directory.
     -   All shell configuration files are sourced from `ansible/roles/shell/config/common/`.
+    -   Creates `~/.menv/alias/` directory and symlinks alias files for shell functions and commands.
+    -   Adds repository script directories to `PATH` so scripts are accessible without relying on `~/.scripts` symlinks.
 
 3.  **Version Control Systems (`vcs` role)**
     -   **Git**: Installs `git` via Homebrew, copies `.gitconfig` to `~/.config/git/config`, symlinks `.gitignore_global`, and sets global excludesfile configuration.
@@ -180,7 +182,7 @@ This project uses Ansible to automate the setup of a complete development enviro
 
 10. **Python Runtime & Tools (`python` role)**
     -   **Platform**: Installs `pyenv`, reads the target Python version from `ansible/roles/python/config/common/.python-version`, installs it, and sets it as the global default.
-    -   **Tools**: Installs Python tools from `ansible/roles/python/config/common/pipx-tools.txt` using `pipx install`. Creates the `./mlx-lm` uv virtual environment, installs the `mlx` dependency group, and copies the bin directory to `~/.local/mlx_lm/bin/` for MLX-based AI model inference.
+    -   **Tools**: Installs Python tools from `ansible/roles/python/config/common/pipx-tools.txt` using `pipx install`. Provisions the `~/.menv/venvs/mlx-lm` uv virtual environment in place, installs the `mlx` dependency group into it, and relies on the repository-managed binaries (no more copies into `~/.local/mlx_lm/bin/`).
     -   **Aider Integration**: Installs aider-chat via pipx using the configured Python version when enabled (`--tags python-aider`).
     -   Conditional installation: Can install platform-only, tools-only, or aider-only using tags (`--tags python-platform`, `--tags python-tools`, `--tags python-aider`).
 

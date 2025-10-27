@@ -34,6 +34,7 @@ id_*
 # Python
 .venv/
 venv/
+venvs/
 __pycache__/
 *.pyc
 *.pyo

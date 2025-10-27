@@ -10,6 +10,8 @@ set dotenv-load
 repo_root := `pwd`
 playbook := repo_root / "ansible/playbook.yml"
 inventory := repo_root / "ansible/hosts"
+menv_dir := repo_root
+mlx_venv_path := menv_dir / "venvs/mlx-lm"
 
 
 # Show available recipes
@@ -268,27 +270,27 @@ backup-vscode-extensions:
 
 # Format code with black and ruff --fix
 format:
-    @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
-    @uv run black tests/ ansible/
-    @uv run ruff check tests/ ansible/ --fix
-    @files=$(just _find_shell_files); \
-    echo "Found $(echo "$files" | wc -l) shell files to format"; \
-    for file in $files; do \
-        shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; \
-    done
-    @uv run ansible-lint ansible/ --fix
+  @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
+  @uv run black tests/ ansible/
+  @uv run ruff check tests/ ansible/ --fix
+  @files=$(just _find_shell_files); \
+  echo "Found $(echo "$files" | wc -l) shell files to format"; \
+  for file in $files; do \
+      shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; \
+  done
+  @uv run ansible-lint ansible/ --fix
 
 # Lint code with black check, ruff, shellcheck, and ansible-lint
 lint:
-    @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
-    @uv run black --check tests/ ansible/
-    @uv run ruff check tests/ ansible/
-    @files=$(just _find_shell_files); \
-    echo "Found $(echo "$files" | wc -l) shell files to lint"; \
-    for file in $files; do \
-        shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; \
-    done
-    @uv run ansible-lint ansible/
+  @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
+  @uv run black --check tests/ ansible/
+  @uv run ruff check tests/ ansible/
+  @files=$(just _find_shell_files); \
+  echo "Found $(echo "$files" | wc -l) shell files to lint"; \
+  for file in $files; do \
+      shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; \
+  done
+  @uv run ansible-lint ansible/
     
 # ==============================================================================
 # Testing
@@ -304,17 +306,18 @@ test:
 
 # Remove __pycache__ and .venv to make project lightweight
 clean:
-    @echo "🧹 Cleaning up project..."
-    @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-    @rm -rf .venv
-    @rm -rf mlx-lm
-    @rm -rf .pytest_cache
-    @rm -rf .ruff_cache
-    @rm -rf .aider.tags.cache.v4
-    @rm -rf .serena/cache
-    @rm -rf .uv-cache
-    @rm -rf .tmp
-    @echo "✅ Cleanup completed"
+  @echo "🧹 Cleaning up project..."
+  @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+  @rm -rf .venv
+  @rm -rf {{mlx_venv_path}}
+  @rm -rf venvs
+  @rm -rf .pytest_cache
+  @rm -rf .ruff_cache
+  @rm -rf .aider.tags.cache.v4
+  @rm -rf .serena/cache
+  @rm -rf .uv-cache
+  @rm -rf .tmp
+  @echo "✅ Cleanup completed"
 
 # ==============================================================================
 # Hidden Recipes
@@ -329,8 +332,8 @@ _run_ansible role profile tag *args="":
 # @hidden
 _find_shell_files:
   @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
-    grep -v "\.git" | \
-    grep -v "gemini.zsh" | \
-    grep -v "\.uv-cache" | \
-    grep -v "\.venv" | \
-    grep -v "mlx-lm"
+  grep -v "\.git" | \
+  grep -v "gemini.zsh" | \
+  grep -v "\.uv-cache" | \
+  grep -v "\.venv" | \
+  grep -v "/venvs/"

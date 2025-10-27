@@ -21,12 +21,15 @@ jobs:
       - name: Run uv setup
         run: just uv
         
+      - name: Prepare menv venv directory
+        run: mkdir -p "$HOME/.menv/venvs"
+
       - name: Create mlx-lm venv
-        run: uv venv mlx-lm
+        run: uv venv "$HOME/.menv/venvs/mlx-lm"
 
       - name: Install mlx dependencies
         env:
-          UV_PROJECT_ENVIRONMENT: ./mlx-lm
+          UV_PROJECT_ENVIRONMENT: $HOME/.menv/venvs/mlx-lm
         run: uv sync --only-group mlx
 
       - name: Run python-tools setup

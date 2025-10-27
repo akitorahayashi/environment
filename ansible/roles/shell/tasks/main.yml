@@ -1,10 +1,11 @@
 ---
-- name: "Symlink .zprofile"
-  ansible.builtin.file:
+- name: "Template .zprofile with repo root path"
+  ansible.builtin.template:
     src: "{{ role_path }}/config/common/.zprofile"
     dest: "{{ ansible_env.HOME }}/.zprofile"
-    state: link
-    force: true
+    mode: "0644"
+  vars:
+    repo_root_path: "{{ repo_root_path }}"
 
 - name: "Symlink .zshrc"
   ansible.builtin.file:
@@ -14,14 +15,14 @@
     force: true
 
 # --- create symbolic links for all files in role_path/config/common/.alias/
-- name: "Clean and recreate ~/.alias directory"
+- name: "Clean and recreate ~/.menv/alias directory"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.alias"
+    path: "{{ ansible_env.HOME }}/.menv/alias"
     state: absent
 
-- name: "Create ~/.alias directory"
+- name: "Create ~/.menv/alias directory"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.alias"
+    path: "{{ ansible_env.HOME }}/.menv/alias"
     state: directory
     mode: "0755"
 
@@ -39,9 +40,9 @@
          | map('replace', role_path + '/config/common/.alias/', '')
          | map('dirname') | unique | reject('equalto', '.') | list }}
 
-- name: "Create subdirectories in ~/.alias"
+- name: "Create subdirectories in ~/.menv/alias"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.alias/{{ item }}"
+    path: "{{ ansible_env.HOME }}/.menv/alias/{{ item }}"
     state: directory
     mode: "0755"
   loop: "{{ shell_config_subdirs }}"
@@ -50,29 +51,9 @@
   ansible.builtin.file:
     src: "{{ item.path }}"
     dest: >-
-      {{ ansible_env.HOME }}/.alias/{{ item.path | replace(role_path + '/config/common/.alias/', '') }}
+      {{ ansible_env.HOME }}/.menv/alias/{{ item.path | replace(role_path + '/config/common/.alias/', '') }}
     state: link
     force: true
   loop: "{{ shell_config_files.files }}"
 
-- name: "Ensure ~/.scripts/python directory exists"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.scripts/python"
-    state: directory
-    mode: "0755"
 
-- name: "Find Python helper scripts"
-  ansible.builtin.find:
-    paths: "{{ repo_root_path }}/ansible/scripts/shell"
-    patterns: "*.py"
-    file_type: file
-  register: shell_helper_scripts
-
-- name: "Symlink Python helper scripts to ~/.scripts/python"
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/.scripts/python/{{ item.path | basename }}"
-    state: link
-    force: true
-    mode: "0755"
-  loop: "{{ shell_helper_scripts.files }}"
