@@ -47,8 +47,7 @@ make mac-mini
 Each target invokes `just common`, which runs all core recipes: shell configuration, VCS tooling, editors, runtimes, AI CLIs, and Homebrew packages. When invoked through the Makefile you inherit the variables exported in `.env`.
 
 ## 6. Post-Install Steps
-- Run `just sw-p` (or `just sw-w`) to apply the appropriate Git and JJ identity.
-- Log out or restart once to guarantee macOS defaults applied by the `system` role take effect.
-- Confirm the `menv` wrapper is on your `PATH` (`which menv`).
+
+Restart once to guarantee macOS defaults applied by the `system` role take effect.
 
 At this point the machine is converged. Explore [Makefile Usage](./makefile-usage.md), [Just recipes](./justfile-usage.md), and the [Architecture](./architecture.md) guides for deeper details.

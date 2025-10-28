@@ -1,5 +1,4 @@
 #!/bin/bash
-alias u="uv"
 alias u-ini="uv init"
 u-v() {
 	if [[ -f ".python-version" ]]; then
