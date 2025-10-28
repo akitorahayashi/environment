@@ -93,5 +93,5 @@ N. Phase N: Quality & Review - Linting/formatting + critical codebase review
 
 ## Notes
 - Follow project conventions
-- Write concise change summary to `docs/updates/[feature-name].md` after implementation
+- Update existing documentation following project documentation culture
 ```
