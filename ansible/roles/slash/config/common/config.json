@@ -80,10 +80,10 @@
       "description": "Analyze the source code of a library or SDK and generate README.md for developers with public interface, core functionality, features, and testing methods.",
       "prompt-file": "commands/srd.md"
     },
-    "sy-dc": {
-      "title": "Sync Documentation",
-      "description": "Integrate updates from docs/updates/ into docs/ and clean up processed files",
-      "prompt-file": "commands/sy-dc.md"
+    "ud": {
+      "title": "Update Documentation",
+      "description": "Analyze the project's documentation system and update relevant documentation based on the conversation context",
+      "prompt-file": "commands/ud.md"
     }
   }
 }

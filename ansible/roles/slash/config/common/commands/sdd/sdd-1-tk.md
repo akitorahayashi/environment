@@ -89,6 +89,10 @@ Write a consolidated task breakdown using the template below.
 ### Database/Config Changes
 - [Schema changes, migrations, environment variables]
 
+### Documentation Updates
+- [Existing documentation files requiring updates: README.md, AGENTS.md, docs/*]
+- [Only update existing documentation—never create new files or directories]
+
 ## Test Strategy
 
 ### Existing Coverage
@@ -121,9 +125,8 @@ Write a consolidated task breakdown using the template below.
 - [ ] [Task with file path]
 - [ ] [Task with file path]
 
-### Phase 3: Quality & Summary
+### Phase 3: Quality & Review
 - [ ] Run linter/formatter on changed files
-- [ ] Write concise change summary to `docs/updates/[feature-name].md`
 - [ ] Verify tests pass (respect project testing culture - skip if minimal testing practices)
 - [ ] Review and commit changes
 

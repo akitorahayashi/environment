@@ -39,10 +39,9 @@ Apply these patterns when creating phase files:
 1. **Parallel Implementation**: Maximize agents on independent features
 2. **Integration**: Fewer agents (1-2) to reduce merge conflicts
 3. **Testing**: Mocks → tests → CI updates → test runs → fixes
-4. **Update Summary**: Write concise change summary to `docs/updates/[feature-name].md`
 
 **Fixed Final Phase** (always include):
-- **Phase N: Quality & Review**: Sub-Agent runs linter/formatter, then Reviewer LLM reviews codebase critically against requirements and edits if permitted
+- **Phase N: Quality & Review**: Sub-Agent runs linter/formatter, then Reviewer reviews codebase critically against requirements and edits if permitted
 
 **Agent Strategy**:
 - Total: 1-5 agents, numbered sequentially

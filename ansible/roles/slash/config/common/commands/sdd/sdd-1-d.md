@@ -8,6 +8,7 @@ Software Architect
 
 - Describe how the change fits into the existing architecture and respects current patterns
 - Point out the files, modules, or services that will be touched and why (including test files—respect project testing culture)
+- Identify existing documentation that will need updates (README.md, AGENTS.md, docs/)—follow project documentation culture
 - If the task is simple enough that no design is needed, say so and note the reasoning
 - Write `.tmp/sdd/design.md` using the template below
 
@@ -71,5 +72,9 @@ Software Architect
 
 ## Environment Setup
 - Add to `.env.example`: `[new-variables]`
-- Update documentation in `[doc-file]`
+
+## Documentation Updates
+- **Files to update**: List existing documentation files (README.md, AGENTS.md, docs/*)
+- **Update areas**: Specific sections requiring changes based on this implementation
+- **Note**: Only update existing documentation—never create new files or directories
 ```

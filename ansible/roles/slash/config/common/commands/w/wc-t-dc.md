@@ -10,10 +10,10 @@ This command is for tasks that require changes to tests or documentation in addi
 
 1.  **Analyze Goal:** Study the user's request and any existing plan in `.tmp/tasks.md`.
 2.  **Audit Tests:** Review test structure to identify required additions or updates.
-3.  **Validate or Refine Plan:** Confirm the existing plan is comprehensive. If necessary, rewrite `.tmp/tasks.md` to include all required deliverables for code and tests.
+3.  **Identify Documentation:** Determine which existing documentation (README.md, AGENTS.md, docs/) will need updates—follow project documentation culture.
+4.  **Validate or Refine Plan:** Confirm the existing plan is comprehensive. If necessary, rewrite `.tmp/tasks.md` to include all required deliverables for code, tests, and documentation.
 
 ### Phase 2: Execution
 
-4.  **Implement:** Execute all changes defined in the comprehensive plan, including code and tests.
-5.  **Write Update Summary:** Create concise change summary in `docs/updates/[feature-name].md`.
+5.  **Implement:** Execute all changes defined in the comprehensive plan, including code, tests, and documentation updates.
 6.  **Verify:** Run tests and validate that all parts of the plan are complete.
