@@ -40,7 +40,7 @@ Technical Lead combining Software Architect, QA Engineer, and Engineering Manage
 - Integration (coordinate shared file changes)
 - Testing (mocks → tests → CI updates → verification)
 - Quality (linting, formatting)
-- Update summary (write concise change summary to `docs/updates/[feature-name].md`)
+- Documentation (update existing docs following project conventions)
 
 ### 4. Create `.tmp/sdd/tasks.md`
 
