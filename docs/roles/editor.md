@@ -15,8 +15,7 @@ Trigger with `just vscode` or `just cursor`; both run during `just common`.
 - Load `vscode-extensions.json`, parse the `extensions` array, and install each extension with `code --install-extension --force` (errors ignored so the run remains idempotent).
 
 ## Cursor Tasks (`tasks/cursor.yml`)
-- Install Cursor via Homebrew Cask and download the Cursor CLI installer (checksum pinned) into `~/.ansible/tmp`.
-- Install the CLI (`cursor-agent`) and remove the installer.
+- Install Cursor via Homebrew Cask.
 - Symlink shared settings and keybindings into `~/Library/Application Support/Cursor/User`.
 - Parse `cursor-extensions.json` and install each extension with `cursor --install-extension`.
 

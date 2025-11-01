@@ -4,29 +4,6 @@
     name: cursor
     state: present
 
-- name: "Ensure ~/.ansible/tmp directory exists"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.ansible/tmp"
-    state: directory
-    mode: "0755"
-
-- name: "Download Cursor CLI installer"
-  ansible.builtin.get_url:
-    url: https://cursor.com/install
-    dest: "{{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh"
-    mode: "0755"
-    checksum: "sha256:28ad327b9bdd9caa632a6a1f2547d70335aa8679cd1e61e920e381d171299d1c"
-
-- name: "Install Cursor CLI"
-  ansible.builtin.command: /bin/bash {{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh
-  args:
-    creates: "{{ ansible_env.HOME }}/.local/bin/cursor-agent"
-
-- name: "Remove Cursor installer"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.ansible/tmp/cursor-install.sh"
-    state: absent
-
 - name: "Ensure Cursor User directory exists"
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User"
