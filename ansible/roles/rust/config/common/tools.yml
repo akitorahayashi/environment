@@ -8,12 +8,15 @@
 tools:
   - name: kpv
     git: https://github.com/akitorahayashi/kpv.git
-    tag: v0.1.0
+    tag: v0.2.0
   - name: mms
     git: https://github.com/akitorahayashi/mms.git
     tag: v0.1.1
   - name: pure
     git: https://github.com/akitorahayashi/pure.git
-    tag: v0.1.0
+    tag: v0.2.0
+  - name: fusion
+    git: https://github.com/akitorahayashi/fusion.git
+    tag: v1.2.0
   # - name: cargo-edit
   #   options: "--locked"

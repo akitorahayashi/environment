@@ -84,6 +84,11 @@
       "title": "Update Documentation",
       "description": "Analyze the project's documentation system and update relevant documentation based on the conversation context",
       "prompt-file": "commands/ud.md"
+    },
+    "bcp": {
+      "title": "Branch Commit Push",
+      "description": "Creates a new branch from current changes, commits them with a generated message, and pushes the branch.",
+      "prompt-file": "commands/bcp.md"
     }
   }
 }

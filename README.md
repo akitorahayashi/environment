@@ -10,6 +10,16 @@ This repository contains the configuration and automation scripts to set up a co
 -   **Primary Tools:** Ansible, Just, Homebrew, Shell scripts, Python scripts.
 -   **Documentation:** [Project Documentation Overview](./docs/overview.md)
 
+## Quick Start
+
+Bootstrap the environment with the Makefile before using the granular `just` recipes.
+
+1. `make base` – installs macOS prerequisites, creates `.env`, and sets up pyenv, uv, Ansible, and just.
+2. `make macbook` or `make mac-mini` – hands control to `just common`, which runs the shared Ansible roles once prerequisites are in place.
+3. After bootstrap, invoke targeted automation with `just` (for example `just python`, `just nodejs`, `just docker-images`) or switch Git/JJ identities with `just sw-p` / `just sw-w`.
+
+Use `just test` to execute the pytest suite via `uv run pytest tests/`.
+
 ## Installation
 
 Detailed installation steps, including prerequisites like Xcode Command Line Tools and Homebrew, are available in the installation guide.
@@ -21,7 +31,7 @@ Detailed installation steps, including prerequisites like Xcode Command Line Too
 The primary way to interact with this repository is through `make` (for initial bootstrap) and `just` (for managing specific setup tasks).
 
 -   **Makefile Usage:** [Makefile Guide](./docs/makefile-usage.md)
--   **Just Command Runner:** [Justfile Guide](./docs/justfile-usage.md)
+-   **Just Command Runner:** [Justfile Guide](./docs/justfile-usage.md) (`just common` mirrors the automated role sequence triggered by the Makefile.)
 -   **`menv` Wrapper:** [menv Command Wrapper](./docs/menv-wrapper.md)
 
 ## Architecture

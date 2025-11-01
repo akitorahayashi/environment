@@ -92,8 +92,7 @@ fi
 
 # Path for Rust tools
 if [ -d "$HOME/.cargo/bin" ] && [[ ":$PATH:" != *":$HOME/.cargo/bin:"* ]]; then
-    export PATH="$HOME/.cargo/bin:$PATH"
-fi
+    fi
 
 # Automatic startup and reuse of SSH Agent
 SSH_AGENT_PID_FILE="$HOME/.ssh/ssh-agent.pid"
