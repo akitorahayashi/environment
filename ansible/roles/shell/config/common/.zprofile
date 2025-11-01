@@ -85,15 +85,6 @@ if [ -n "$ANDROID_HOME" ]; then
   fi
 fi
 
-# PATH setting for FVM
-if [ -d "$HOME/fvm/default/bin" ] && [[ ":$PATH:" != *":$HOME/fvm/default/bin:"* ]]; then
-    export PATH="$HOME/fvm/default/bin:$PATH"
-fi
-
-# Path for Rust tools
-if [ -d "$HOME/.cargo/bin" ] && [[ ":$PATH:" != *":$HOME/.cargo/bin:"* ]]; then
-    fi
-
 # Automatic startup and reuse of SSH Agent
 SSH_AGENT_PID_FILE="$HOME/.ssh/ssh-agent.pid"
 SSH_AUTH_SOCK_FILE="$HOME/.ssh/ssh-agent.sock"

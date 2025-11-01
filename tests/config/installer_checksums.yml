@@ -1,7 +1,5 @@
 installer_checksums:
   - url: https://sh.rustup.rs
     checksum: sha256:17247e4bcacf6027ec2e11c79a72c494c9af69ac8d1abcc1b271fa4375a106c2
-  - url: https://cursor.com/install
-    checksum: sha256:28ad327b9bdd9caa632a6a1f2547d70335aa8679cd1e61e920e381d171299d1c
   - url: https://cli.coderabbit.ai/install.sh
     checksum: sha256:e41b25da22e00e42134b7164ddd7b07b61a539ec30e6835de290b2034eab07b8
