@@ -1,8 +1,10 @@
 #!/bin/sh
-alias hf-au="hf auth"
-alias hf-au-in="hf auth login"
-alias hf-au-ot="hf auth logout"
+alias hf="~/.local/bin/hf"
+alias hf-au="~/.local/bin/hf auth"
+alias hf-au-in="~/.local/bin/hf auth login"
+alias hf-au-ot="~/.local/bin/hf auth logout"
 
-alias hf-dl="hf download"
+alias hf-dl="~/.local/bin/hf download"
 
-alias hf-sc="hf cache scan"
+alias hf-c="~/.local/bin/hf cache"
+alias hf-sc="~/.local/bin/hf cache scan"

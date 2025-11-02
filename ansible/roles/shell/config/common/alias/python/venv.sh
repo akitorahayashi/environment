@@ -9,10 +9,3 @@ act() {
 	fi
 }
 alias dct='deactivate'
-rm-vev() {
-	if [[ $# -eq 1 ]]; then
-		rm -rf "./$1"
-	else
-		rm -rf "./.venv"
-	fi
-}
