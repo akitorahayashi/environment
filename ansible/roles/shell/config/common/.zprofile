@@ -19,6 +19,9 @@ export PATH="$HOME/.local/pipx/venvs/mlx-hub/bin:$PATH"
 # Path for mlx-lm tools under menv
 export PATH="$HOME/.menv/venvs/mlx-lm/bin:$PATH"
 
+# Rust environment
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # Android SDK environment variables
 if [[ -z "$ANDROID_HOME" ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
@@ -40,6 +43,7 @@ if command -v pyenv 1>/dev/null 2>&1; then
   export PATH="$PYENV_ROOT/bin:$PATH"
   eval "$(pyenv init --path)"
 fi
+
 
 # Path setting for ollama models
 export OLLAMA_MODELS="$HOME/.ollama/models"
