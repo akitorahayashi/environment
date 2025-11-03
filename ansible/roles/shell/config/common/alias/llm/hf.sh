@@ -7,4 +7,3 @@ alias hf-au-ot="~/.local/bin/hf auth logout"
 alias hf-dl="~/.local/bin/hf download"
 
 alias hf-c="~/.local/bin/hf cache"
-alias hf-sc="~/.local/bin/hf cache scan"
