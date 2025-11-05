@@ -1,12 +1,5 @@
-# ==============================================================================
-# Common Brew Casks
-# ==============================================================================
-
 # Networking & VPN
 cask "tailscale"
-
-# Window Management
-cask "rectangle"
 
 # Development Tools
 cask "android-studio"
@@ -15,6 +8,7 @@ cask "docker"
 
 # Web Browsers & Communication
 cask "google-chrome"
+cask "chatgpt-atlas"
 cask "slack"
 cask "zoom"
 
