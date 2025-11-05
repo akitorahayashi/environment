@@ -4,6 +4,8 @@ Perform a comprehensive planning phase that includes test and documentation stra
 
 This command is for tasks that require changes to tests or documentation in addition to code.
 
+**Important:** Ensure the entire workflow completes fully without premature termination. Do not stop mid-phase; complete all steps in each phase before proceeding.
+
 ## Workflow
 
 ### Phase 1: Comprehensive Planning
@@ -15,5 +17,5 @@ This command is for tasks that require changes to tests or documentation in addi
 
 ### Phase 2: Execution
 
-5.  **Implement:** Execute all changes defined in the comprehensive plan, including code, tests, and documentation updates.
+5.  **Implement:** Execute all changes defined in the comprehensive plan, including code, tests, and documentation updates. Complete the entire implementation without interruption before moving to verification.
 6.  **Verify:** Run tests and validate that all parts of the plan are complete.

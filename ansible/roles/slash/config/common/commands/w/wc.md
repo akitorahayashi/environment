@@ -4,6 +4,8 @@ Perform critical planning to create a robust execution strategy, and then immedi
 
 This command is for complex tasks where the path forward is not immediately clear and requires strategic thought before action.
 
+**Important:** Ensure the entire workflow completes fully without premature termination. Do not stop mid-phase; complete all steps in each phase before proceeding.
+
 ## Workflow
 
 ### Phase 1: Critical Planning
@@ -14,5 +16,5 @@ This command is for complex tasks where the path forward is not immediately clea
 
 ### Phase 2: Execution
 
-4.  **Implement:** Execute the newly defined plan from `.tmp/tasks.md`.
+4.  **Implement:** Execute the newly defined plan from `.tmp/tasks.md`. Complete the entire implementation without interruption before moving to verification.
 5.  **Verify:** Run tests and validations to confirm the implementation is successful.
