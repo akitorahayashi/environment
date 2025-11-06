@@ -15,7 +15,7 @@ def main():
 
     paths = sys.argv[1:]
 
-    # Convert the passed path to the format {"path": "..."} 
+    # Convert the passed path to the format {"path": "..."}
     folders = [{"path": p} for p in paths]
     workspace_content = {"folders": folders}
 
