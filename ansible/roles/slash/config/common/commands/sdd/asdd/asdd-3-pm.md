@@ -49,6 +49,6 @@ Prompt Engineer
 - **Agent 1 (Integration)**: "Execute Phase 2 tasks in `.tmp/sdd/tasks/phase_2.md` for Agent 1."
 
 ### Phase N: Quality & Review
-- **Sub-Agent (Linter/Formatter)**: "Run linter and formatter on all changed files in `.tmp/sdd/tasks/phase_N.md`."
-- **Reviewer**: "Read `.tmp/sdd/requirements.md`, `.tmp/sdd/design.md`, and all phase task files. Review codebase state critically against requirements. Edit code if permitted to fix issues, otherwise report findings."
+- **Quality Agent (Linter/Formatter)**: "Run linter and formatter on all changed files in `.tmp/sdd/tasks/phase_N.md`."
+- **General Review Agent**: "Read `.tmp/sdd/requirements.md`, `.tmp/sdd/design.md`, and all phase task files. Review codebase state critically against requirements. Edit code if permitted to fix issues, otherwise report findings."
 ``` 

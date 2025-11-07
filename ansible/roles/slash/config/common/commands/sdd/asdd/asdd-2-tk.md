@@ -41,7 +41,7 @@ Apply these patterns when creating phase files:
 3. **Testing**: Mocks → tests → CI updates → test runs → fixes
 
 **Fixed Final Phase** (always include):
-- **Phase N: Quality & Review**: Sub-Agent runs linter/formatter, then Reviewer reviews codebase critically against requirements and edits if permitted
+- **Phase N: Quality & Review**: One person responsible for Quality (runs linter/formatter), one person responsible for General Review (reviews codebase critically against requirements and edits if permitted)
 
 **Agent Strategy**:
 - Total: 1-5 agents, numbered sequentially
@@ -64,15 +64,18 @@ Apply these patterns when creating phase files:
 
 **Goal**: [Objective]
 
-**Agents**:
-- Agent 1: [Role description]
-- Agent 2: [Role description]
-- Sub-Agent 1: [Task type]
-
 **Tasks**:
-- [Action on specific/path/file.ext] (Agent 1: Role)
-- [Action on specific/path/file.ext] (Agent 2: Role)
-- [Action on specific/path/file.ext] (Sub-Agent 1: Task type)
+
+**Agent 1 ([Role description])**:
+- [Action on specific/path/file.ext]
+- [Action on specific/path/file.ext]
+
+**Agent 2 ([Role description])**:
+- [Action on specific/path/file.ext]
+- [Action on specific/path/file.ext]
+
+**Sub-Agent 1 ([Task type])**:
+- [Action on specific/path/file.ext]
 
 **Coordination**: [Critical dependencies or sync points, if any]
 ```

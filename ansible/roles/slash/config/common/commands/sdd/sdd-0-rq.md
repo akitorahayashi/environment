@@ -17,7 +17,7 @@ Set up a thinking mindset for requirement definition in the Specification-Driven
 
 After activation, generate clear, actionable requirements from the user's prompt.
 
-Create `.tmp/requirements.md` - the central document that defines what needs to be built. This file is the foundation of the entire SDD process:
+Create `.tmp/sdd/requirements.md` - the central document that defines what needs to be built. This file is the foundation of the entire SDD process:
 
 - **Single Source of Truth**: The definitive reference for project scope and success criteria
 - **Implementation Agnostic**: Focus on WHAT needs to be achieved, not HOW to achieve it
