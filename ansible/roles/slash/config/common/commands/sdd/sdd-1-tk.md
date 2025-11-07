@@ -117,15 +117,25 @@ Write a consolidated task breakdown using the template below.
 
 ### Phase 1: [Name]
 **Goal**: [Objective]
+
+**Agent 1 ([Role])**:
+- [ ] [Task with file path]
+- [ ] [Task with file path]
+
+**Agent 2 ([Role])**:
 - [ ] [Task with file path]
 - [ ] [Task with file path]
 
 ### Phase 2: [Name]
 **Goal**: [Objective]
+
+**Agent 1 ([Role])**:
 - [ ] [Task with file path]
 - [ ] [Task with file path]
 
 ### Phase 3: Quality & Review
+
+**Agent 1 ([Role])**:
 - [ ] Run linter/formatter on changed files
 - [ ] Verify tests pass (respect project testing culture - skip if minimal testing practices)
 - [ ] Review and commit changes
