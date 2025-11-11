@@ -9,7 +9,7 @@ Engineering Manager
 ### 1. Design phases and agent usage
 
 - Structure the work into phases to maximize parallel progress, using the minimum number of phases necessary to manage dependencies.
-- Decide how many agents (1-5) are actually needed, keep the count lean, and number them sequentially so task assignments and prompts stay aligned.
+- Decide how many agents (1-3) are actually needed, keep the count lean, and number them sequentially so task assignments and prompts stay aligned.
 - Each agent maintains context and ownership of their work throughout the project
 
 ### 2. Build `.tmp/sdd/tasks/phase_N.md` files
@@ -37,14 +37,14 @@ Apply these patterns when creating phase files:
 
 **Typical Phase Flow**:
 1. **Parallel Implementation**: Maximize agents on independent features
-2. **Integration**: Fewer agents (1-2) to reduce merge conflicts
+2. **Integration**: Fewer agents (1-2) to reduce conflicts
 3. **Testing**: Mocks → tests → CI updates → test runs → fixes
 
 **Fixed Final Phase** (always include):
 - **Phase N: Quality & Review**: One person responsible for Quality (runs linter/formatter), one person responsible for General Review (reviews codebase critically against requirements and edits if permitted)
 
 **Agent Strategy**:
-- Total: 1-5 agents, numbered sequentially
+- Total: 1-3 agents, numbered sequentially
 - Per phase: Vary count based on parallelization potential
 - Reduce agents to prevent conflicts during integration/sequential tasks
 - Allow parallel work on shared files when changes are additive
@@ -85,7 +85,7 @@ Apply these patterns when creating phase files:
 # Task Breakdown Overview - [Name]
 
 ## Summary
-- Total agents: [1-5]
+- Total agents: [1-3]
 - Total phases: [count]
 
 ## Phase Sequence

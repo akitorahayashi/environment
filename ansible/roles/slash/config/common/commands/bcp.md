@@ -1,7 +1,13 @@
 # /bcp - Branch Commit Push
 
-1. Run `git diff` to review the changes you are about to commit.
-2. Pick a branch name that matches the work (e.g. `feat/add-user-auth`).
-3. Create and switch with `git checkout -b <branch-name>`.
-4. Stage and commit all changes with `git add . && git commit -m "<message>"`.
-5. Push with `git push -u origin <branch-name>`.
+## Review Changes First
+
+- List changed files: `git status -s`
+- Review diffs for key files: `git diff -- path/one path/two`
+
+## Branch, Commit, Push
+
+1. Pick a branch name (e.g. `feat/user-auth`).
+2. Create and switch: `git checkout -b <branch-name>`.
+3. Stage and commit: `git add -A && git commit -m "<message>"`.
+4. Push: `git push -u origin <branch-name>`.
