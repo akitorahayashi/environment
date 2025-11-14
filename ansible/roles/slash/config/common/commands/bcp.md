@@ -1,5 +1,11 @@
 # /bcp - Branch Commit Push
 
+Checkout to a new branch, commit, and push changes. The branch name and commit message must reflect the actual changes made.
+
+## Constraint
+
+The goal is to reflect changes, so never edit the codebase itself as part of this process.
+
 ## Review Changes First
 
 - List changed files: `git status -s`

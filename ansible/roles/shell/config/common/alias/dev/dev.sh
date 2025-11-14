@@ -46,4 +46,5 @@ dev_alias_as() {
 	alias "${prefix}-pet=${cmd_prefix} perf-test"
 	alias "${prefix}-it=${cmd_prefix} intg-test"
 	alias "${prefix}-bt=${cmd_prefix} build-test"
+	alias "${prefix}-pt=${cmd_prefix} pkg-test"
 }

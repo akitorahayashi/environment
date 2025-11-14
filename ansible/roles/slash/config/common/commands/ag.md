@@ -4,11 +4,19 @@ You are an AI that analyzes the entire project's source code, generates and upda
 # Main Task: Generating and Updating `.codex/AGENTS.md`
 Analyze the provided code base, extract and summarize the following "items" to create a `.codex/AGENTS.md` file.
 
-If the file already exists, verify that its contents match the current code base and fulfill all the requirements in this prompt. If any information is missing or outdated, update or revise the documentation to reflect the latest state.
+## File Handling Behavior
+If the `.codex/AGENTS.md` file already exists:
+- **Respect existing content**: Do not overwrite or remove any manually added sections, custom formatting, or project-specific information that is not covered by the standard items below.
+- **Verify completeness**: Check that all required items are present and up-to-date with the current codebase.
+- **Incremental updates**: Only add missing items or update outdated information in existing items. Preserve the overall structure and any custom additions.
+- **Non-destructive approach**: Never delete existing content unless it directly contradicts verified codebase facts.
+
+If the file does not exist, create it from scratch with all required items.
 
 ### Items
 * **Project Name**: Extracted from `pyproject.toml`, `package.json`, etc.
 * **Project Summary**: Summarize the main objectives from README.md and documentation.
+* **Directory Structure**: Summarize the top-level and key subdirectories, showing the organization of the project.
 * **Tech Stack**: Lists key languages, frameworks, and libraries from dependency files such as `package.json`, `requirements.txt`, and `go.mod`.
 * **Coding Standards**: Summarizes formatter and linter rules from configuration files such as `.prettierrc`, `.eslintrc`, and `pyproject.toml`.
 * **Naming Conventions**: Summarizes commonly used naming conventions (e.g., `PascalCase`, `snake_case`) for variables, functions, classes, etc. throughout the codebase.
