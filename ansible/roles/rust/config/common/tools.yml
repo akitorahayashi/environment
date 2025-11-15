@@ -14,7 +14,7 @@ tools:
     tag: v0.1.1
   - name: pure
     git: https://github.com/akitorahayashi/pure.git
-    tag: v0.3.0
+    tag: v0.4.0
   - name: fusion
     git: https://github.com/akitorahayashi/fusion.git
     tag: v1.2.0
