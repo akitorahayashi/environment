@@ -17,5 +17,5 @@ This command is for tasks that require changes to tests in addition to code.
 
 ### Phase 2: Execution
 
-4.  **Implement:** Execute all changes defined in the comprehensive plan, including code and test updates. Complete the entire implementation without interruption before moving to verification.
-5.  **Verify:** Run tests and validate that all parts of the plan are complete.
+5.  **Implement:** Execute all changes defined in the comprehensive plan, including code and test updates. Complete the entire implementation without interruption before moving to verification.
+6.  **Verify:** Run tests and validate that all parts of the plan are complete.

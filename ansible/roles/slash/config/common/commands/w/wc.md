@@ -12,7 +12,7 @@ This command is for complex tasks where the path forward is not immediately clea
 
 1.  **Analyze Goal:** Study the user's request and any existing plan in `.tmp/tasks.md`.
 2.  **Critically Review Scope:** Critically review the scope of edits needed, considering what might be missing in the plan, and ensure sufficient editing is contemplated for the goal.
-4.  **Create Revised Plan:** Create `.tmp/revised_tasks.md` to make it more robust.
+3.  **Create Revised Plan:** Create `.tmp/revised_tasks.md` to make it more robust.
 
 ### Phase 2: Execution
 

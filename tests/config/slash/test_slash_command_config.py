@@ -2,19 +2,49 @@
 
 from __future__ import annotations
 
-import json
+import collections.abc
 import os
 import stat
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, Sequence
 
 import pytest
 import yaml
 
 
 class DuplicateKeyError(ValueError):
-    """Raised when duplicate keys are encountered in a JSON object."""
+    """Raised when duplicate keys are encountered in a YAML document."""
+
+
+class DuplicateKeySafeLoader(yaml.SafeLoader):
+    """Custom YAML loader that checks for duplicate keys."""
+
+    def construct_mapping(self, node, deep=False):
+        if not isinstance(node, yaml.MappingNode):
+            raise yaml.constructor.ConstructorError(
+                None,
+                None,
+                "expected a mapping node, but found %s" % node.id,
+                node.start_mark,
+            )
+        mapping = {}
+        keys = set()
+        for key_node, value_node in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            if not isinstance(key, collections.abc.Hashable):
+                raise yaml.constructor.ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    "found unhashable key",
+                    key_node.start_mark,
+                )
+            if key in keys:
+                raise DuplicateKeyError(f"Duplicate key '{key}' found in YAML")
+            keys.add(key)
+            value = self.construct_object(value_node, deep=deep)
+            mapping[key] = value
+        return mapping
 
 
 @pytest.fixture(scope="class")
@@ -28,24 +58,6 @@ class TestSlashIntegration:
 
     scripts_to_check = ["claude.py", "codex.py", "gemini.py"]
 
-    @staticmethod
-    def _object_pairs_hook(pairs: List[Tuple[str, Any]]) -> Dict[str, Any]:
-        """Hook for json.load to track duplicate keys while preserving parsing semantics."""
-        result: Dict[str, Any] = {}
-        duplicates: List[str] = []
-
-        for key, value in pairs:
-            if key in result:
-                duplicates.append(key)
-            result[key] = value
-
-        if duplicates:
-            raise DuplicateKeyError(
-                "Duplicate keys detected: " + ", ".join(sorted(set(duplicates)))
-            )
-
-        return result
-
     def test_config_is_valid_and_assets_exist(
         self, slash_config_path: Path, slash_config_dir: Path
     ) -> None:
@@ -53,7 +65,7 @@ class TestSlashIntegration:
         # 1. Load and validate configuration file
         try:
             with slash_config_path.open(encoding="utf-8") as f:
-                data = yaml.safe_load(f)
+                data = yaml.load(f, Loader=DuplicateKeySafeLoader)
         except yaml.YAMLError as e:
             pytest.fail(f"Invalid YAML in {slash_config_path}: {e}")
         except DuplicateKeyError as e:
@@ -85,7 +97,9 @@ class TestSlashIntegration:
         env["HOME"] = str(tmp_path)
 
         config_path = slash_config_dir / "config.yml"
-        config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+        config = yaml.load(
+            config_path.read_text(encoding="utf-8"), Loader=DuplicateKeySafeLoader
+        )
         commands = config["commands"]
         first_name, first_spec = next(iter(commands.items()))
         prompt_file = slash_config_dir / first_spec["prompt-file"]
