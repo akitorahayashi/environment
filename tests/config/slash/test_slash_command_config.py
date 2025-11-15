@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
 import pytest
+import yaml
 
 
 class DuplicateKeyError(ValueError):
@@ -19,7 +20,7 @@ class DuplicateKeyError(ValueError):
 @pytest.fixture(scope="class")
 def slash_config_path(slash_config_dir: Path) -> Path:
     """Path to the slash configuration file."""
-    return slash_config_dir / "config.json"
+    return slash_config_dir / "config.yml"
 
 
 class TestSlashIntegration:
@@ -52,9 +53,9 @@ class TestSlashIntegration:
         # 1. Load and validate configuration file
         try:
             with slash_config_path.open(encoding="utf-8") as f:
-                data = json.load(f, object_pairs_hook=self._object_pairs_hook)
-        except json.JSONDecodeError as e:
-            pytest.fail(f"Invalid JSON in {slash_config_path}: {e}")
+                data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML in {slash_config_path}: {e}")
         except DuplicateKeyError as e:
             pytest.fail(str(e))
 
@@ -83,8 +84,8 @@ class TestSlashIntegration:
         env = os.environ.copy()
         env["HOME"] = str(tmp_path)
 
-        config_path = slash_config_dir / "config.json"
-        config = json.loads(config_path.read_text(encoding="utf-8"))
+        config_path = slash_config_dir / "config.yml"
+        config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
         commands = config["commands"]
         first_name, first_spec = next(iter(commands.items()))
         prompt_file = slash_config_dir / first_spec["prompt-file"]
@@ -101,7 +102,7 @@ class TestSlashIntegration:
                 [
                     str(slash_script_dir / script_name),
                     "--config",
-                    str(slash_config_dir / "config.json"),
+                    str(slash_config_dir / "config.yml"),
                     "--prompt-root",
                     str(slash_config_dir),
                 ],

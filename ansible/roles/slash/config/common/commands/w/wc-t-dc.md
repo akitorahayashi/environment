@@ -1,4 +1,4 @@
-# /wc-t-dc - Plan and Execute Tasks (with Tests & Docs)
+# /wc-t-dc - Work on tasks critically (with Tests & Docs)
 
 Perform a comprehensive planning phase that includes test and documentation strategy, and then immediately execute the resulting plan.
 
@@ -11,9 +11,10 @@ This command is for tasks that require changes to tests or documentation in addi
 ### Phase 1: Comprehensive Planning
 
 1.  **Analyze Goal:** Study the user's request and any existing plan in `.tmp/tasks.md`.
-2.  **Audit Tests:** Review test structure to identify required additions or updates.
-3.  **Identify Documentation:** Determine which existing documentation (README.md, AGENTS.md, docs/) will need updates—follow project documentation culture.
-4.  **Validate or Refine Plan:** Confirm the existing plan is comprehensive. If necessary, rewrite `.tmp/tasks.md` to include all required deliverables for code, tests, and documentation.
+2.  **Critically Review Scope:** Critically review the scope of edits needed, considering what might be missing in the plan, and ensure sufficient editing is contemplated for the goal.
+3.  **Audit Tests:** Review test structure to identify required additions or updates.
+4.  **Identify Documentation:** Determine which existing documentation (README.md, AGENTS.md, docs/) will need updates—follow project documentation culture.
+5.  **Create Revised Plan:** Create `.tmp/revised_tasks.md` to include all required deliverables for code, tests, and documentation.
 
 ### Phase 2: Execution
 

@@ -3,11 +3,12 @@
 
 from __future__ import annotations
 
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Tuple
+
+import yaml
 
 
 class SlashGeneratorError(RuntimeError):
@@ -24,7 +25,7 @@ class SlashCommand:
     prompt_file: str
 
 
-def _read_json(path: Path) -> Dict[str, object]:
+def _read_yaml(path: Path) -> Dict[str, object]:
     try:
         raw = path.read_text(encoding="utf-8")
     except FileNotFoundError as exc:  # pragma: no cover - handled by caller
@@ -33,9 +34,9 @@ def _read_json(path: Path) -> Dict[str, object]:
         raise SlashGeneratorError(f"Failed to read config file: {path}") from exc
 
     try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise SlashGeneratorError(f"Invalid JSON in {path}: {exc}") from exc
+        data = yaml.safe_load(raw)
+    except yaml.YAMLError as exc:
+        raise SlashGeneratorError(f"Invalid YAML in {path}: {exc}") from exc
 
     if not isinstance(data, dict):
         raise SlashGeneratorError("Configuration root must be an object.")
@@ -43,9 +44,9 @@ def _read_json(path: Path) -> Dict[str, object]:
 
 
 def load_commands(config_path: Path) -> List[SlashCommand]:
-    """Load command definitions from the JSON configuration."""
+    """Load command definitions from the YAML configuration."""
 
-    data = _read_json(config_path)
+    data = _read_yaml(config_path)
     commands = data.get("commands")
     if not isinstance(commands, dict):
         raise SlashGeneratorError("'commands' must be an object in the config file.")
@@ -134,7 +135,7 @@ class BaseSlashGenerator(ABC):
     """Base class for slash command generators."""
 
     _REPO_ANSIBLE_DIR = Path(__file__).resolve().parents[2]
-    DEFAULT_CONFIG = _REPO_ANSIBLE_DIR / "roles/slash/config/common/config.json"
+    DEFAULT_CONFIG = _REPO_ANSIBLE_DIR / "roles/slash/config/common/config.yml"
     DEFAULT_PROMPT_ROOT = DEFAULT_CONFIG.parent
 
     @abstractmethod
@@ -175,7 +176,7 @@ class BaseSlashGenerator(ABC):
             "--config",
             type=Path,
             default=BaseSlashGenerator.DEFAULT_CONFIG,
-            help="Path to config.json",
+            help="Path to config.yml",
         )
         parser.add_argument(
             "--destination",
