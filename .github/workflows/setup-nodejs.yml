@@ -29,6 +29,3 @@ jobs:
 
       - name: Setup Codex
         run: just codex
-
-      - name: Setup slash commands
-        run: just slash
