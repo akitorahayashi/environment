@@ -9,7 +9,7 @@ alias cr-i-g="cargo install --git"
 # Formatting
 cr-f() {
 	echo "Running: cargo fmt"
-	cargo fmt && echo "✔︎ Format completed"
+	cargo fmt && echo "✔︎ Cargo formatting completed successfully"
 }
 
 # Building

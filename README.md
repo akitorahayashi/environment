@@ -173,12 +173,7 @@ This project uses Ansible to automate the setup of a complete development enviro
     -   **Codex CLI**: Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/nodejs/config/common`. Provides prompt and agent files.
     -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags claude`, `--tags gemini`, `--tags codex`).
 
-11. **Slash Command Generation (`slash` role)**
-    -   Marks the slash generator scripts (`claude.py`, `gemini.py`, `codex.py`) as executable and runs them from the repository root.
-    -   Regenerates all custom slash command assets in one pass, independent of the Node.js role.
-    -   Accessible via `just slash` or `ansible-playbook --tags slash`.
-
-12. **Docker Environment (`docker` role)**
+11. **Docker Environment (`docker` role)**
     -   Pulls and manages Docker images listed in `ansible/roles/docker/config/common/images.txt`.
     -   Ensures consistent containerized development environment across machines.
     -   Provides foundation for containerized development workflows.
@@ -219,7 +214,6 @@ just test
 - **Editor Configs**: Validates JSON syntax and schema for VS Code/Cursor configuration files
 - **MCP Servers**: Verifies MCP server definitions have required fields and correct types
 - **Runtime Versions**: Checks `.python-version`, `.ruby-version`, `.nvmrc` format
-- **Slash Commands**: Validates configuration JSON, verifies prompt files exist, checks generator script executability
 - **System Definitions**: Verifies YAML syntax and required schema for macOS system settings
 
 All tests use properly-scoped fixtures in `conftest.py` files to share context and avoid code duplication.
@@ -232,7 +226,7 @@ The following GitHub Actions workflows validate the automated setup process:
 - **`ci-workflows.yml`**: Main CI pipeline orchestrating all setup workflows
 - **`lint-and-test.yml`**: Runs linting and testing across the codebase
 - **`setup-python.yml`**: Validates Python platform and tools setup (common, MacBook, Mac mini)
-- **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning along with the Claude, Gemini, Codex, and slash configuration roles
+- **`setup-nodejs.yml`**: Validates the Node.js runtime provisioning along with the Claude, Gemini, and Codex configuration roles
 - **`setup-runtime.yml`**: Validates Ruby and Rust environment setup
 - **`setup-ide.yml`**: Validates unified editor (VS Code/Cursor) configuration and extension management
 - **`setup-system.yml`**: Validates macOS system defaults application and backup verification

@@ -18,5 +18,8 @@ tools:
   - name: fusion
     git: https://github.com/akitorahayashi/fusion.git
     tag: v1.2.0
+  - name: mix
+    git: https://github.com/akitorahayashi/mix.git
+    tag: v0.1.0
   # - name: cargo-edit
   #   options: "--locked"

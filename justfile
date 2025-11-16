@@ -84,7 +84,6 @@ nodejs:
   @just claude
   @just gemini
   @just codex
-  @just slash
 
 # Setup Node.js platform only
 nodejs-platform:
@@ -178,11 +177,6 @@ gemini:
 codex:
   @echo "🚀 Running common Codex CLI setup..."
   @just _run_ansible "nodejs" "common" "codex"
-
-# Regenerate AI slash commands
-slash:
-  @echo "🚀 Regenerating AI slash commands..."
-  @just _run_ansible "slash" "common" "slash"
 
 # Setup Aider configuration
 aider:
