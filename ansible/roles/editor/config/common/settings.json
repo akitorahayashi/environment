@@ -23,5 +23,6 @@
     "vscode-insiders",
     "docker-desktop"
   ],
-  "chat.editing.confirmEditRequestRetry": false
+  "chat.editing.confirmEditRequestRetry": false,
+  "python.defaultInterpreterPath": "/opt/homebrew/bin/python3"
 }
