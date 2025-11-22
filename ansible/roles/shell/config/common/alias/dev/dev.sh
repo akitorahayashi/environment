@@ -19,7 +19,8 @@ dev_alias_as() {
 	# Common development commands
 	alias "${prefix}-h=${cmd_prefix} help"
 	alias "${prefix}-s=${cmd_prefix} setup"
-	alias "${prefix}-f=${cmd_prefix} format"
+	alias "${prefix}-fmt=${cmd_prefix} format"
+	alias "${prefix}-f=${cmd_prefix} fix"
 	alias "${prefix}-l=${cmd_prefix} lint"
 	alias "${prefix}-b=${cmd_prefix} build"
 	alias "${prefix}-rb=${cmd_prefix} rebuild"
@@ -29,6 +30,7 @@ dev_alias_as() {
 	alias "${prefix}-dw=${cmd_prefix} down"
 	alias "${prefix}-dw-p=${cmd_prefix} down-prod"
 	alias "${prefix}-t=${cmd_prefix} test"
+	alias "${prefix}-c=${cmd_prefix} check"
 	alias "${prefix}-cln=${cmd_prefix} clean"
 
 	# Combined format and lint

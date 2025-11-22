@@ -16,3 +16,6 @@ for config_file in ~/.menv/alias/**/*.sh~**/dev/dev.sh; do
         source "$config_file"
     fi
 done
+
+# Added by Antigravity
+export PATH="/Users/akitorahayashi/.antigravity/antigravity/bin:$PATH"
