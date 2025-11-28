@@ -64,9 +64,10 @@ class TestJustfileAnsibleIntegration:
             roles_for_tag = ansible_playbook_mapping.get(invocation.tag)
             if not roles_for_tag:
                 missing.append(
-                    "Tag '{tag}' from recipe '{recipe}' (justfile:{line}) is missing in ansible/playbook.yml".format(
+                    "Tag '{tag}' from recipe '{recipe}' ({file}:{line}) is missing in ansible/playbook.yml".format(
                         tag=invocation.tag,
                         recipe=invocation.recipe,
+                        file=invocation.source_file.name,
                         line=invocation.line_number,
                     )
                 )
@@ -132,9 +133,10 @@ class TestJustfileAnsibleIntegration:
             roles_for_tag = ansible_playbook_mapping.get(invocation.tag)
             assert (
                 roles_for_tag
-            ), "Tag '{tag}' from recipe '{recipe}' (justfile:{line}) is not declared in ansible/playbook.yml".format(
+            ), "Tag '{tag}' from recipe '{recipe}' ({file}:{line}) is not declared in ansible/playbook.yml".format(
                 tag=invocation.tag,
                 recipe=invocation.recipe,
+                file=invocation.source_file.name,
                 line=invocation.line_number,
             )
             assert invocation.role in roles_for_tag, (

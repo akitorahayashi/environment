@@ -10,9 +10,9 @@ A comprehensive automation project for setting up consistent macOS development e
    - `make macbook` / `make mac-mini`: Runs full machine-specific setup
 
 2. **`justfile`** - Individual task runner and command orchestrator
-   - Individual component setup commands (`just cmn-*`, `just mbk-*`, `just mmn-*`)
+   - Individual component setup commands (e.g., `just python`, `just nodejs`, `just mbk-*`, `just mmn-*`)
    - Profile switching (`just sw-p` / `just sw-w`)
-   - Backup utilities (`just cmn-backup-*`)
+   - Backup utilities (e.g., `just backup-system`, `just backup-vscode-extensions`)
    - Role additions and customizations
 
 ## Design Rules

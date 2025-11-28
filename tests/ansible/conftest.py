@@ -26,6 +26,7 @@ class JustfileInvocation:
     tag: str
     line_number: int
     line: str
+    source_file: Path
 
 
 @dataclass(frozen=True)
@@ -38,31 +39,65 @@ class RoleTaskFile:
 
 
 def parse_justfile_run_ansible_calls(justfile_path: Path) -> List[JustfileInvocation]:
-    """Parse the justfile and return `_run_ansible` invocations with context."""
+    """Parse the justfile and return `_run_ansible` invocations with context.
+
+    Supports recursive parsing of `import 'path'` statements.
+    """
 
     invocations: List[JustfileInvocation] = []
-    current_recipe: str | None = None
-    pattern = re.compile(RUN_ANSIBLE_PATTERN)
+    visited_files = set()
+    run_ansible_pattern = re.compile(RUN_ANSIBLE_PATTERN)
+    # Regex to match: import 'path/to/file.just'
+    import_pattern = re.compile(r"^import\s+'([^']+)'")
 
-    with justfile_path.open("r", encoding="utf-8") as fh:
-        for line_number, raw_line in enumerate(fh, start=1):
-            stripped = raw_line.rstrip("\n")
-            if stripped and not raw_line.startswith(" ") and stripped.endswith(":"):
-                current_recipe = stripped[:-1].strip()
-            match = pattern.search(raw_line)
-            if match:
-                role, profile, tag = match.groups()
-                invocations.append(
-                    JustfileInvocation(
-                        recipe=current_recipe or "<unknown>",
-                        role=role,
-                        profile=profile,
-                        tag=tag,
-                        line_number=line_number,
-                        line=stripped.strip(),
+    def _parse_file(path: Path):
+        resolved_path = path.resolve()
+        if resolved_path in visited_files:
+            return
+        visited_files.add(resolved_path)
+
+        if not path.exists():
+            # In a real scenario we might want to fail, but for now we follow existing logic
+            # which assumes the file exists if passed in, but imports might be tricky.
+            # If the root file is missing, the fixture raises error before calling this.
+            # If an imported file is missing, just's own parser would fail.
+            # We can log warning or raise. Let's raise to be safe.
+            raise FileNotFoundError(f"Imported justfile not found: {path}")
+
+        current_recipe: str | None = None
+
+        with path.open("r", encoding="utf-8") as fh:
+            for line_number, raw_line in enumerate(fh, start=1):
+                stripped = raw_line.rstrip("\n")
+
+                # Check for import
+                import_match = import_pattern.search(stripped)
+                if import_match:
+                    imported_rel_path = import_match.group(1)
+                    # Imports are relative to the file containing the import
+                    imported_path = path.parent / imported_rel_path
+                    _parse_file(imported_path)
+                    continue
+
+                if stripped and not raw_line.startswith(" ") and stripped.endswith(":"):
+                    current_recipe = stripped[:-1].strip()
+
+                match = run_ansible_pattern.search(raw_line)
+                if match:
+                    role, profile, tag = match.groups()
+                    invocations.append(
+                        JustfileInvocation(
+                            recipe=current_recipe or "<unknown>",
+                            role=role,
+                            profile=profile,
+                            tag=tag,
+                            line_number=line_number,
+                            line=stripped.strip(),
+                            source_file=path,
+                        )
                     )
-                )
 
+    _parse_file(justfile_path)
     return invocations
 
 
