@@ -81,9 +81,7 @@ nodejs:
   @echo "🚀 Running common Node.js setup..."
   @just nodejs-platform
   @just nodejs-tools
-  @just claude
-  @just gemini
-  @just codex
+  @just llm
 
 # Setup Node.js platform only
 nodejs-platform:
@@ -163,20 +161,10 @@ coderabbit:
   @echo "🚀 Running common CodeRabbit setup..."
   @just _run_ansible "coderabbit" "common" "coderabbit"
 
-# Setup Claude Code settings
-claude:
-  @echo "🚀 Running common Claude Code setup..."
-  @just _run_ansible "nodejs" "common" "claude"
-
-# Setup Gemini CLI settings
-gemini:
-  @echo "🚀 Running common Gemini CLI setup..."
-  @just _run_ansible "nodejs" "common" "gemini"
-
-# Setup Codex CLI settings
-codex:
-  @echo "🚀 Running common Codex CLI setup..."
-  @just _run_ansible "nodejs" "common" "codex"
+# Setup Node.js based LLM tools (Claude, Gemini, Codex)
+llm:
+  @echo "🚀 Setting up Node.js LLM tools..."
+  @just _run_ansible "nodejs" "common" "llm"
 
 # Setup Aider configuration
 aider:

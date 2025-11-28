@@ -93,10 +93,10 @@ These commands are recommended to be run manually once after initial setup (Ansi
 - **Install Brew Casks**: `just brew-cask`, `just mbk-brew-cask`, `just mmn-brew-cask` - Installs Brew Casks via Homebrew Cask (common, MacBook-specific, Mac Mini-specific).
 - **Pull Docker images**: `just docker-images` - Pulls Docker images listed in `ansible/roles/docker/config/common/images.txt`.
 
-### Codex Configuration
+### LLM Tools Configuration
 
-- Run `just codex` to configure Codex CLI settings. This ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/nodejs/config/common`.
-- Provides prompt and agent files for the Codex CLI.
+- Run `just llm` to configure Node.js-based LLM tools (Claude, Gemini, Codex).
+- This ensures necessary configuration directories and files are created and symlinked from `ansible/roles/nodejs/config/common`.
 
 ### VCS User Profile Switching
 
@@ -168,10 +168,11 @@ This project uses Ansible to automate the setup of a complete development enviro
 10. **Node.js Runtime & Tools (`nodejs` role)**
     -   **Platform**: Installs `nvm`, `jq`, and `pnpm`, reads the target Node.js version from `ansible/roles/nodejs/config/common/.nvmrc`, installs it, and sets it as the default.
     -   **Tools**: Reads `ansible/roles/nodejs/config/common/global-packages.json`, parses dependencies, and installs them globally using `pnpm install -g`. Symlinks `md-to-pdf-config.js` to the home directory.
-    -   **Claude CLI**: Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `ansible/roles/nodejs/config/common`. Links `CLAUDE.md` and prepares the `commands` directory used by Claude Code.
-    -   **Gemini CLI**: Creates `~/.gemini`, symlinks configuration files from `ansible/roles/nodejs/config/common`, and retains templates used by the Gemini CLI. Performs a best-effort `which gemini` check, warning if the CLI is missing.
-    -   **Codex CLI**: Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/nodejs/config/common`. Provides prompt and agent files.
-    -   Conditional installation: Each component can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags claude`, `--tags gemini`, `--tags codex`).
+    -   **LLM Tools**: Unifies the setup of Node.js-based LLM tools (Claude, Gemini, Codex).
+        -   **Claude CLI**: Ensures `~/.claude` exists, symlinks prompt directories, and links Markdown/JSON assets from `ansible/roles/nodejs/config/common`. Links `CLAUDE.md` and prepares the `commands` directory used by Claude Code.
+        -   **Gemini CLI**: Creates `~/.gemini`, symlinks configuration files from `ansible/roles/nodejs/config/common`, and retains templates used by the Gemini CLI. Performs a best-effort `which gemini` check, warning if the CLI is missing.
+        -   **Codex CLI**: Ensures both `~/.codex` and `~/.codex/prompts` exist and symlinks configuration from `ansible/roles/nodejs/config/common`. Provides prompt and agent files.
+    -   Conditional installation: Platform, tools, and LLM tools can be installed independently using tags (`--tags nodejs-platform`, `--tags nodejs-tools`, `--tags llm`).
 
 11. **Docker Environment (`docker` role)**
     -   Pulls and manages Docker images listed in `ansible/roles/docker/config/common/images.txt`.

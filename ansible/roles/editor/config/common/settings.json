@@ -24,5 +24,6 @@
     "docker-desktop"
   ],
   "chat.editing.confirmEditRequestRetry": false,
-  "python.defaultInterpreterPath": "/opt/homebrew/bin/python3"
+  "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
+  "editor.renderWhitespace": "all"
 }

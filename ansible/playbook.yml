@@ -5,7 +5,7 @@
   roles:
     - { role: brew, tags: ["brew-formulae", "brew-cask"] }
     - { role: python, tags: ["python-platform", "python-tools", "aider", "uv"] }
-    - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "claude", "gemini", "codex"] }
+    - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "llm"] }
     - { role: ruby, tags: ["ruby"] }
     - { role: rust, tags: ["rust-platform", "rust-tools"] }
     - { role: vcs, tags: ["git", "jj"] }

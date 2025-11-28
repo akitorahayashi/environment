@@ -16,14 +16,6 @@
   ansible.builtin.include_tasks: tools.yml
   when: "'nodejs-tools' in ansible_run_tags"
 
-- name: "Install and configure Claude"
-  ansible.builtin.include_tasks: claude.yml
-  when: "'claude' in ansible_run_tags"
-
-- name: "Install and configure Gemini"
-  ansible.builtin.include_tasks: gemini.yml
-  when: "'gemini' in ansible_run_tags"
-
-- name: "Install and configure Codex"
-  ansible.builtin.include_tasks: codex.yml
-  when: "'codex' in ansible_run_tags"
+- name: "Install and configure Node.js LLM tools"
+  ansible.builtin.include_tasks: llm.yml
+  when: "'llm' in ansible_run_tags"

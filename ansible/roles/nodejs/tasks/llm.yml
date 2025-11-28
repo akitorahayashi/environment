@@ -1,0 +1,112 @@
+---
+- name: "Install @anthropic-ai/claude-code via pnpm"
+  ansible.builtin.shell:
+    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @anthropic-ai/claude-code@latest"
+  changed_when: false
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
+    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
+
+- name: "Ensure Claude configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Claude settings.json"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/llm/claude.json"
+    dest: "{{ ansible_env.HOME }}/.claude/settings.json"
+    state: link
+    force: true
+
+- name: "Symlink Claude AGENTS file"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/llm/AGENTS.md"
+    dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
+    state: link
+    force: true
+
+- name: "Create Claude commands directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude/commands"
+    state: directory
+    mode: "0755"
+
+- name: "Install @google/gemini-cli via pnpm"
+  ansible.builtin.shell:
+    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @google/gemini-cli@latest"
+  changed_when: false
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
+    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
+
+- name: "Ensure Gemini configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gemini"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Gemini settings.json"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/llm/gemini.json"
+    dest: "{{ ansible_env.HOME }}/.gemini/settings.json"
+    state: link
+    force: true
+
+- name: "Symlink Gemini AGENTS file"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/llm/AGENTS.md"
+    dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
+    state: link
+    force: true
+
+- name: "Check if Gemini CLI is available"
+  ansible.builtin.command: which gemini
+  register: nodejs_gemini_cli_check
+  failed_when: false
+  changed_when: false
+
+- name: "Warning if Gemini CLI not available"
+  ansible.builtin.debug:
+    msg: "Gemini CLI not found. Configuration files symlinked but MCP servers not installed via CLI."
+  when: nodejs_gemini_cli_check.rc != 0
+
+- name: "Create Gemini commands directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gemini/commands"
+    state: directory
+    mode: "0755"
+
+- name: "Install @openai/codex via pnpm"
+  ansible.builtin.shell:
+    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @openai/codex@latest"
+  changed_when: false
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
+    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
+
+- name: "Ensure Codex configuration directories exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ ansible_env.HOME }}/.codex"
+    - "{{ ansible_env.HOME }}/.codex/prompts"
+
+- name: "Copy Codex configuration file"
+  ansible.builtin.copy:
+    src: "{{ role_path }}/config/common/llm/codex.toml"
+    dest: "{{ ansible_env.HOME }}/.codex/config.toml"
+    mode: "0644"
+
+- name: "Symlink Codex AGENTS file"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/llm/AGENTS.md"
+    dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
+    state: link
+    force: true

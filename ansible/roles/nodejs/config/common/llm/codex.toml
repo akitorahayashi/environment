@@ -10,4 +10,4 @@ approval_policy = "on-request"
 
 # Sandbox execution mode
 # Options: "read-only", "workspace-write", "danger-full-access"
-sandbox_mode = "workspace-write"
+sandbox_mode = "danger-full-access"

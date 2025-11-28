@@ -21,11 +21,5 @@ jobs:
       - name: Run nodejs-tools setup
         run: just nodejs-tools
 
-      - name: Setup Claude Code
-        run: just claude
-
-      - name: Setup Gemini CLI
-        run: just gemini
-
-      - name: Setup Codex
-        run: just codex
+      - name: Setup Node.js LLM Tools
+        run: just llm
