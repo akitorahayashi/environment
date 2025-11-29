@@ -2,6 +2,16 @@
 # pytest
 alias pts="pytest"
 
+ws() {
+    whisper "$@" \
+        --language Japanese \
+        --model medium \
+        --output_dir ./whisper \
+        --output_format txt \
+        --word_timestamps True \
+        --temperature 0
+}
+
 # black
 alias bl="black ."
 alias bl-chk="black --check ."

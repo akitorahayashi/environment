@@ -6,3 +6,4 @@
 tools:
   - name: mlx-hub
   - name: huggingface-hub
+  - name: openai-whisper

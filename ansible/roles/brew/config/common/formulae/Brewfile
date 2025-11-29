@@ -6,11 +6,20 @@ brew "mint"
 ## PostgreSQL
 brew "postgresql"
 
-## Utility
+## Databases
 brew "redis"
+
+## Document
 brew "poppler"
 brew "pandoc"
+
+## AI
 brew "ollama"
+
+## CLI Tools
 brew "yq"
 brew "shellcheck"
 brew "shfmt"
+
+## Media
+brew "ffmpeg"
