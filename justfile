@@ -72,7 +72,7 @@ common:
 # ==============================================================================
 
 # Format code with black and ruff --fix
-format:
+fix:
   @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
   @uv run black tests/ ansible/
   @uv run ruff check tests/ ansible/ --fix
@@ -84,7 +84,7 @@ format:
   @uv run ansible-lint ansible/ --fix
 
 # Lint code with black check, ruff, shellcheck, and ansible-lint
-lint:
+check: fix
   @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
   @uv run black --check tests/ ansible/
   @uv run ruff check tests/ ansible/

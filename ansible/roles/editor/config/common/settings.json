@@ -25,5 +25,6 @@
   ],
   "chat.editing.confirmEditRequestRetry": false,
   "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
-  "editor.renderWhitespace": "all"
+  "editor.renderWhitespace": "all",
+  "git.confirmSync": false
 }

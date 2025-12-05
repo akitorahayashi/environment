@@ -10,6 +10,11 @@ cursor:
   @echo "🚀 Running common Cursor setup..."
   @just _run_ansible "editor" "common" "cursor"
 
+# Setup Xcode configuration only
+xcode:
+  @echo "🚀 Running common Xcode setup..."
+  @just _run_ansible "editor" "common" "xcode"
+
 # Backup current VSCode extensions
 backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."

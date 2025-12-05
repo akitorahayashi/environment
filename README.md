@@ -156,7 +156,8 @@ This project uses Ansible to automate the setup of a complete development enviro
     Consolidates the setup for both VS Code and Cursor into a single role with shared configuration assets.
     -   **Visual Studio Code**: Installs the application, symlinks shared configuration files from `ansible/roles/editor/config/common/`, and installs extensions listed in `vscode-extensions.json`.
     -   **Cursor**: Installs the application and CLI, symlinks the same shared configuration files, and installs extensions listed in `cursor-extensions.json`.
-    -   **Conditional Installation**: The playbook installs both editors by default. You can target a specific one by using Ansible tags: `--tags vscode` or `--tags cursor`.
+    -   **Xcode**: Configures Xcode settings using `osx_defaults`. Settings are defined in YAML files within `ansible/roles/editor/config/common/xcode/` and categorized by function (editor, build, ui, behavior).
+    -   **Conditional Installation**: The playbook installs both editors by default. You can target a specific one by using Ansible tags: `--tags vscode`, `--tags cursor` or `--tags xcode`.
 
 9.  **Python Runtime & Tools (`python` role)**
     -   **Platform**: Installs `pyenv`, reads the target Python version from `ansible/roles/python/config/common/.python-version`, installs it, and sets it as the global default.

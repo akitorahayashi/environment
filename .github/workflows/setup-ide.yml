@@ -21,5 +21,8 @@ jobs:
       - name: Setup Cursor configuration
         run: just cursor
 
+      - name: Setup Xcode configuration
+        run: just xcode
+
       - name: Setup CodeRabbit CLI
         run: just coderabbit

@@ -13,7 +13,7 @@
     - { role: shell, tags: ["shell"] }
     - { role: menv, tags: ["menv"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: editor, tags: ["editor", "vscode", "cursor"] }
+    - { role: editor, tags: ["editor", "vscode", "cursor", "xcode"] }
     - { role: coderabbit, tags: ["coderabbit"] }
     - { role: system, tags: ["system"] }
     - { role: docker, tags: ["docker"] }
