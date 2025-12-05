@@ -4,8 +4,21 @@
     file: "{{ role_path }}/config/common/tools.yml"
     name: cargo_tools_config
 
-- name: "Install cargo tools"
+# [NEW] 1. Check currently installed versions
+# check_mode: false is important to ensure this check command runs even in dry-run mode
+- name: "Check installed versions of cargo tools"
   ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.name }} --version"
+  loop: "{{ cargo_tools_config.tools }}"
+  register: rust_cargo_tools_version_check
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+# [MODIFIED] 2. Only install if versions do not match
+- name: "Install or update cargo tools"
+  ansible.builtin.command:
+    # --force is needed to overwrite existing binaries, but execution is controlled by 'when'
     cmd: >
       {{ ansible_env.HOME }}/.cargo/bin/cargo install --force
       {% if item.git is defined %}--git {{ item.git }}{% endif %}
@@ -13,16 +26,19 @@
       {{ item.name }}
       {{ item.options | default('') }}
   loop: "{{ cargo_tools_config.tools }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name }}"
   register: rust_cargo_install_result
   changed_when: "'Installing' in rust_cargo_install_result.stderr"
-  when: cargo_tools_config.tools | length > 0
-
-- name: "Clean up cargo cache after installation"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.cargo/{{ item }}"
-    state: absent
-  loop:
-    - registry/cache
-    - registry/src
-    - git/checkouts
-  when: cargo_tools_config.tools | length > 0
+  notify: "Clean up cargo cache after installation"
+  # Condition explanation:
+  # 1. Command failed (rc != 0) = not installed -> needs installation
+  # 2. Tag is defined and the CLI output does not contain that version number -> needs update
+  #    (Note: Remove 'v' from git tag like 'v0.2.0' to compare with '0.2.0')
+  when: >
+    rust_cargo_tools_version_check.results[idx].rc != 0 or
+    (
+      item.tag is defined and
+      item.tag | regex_replace('^v', '') not in rust_cargo_tools_version_check.results[idx].stdout
+    )

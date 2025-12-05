@@ -1,0 +1,9 @@
+---
+- name: "Clean up cargo cache after installation"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.cargo/{{ item }}"
+    state: absent
+  loop:
+    - registry/cache
+    - registry/src
+    - git/checkouts

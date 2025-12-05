@@ -72,3 +72,36 @@ class TestRustConfigs:
         # tools.yml allows comments to leave the list empty. Ensure that's valid too.
         if not tools:
             pytest.skip("No tools defined in tools.yml to validate further.")
+
+    def test_tools_require_tag_for_version_management(
+        self, rust_config_dir: Path
+    ) -> None:
+        """Validate that all git-based tools have 'tag' field for version pinning.
+
+        The idempotent installation logic relies on 'tag' to determine if a tool's
+        installed version matches the desired version. Without a tag, the system
+        cannot perform version comparison, leading to skipped installations for
+        already-installed tools (even if outdated).
+
+        This test enforces that all git-based tools MUST specify a 'tag' field
+        to enable proper version management.
+        """
+        tools_file = rust_config_dir / "tools.yml"
+        data = yaml.safe_load(tools_file.read_text())
+        tools = data["tools"]
+
+        missing_tags = []
+        for index, tool in enumerate(tools):
+            # If tool uses git, it MUST have a tag for version pinning
+            if "git" in tool:
+                if "tag" not in tool:
+                    missing_tags.append(
+                        f"Tool #{index + 1} ({tool['name']}): "
+                        f"has 'git' ({tool['git']}) but no 'tag' field. "
+                        f"Tag is required for version management and idempotent installation."
+                    )
+
+        assert not missing_tags, (
+            "All git-based tools must have 'tag' field for version pinning and idempotency:\n"
+            + "\n".join(missing_tags)
+        )

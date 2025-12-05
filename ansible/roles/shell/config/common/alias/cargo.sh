@@ -34,8 +34,8 @@ cr-r() {
 	fi
 }
 
-# Linting
-cr-l() {
+# Static Check
+cr-c() {
 	(
 		set -e
 		echo "Running: cargo check"
