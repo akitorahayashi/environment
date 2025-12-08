@@ -20,6 +20,6 @@ tools:
     tag: v1.3.0
   - name: mix
     git: https://github.com/akitorahayashi/mix.git
-    tag: v0.6.0
+    tag: v0.7.0
   # - name: cargo-edit
   #   options: "--locked"
