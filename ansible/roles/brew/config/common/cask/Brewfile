@@ -2,18 +2,18 @@
 cask "tailscale"
 
 # Development Tools
-cask "android-studio"
-cask "android-commandlinetools"
+# cask "android-studio"
+# cask "android-commandlinetools"
 cask "docker"
 
 # Web Browsers & Communication
 cask "google-chrome"
-cask "chatgpt-atlas"
+# cask "chatgpt-atlas"
 cask "slack"
-cask "zoom"
+# cask "zoom"
 
 # Note Taking & Documentation
 cask "obsidian"
 
 # Database Management
-cask "pgadmin4"
+# cask "pgadmin4"
