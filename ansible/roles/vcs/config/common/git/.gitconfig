@@ -4,6 +4,7 @@
 [alias]
     ini = init
     cl = clone
+    rf-cl = !mkdir -p reference && git -C reference clone
 
     co = checkout
     co-m = checkout main

@@ -17,7 +17,7 @@ tools:
     tag: v0.5.0
   - name: fusion
     git: https://github.com/akitorahayashi/fusion.git
-    tag: v1.3.0
+    tag: v1.4.0
   - name: mix
     git: https://github.com/akitorahayashi/mix.git
     tag: v0.7.0
