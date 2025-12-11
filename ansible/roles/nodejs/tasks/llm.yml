@@ -1,12 +1,14 @@
 ---
-- name: "Install @anthropic-ai/claude-code via pnpm"
-  ansible.builtin.shell:
-    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @anthropic-ai/claude-code@latest"
-  changed_when: false
-  environment:
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
-    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
+- name: "Install LLM CLI tools via npm"
+  community.general.npm:
+    name: "{{ item }}"
+    version: "latest"
+    global: yes
+    executable: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ nodejs_version }}/bin/npm"
+  loop:
+    - "@anthropic-ai/claude-code"
+    - "@google/gemini-cli"
+    - "@openai/codex"
 
 - name: "Ensure Claude configuration directory exists"
   ansible.builtin.file:
@@ -33,15 +35,6 @@
     path: "{{ ansible_env.HOME }}/.claude/commands"
     state: directory
     mode: "0755"
-
-- name: "Install @google/gemini-cli via pnpm"
-  ansible.builtin.shell:
-    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @google/gemini-cli@latest"
-  changed_when: false
-  environment:
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
-    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
 
 - name: "Ensure Gemini configuration directory exists"
   ansible.builtin.file:
@@ -79,15 +72,6 @@
     path: "{{ ansible_env.HOME }}/.gemini/commands"
     state: directory
     mode: "0755"
-
-- name: "Install @openai/codex via pnpm"
-  ansible.builtin.shell:
-    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g @openai/codex@latest"
-  changed_when: false
-  environment:
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
-    PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
 
 - name: "Ensure Codex configuration directories exist"
   ansible.builtin.file:
