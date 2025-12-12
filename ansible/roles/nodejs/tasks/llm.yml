@@ -10,9 +10,9 @@
     global: yes
     executable: "{{ nodejs_bin_path }}/npm"
   loop:
+    - "@openai/codex"
     - "@anthropic-ai/claude-code"
     - "@google/gemini-cli"
-    - "@openai/codex"
   environment:
     PATH: "{{ nodejs_bin_path }}:{{ ansible_env.PATH }}"
 

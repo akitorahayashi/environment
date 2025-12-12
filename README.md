@@ -19,7 +19,6 @@ This project automates the setup of a consistent development environment across 
 ├── tests/
 ├── .env.example
 ├── .gitignore
-├── .mcp.json
 ├── Makefile
 ├── README.md
 ├── justfile
@@ -27,7 +26,7 @@ This project automates the setup of a consistent development environment across 
 └── uv.lock
 ```
 
-**Note**: Additional directories like `.claude/`, `.codex/`, `.gemini/`, `.serena/` are created at runtime by the respective Ansible roles during setup.
+**Note**: Additional directories like `.claude/`, `.codex/`, `.gemini/` are created at runtime by the respective Ansible roles during setup.
 
 ## How to Use
 
@@ -252,7 +251,6 @@ just test
 
 **Configuration Validation (`tests/config/`)**
 - **Editor Configs**: Validates JSON syntax and schema for VS Code/Cursor configuration files
-- **MCP Servers**: Verifies MCP server definitions have required fields and correct types
 - **Runtime Versions**: Checks `.python-version`, `.ruby-version`, `.nvmrc` format
 - **System Definitions**: Verifies YAML syntax and required schema for macOS system settings
 
