@@ -72,15 +72,36 @@ Run the following commands in order. **You must restart your terminal where indi
 
     🛑 **Restart your terminal now.** (Required to load pipx path)
 
-  * **Step 3: Development Tools (uv, ansible, just)**
+  * **Step 3: Development Tools (uv, just)**
 
     ```sh
     make tools
     ```
 
-    This will verify everything is ready for the final provisioning.
+    🛑 **Restart your terminal now.** (Required to load uv and just paths)
+
+  * **Step 4: Dependencies (Ansible)**
+
+    ```sh
+    make deps
+    ```
+
+    This runs `uv sync` to install Ansible and other Python dependencies defined in `pyproject.toml`.
 
     **Important**: Edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
+
+  * **Step 5: Rust & SSV**
+
+    ```sh
+    make rust
+    ```
+
+    This installs the Rust toolchain and `ssv` (SSH Version Manager).
+    After installation, you can configure your SSH settings using:
+
+    ```sh
+    ssv gen --host <HOST>
+    ```
 
     **Note**: CI workflows use the optimized `.github/actions/setup-base` composite action instead of these make targets for faster, cached environment setup.
 

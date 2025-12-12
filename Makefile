@@ -3,8 +3,10 @@
 # This Makefile has several steps for initial setup:
 # 1. `make brew`: Installs Homebrew and sets up .env (Requires Terminal Restart)
 # 2. `make python`: Installs Pyenv, Python 3.12, Pipx (Requires Terminal Restart)
-# 3. `make tools`: Installs uv, ansible, just
-# 4. `make macbook` or `make mac-mini`: Runs the actual setup using Just.
+# 3. `make tools`: Installs uv, just (Requires Terminal Restart)
+# 4. `make deps`: Installs project dependencies (Ansible via uv)
+# 5. `make rust`: Installs Rust toolchain and tools (including ssv)
+# 6. `make macbook` or `make mac-mini`: Runs the actual setup using Just.
 
 .DEFAULT_GOAL := help
 
@@ -84,7 +86,7 @@ python: ## Install Pyenv, Python 3.12, Pipx (Requires Terminal Restart)
 
 # --- Step 3: Dev Tools ---
 .PHONY: tools
-tools: ## Install uv, ansible, just
+tools: ## Install uv, just (Requires Terminal Restart)
 	@echo "🚀 [Step 3] Installing Dev Tools..."
 
 	@echo "[INSTALL] uv..."; \
@@ -95,10 +97,6 @@ tools: ## Install uv, ansible, just
 		echo "[SUCCESS] uv is already installed."; \
 	fi
 
-	@echo "[INSTALL] Ansible and development tools via uv..."; \
-	eval "$$(pyenv init -)"; \
-	uv sync
-
 	@echo "[INSTALL] just..."; \
 	if ! command -v just &> /dev/null; then \
 		brew install just; \
@@ -106,16 +104,31 @@ tools: ## Install uv, ansible, just
 		echo "[SUCCESS] just is already installed."; \
 	fi
 
-	@echo "✅ Ready to run 'make macbook' or 'make mac-mini'!"
+	@echo "⚠️ Please restart your terminal to activate uv and just."
+
+# --- Step 4: Dependencies ---
+.PHONY: deps
+deps: ## Install project dependencies (Ansible) via uv
+	@echo "🚀 [Step 4] Installing Dependencies..."
+	@export PATH="$$HOME/.local/bin:$$PATH"; eval "$$(pyenv init -)" && uv sync
+	@echo "✅ Dependencies installed."
+
+# --- Step 5: Rust & SSV ---
+.PHONY: rust
+rust: ## Install Rust toolchain and cargo tools (includes ssv)
+	@echo "🚀 [Step 5] Setting up Rust and installing ssv..."
+	@eval "$$(brew shellenv)" && just rust
+	@echo "✅ Rust setup completed. You can now use 'ssv' to configure SSH."
+	@echo "➡️ Next: Run 'make macbook' or 'make mac-mini'"
 
 .PHONY: macbook
-macbook: ## Runs the full setup for a MacBook (requires setup steps 1-3 to be run first)
+macbook: ## Runs the full setup for a MacBook (requires setup steps 1-5 to be run first)
 	@echo "🚀 Handing over to just for MacBook setup..."
 	@just common
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
-mac-mini: ## Runs the full setup for a Mac mini (requires setup steps 1-3 to be run first)
+mac-mini: ## Runs the full setup for a Mac mini (requires setup steps 1-5 to be run first)
 	@echo "🚀 Handing over to just for Mac mini setup..."
 	@just common
 	@echo "✅ Mac mini full setup completed successfully."
