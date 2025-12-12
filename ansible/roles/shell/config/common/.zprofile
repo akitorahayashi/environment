@@ -67,18 +67,6 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 
-# JAVA_HOME setup
-if [ -x /usr/libexec/java_home ]; then
-  JAVA_21=$(/usr/libexec/java_home -v 21 2>/dev/null)
-  if [ -n "$JAVA_21" ]; then
-    export JAVA_HOME="$JAVA_21"
-  else
-    echo "Warning: Java 21 not found. Skipping JAVA_HOME setup." >&2
-  fi
-else
-  echo "Warning: /usr/libexec/java_home not available. Skipping JAVA_HOME setup." >&2
-fi
-
 # Android SDK (additional PATH only)
 if [ -n "$ANDROID_HOME" ]; then
   if [ -d "$ANDROID_HOME/emulator" ] && [[ ":$PATH:" != *":$ANDROID_HOME/emulator:"* ]]; then
