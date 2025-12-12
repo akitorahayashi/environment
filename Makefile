@@ -115,9 +115,10 @@ deps: ## Install project dependencies (Ansible) via uv
 
 # --- Step 5: Rust & SSV ---
 .PHONY: rust
-rust: ## Install Rust toolchain and cargo tools (includes ssv)
+rust: ## Install Rust toolchain and ssv (Bootstrap)
 	@echo "🚀 [Step 5] Setting up Rust and installing ssv..."
-	@eval "$$(brew shellenv)" && just rust
+	@eval "$$(brew shellenv)" && just rust-platform
+	@eval "$$(brew shellenv)" && just ssv
 	@echo "✅ Rust setup completed. You can now use 'ssv' to configure SSH."
 	@echo "➡️ Next: Run 'make macbook' or 'make mac-mini'"
 
