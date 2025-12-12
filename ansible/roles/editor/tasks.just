@@ -18,5 +18,5 @@ xcode:
 # Backup current VSCode extensions
 backup-vscode-extensions:
   @echo "🚀 Backing up current VSCode extensions..."
-  @{{root_dir}}/ansible/scripts/editor/backup-extensions.py "{{root_dir}}/ansible/roles/editor/config/common"
+  @uv run python {{root_dir}}/ansible/scripts/editor/backup-extensions.py "{{root_dir}}/ansible/roles/editor/config/common"
   @echo "✅ VSCode extensions backup completed."

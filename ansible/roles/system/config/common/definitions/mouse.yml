@@ -5,9 +5,3 @@
   type: float
   default: 1
   comment: "Mouse"
-
-# Makes the window under the cursor active in Terminal.
-- key: FocusFollowsMouse
-  domain: com.apple.Terminal
-  type: bool
-  default: true
