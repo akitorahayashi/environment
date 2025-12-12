@@ -1,8 +1,10 @@
 # Makefile: The entrypoint for initial environment setup.
 #
-# This Makefile has two main steps:
-# 1. `make base`: Bootstraps macOS prerequisites, Python tooling, uv dependencies, and prepares the mlx-lm environment.
-# 2. `make macbook` or `make mac-mini`: Runs the actual setup using Just.
+# This Makefile has several steps for initial setup:
+# 1. `make brew`: Installs Homebrew and sets up .env (Requires Terminal Restart)
+# 2. `make python`: Installs Pyenv, Python 3.12, Pipx (Requires Terminal Restart)
+# 3. `make tools`: Installs uv, ansible, just
+# 4. `make macbook` or `make mac-mini`: Runs the actual setup using Just.
 
 .DEFAULT_GOAL := help
 
@@ -12,14 +14,14 @@ help: ## Show this help message
 	@echo "Available targets:"
 	@awk 'BEGIN {FS = ":.*?## "} /^[^_][a-zA-Z0-9_-]*:.*?## / {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: base
-base: ## Installs pyenv, Python 3.12, uv, core dependencies, and prepares the mlx-lm environment
-	@echo "🚀 Starting bootstrap setup..."
-
+# --- Step 1: Homebrew & Env ---
+.PHONY: brew
+brew: ## Install Homebrew and setup .env (Requires Terminal Restart)
+	@echo "🚀 [Step 1] Setting up Homebrew..."
 	@if command -v xcode-select &> /dev/null; then \
 		if ! xcode-select -p &> /dev/null; then \
-			echo "[INSTALL] Xcode Command Line Tools ..."; \
-			xcode-select --install; \
+			echo "❌ Xcode Command Line Tools not found. Please run 'xcode-select --install' first."; \
+			exit 1; \
 		else \
 			echo "[SUCCESS] Xcode Command Line Tools are already installed."; \
 		fi; \
@@ -37,16 +39,17 @@ base: ## Installs pyenv, Python 3.12, uv, core dependencies, and prepares the ml
 
 	@if ! command -v brew &> /dev/null; then \
 		echo "[INSTALL] Homebrew ..."; \
-		echo "[INFO] Homebrewインストールスクリプトを実行します..."; \
+		echo "[INFO] Executing the Homebrew install script..."; \
 		/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
-		if ! command -v brew &> /dev/null; then \
-			echo "[ERROR] Homebrewのインストールに失敗しました"; \
-			exit 1; \
-		fi; \
-		echo "[SUCCESS] Homebrew のインストール完了"; \
+		echo "⚠️  Please restart your terminal to activate Homebrew."; \
 	else \
-		echo "[SUCCESS] Homebrew はすでにインストールされています"; \
+		echo "[SUCCESS] Homebrew is already installed."; \
 	fi
+
+# --- Step 2: Python Runtime ---
+.PHONY: python
+python: ## Install Pyenv, Python 3.12, Pipx (Requires Terminal Restart)
+	@echo "🚀 [Step 2] Setting up Python Environment..."
 
 	@if command -v brew &> /dev/null; then \
 		eval "$$(brew shellenv)"; \
@@ -77,6 +80,12 @@ base: ## Installs pyenv, Python 3.12, uv, core dependencies, and prepares the ml
 	else \
 		echo "[SUCCESS] pipx is already installed."; \
 	fi
+	@echo "⚠️  Please restart your terminal to activate pipx."
+
+# --- Step 3: Dev Tools ---
+.PHONY: tools
+tools: ## Install uv, ansible, just
+	@echo "🚀 [Step 3] Installing Dev Tools..."
 
 	@echo "[INSTALL] uv..."; \
 	export PATH="$$HOME/.local/bin:$$PATH"; \
@@ -97,16 +106,16 @@ base: ## Installs pyenv, Python 3.12, uv, core dependencies, and prepares the ml
 		echo "[SUCCESS] just is already installed."; \
 	fi
 
-	@echo "✅ Bootstrap setup complete. You can now run 'make macbook' or 'make mac-mini'."
+	@echo "✅ Ready to run 'make macbook' or 'make mac-mini'!"
 
 .PHONY: macbook
-macbook: ## Runs the full setup for a MacBook (requires 'base' to be run first)
+macbook: ## Runs the full setup for a MacBook (requires setup steps 1-3 to be run first)
 	@echo "🚀 Handing over to just for MacBook setup..."
 	@just common
 	@echo "✅ MacBook full setup completed successfully."
 
 .PHONY: mac-mini
-mac-mini: ## Runs the full setup for a Mac mini (requires 'base' to be run first)
+mac-mini: ## Runs the full setup for a Mac mini (requires setup steps 1-3 to be run first)
 	@echo "🚀 Handing over to just for Mac mini setup..."
 	@just common
 	@echo "✅ Mac mini full setup completed successfully."

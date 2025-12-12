@@ -1,14 +1,20 @@
 ---
+- name: "Set Node.js bin path"
+  ansible.builtin.set_fact:
+    nodejs_bin_path: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ nodejs_version }}/bin"
+
 - name: "Install LLM CLI tools via npm"
   community.general.npm:
     name: "{{ item }}"
     version: "latest"
     global: yes
-    executable: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ nodejs_version }}/bin/npm"
+    executable: "{{ nodejs_bin_path }}/npm"
   loop:
     - "@anthropic-ai/claude-code"
     - "@google/gemini-cli"
     - "@openai/codex"
+  environment:
+    PATH: "{{ nodejs_bin_path }}:{{ ansible_env.PATH }}"
 
 - name: "Ensure Claude configuration directory exists"
   ansible.builtin.file:
@@ -61,6 +67,8 @@
   register: nodejs_gemini_cli_check
   failed_when: false
   changed_when: false
+  environment:
+    PATH: "{{ nodejs_bin_path }}:{{ ansible_env.PATH }}"
 
 - name: "Warning if Gemini CLI not available"
   ansible.builtin.debug:

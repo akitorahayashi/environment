@@ -39,52 +39,69 @@ This project automates the setup of a consistent development environment across 
 
 ## Setup Instructions
 
+**0. Prerequisites**
+Install the Xcode Command Line Tools to ensure basic utilities (git, make) are available.
+```sh
+xcode-select --install
+```
+
+**1. Download & Bootstrap**
 Before running the numbered steps, create any directory where you want this repository to live, move into it, and unpack the tarball snapshot:
 
 ```sh
-mkdir -p menv
-cd menv
+mkdir -p menv && cd menv
 curl -L https://github.com/akitorahayashi/menv/tarball/main | tar xz --strip-components=1
 ```
 
-1.  **Bootstrap Setup**
+**2. Setup Steps**
+Run the following commands in order. **You must restart your terminal where indicated.**
 
-    Install Xcode Command Line Tools, Homebrew, Ansible, the `just` command runner, and create the `.env` file:
+  * **Step 1: System & Homebrew**
+
     ```sh
-    make base
+    make brew
     ```
 
-    This command will:
-    - Install Xcode Command Line Tools if not already installed
-    - Create a `.env` file from `.env.example` if it doesn't exist
-    - Install Homebrew if not already installed
-    - Install pyenv and Python 3.12 for local development
-    - Install pipx and uv for Python package management
-    - Install Ansible and development dependencies via uv
-    - Install the `just` command runner
+    🛑 **Restart your terminal now.** (Required to load Homebrew path)
 
-    **Important**: After running `make base`, edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
+  * **Step 2: Python & Pipx**
 
-    **Note**: CI workflows use the optimized `.github/actions/setup-base` composite action instead of `make base` for faster, cached environment setup.
-
-2.  **Install Various Tools and Packages**
-
-    Run one of the following commands according to your Mac.
-
-    **For MacBook:**
     ```sh
-    make macbook
+    make python
     ```
 
-    **For Mac mini:**
+    🛑 **Restart your terminal now.** (Required to load pipx path)
+
+  * **Step 3: Development Tools (uv, ansible, just)**
+
     ```sh
-    make mac-mini
+    make tools
     ```
-    These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes, which now execute Ansible playbooks for improved idempotency and maintainability.
 
-3.  **Restart macOS**
+    This will verify everything is ready for the final provisioning.
 
-    Please restart macOS to apply all settings completely.
+    **Important**: Edit the `.env` file to set your `PERSONAL_VCS_NAME`, `PERSONAL_VCS_EMAIL`, `WORK_VCS_NAME`, and `WORK_VCS_EMAIL` before proceeding to the next step.
+
+    **Note**: CI workflows use the optimized `.github/actions/setup-base` composite action instead of these make targets for faster, cached environment setup.
+
+**3. Run Provisioning**
+
+Run one of the following commands according to your Mac.
+
+**For MacBook:**
+```sh
+make macbook
+```
+
+**For Mac mini:**
+```sh
+make mac-mini
+```
+These commands install all the necessary development tools such as Git, Ruby, Python, Node.js, and also apply macOS and shell settings. The Makefile delegates the actual setup work to `just` recipes, which now execute Ansible playbooks for improved idempotency and maintainability.
+
+**4. Restart macOS**
+
+Please restart macOS to apply all settings completely.
 
 ### Manual Execution Options
 
