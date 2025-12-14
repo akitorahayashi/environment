@@ -30,6 +30,7 @@ id_*
 
 # Temporary directory
 .tmp/*
+.mix/*
 
 # Python
 .venv/

@@ -5,7 +5,7 @@
     "checkpointing": {
       "enabled": false
     },
-    "previewFeatures": true
+    "previewFeatures": false
   },
   "ui": {
     "theme": "GitHub",
@@ -53,5 +53,8 @@
     "enabled": false,
     "target": "local",
     "outfile": ".gemini/telemetry.log"
+  },
+  "output": {
+    "format": "text"
   }
 }
