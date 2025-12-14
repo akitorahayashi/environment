@@ -2,7 +2,7 @@
 """Generate Gemini model aliases for shell initialization."""
 
 MODELS = {
-    "pr": "gemini-2.5-pro",
+    "pr": "gemini-3-pro-preview",
     "fl": "gemini-2.5-flash",
     "lt": "gemini-2.5-flash-lite",
     "i": "gemini-2.5-flash-image-preview",

@@ -24,7 +24,27 @@ cld-ini() {
 
 	# Generate initial configuration file
 	echo '{}' >.claude/settings.json
-	touch .claude/CLAUDE.md
+
+	# Link AGENTS.md immediately
+	cld_ln
 
 	echo "✅ Initialized project-specific .claude configuration"
+}
+
+# Link AGENTS.md to .claude/CLAUDE.md
+alias cld-ln=cld_ln
+cld_ln() {
+	if [ ! -f "AGENTS.md" ]; then
+		echo "❌ AGENTS.md not found in the project root. Please run this command from the repository root." >&2
+		return 1
+	fi
+
+	# Ensure directory exists
+	mkdir -p .claude
+
+	# Create relative symlink (force overwrite)
+	# Target: ../AGENTS.md (relative from .claude/CLAUDE.md)
+	ln -sf ../AGENTS.md .claude/CLAUDE.md
+
+	echo "🔗 Linked .claude/CLAUDE.md -> ../AGENTS.md"
 }

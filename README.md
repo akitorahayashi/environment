@@ -26,7 +26,7 @@ This project automates the setup of a consistent development environment across 
 └── uv.lock
 ```
 
-**Note**: Additional directories like `.claude/`, `.codex/`, `.gemini/` are created at runtime by the respective Ansible roles during setup.
+**Note**: This repository does not contain `.claude/`, `.codex/`, or `.gemini/` directories by default. Project-specific context is managed via `AGENTS.md` in the root directory and linked on demand.
 
 ## How to Use
 
@@ -133,7 +133,16 @@ These commands are recommended to be run manually once after initial setup (Ansi
 ### LLM Tools Configuration
 
 - Run `just llm` to configure Node.js-based LLM tools (Claude, Gemini, Codex).
-- This ensures necessary configuration directories and files are created and symlinked from `ansible/roles/nodejs/config/common`.
+- This ensures global configuration is set up.
+
+### Project Context Initialization
+
+For this repository, context files are managed dynamically. Run the following aliases to link the project's `AGENTS.md` to the respective tool's configuration directory:
+
+- `cld-ln`: Initialize/Link for Claude (`.claude/CLAUDE.md`)
+- `gm-ln`: Initialize/Link for Gemini (`.gemini/GEMINI.md`)
+- `cpt-ln`: Initialize/Link for GitHub Copilot (`.github/copilot-instructions.md`)
+- `cdx-ln`: Initialize/Link for Codex (`.codex/AGENTS.md`)
 
 ### VCS User Profile Switching
 

@@ -7,7 +7,7 @@
   community.general.npm:
     name: "{{ item }}"
     version: "latest"
-    global: yes
+    global: true
     executable: "{{ nodejs_bin_path }}/npm"
   loop:
     - "@openai/codex"

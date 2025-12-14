@@ -5,7 +5,7 @@
     "checkpointing": {
       "enabled": false
     },
-    "previewFeatures": false
+    "previewFeatures": true
   },
   "ui": {
     "theme": "GitHub",

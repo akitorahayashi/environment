@@ -13,8 +13,5 @@ cdx-ini() {
 	# Build basic structure
 	mkdir -p .codex
 
-	# Generate initial configuration file
-	touch .codex/AGENTS.md
-
 	echo "✅ Initialized project-specific .codex configuration"
 }
