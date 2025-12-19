@@ -32,5 +32,6 @@
       "Bash(rm -r:*)"
     ]
   },
-  "alwaysThinkingEnabled": false
+  "alwaysThinkingEnabled": false,
+  "thinkingMode": false
 }

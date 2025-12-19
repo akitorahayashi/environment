@@ -24,9 +24,9 @@ class TestRustToolsIdempotency:
             tool_name = tool["name"]
             # Verify tool name is valid and would form a valid command
             assert tool_name, "Tool name must not be empty"
-            assert (
-                tool_name.isidentifier() or "-" in tool_name
-            ), f"Tool name '{tool_name}' should be a valid executable name"
+            assert tool_name.isidentifier() or "-" in tool_name, (
+                f"Tool name '{tool_name}' should be a valid executable name"
+            )
 
     def test_tag_version_regex_stripping(self) -> None:
         """Validate regex pattern correctly strips 'v' prefix from tags."""
@@ -129,9 +129,9 @@ class TestRustToolsIdempotency:
         output = f"{tool_name} {re.sub(r'^v', '', version_tag)}\n"
         stripped_tag = re.sub(r"^v", "", version_tag)
 
-        assert (
-            stripped_tag in output
-        ), f"Version '{stripped_tag}' should be extractable from {tool_name} output: {output}"
+        assert stripped_tag in output, (
+            f"Version '{stripped_tag}' should be extractable from {tool_name} output: {output}"
+        )
 
     def test_changed_detection_from_stderr(self) -> None:
         """Test detection of actual installation from command stderr."""

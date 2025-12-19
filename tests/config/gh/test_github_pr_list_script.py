@@ -12,8 +12,11 @@ import pytest
 @pytest.fixture(scope="module")
 def gh_pr_ls_module(gh_pr_ls_script_path: Path) -> ModuleType:
     spec = importlib.util.spec_from_file_location("gh_pr_ls", gh_pr_ls_script_path)
+    if spec is None:
+        raise RuntimeError(f"Could not load spec from {gh_pr_ls_script_path}")
+    if spec.loader is None:
+        raise RuntimeError(f"Spec loader is None for {gh_pr_ls_script_path}")
     module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
 
@@ -56,12 +59,18 @@ def test_gather_pull_requests(
         if request.method == "GET" and request.url.path.endswith("/actions/runs"):
             branch = request.url.params.get("branch")
             if request.url.params.get("status") == "in_progress":
-                runs = [{"databaseId": 1}] if branch == "feature-1" else []
+                runs: list[dict[str, int]] = (
+                    [{"databaseId": 1}] if branch == "feature-1" else []
+                )
             else:
                 if branch == "feature-1":
-                    runs = [{"status": "completed", "conclusion": "success"}]
+                    runs_with_status: list[dict[str, str]] = [
+                        {"status": "completed", "conclusion": "success"}
+                    ]
+                    return httpx.Response(200, json={"workflow_runs": runs_with_status})
                 else:
-                    runs = [{"status": "in_progress"}]
+                    runs_with_status = [{"status": "in_progress"}]
+                    return httpx.Response(200, json={"workflow_runs": runs_with_status})
             return httpx.Response(200, json={"workflow_runs": runs})
 
         raise AssertionError(f"Unexpected request: {request.method} {request.url}")

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Delete a git submodule completely."""
+
 import subprocess
 import sys
 

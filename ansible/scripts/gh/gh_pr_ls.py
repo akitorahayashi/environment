@@ -152,7 +152,11 @@ async def _actions_in_progress(
     branch: str,
     headers: Dict[str, str],
 ) -> str:
-    params = {"branch": branch, "status": "in_progress", "per_page": 1}
+    params: Dict[str, str | int] = {
+        "branch": branch,
+        "status": "in_progress",
+        "per_page": 1,
+    }
     try:
         response = await client.get(
             f"/repos/{owner}/{repo}/actions/runs",
@@ -178,7 +182,7 @@ async def _latest_ci_status(
     branch: str,
     headers: Dict[str, str],
 ) -> str:
-    params = {"branch": branch, "per_page": 1}
+    params: Dict[str, str | int] = {"branch": branch, "per_page": 1}
     try:
         response = await client.get(
             f"/repos/{owner}/{repo}/actions/runs",

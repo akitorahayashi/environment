@@ -43,15 +43,15 @@ class TestXcodeConfigs:
                 assert isinstance(
                     definition,
                     dict,
-                ), f"Definition #{i+1} in {file_basename} is not a dictionary."
+                ), f"Definition #{i + 1} in {file_basename} is not a dictionary."
 
                 for key in required_keys:
-                    assert (
-                        key in definition
-                    ), f"Missing required key '{key}' in definition #{i+1} in {file_basename}."
+                    assert key in definition, (
+                        f"Missing required key '{key}' in definition #{i + 1} in {file_basename}."
+                    )
 
                 # Verify type validity
                 valid_types = ["bool", "int", "string", "float"]
-                assert (
-                    definition["type"] in valid_types
-                ), f"Invalid type '{definition['type']}' in definition #{i+1} in {file_basename}. Must be one of {valid_types}."
+                assert definition["type"] in valid_types, (
+                    f"Invalid type '{definition['type']}' in definition #{i + 1} in {file_basename}. Must be one of {valid_types}."
+                )

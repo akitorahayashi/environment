@@ -10,27 +10,6 @@ alias cld-m-a="claude mcp add"
 alias cld-m-rm="claude mcp remove"
 alias cld-m-ls="claude mcp list"
 
-# Claude Configuration Management
-# Initialize project-specific Claude configuration
-cld-ini() {
-	# Guard clause: Verify prerequisites
-	if [ -d .claude ]; then
-		echo "❌ .claude directory already exists in current directory"
-		return 1
-	fi
-
-	# Build basic structure
-	mkdir -p .claude/commands
-
-	# Generate initial configuration file
-	echo '{}' >.claude/settings.json
-
-	# Link AGENTS.md immediately
-	cld_ln
-
-	echo "✅ Initialized project-specific .claude configuration"
-}
-
 # Link AGENTS.md to .claude/CLAUDE.md
 alias cld-ln=cld_ln
 cld_ln() {
@@ -48,3 +27,13 @@ cld_ln() {
 
 	echo "🔗 Linked .claude/CLAUDE.md -> ../AGENTS.md"
 }
+
+alias cdx="codex"
+
+alias cpt="copilot"
+
+# Generate Gemini model aliases
+eval "$(gen_gemini_aliases.py)"
+
+# Basic gm alias
+alias gm="gemini"

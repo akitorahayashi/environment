@@ -230,16 +230,16 @@ class TestAnsibleRoleIntegrity:
     def test_collected_static_src_references_present(
         self, src_file_references: Sequence[FileReference]
     ) -> None:
-        assert (
-            src_file_references
-        ), "Expected to collect at least one static src reference"
+        assert src_file_references, (
+            "Expected to collect at least one static src reference"
+        )
 
     def test_collected_lookup_file_references_present(
         self, lookup_file_references: Sequence[FileReference]
     ) -> None:
-        assert (
-            lookup_file_references
-        ), "Expected to collect at least one lookup('file', ...) reference"
+        assert lookup_file_references, (
+            "Expected to collect at least one lookup('file', ...) reference"
+        )
 
     def test_each_src_reference_exists(self, src_reference: FileReference) -> None:
         assert src_reference.resolved_path.exists(), (

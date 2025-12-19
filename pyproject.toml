@@ -14,11 +14,12 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=1.8.0",
     "pytest>=8.4.1,<9.0.0",
     "pytest-xdist>=3.8.0,<4.0.0",
-    "black>=25.1.0,<26.0.0",
     "ruff>=0.12.10,<1.0.0",
     "ansible-lint>=25.0.0",
+    "types-PyYAML>=6.0.0",
 ]
 mlx = [
     "mlx-lm>=0.28.3",
@@ -34,25 +35,7 @@ package = false
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
-addopts = "-v -s --tb=short"
-
-[tool.black]
-target-version = ['py312']
-exclude = '''
-/(
-    \.git
-    | \.mypy_cache
-    | \.uv-cache
-    | \.venv
-    | venv
-    | env
-    | build
-    | dist
-    | mlx-lm
-    | .*/(bin|lib|share|etc)
-    | .*/pyvenv\.cfg
-)/
-'''
+addopts = "-q -s --tb=short"
 
 [tool.ruff]
 target-version = "py312"

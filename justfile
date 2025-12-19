@@ -74,7 +74,7 @@ common:
 # Format code with black and ruff --fix
 fix:
   @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
-  @uv run black tests/ ansible/
+  @uv run ruff format tests/ ansible/
   @uv run ruff check tests/ ansible/ --fix
   @files=$(just _find_shell_files); \
   echo "Found $(echo "$files" | wc -l) shell files to format"; \
@@ -82,12 +82,13 @@ fix:
       shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; \
   done
   @uv run ansible-lint ansible/ --fix
-
+  
 # Lint code with black check, ruff, shellcheck, and ansible-lint
 check: fix
   @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
-  @uv run black --check tests/ ansible/
+  @uv run ruff format --check tests/ ansible/
   @uv run ruff check tests/ ansible/
+  @uv run mypy tests/ ansible/
   @files=$(just _find_shell_files); \
   echo "Found $(echo "$files" | wc -l) shell files to lint"; \
   for file in $files; do \

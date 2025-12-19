@@ -23,7 +23,7 @@ tools:
     tag: v0.7.0
   - name: tls
     git: git@github.com:akitorahayashi/tls.git
-    tag: v0.1.0
+    tag: v0.2.0
   - name: ssv
     git: git@github.com:akitorahayashi/ssv.git
     tag: v0.1.0

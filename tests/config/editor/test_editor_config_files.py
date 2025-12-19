@@ -63,11 +63,11 @@ class TestEditorConfigs:
             assert "extensions" in data, f"Missing 'extensions' key in {name}."
 
             extensions_list = data["extensions"]
-            assert isinstance(
-                extensions_list, list
-            ), f"'extensions' value in {name} should be a list."
+            assert isinstance(extensions_list, list), (
+                f"'extensions' value in {name} should be a list."
+            )
 
             for item in extensions_list:
-                assert isinstance(
-                    item, str
-                ), f"All items in the 'extensions' list in {name} should be strings."
+                assert isinstance(item, str), (
+                    f"All items in the 'extensions' list in {name} should be strings."
+                )

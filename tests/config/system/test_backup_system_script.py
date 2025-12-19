@@ -11,8 +11,11 @@ import pytest
 def backup_system_module(project_root: Path) -> ModuleType:
     script_path = project_root / "ansible/scripts/system/backup-system.py"
     spec = importlib.util.spec_from_file_location("backup_system", script_path)
+    if spec is None:
+        raise RuntimeError(f"Could not load spec from {script_path}")
+    if spec.loader is None:
+        raise RuntimeError(f"Spec loader is None for {script_path}")
     module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
