@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@github/copilot": "latest",
-    "@marp-team/marp-cli": "latest",
-    "md-to-pdf": "latest"
+    "@marp-team/marp-cli": "latest"
   }
 }

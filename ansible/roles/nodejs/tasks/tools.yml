@@ -24,10 +24,3 @@
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
     PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
     PATH: "{{ ansible_env.HOME }}/Library/pnpm:{{ ansible_env.PATH }}"
-
-- name: "Create symlink for md-to-pdf config"
-  ansible.builtin.file:
-    src: "{{ role_path }}/config/common/md-to-pdf-config.js"
-    dest: "{{ ansible_env.HOME }}/.md-to-pdf-config.js"
-    state: link
-    force: true

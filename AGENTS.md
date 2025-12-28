@@ -65,6 +65,7 @@ This ensures consistent tooling across all CI jobs while leveraging GitHub Actio
 - Favor Python entry points over shell scripts for automation. Utilities that previously relied on tools such as `jq`, `yq`, or complex pipelines should now live as Python modules that leverage the standard library or vetted dependencies (e.g., `PyYAML`, `httpx`, `typer`).
 - Keep these scripts executable (`chmod +x`) and colocated with their configuration assets so Ansible roles can reference them directly.
 - Tests should exercise the Python entry points rather than mocking external binaries, using facilities like `httpx.MockTransport` for network interactions.
+- **Example**: The `dcv` tool (Document Converter CLI) replaces the Node.js-based `md-to-pdf`, demonstrating pure Python implementation with Playwright for PDF generation. Installation includes post-install browser setup via pipx's isolated venv.
 
 ### Symlink Enforcement
 **Core Principle**: Any automation that creates symbolic links must overwrite the destination regardless of its current state.

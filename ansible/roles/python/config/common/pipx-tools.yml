@@ -2,8 +2,15 @@
 # Python packages to install via pipx
 # Each tool can specify:
 #   - name: package name (required)
+#   - git: Git repository URL (optional, use for GitHub installations)
+#   - tag: Git tag or version specifier (optional, for version pinning)
 #   - python_version: specific Python version to use (optional, defaults to python_version var)
+#   - post_install: command to run after installation (optional, e.g., browser installation)
 tools:
   - name: mlx-hub
   - name: huggingface-hub
   - name: openai-whisper
+  - name: dcv
+    git: https://github.com/akitorahayashi/dcv.git
+    tag: v0.3.0
+    post_install: "pipx inject dcv playwright && $HOME/.local/pipx/venvs/dcv/bin/playwright install chromium"

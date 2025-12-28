@@ -4,12 +4,67 @@
     file: "{{ role_path }}/config/common/pipx-tools.yml"
     name: pipx_tools_config
 
-- name: "Install pipx tools"
-  ansible.builtin.shell: |
-    pipx install --python {{ ansible_env.HOME }}/.pyenv/versions/{{ item.python_version | default(python_version) }}/bin/python {{ item.name }}
+# 1. Check currently installed versions
+# check_mode: false is important to ensure this check command runs even in dry-run mode
+- name: "Check installed versions of pipx tools"
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.local/bin/{{ item.name }} --version"
   loop: "{{ pipx_tools_config.tools }}"
+  register: python_pipx_tools_version_check
   changed_when: false
-  when: pipx_tools_config.tools | length > 0
+  failed_when: false
+  check_mode: false
+
+# 2. Install or update tools
+# Only install if versions do not match or tool is not installed
+- name: "Install or update pipx tools"
+  ansible.builtin.command:
+    # Construct pipx install command with spec
+    cmd: >
+      pipx install --force
+      --python {{ ansible_env.HOME }}/.pyenv/versions/{{ item.python_version | default(python_version) }}/bin/python
+      {% if item.git is defined %}
+      git+{{ item.git }}{% if item.tag is defined %}@{{ item.tag }}{% endif %}
+      {% else %}
+      {{ item.name }}{% if item.tag is defined %}=={{ item.tag }}{% endif %}
+      {% endif %}
+  loop: "{{ pipx_tools_config.tools }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name }}"
+  register: python_pipx_install_result
+  changed_when: "'installed package' in python_pipx_install_result.stdout or 'upgraded package' in python_pipx_install_result.stdout"
+  # Condition explanation:
+  # 1. Command failed (rc != 0) = not installed -> needs installation
+  # 2. Tag is defined and the version output does not contain that version number -> needs update
+  #    (Note: Remove 'v' from git tag like 'v0.3.0' to compare with '0.3.0')
+  when: >
+    python_pipx_tools_version_check.results[idx].rc != 0 or
+    (
+      item.tag is defined and
+      item.tag | regex_replace('^v', '') not in python_pipx_tools_version_check.results[idx].stdout
+    )
+
+# 3. Inject dependencies for pipx tools (e.g., playwright for dcv)
+- name: "Inject dependencies into pipx tools"
+  ansible.builtin.command: "pipx inject {{ item.name }} {{ item.post_install_inject }}"
+  loop: "{{ pipx_tools_config.tools }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name }}"
+  changed_when: false
+  failed_when: false
+  when: item.post_install_inject is defined
+
+# 4. Run post-install commands (e.g., playwright install chromium)
+- name: "Run post-install commands for pipx tools"
+  ansible.builtin.command: "{{ item.post_install_exec }}"
+  loop: "{{ pipx_tools_config.tools }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name }}"
+  changed_when: true
+  when: item.post_install_exec is defined
 
 - name: "Ensure menv venv directory exists"
   ansible.builtin.file:
