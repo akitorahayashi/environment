@@ -9,7 +9,7 @@ from typing import List, Sequence
 
 import pytest
 
-from tests.ansible.conftest import (
+from tests.intg.conftest import (
     RoleTaskFile,
     load_role_task_files,
 )

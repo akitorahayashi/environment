@@ -13,7 +13,7 @@ import yaml
 @pytest.fixture(scope="session")
 def installer_checksums(project_root: Path) -> list[dict[str, str]]:
     """Load installer checksums from YAML file."""
-    checksums_file = project_root / "tests/config/installer_checksums.yml"
+    checksums_file = project_root / "tests/intg/installer_checksums.yml"
     with open(checksums_file, encoding="utf-8") as f:
         data = yaml.safe_load(f)
     return data["installer_checksums"]
