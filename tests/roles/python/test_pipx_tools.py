@@ -245,17 +245,23 @@ class TestPipxToolsIdempotency:
             assert package_spec == "mlx-hub"
 
     def test_post_install_command_construction(self) -> None:
-        """Test post-install command path construction."""
+        """Test post-install inject and exec command construction."""
         tool_with_post_install = {
             "name": "dcv",
-            "post_install": "pipx inject dcv playwright && pipx run playwright --spec dcv install chromium",
+            "post_install_inject": "playwright",
+            "post_install_exec": "$HOME/.local/pipx/venvs/dcv/bin/playwright install chromium",
         }
 
-        post_cmd = tool_with_post_install.get("post_install")
-        assert post_cmd is not None
-        assert "pipx" in post_cmd
-        assert "playwright" in post_cmd
-        assert "chromium" in post_cmd
+        # Test inject dependency
+        inject_cmd = tool_with_post_install.get("post_install_inject")
+        assert inject_cmd is not None
+        assert "playwright" in inject_cmd
+
+        # Test exec command
+        exec_cmd = tool_with_post_install.get("post_install_exec")
+        assert exec_cmd is not None
+        assert "playwright" in exec_cmd
+        assert "chromium" in exec_cmd
 
     def test_python_version_path_construction(self) -> None:
         """Test pyenv Python version path construction."""
@@ -301,9 +307,14 @@ class TestPipxToolsConfiguration:
                     f"'python_version' must be a string: {tool}"
                 )
 
-            if "post_install" in tool:
-                assert isinstance(tool["post_install"], str), (
-                    f"'post_install' must be a string: {tool}"
+            if "post_install_inject" in tool:
+                assert isinstance(tool["post_install_inject"], str), (
+                    f"'post_install_inject' must be a string: {tool}"
+                )
+
+            if "post_install_exec" in tool:
+                assert isinstance(tool["post_install_exec"], str), (
+                    f"'post_install_exec' must be a string: {tool}"
                 )
 
     def test_dcv_configuration(self, python_config_dir: Path) -> None:
@@ -319,7 +330,12 @@ class TestPipxToolsConfiguration:
         # Validate dcv has required fields
         assert "git" in dcv_tool, "dcv must have git URL"
         assert "tag" in dcv_tool, "dcv must have version tag"
-        assert "post_install" in dcv_tool, "dcv must have post_install for playwright"
+        assert "post_install_inject" in dcv_tool, (
+            "dcv must have post_install_inject for playwright"
+        )
+        assert "post_install_exec" in dcv_tool, (
+            "dcv must have post_install_exec for chromium"
+        )
 
         # Validate git URL
         assert dcv_tool["git"] == "https://github.com/akitorahayashi/dcv.git"
@@ -327,10 +343,12 @@ class TestPipxToolsConfiguration:
         # Validate tag format
         assert dcv_tool["tag"].startswith("v"), "dcv tag should start with 'v'"
 
-        # Validate post_install uses pipx commands
-        assert "pipx" in dcv_tool["post_install"]
-        assert "playwright" in dcv_tool["post_install"]
-        assert "chromium" in dcv_tool["post_install"]
+        # Validate post_install_inject contains playwright
+        assert "playwright" in dcv_tool["post_install_inject"]
+
+        # Validate post_install_exec uses playwright install chromium
+        assert "playwright" in dcv_tool["post_install_exec"]
+        assert "chromium" in dcv_tool["post_install_exec"]
 
     def test_python_version_defaults(self, python_config_dir: Path) -> None:
         """Test Python version default behavior."""
