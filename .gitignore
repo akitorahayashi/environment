@@ -42,3 +42,4 @@ __pycache__/
 *.pyd
 
 .claude/settings.local.json
+reference/*

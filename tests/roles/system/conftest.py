@@ -8,4 +8,4 @@ import pytest
 @pytest.fixture(scope="session")
 def system_config_dir(project_root: Path) -> Path:
     """Path to the system configuration directory."""
-    return project_root / "ansible/roles/system/config/common"
+    return project_root / "src/menv/ansible/roles/system/config/common"

@@ -9,7 +9,7 @@ import pytest
 
 @pytest.fixture()
 def backup_system_module(project_root: Path) -> ModuleType:
-    script_path = project_root / "ansible/scripts/system/backup-system.py"
+    script_path = project_root / "src/menv/ansible/scripts/system/backup-system.py"
     spec = importlib.util.spec_from_file_location("backup_system", script_path)
     if spec is None:
         raise RuntimeError(f"Could not load spec from {script_path}")

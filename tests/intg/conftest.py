@@ -185,8 +185,8 @@ def parsed_justfile(project_root: Path) -> List[JustfileInvocation]:
 
 @pytest.fixture(scope="session")
 def ansible_playbook_mapping(project_root: Path) -> Dict[str, List[str]]:
-    """Map of Ansible tags to roles sourced from `ansible/playbook.yml`."""
-    playbook_path = project_root / "ansible" / "playbook.yml"
+    """Map of Ansible tags to roles sourced from `src/menv/ansible/playbook.yml`."""
+    playbook_path = project_root / "src" / "menv" / "ansible" / "playbook.yml"
     if not playbook_path.exists():
         raise FileNotFoundError(f"Unable to locate Ansible playbook at {playbook_path}")
     return load_playbook_tag_mapping(playbook_path)
@@ -195,7 +195,7 @@ def ansible_playbook_mapping(project_root: Path) -> Dict[str, List[str]]:
 @pytest.fixture(scope="session")
 def ansible_role_tasks(project_root: Path) -> List[RoleTaskFile]:
     """Collection of parsed Ansible role task files for downstream tests."""
-    roles_root = project_root / "ansible" / "roles"
+    roles_root = project_root / "src" / "menv" / "ansible" / "roles"
     if not roles_root.exists():
         raise FileNotFoundError(
             f"Unable to locate Ansible roles directory at {roles_root}"

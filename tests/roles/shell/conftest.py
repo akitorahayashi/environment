@@ -10,25 +10,25 @@ import pytest
 @pytest.fixture(scope="session")
 def shell_config_dir(project_root: Path) -> Path:
     """Path to the shell configuration directory."""
-    return project_root / "ansible/roles/shell/config/common"
+    return project_root / "src/menv/ansible/roles/shell/config/common"
 
 
 @pytest.fixture(scope="session")
 def gen_gemini_aliases_script_path(project_root: Path) -> Path:
     """Path to the gen_gemini_aliases.py script."""
-    return project_root / "ansible/scripts/shell/gen_gemini_aliases.py"
+    return project_root / "src/menv/ansible/scripts/shell/gen_gemini_aliases.py"
 
 
 @pytest.fixture(scope="session")
 def gen_slash_aliases_script_path(project_root: Path) -> Path:
     """Path to the gen_slash_aliases.py script."""
-    return project_root / "ansible/scripts/shell/gen_slash_aliases.py"
+    return project_root / "src/menv/ansible/scripts/shell/gen_slash_aliases.py"
 
 
 @pytest.fixture(scope="session")
 def slash_cmd_copier_script_path(project_root: Path) -> Path:
     """Path to the slash_cmd_copier.py script."""
-    return project_root / "ansible/scripts/shell/slash_cmd_copier.py"
+    return project_root / "src/menv/ansible/scripts/shell/slash_cmd_copier.py"
 
 
 @pytest.fixture(autouse=True)

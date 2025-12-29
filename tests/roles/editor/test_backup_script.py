@@ -7,7 +7,7 @@ import pytest
 
 @pytest.fixture()
 def backup_extensions_module(project_root: Path) -> ModuleType:
-    script_path = project_root / "ansible/scripts/editor/backup-extensions.py"
+    script_path = project_root / "src/menv/ansible/scripts/editor/backup-extensions.py"
     spec = importlib.util.spec_from_file_location("backup_extensions", script_path)
     if spec is None:
         raise RuntimeError(f"Could not load spec from {script_path}")

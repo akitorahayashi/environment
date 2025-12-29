@@ -8,7 +8,7 @@ import pytest
 @pytest.fixture(scope="session")
 def rust_config_dir(project_root: Path) -> Path:
     """Return the directory containing shared Rust configuration files."""
-    return project_root / "ansible/roles/rust/config/common"
+    return project_root / "src/menv/ansible/roles/rust/config/common"
 
 
 __all__ = [

@@ -58,9 +58,11 @@ def _resolve_template_literal(
 ) -> Path | None:
     """Resolve simple Jinja template strings used in src references."""
     candidate = raw
+    ansible_dir = project_root / "src" / "menv" / "ansible"
     replacements = {
         "{{ role_path }}": str(role_path),
         "{{ repo_root_path }}": str(project_root),
+        "{{ config_dir_abs_path }}": str(ansible_dir),
     }
     for placeholder, replacement in replacements.items():
         candidate = candidate.replace(placeholder, replacement)
@@ -168,7 +170,7 @@ def _ensure_reference_cache(
 ) -> tuple[List[FileReference], List[FileReference]]:
     global _REFERENCE_CACHE
     if _REFERENCE_CACHE is None:
-        roles_root = project_root / "ansible/roles"
+        roles_root = project_root / "src" / "menv" / "ansible" / "roles"
         role_task_files = load_role_task_files(roles_root)
         _REFERENCE_CACHE = {
             "src": _collect_src_references(role_task_files, project_root, roles_root),

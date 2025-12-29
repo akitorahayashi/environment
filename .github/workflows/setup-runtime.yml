@@ -16,7 +16,7 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup ruby
-        run: just ruby
+        run: just run make ruby 
 
       - name: Setup rust
-        run: just rust
+        run: just run make rust 

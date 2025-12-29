@@ -1,0 +1,57 @@
+{
+  "cleanupPeriodDays": 20,
+  "env": {
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_BUG_COMMAND": "1",
+    "API_TIMEOUT_MS": "600000",
+    "DISABLE_AUTOUPDATER": "1",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(mv:*)",
+      "Bash(mkdir:*)",
+      "Bash(source:*)",
+      "Bash(cp:*)",
+      "Bash(find:*)",
+      "mcp__serena__activate_project",
+      "mcp__serena__check_onboarding_performed",
+      "mcp__serena__delete_memory",
+      "mcp__serena__find_file",
+      "mcp__serena__find_referencing_symbols",
+      "mcp__serena__find_symbol",
+      "mcp__serena__get_current_config",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__list_dir",
+      "mcp__serena__list_memories",
+      "mcp__serena__onboarding",
+      "mcp__serena__read_memory",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__think_about_collected_information",
+      "mcp__serena__think_about_task_adherence",
+      "mcp__serena__think_about_whether_you_are_done",
+      "mcp__serena__write_memory",
+      "mcp__serena__replace_symbol_body",
+      "mcp__serena__insert_after_symbol",
+      "mcp__serena__insert_before_symbol"
+    ],
+    "deny": [
+      "Glob",
+      "Grep",
+      "Bash(less:*)",
+      "Bash(more:*)",
+      "Bash(pip:*)",
+      "Bash(pip3:*)"
+    ],
+    "ask": [
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -r:*)"
+    ]
+  },
+  "alwaysThinkingEnabled": false,
+  "model": "opus"
+}

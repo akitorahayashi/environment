@@ -1,0 +1,18 @@
+---
+- name: Setup macOS development environment
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: brew, tags: ["brew-formulae", "brew-cask"] }
+    - { role: python, tags: ["python-platform", "python-tools", "aider", "uv"] }
+    - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "llm"] }
+    - { role: ruby, tags: ["ruby"] }
+    - { role: rust, tags: ["rust-platform", "rust-tools"] }
+    - { role: vcs, tags: ["git", "jj"] }
+    - { role: gh, tags: ["gh"] }
+    - { role: shell, tags: ["shell"] }
+    - { role: ssh, tags: ["ssh"] }
+    - { role: editor, tags: ["editor", "vscode", "cursor", "xcode"] }
+    - { role: coderabbit, tags: ["coderabbit"] }
+    - { role: system, tags: ["system"] }
+    - { role: docker, tags: ["docker"] }

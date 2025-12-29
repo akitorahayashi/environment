@@ -1,0 +1,63 @@
+---
+- name: "Symlink .zprofile"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/.zprofile"
+    dest: "{{ ansible_env.HOME }}/.zprofile"
+    state: link
+    force: true
+
+- name: "Symlink .zshrc"
+  ansible.builtin.file:
+    src: "{{ role_path }}/config/common/.zshrc"
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    state: link
+    force: true
+
+# --- create symbolic links for all files in role_path/config/common/alias/
+- name: "Clean and recreate ~/.menv/alias directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.menv/alias"
+    state: absent
+
+- name: "Create ~/.menv/alias directory"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.menv/alias"
+    state: directory
+    mode: "0755"
+
+- name: "Find shell config files recursively"
+  ansible.builtin.find:
+    paths: "{{ role_path }}/config/common/alias"
+    patterns: ["*.sh", "*.zsh"]
+    recurse: true
+  register: shell_config_files
+
+- name: "Calculate unique subdirectories for shell config files"
+  ansible.builtin.set_fact:
+    shell_config_subdirs: >-
+      {{ shell_config_files.files | map(attribute='path')
+         | map('replace', role_path + '/config/common/alias/', '')
+         | map('dirname') | unique | reject('equalto', '.') | list }}
+
+- name: "Create subdirectories in ~/.menv/alias"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.menv/alias/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ shell_config_subdirs }}"
+
+- name: "Symlink shell config files recursively"
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: >-
+      {{ ansible_env.HOME }}/.menv/alias/{{ item.path | replace(role_path + '/config/common/alias/', '') }}
+    state: link
+    force: true
+  loop: "{{ shell_config_files.files }}"
+
+- name: "Symlink ansible/scripts to ~/.menv/scripts"
+  ansible.builtin.file:
+    src: "{{ config_dir_abs_path }}/scripts"
+    dest: "{{ ansible_env.HOME }}/.menv/scripts"
+    state: link
+    force: true

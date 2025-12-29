@@ -16,13 +16,13 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup VSCode configuration
-        run: just vscode
+        run: just run make vscode 
 
       - name: Setup Cursor configuration
-        run: just cursor
+        run: just run make cursor 
 
       - name: Setup Xcode configuration
-        run: just xcode
+        run: just run make xcode 
 
       - name: Setup CodeRabbit CLI
-        run: just coderabbit
+        run: just run make coderabbit 

@@ -1,31 +1,11 @@
 # ==============================================================================
-# justfile for macOS Environment Setup (Aggregated via Imports)
+# justfile for menv development
+# ==============================================================================
+# This justfile is for development tasks only.
+# For environment provisioning, use the menv CLI: menv create macbook
 # ==============================================================================
 
 set dotenv-load
-
-# Shared logic (root level helpers if needed)
-import 'ansible/ansible.just'
-
-# ==============================================================================
-# Role Imports
-# ==============================================================================
-# Recipes from each file are merged directly into this file
-
-import 'ansible/roles/brew/tasks.just'
-import 'ansible/roles/coderabbit/tasks.just'
-import 'ansible/roles/docker/tasks.just'
-import 'ansible/roles/editor/tasks.just'
-import 'ansible/roles/gh/tasks.just'
-import 'ansible/roles/menv/tasks.just'
-import 'ansible/roles/nodejs/tasks.just'
-import 'ansible/roles/python/tasks.just'
-import 'ansible/roles/ruby/tasks.just'
-import 'ansible/roles/rust/tasks.just'
-import 'ansible/roles/shell/tasks.just'
-import 'ansible/roles/ssh/tasks.just'
-import 'ansible/roles/system/tasks.just'
-import 'ansible/roles/vcs/tasks.just'
 
 # ==============================================================================
 # Variables
@@ -34,7 +14,7 @@ repo_root := `pwd`
 mlx_venv_path := repo_root / "venvs/mlx-lm"
 
 # ==============================================================================
-# Global / Alias Workflows
+# Main Recipes
 # ==============================================================================
 
 default: help
@@ -42,73 +22,65 @@ default: help
 # Display help with all available recipes
 help:
   @echo "Usage: just [recipe]"
-  @echo "Available recipes:"
+  @echo ""
+  @echo "Development tasks for menv CLI:"
   @just --list | tail -n +2 | awk '{printf "  \033[36m%-20s\033[0m %s\n", $1, substr($0, index($0, $2))}'
-
-# Run all common setup tasks (Legacy Wrapper)
-common:
-  @echo "🚀 Starting all common setup tasks..."
-  @just shell
-  @just menv
-  @just ssh
-  @just apply-system
-  @just git
-  @just jj
-  @just gh
-  @just sw-p
-  @just vscode
-  @just python
-  @just uv
-  @just nodejs
-  @just cursor
-  @just coderabbit
-  @just ruby
-  @just rust
-  @just brew-formulae
-  @echo "✅ All common setup tasks completed successfully."
 
 # ==============================================================================
 # CODE QUALITY
 # ==============================================================================
 
-# Format code with black and ruff --fix
+# Format code with ruff
 fix:
-  @echo "Formatting code with black, ruff, shfmt, and ansible-lint..."
-  @uv run ruff format tests/ ansible/
-  @uv run ruff check tests/ ansible/ --fix
+  @echo "Formatting code..."
+  @uv run ruff format src/ tests/
+  @uv run ruff check src/ tests/ --fix
   @files=$(just _find_shell_files); \
-  echo "Found $(echo "$files" | wc -l) shell files to format"; \
-  for file in $files; do \
-      shfmt -w -d "$file" 2>/dev/null || echo "Formatted: $file"; \
-  done
-  @uv run ansible-lint ansible/ --fix
-  
-# Lint code with black check, ruff, shellcheck, and ansible-lint
+  if [ -n "$files" ]; then \
+      echo "Found shell files to format"; \
+      for file in $files; do \
+          shfmt -w -d "$file" 2>/dev/null || true; \
+      done; \
+  fi
+  @uv run ansible-lint src/menv/ansible/ --fix || true
+
+# Lint code with ruff, mypy, shellcheck, and ansible-lint
 check: fix
-  @echo "Linting code with black check, ruff, shellcheck, and ansible-lint..."
-  @uv run ruff format --check tests/ ansible/
-  @uv run ruff check tests/ ansible/
-  @uv run mypy tests/ ansible/
+  @echo "Linting code..."
+  @uv run ruff format --check src/ tests/
+  @uv run ruff check src/ tests/
+  @uv run mypy src/ tests/
   @files=$(just _find_shell_files); \
-  echo "Found $(echo "$files" | wc -l) shell files to lint"; \
-  for file in $files; do \
-      shellcheck "$file" 2>/dev/null || echo "Issues found in: $file"; \
-  done
-  @uv run ansible-lint ansible/
+  if [ -n "$files" ]; then \
+      echo "Checking shell files"; \
+      for file in $files; do \
+          shellcheck "$file" 2>/dev/null || true; \
+      done; \
+  fi
+  @uv run ansible-lint src/menv/ansible/
 
 # ==============================================================================
-# Testing
+# TESTING
 # ==============================================================================
-# Run all tests under tests/ directory with pytest
+
+# Run all tests
 test:
-  @echo "🧪 Running all tests under tests/ directory..."
+  @echo "🧪 Running tests..."
   @uv run pytest tests/
+
+# ==============================================================================
+# RUN
+# ==============================================================================
+
+# Run menv CLI in development mode
+run *args:
+  @uv run menv {{args}}
 
 # ==============================================================================
 # CLEANUP
 # ==============================================================================
 
-# Remove __pycache__ and .venv to make project lightweight
+# Remove __pycache__, .venv and other temporary files
 clean:
   @echo "🧹 Cleaning up project..."
   @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -121,6 +93,8 @@ clean:
   @rm -rf .serena/cache
   @rm -rf .uv-cache
   @rm -rf .tmp
+  @rm -rf dist
+  @rm -rf *.egg-info
   @echo "✅ Cleanup completed"
 
 # ==============================================================================

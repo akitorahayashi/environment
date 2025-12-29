@@ -16,10 +16,10 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Run python-platform setup
-        run: just python-platform
+        run: just run make python-platform 
 
       - name: Run uv setup
-        run: just uv
+        run: just run make uv 
         
       - name: Prepare menv venv directory
         run: mkdir -p "$HOME/.menv/venvs"
@@ -33,8 +33,8 @@ jobs:
         run: uv sync --only-group mlx
 
       - name: Run python-tools setup
-        run: just python-tools
+        run: just run make python-tools 
         
       - name: Run aider setup
-        run: just aider
+        run: just run make aider 
 
