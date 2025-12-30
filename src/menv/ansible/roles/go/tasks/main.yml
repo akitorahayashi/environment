@@ -1,0 +1,17 @@
+---
+- name: "Set Go version variable from file"
+  ansible.builtin.slurp:
+    src: "{{ role_path }}/config/common/.go-version"
+  register: go_version_file
+
+- name: "Set Go version fact"
+  ansible.builtin.set_fact:
+    go_version: "{{ go_version_file.content | b64decode | trim }}"
+
+- name: "Setup Go platform"
+  ansible.builtin.include_tasks: platform.yml
+  when: "'go-platform' in ansible_run_tags"
+
+- name: "Install Go tools"
+  ansible.builtin.include_tasks: tools.yml
+  when: "'go-tools' in ansible_run_tags"

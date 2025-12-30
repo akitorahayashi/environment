@@ -8,6 +8,7 @@
     - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "llm"] }
     - { role: ruby, tags: ["ruby"] }
     - { role: rust, tags: ["rust-platform", "rust-tools"] }
+    - { role: go, tags: ["go-platform", "go-tools"] }
     - { role: vcs, tags: ["git", "jj"] }
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell"] }

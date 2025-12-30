@@ -13,6 +13,7 @@ TAG_GROUPS = {
     "rust": ["rust-platform", "rust-tools"],
     "python": ["python-platform", "python-tools"],
     "nodejs": ["nodejs-platform", "nodejs-tools"],
+    "go": ["go-platform", "go-tools"],
 }
 
 # Valid profiles and their aliases
@@ -30,6 +31,7 @@ AVAILABLE_TAGS = {
     "nodejs": ["nodejs-platform", "nodejs-tools", "llm"],
     "ruby": ["ruby"],
     "rust": ["rust-platform", "rust-tools"],
+    "go": ["go-platform", "go-tools"],
     "vcs": ["git", "jj"],
     "gh": ["gh"],
     "shell": ["shell"],

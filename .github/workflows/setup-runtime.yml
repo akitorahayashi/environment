@@ -19,4 +19,7 @@ jobs:
         run: just run make ruby 
 
       - name: Setup rust
-        run: just run make rust 
+        run: just run make rust
+
+      - name: Setup go
+        run: just run make go 

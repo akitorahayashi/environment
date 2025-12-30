@@ -8,10 +8,10 @@
 tools:
   - name: kpv
     git: git@github.com:akitorahayashi/kpv.git
-    tag: v0.4.0
+    tag: v0.4.1
   - name: mms
     git: git@github.com:akitorahayashi/mms.git
-    tag: v0.2.0
+    tag: v0.2.1
   - name: pure
     git: git@github.com:akitorahayashi/pure.git
     tag: v0.5.0
@@ -20,12 +20,12 @@ tools:
     tag: v1.4.0
   - name: mix
     git: git@github.com:akitorahayashi/mix.git
-    tag: v1.0.0
+    tag: v1.0.1
   - name: tls-rs
     git: git@github.com:akitorahayashi/tls-rs.git
-    tag: v1.6.0
+    tag: v1.6.1
   - name: ssv
     git: git@github.com:akitorahayashi/ssv.git
-    tag: v0.1.0
+    tag: v0.1.1
   # - name: cargo-edit
   #   options: "--locked"

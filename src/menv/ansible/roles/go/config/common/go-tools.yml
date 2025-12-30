@@ -1,0 +1,21 @@
+---
+# Go tools to install via `go install`
+# Each tool can specify:
+#   - name: binary name (required)
+#   - package: full package path for go install (required)
+#   - tag: version tag (optional, for version pinning)
+tools:
+  - name: golangci-lint
+    package: github.com/golangci/golangci-lint/cmd/golangci-lint
+    tag: v1.62.2
+  - name: gopls
+    package: golang.org/x/tools/gopls
+    tag: v0.17.1
+  - name: air
+    package: github.com/air-verse/air
+    tag: v1.61.5
+  - name: goimports
+    package: golang.org/x/tools/cmd/goimports
+  - name: dlv
+    package: github.com/go-delve/delve/cmd/dlv
+    tag: v1.24.0

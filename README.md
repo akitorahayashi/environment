@@ -55,12 +55,14 @@ menv ls
 
 # Run specific task
 menv make rust              # Run rust-platform + rust-tools
+menv make go                # Run go-platform + go-tools
 menv make python-tools      # Run python-tools
 menv make brew-cask mmn     # Run brew-cask for mac-mini
 menv mk shell               # Shorthand
 
 # Tag groups are expanded automatically:
 #   rust → rust-platform, rust-tools
+#   go → go-platform, go-tools
 #   python → python-platform, python-tools
 #   nodejs → nodejs-platform, nodejs-tools
 ```

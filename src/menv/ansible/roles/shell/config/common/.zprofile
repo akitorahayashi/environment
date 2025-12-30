@@ -44,6 +44,14 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init --path)"
 fi
 
+# goenv initialization
+if command -v goenv 1>/dev/null 2>&1; then
+  export GOENV_ROOT="$HOME/.goenv"
+  export PATH="$GOENV_ROOT/bin:$PATH"
+  eval "$(goenv init -)"
+  export PATH="$GOROOT/bin:$PATH"
+  export PATH="$HOME/go/bin:$PATH"
+fi
 
 # Path setting for ollama models
 export OLLAMA_MODELS="$HOME/.ollama/models"
