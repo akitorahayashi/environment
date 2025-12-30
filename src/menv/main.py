@@ -12,6 +12,8 @@ from menv.commands.create import create
 from menv.commands.make import list_tags, make
 from menv.commands.switch import switch
 from menv.commands.update import update
+from menv.context import AppContext
+from menv.storage import FilesystemConfigStorage
 
 console = Console()
 
@@ -49,6 +51,7 @@ app = typer.Typer(
 
 @app.callback()
 def main(
+    ctx: typer.Context,
     version: Optional[bool] = typer.Option(
         None,
         "--version",
@@ -59,6 +62,7 @@ def main(
     ),
 ) -> None:
     """menv - Provision and manage your macOS development environment."""
+    ctx.obj = AppContext(config_storage=FilesystemConfigStorage())
 
 
 # Register create command (full profile setup) and alias

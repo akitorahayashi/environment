@@ -3,7 +3,7 @@
 import typer
 from rich.console import Console
 
-from menv.core.version import (
+from menv.version import (
     get_current_version,
     get_latest_version,
     needs_update,

@@ -3,7 +3,7 @@
 import typer
 from rich.console import Console
 
-from menv.core.runner import run_ansible_playbook
+from menv.runner import run_ansible_playbook
 
 console = Console()
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 
 class TestVersionManagement:
@@ -10,7 +10,7 @@ class TestVersionManagement:
 
     def test_get_current_version_returns_string(self) -> None:
         """Test that get_current_version returns a version string."""
-        from menv.core.version import get_current_version
+        from menv.version import get_current_version
 
         result = get_current_version()
         assert isinstance(result, str)
@@ -19,9 +19,9 @@ class TestVersionManagement:
 
     def test_get_current_version_fallback_on_not_found(self) -> None:
         """Test fallback when package is not found."""
-        from menv.core.version import get_current_version
+        from menv.version import get_current_version
 
-        with patch("menv.core.version.metadata.version") as mock_version:
+        with patch("menv.version.metadata.version") as mock_version:
             from importlib.metadata import PackageNotFoundError
 
             mock_version.side_effect = PackageNotFoundError("menv")
@@ -30,7 +30,7 @@ class TestVersionManagement:
 
     def test_needs_update_returns_true_when_newer(self) -> None:
         """Test needs_update returns True when latest > current."""
-        from menv.core.version import needs_update
+        from menv.version import needs_update
 
         assert needs_update("0.1.0", "0.2.0") is True
         assert needs_update("0.1.0", "1.0.0") is True
@@ -38,7 +38,7 @@ class TestVersionManagement:
 
     def test_needs_update_returns_false_when_same_or_older(self) -> None:
         """Test needs_update returns False when current >= latest."""
-        from menv.core.version import needs_update
+        from menv.version import needs_update
 
         assert needs_update("0.2.0", "0.1.0") is False
         assert needs_update("0.1.0", "0.1.0") is False
@@ -46,7 +46,7 @@ class TestVersionManagement:
 
     def test_needs_update_handles_invalid_versions(self) -> None:
         """Test needs_update handles invalid version strings."""
-        from menv.core.version import needs_update
+        from menv.version import needs_update
 
         # Should return False for invalid versions
         assert needs_update("invalid", "0.1.0") is False
@@ -54,9 +54,9 @@ class TestVersionManagement:
 
     def test_get_latest_version_returns_none_on_network_error(self) -> None:
         """Test get_latest_version returns None when network fails."""
-        from menv.core.version import get_latest_version
+        from menv.version import get_latest_version
 
-        with patch("menv.core.version.httpx.get") as mock_get:
+        with patch("menv.version.httpx.get") as mock_get:
             import httpx
 
             mock_get.side_effect = httpx.HTTPError("Network error")
@@ -65,11 +65,9 @@ class TestVersionManagement:
 
     def test_get_latest_version_strips_v_prefix(self) -> None:
         """Test get_latest_version removes 'v' prefix from tag."""
-        from menv.core.version import get_latest_version
+        from menv.version import get_latest_version
 
-        with patch("menv.core.version.httpx.get") as mock_get:
-            from unittest.mock import MagicMock
-
+        with patch("menv.version.httpx.get") as mock_get:
             mock_response = MagicMock()
             mock_response.json.return_value = {"tag_name": "v0.2.0"}
             mock_response.raise_for_status = MagicMock()

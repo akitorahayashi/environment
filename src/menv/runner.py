@@ -9,7 +9,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from menv.core.paths import get_ansible_config_path, get_ansible_dir, get_playbook_path
+from menv.paths import get_ansible_config_path, get_ansible_dir, get_playbook_path
 
 console = Console()
 

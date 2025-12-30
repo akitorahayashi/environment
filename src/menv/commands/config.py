@@ -2,35 +2,35 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import typer
 from rich.console import Console
 from rich.table import Table
 
-from menv.core.config import (
-    IdentityConfig,
-    MenvConfig,
-    config_exists,
-    get_config_path,
-    load_config,
-    save_config,
-)
+from menv.storage.types import IdentityConfig, MenvConfig
+
+if TYPE_CHECKING:
+    from menv.context import AppContext
 
 console = Console()
 
 
-def show_config() -> None:
+def show_config(ctx: typer.Context) -> None:
     """Display current configuration."""
-    if not config_exists():
+    app_ctx: AppContext = ctx.obj
+
+    if not app_ctx.config_storage.exists():
         console.print("[yellow]No configuration found.[/]")
         console.print("Run [cyan]menv config set[/] to configure.")
         raise typer.Exit(code=1)
 
-    config = load_config()
+    config = app_ctx.config_storage.load()
     if config is None:
         console.print("[red]Error:[/] Failed to load configuration.")
         raise typer.Exit(code=1)
 
-    console.print(f"[dim]Config file:[/] {get_config_path()}")
+    console.print(f"[dim]Config file:[/] {app_ctx.config_storage.get_config_path()}")
     console.print()
 
     table = Table(show_header=True)
@@ -44,13 +44,15 @@ def show_config() -> None:
     console.print(table)
 
 
-def set_config() -> None:
+def set_config(ctx: typer.Context) -> None:
     """Set configuration interactively."""
+    app_ctx: AppContext = ctx.obj
+
     console.print("[bold]Configure menv VCS identities[/]")
     console.print()
 
     # Load existing config for defaults
-    existing = load_config()
+    existing = app_ctx.config_storage.load()
 
     # Personal settings
     console.print("[cyan]Personal identity:[/]")
@@ -81,13 +83,16 @@ def set_config() -> None:
         personal=IdentityConfig(name=personal_name, email=personal_email),
         work=IdentityConfig(name=work_name, email=work_email),
     )
-    save_config(config)
+    app_ctx.config_storage.save(config)
 
     console.print()
-    console.print(f"[green]Configuration saved to {get_config_path()}[/]")
+    console.print(
+        f"[green]Configuration saved to {app_ctx.config_storage.get_config_path()}[/]"
+    )
 
 
 def config(
+    ctx: typer.Context,
     action: str = typer.Argument(
         ...,
         help="Action to perform (set, show).",
@@ -102,9 +107,9 @@ def config(
         menv cf show                # Alias
     """
     if action == "set":
-        set_config()
+        set_config(ctx)
     elif action == "show":
-        show_config()
+        show_config(ctx)
     else:
         console.print(f"[red]Error:[/] Unknown action '{action}'.")
         console.print("Valid actions: set, show")

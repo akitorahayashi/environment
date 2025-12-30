@@ -6,7 +6,7 @@ import sys
 import typer
 from rich.console import Console
 
-from menv.core.paths import get_ansible_dir
+from menv.paths import get_ansible_dir
 
 console = Console()
 

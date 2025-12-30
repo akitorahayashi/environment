@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from typing import TYPE_CHECKING
 
 import typer
 from rich.console import Console
 
-from menv.core.config import config_exists, get_identity
+if TYPE_CHECKING:
+    from menv.context import AppContext
 
 console = Console()
 
@@ -89,6 +91,7 @@ def get_current_git_user() -> tuple[str, str]:
 
 
 def switch(
+    ctx: typer.Context,
     profile: str = typer.Argument(
         ...,
         help="Profile to switch to (personal/p, work/w).",
@@ -104,8 +107,10 @@ def switch(
         menv sw p               # Shorthand for personal
         menv sw w               # Shorthand for work
     """
+    app_ctx: AppContext = ctx.obj
+
     # Check if config exists
-    if not config_exists():
+    if not app_ctx.config_storage.exists():
         console.print("[red]Error:[/] No configuration found.")
         console.print("Run [cyan]menv config set[/] first to configure identities.")
         raise typer.Exit(code=1)
@@ -118,7 +123,7 @@ def switch(
         raise typer.Exit(code=1)
 
     # Get identity configuration
-    identity = get_identity(resolved_profile)
+    identity = app_ctx.config_storage.get_identity(resolved_profile)
     if identity is None:
         console.print(f"[red]Error:[/] Failed to load {resolved_profile} identity.")
         raise typer.Exit(code=1)

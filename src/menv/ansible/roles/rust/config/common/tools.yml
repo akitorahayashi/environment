@@ -21,8 +21,8 @@ tools:
   - name: mix
     git: git@github.com:akitorahayashi/mix.git
     tag: v1.0.0
-  - name: tls
-    git: git@github.com:akitorahayashi/tls.git
+  - name: tls-rs
+    git: git@github.com:akitorahayashi/tls-rs.git
     tag: v1.6.0
   - name: ssv
     git: git@github.com:akitorahayashi/ssv.git
