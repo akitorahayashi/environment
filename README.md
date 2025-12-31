@@ -92,6 +92,14 @@ menv sw p                   # Shorthand for personal
 menv sw w                   # Shorthand for work
 ```
 
+**Open menv source code:**
+
+```sh
+menv code                   # Open menv project in VS Code
+```
+
+Opens the menv source code directory in Visual Studio Code. This allows you to edit the menv codebase directly from the pipx installation without needing to clone the repository separately. If the `code` command is not installed, displays installation instructions.
+
 **Update menv:**
 
 ```sh

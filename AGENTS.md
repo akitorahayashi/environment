@@ -14,6 +14,7 @@ pipx-installable CLI for macOS dev environment setup using bundled Ansible playb
 | `menv backup <target>` | `bk` | Backup system/vscode |
 | `menv config <action>` | `cf` | Manage VCS identities (set/show) |
 | `menv switch <profile>` | `sw` | Switch VCS identity (personal/p, work/w) |
+| `menv code` | - | Open menv source code in VS Code |
 | `menv update` | `u` | Self-update via pipx |
 
 ## Package Structure
