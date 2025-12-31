@@ -7,6 +7,7 @@ import typer
 from rich.console import Console
 
 from menv.commands.backup import backup
+from menv.commands.code import code
 from menv.commands.config import config
 from menv.commands.create import create
 from menv.commands.make import list_tags, make
@@ -104,6 +105,9 @@ app.command(
     name="switch", help=r"Switch VCS identity between personal and work. \[aliases: sw]"
 )(switch)
 app.command(name="sw", hidden=True)(switch)
+
+# Register code command
+app.command(name="code", help="Open menv source code in VS Code.")(code)
 
 
 if __name__ == "__main__":
