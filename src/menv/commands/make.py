@@ -1,10 +1,15 @@
 """Make command for running individual Ansible tasks."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import typer
 from rich.console import Console
 from rich.table import Table
 
-from menv.runner import run_ansible_playbook
+if TYPE_CHECKING:
+    from menv.context import AppContext
 
 console = Console()
 
@@ -67,6 +72,7 @@ def list_tags() -> None:
 
 
 def make(
+    ctx: typer.Context,
     tag: str = typer.Argument(
         ...,
         help="Ansible tag to run (e.g., rust, python-tools, shell, brew-cask).",
@@ -110,7 +116,8 @@ def make(
         console.print(f"[bold green]Profile:[/] {resolved_profile}")
     console.print()
 
-    exit_code = run_ansible_playbook(
+    app_ctx: AppContext = ctx.obj
+    exit_code = app_ctx.ansible_runner.run_playbook(
         profile=resolved_profile,
         tags=tags_to_run,
         verbose=verbose,

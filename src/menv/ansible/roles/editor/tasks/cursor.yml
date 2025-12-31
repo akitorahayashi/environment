@@ -10,13 +10,12 @@
     state: directory
     mode: "0755"
 
-- name: "Symlink Cursor shared config files"
-  ansible.builtin.file:
+- name: "Copy Cursor shared config files"
+  ansible.builtin.copy:
     src: "{{ role_path }}/config/common/{{ item }}"
     dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item }}"
-    state: link
     force: true
-    follow: false
+    mode: "0644"
   loop:
     - settings.json
     - keybindings.json

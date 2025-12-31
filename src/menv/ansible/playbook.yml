@@ -4,16 +4,16 @@
   connection: local
   roles:
     - { role: brew, tags: ["brew-formulae", "brew-cask"] }
-    - { role: python, tags: ["python-platform", "python-tools", "aider", "uv"] }
-    - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "llm"] }
-    - { role: ruby, tags: ["ruby"] }
+    - { role: python, tags: ["brew-deps", "python-platform", "python-tools", "aider", "uv"] }
+    - { role: nodejs, tags: ["brew-deps", "nodejs-platform", "nodejs-tools", "llm"] }
+    - { role: ruby, tags: ["brew-deps", "ruby"] }
     - { role: rust, tags: ["rust-platform", "rust-tools"] }
-    - { role: go, tags: ["go-platform", "go-tools"] }
-    - { role: vcs, tags: ["git", "jj"] }
-    - { role: gh, tags: ["gh"] }
+    - { role: go, tags: ["brew-deps", "go-platform", "go-tools"] }
+    - { role: vcs, tags: ["brew-deps", "git", "jj"] }
+    - { role: gh, tags: ["brew-deps", "gh"] }
     - { role: shell, tags: ["shell"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: editor, tags: ["editor", "vscode", "cursor", "xcode"] }
     - { role: coderabbit, tags: ["coderabbit"] }
-    - { role: system, tags: ["system"] }
+    - { role: system, tags: ["brew-deps", "system"] }
     - { role: docker, tags: ["docker"] }

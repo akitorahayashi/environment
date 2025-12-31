@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 SSH_MANAGER = ROOT / "src/menv/ansible/scripts/shell/ssh_manager.py"
 
 

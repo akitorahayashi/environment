@@ -5,10 +5,11 @@ from __future__ import annotations
 import tomllib
 from pathlib import Path
 
-from menv.storage.types import IdentityConfig, MenvConfig
+from menv.models.config import IdentityConfig, MenvConfig
+from menv.protocols.config_storage import ConfigStorageProtocol
 
 
-class FilesystemConfigStorage:
+class ConfigStorage(ConfigStorageProtocol):
     """Filesystem-based configuration storage."""
 
     def __init__(self, config_dir: Path | None = None) -> None:

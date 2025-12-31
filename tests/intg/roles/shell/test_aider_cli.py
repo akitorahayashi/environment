@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 AIDER_SCRIPT = ROOT / "src/menv/ansible/scripts/shell/aider.py"
 
 

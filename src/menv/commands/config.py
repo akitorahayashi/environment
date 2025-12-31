@@ -8,7 +8,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from menv.storage.types import IdentityConfig, MenvConfig
+from menv.models.config import IdentityConfig, MenvConfig
 
 if TYPE_CHECKING:
     from menv.context import AppContext

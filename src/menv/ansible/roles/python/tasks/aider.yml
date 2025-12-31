@@ -10,12 +10,12 @@
     state: directory
     mode: "0755"
 
-- name: "Symlink aider config files"
-  ansible.builtin.file:
+- name: "Copy aider config files"
+  ansible.builtin.copy:
     src: "{{ role_path }}/config/common/aider/{{ item }}"
     dest: "{{ ansible_env.HOME }}/{{ item }}"
-    state: link
     force: true
+    mode: "0644"
   loop:
     - .aider.conf.yml
     - .aider.model.settings.yml

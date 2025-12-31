@@ -2,7 +2,6 @@
 
 import shutil
 import subprocess
-import tomllib
 from pathlib import Path
 
 import typer
@@ -10,51 +9,57 @@ from rich.console import Console
 
 console = Console()
 
+MENV_REPO_URL = "git@github.com:akitorahayashi/menv.git"
+MENV_REPO_PATH = Path.home() / "menv"
 
-def find_menv_root() -> Path | None:
-    """Find the menv project root directory.
 
-    Searches for the project root by traversing up from the current module
-    location until finding a directory containing pyproject.toml.
+def _check_ssh_available() -> bool:
+    """Check if SSH connection to GitHub is available."""
+    try:
+        result = subprocess.run(
+            ["ssh", "-T", "git@github.com"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        # GitHub returns exit code 1 with "successfully authenticated" message
+        return "successfully authenticated" in result.stderr
+    except (subprocess.TimeoutExpired, subprocess.SubprocessError):
+        return False
 
-    Returns:
-        Path to menv project root, or None if not found.
-    """
-    current = Path(__file__).resolve()
 
-    # Traverse up to find pyproject.toml
-    for parent in [current, *current.parents]:
-        pyproject = parent / "pyproject.toml"
-        if pyproject.exists():
-            # Verify it's the menv project by parsing TOML
-            try:
-                with pyproject.open("rb") as f:
-                    data = tomllib.load(f)
-                if data.get("project", {}).get("name") == "menv":
-                    return parent
-            except tomllib.TOMLDecodeError:
-                # Ignore malformed TOML files
-                pass
-
-    return None
+def _clone_menv_repo() -> bool:
+    """Clone menv repository to home directory."""
+    try:
+        subprocess.run(
+            ["git", "clone", MENV_REPO_URL, str(MENV_REPO_PATH)],
+            check=True,
+            timeout=60,
+        )
+        return True
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return False
 
 
 def code() -> None:
     """Open menv source code in VS Code.
 
-    Opens the menv project source directory in Visual Studio Code. This allows
-    you to edit the menv codebase directly from the pipx installation without
-    needing to clone the repository separately.
+    Clones the menv repository to ~/menv if it doesn't exist, then opens it
+    in Visual Studio Code. This allows you to edit the menv codebase and
+    create pull requests.
 
-    If the 'code' command is not installed, displays a warning with installation
-    instructions but does not fail.
+    Requirements:
+        - SSH access to GitHub must be configured
+        - The 'code' command must be installed (VS Code CLI)
+        - ~/menv must not exist, or if it does, it must be a git repository
 
     Examples:
         menv code
 
     Raises:
-        typer.Exit: If menv root cannot be located or VS Code fails to open.
+        typer.Exit: If requirements are not met or VS Code fails to open.
     """
+    # Check if 'code' command is available
     if not shutil.which("code"):
         console.print(
             "[yellow]Warning:[/] The 'code' command was not found in your PATH."
@@ -63,19 +68,42 @@ def code() -> None:
             "[dim]Hint: In VS Code, open the Command Palette (Cmd+Shift+P) and run[/]"
         )
         console.print("[dim]'Shell Command: Install 'code' command in PATH'.[/]")
-        return
-
-    menv_root = find_menv_root()
-    if not menv_root:
-        console.print(
-            "[bold red]Error:[/] Could not locate menv project root directory."
-        )
         raise typer.Exit(code=1)
 
+    # Check if ~/menv already exists
+    if MENV_REPO_PATH.exists():
+        if (MENV_REPO_PATH / ".git").exists():
+            # It's a git repo, just open it
+            pass
+        else:
+            console.print(
+                f"[bold red]Error:[/] '{MENV_REPO_PATH}' already exists but is not a git repository."
+            )
+            console.print("[dim]Please remove or rename it manually to proceed.[/]")
+            raise typer.Exit(code=1)
+    else:
+        # Need to clone - check SSH first
+        console.print("[dim]Checking SSH access to GitHub...[/]")
+        if not _check_ssh_available():
+            console.print("[bold red]Error:[/] SSH access to GitHub is not available.")
+            console.print("[dim]Please configure SSH keys for GitHub first.[/]")
+            console.print(
+                "[dim]See: https://docs.github.com/en/authentication/connecting-to-github-with-ssh[/]"
+            )
+            raise typer.Exit(code=1)
+
+        # Clone the repository
+        console.print(f"[dim]Cloning menv repository to {MENV_REPO_PATH}...[/]")
+        if not _clone_menv_repo():
+            console.print("[bold red]Error:[/] Failed to clone menv repository.")
+            raise typer.Exit(code=1)
+        console.print("[green]Repository cloned successfully.[/]")
+
+    # Open in VS Code
     try:
-        subprocess.run(["code", str(menv_root)], check=True)
+        subprocess.run(["code", str(MENV_REPO_PATH)], check=True)
         console.print(
-            f"[dim]✓ Opened menv project in VS Code[/] [dim cyan]({menv_root})[/]"
+            f"[dim]Opened menv project in VS Code[/] [dim cyan]({MENV_REPO_PATH})[/]"
         )
     except subprocess.CalledProcessError as e:
         console.print(f"[bold red]Error:[/] Failed to open VS Code: {e}")

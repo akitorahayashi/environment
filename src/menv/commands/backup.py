@@ -2,11 +2,13 @@
 
 import subprocess
 import sys
+from typing import TYPE_CHECKING
 
 import typer
 from rich.console import Console
 
-from menv.paths import get_ansible_dir
+if TYPE_CHECKING:
+    from menv.context import AppContext
 
 console = Console()
 
@@ -45,6 +47,7 @@ def list_targets() -> None:
 
 
 def backup(
+    ctx: typer.Context,
     target: str = typer.Argument(
         ...,
         help="Backup target (system, vscode).",
@@ -71,8 +74,9 @@ def backup(
         )
         raise typer.Exit(code=1)
 
+    app_ctx: AppContext = ctx.obj
     target_info = BACKUP_TARGETS[target]
-    ansible_dir = get_ansible_dir()
+    ansible_dir = app_ctx.ansible_paths.ansible_dir()
     script_path = ansible_dir / target_info["script"]
 
     if not script_path.exists():

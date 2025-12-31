@@ -11,18 +11,18 @@
     state: directory
     mode: "0700"
 
-- name: Symlink main ssh config file
-  ansible.builtin.file:
+- name: Copy main ssh config file
+  ansible.builtin.copy:
     src: "{{ role_path }}/config/common/config"
     dest: "{{ ansible_env.HOME }}/.ssh/config"
-    state: link
     force: true
+    mode: "0600"
 
-- name: Symlink individual ssh config files
-  ansible.builtin.file:
+- name: Copy individual ssh config files
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ ansible_env.HOME }}/.ssh/conf.d/{{ item | basename }}"
-    state: link
     force: true
+    mode: "0600"
   with_fileglob:
     - "{{ role_path }}/config/common/conf.d/*.conf"

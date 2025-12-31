@@ -1,17 +1,17 @@
 ---
-- name: "Symlink .zprofile"
-  ansible.builtin.file:
+- name: "Copy .zprofile"
+  ansible.builtin.copy:
     src: "{{ role_path }}/config/common/.zprofile"
     dest: "{{ ansible_env.HOME }}/.zprofile"
-    state: link
     force: true
+    mode: "0644"
 
-- name: "Symlink .zshrc"
-  ansible.builtin.file:
+- name: "Copy .zshrc"
+  ansible.builtin.copy:
     src: "{{ role_path }}/config/common/.zshrc"
     dest: "{{ ansible_env.HOME }}/.zshrc"
-    state: link
     force: true
+    mode: "0644"
 
 # --- create symbolic links for all files in role_path/config/common/alias/
 - name: "Clean and recreate ~/.menv/alias directory"
@@ -46,18 +46,18 @@
     mode: "0755"
   loop: "{{ shell_config_subdirs }}"
 
-- name: "Symlink shell config files recursively"
-  ansible.builtin.file:
+- name: "Copy shell config files recursively"
+  ansible.builtin.copy:
     src: "{{ item.path }}"
     dest: >-
       {{ ansible_env.HOME }}/.menv/alias/{{ item.path | replace(role_path + '/config/common/alias/', '') }}
-    state: link
     force: true
+    mode: "0644"
   loop: "{{ shell_config_files.files }}"
 
-- name: "Symlink ansible/scripts to ~/.menv/scripts"
-  ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/scripts"
-    dest: "{{ ansible_env.HOME }}/.menv/scripts"
-    state: link
+- name: "Copy ansible/scripts to ~/.menv/scripts"
+  ansible.builtin.copy:
+    src: "{{ config_dir_abs_path }}/scripts/"
+    dest: "{{ ansible_env.HOME }}/.menv/scripts/"
     force: true
+    mode: "0755"

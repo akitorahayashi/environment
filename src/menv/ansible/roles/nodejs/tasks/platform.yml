@@ -7,6 +7,7 @@
     - nvm
     - jq
     - pnpm
+  tags: [brew-deps]
 
 - name: "Install specified Node.js version with nvm"
   ansible.builtin.shell:

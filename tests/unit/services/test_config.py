@@ -4,15 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from menv.storage import FilesystemConfigStorage, IdentityConfig, MenvConfig
+from menv.models.config import IdentityConfig, MenvConfig
+from menv.services.config_storage import ConfigStorage
 
 
 class TestConfigStorage:
-    """Tests for FilesystemConfigStorage."""
+    """Tests for ConfigStorage."""
 
     def test_get_config_path_returns_string(self, tmp_path: Path) -> None:
         """Test that get_config_path returns a string path."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
         result = storage.get_config_path()
 
         assert isinstance(result, str)
@@ -20,12 +21,12 @@ class TestConfigStorage:
 
     def test_exists_returns_false_when_no_config(self, tmp_path: Path) -> None:
         """Test exists returns False when no config file."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
         assert storage.exists() is False
 
     def test_exists_returns_true_when_config_exists(self, tmp_path: Path) -> None:
         """Test exists returns True when config file exists."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
         config = MenvConfig(
             personal=IdentityConfig(name="Test", email="test@example.com"),
             work=IdentityConfig(name="Work", email="work@example.com"),
@@ -36,7 +37,7 @@ class TestConfigStorage:
 
     def test_load_returns_none_when_not_exists(self, tmp_path: Path) -> None:
         """Test that load returns None when file doesn't exist."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
         result = storage.load()
         assert result is None
 
@@ -46,7 +47,7 @@ class TestConfigSaveLoad:
 
     def test_save_and_load_config(self, tmp_path: Path) -> None:
         """Test that config can be saved and loaded."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
             personal=IdentityConfig(name="Test User", email="test@example.com"),
@@ -64,7 +65,7 @@ class TestConfigSaveLoad:
     def test_save_creates_directory(self, tmp_path: Path) -> None:
         """Test that save creates config directory if needed."""
         config_dir = tmp_path / "nested" / "config"
-        storage = FilesystemConfigStorage(config_dir)
+        storage = ConfigStorage(config_dir)
 
         config = MenvConfig(
             personal=IdentityConfig(name="Test", email="test@example.com"),
@@ -81,7 +82,7 @@ class TestGetIdentity:
 
     def test_get_identity_personal(self, tmp_path: Path) -> None:
         """Test getting personal identity."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
             personal=IdentityConfig(name="Personal", email="personal@example.com"),
@@ -97,7 +98,7 @@ class TestGetIdentity:
 
     def test_get_identity_work(self, tmp_path: Path) -> None:
         """Test getting work identity."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
             personal=IdentityConfig(name="Personal", email="personal@example.com"),
@@ -113,7 +114,7 @@ class TestGetIdentity:
 
     def test_get_identity_invalid_profile(self, tmp_path: Path) -> None:
         """Test getting identity with invalid profile returns None."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
             personal=IdentityConfig(name="Personal", email="personal@example.com"),
@@ -126,7 +127,7 @@ class TestGetIdentity:
 
     def test_get_identity_no_config(self, tmp_path: Path) -> None:
         """Test getting identity when no config exists returns None."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
         identity = storage.get_identity("personal")
         assert identity is None
 
@@ -136,7 +137,7 @@ class TestSpecialCharacters:
 
     def test_save_and_load_with_quotes(self, tmp_path: Path) -> None:
         """Test that quotes in names are properly escaped."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
             personal=IdentityConfig(name='Test "Nick" User', email="test@example.com"),
@@ -150,7 +151,7 @@ class TestSpecialCharacters:
 
     def test_save_and_load_with_backslash(self, tmp_path: Path) -> None:
         """Test that backslashes in values are properly escaped."""
-        storage = FilesystemConfigStorage(tmp_path)
+        storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
             personal=IdentityConfig(name=r"User\Name", email="test@example.com"),

@@ -3,6 +3,7 @@
   community.general.homebrew:
     name: git
     state: present
+  tags: [brew-deps]
 
 - name: "Ensure .config/git directory exists"
   ansible.builtin.file:
@@ -17,12 +18,12 @@
     force: true
     mode: "0644"
 
-- name: "Symlink .gitignore_global"
-  ansible.builtin.file:
+- name: "Copy .gitignore_global"
+  ansible.builtin.copy:
     src: "{{ role_path }}/config/common/git/.gitignore_global"
     dest: "{{ ansible_env.HOME }}/.gitignore_global"
-    state: link
     force: true
+    mode: "0644"
 
 - name: "Set global git config for excludesfile"
   community.general.git_config:

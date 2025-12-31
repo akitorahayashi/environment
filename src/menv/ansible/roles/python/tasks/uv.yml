@@ -5,9 +5,9 @@
     state: directory
     mode: "0755"
 
-- name: "Symlink uv.toml"
-  ansible.builtin.file:
+- name: "Copy uv.toml"
+  ansible.builtin.copy:
     src: "{{ role_path }}/config/common/uv.toml"
     dest: "{{ ansible_env.HOME }}/.config/uv/uv.toml"
-    state: link
     force: true
+    mode: "0644"

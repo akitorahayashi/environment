@@ -3,6 +3,7 @@
   community.general.homebrew:
     name: pyenv
     state: present
+  tags: [brew-deps]
 
 - name: "Install specified Python version with pyenv"
   ansible.builtin.command:
