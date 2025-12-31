@@ -11,7 +11,6 @@ set dotenv-load
 # Variables
 # ==============================================================================
 repo_root := `pwd`
-mlx_venv_path := repo_root / "venvs/mlx-lm"
 
 # ==============================================================================
 # Main Recipes
@@ -85,14 +84,8 @@ clean:
   @echo "🧹 Cleaning up project..."
   @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
   @rm -rf .venv
-  @rm -rf {{mlx_venv_path}}
-  @rm -rf venvs
   @rm -rf .pytest_cache
   @rm -rf .ruff_cache
-  @rm -rf .aider.tags.cache.v4
-  @rm -rf .serena/cache
-  @rm -rf .uv-cache
-  @rm -rf .tmp
   @rm -rf dist
   @rm -rf *.egg-info
   @echo "✅ Cleanup completed"
@@ -105,7 +98,5 @@ clean:
 _find_shell_files:
   @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
   grep -v "\.git" | \
-  grep -v "gemini.zsh" | \
   grep -v "\.uv-cache" | \
-  grep -v "\.venv" | \
-  grep -v "/venvs/"
+  grep -v "\.venv"
