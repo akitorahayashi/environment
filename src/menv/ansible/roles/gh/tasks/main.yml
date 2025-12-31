@@ -11,9 +11,9 @@
     state: directory
     mode: "0755"
 
-- name: "Copy gh config.yml"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/config.yml"
+- name: "Symlink gh config.yml"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/gh/common/config.yml"
     dest: "{{ ansible_env.HOME }}/.config/gh/config.yml"
+    state: link
     force: true
-    mode: "0644"

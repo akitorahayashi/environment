@@ -35,6 +35,7 @@ class AnsibleRunner(AnsibleRunnerProtocol):
         ansible_dir = self._paths.ansible_dir()
         playbook_path = ansible_dir / "playbook.yml"
         config_path = ansible_dir / "ansible.cfg"
+        local_config_root = Path.home() / ".config" / "menv" / "roles"
 
         cmd: list[str | Path] = [
             "ansible-playbook",
@@ -45,6 +46,8 @@ class AnsibleRunner(AnsibleRunnerProtocol):
             f"config_dir_abs_path={ansible_dir}",
             "-e",
             f"repo_root_path={ansible_dir.parent}",
+            "-e",
+            f"local_config_root={local_config_root}",
         ]
 
         if tags:

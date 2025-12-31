@@ -7,5 +7,5 @@
   vars:
     brewfile_path: "{{ lookup('first_found', brewfile_candidates) }}"
     brewfile_candidates:
-      - "{{ role_path }}/config/profiles/{{ profile }}/cask/Brewfile"
-      - "{{ role_path }}/config/common/cask/Brewfile"
+      - "{{ local_config_root }}/brew/profiles/{{ profile }}/cask/Brewfile"
+      - "{{ local_config_root }}/brew/common/cask/Brewfile"

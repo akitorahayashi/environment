@@ -47,6 +47,45 @@ AVAILABLE_TAGS = {
     "docker": ["docker"],
 }
 
+# Mapping from tags to their parent role names
+TAG_TO_ROLE = {}
+for role, tags in AVAILABLE_TAGS.items():
+    for tag in tags:
+        TAG_TO_ROLE[tag] = role
+    # Also map role name itself (for tag groups like "rust" -> "rust")
+    TAG_TO_ROLE[role] = role
+
+
+def _get_roles_for_tags(app_ctx: "AppContext", tags: list[str]) -> set[str]:
+    """Get unique role names for a list of tags that have config directories."""
+    roles_with_config = app_ctx.config_deployer.roles_with_config
+
+    roles = set()
+    for tag in tags:
+        if tag in TAG_TO_ROLE:
+            role = TAG_TO_ROLE[tag]
+            # Only include roles that have config directories
+            if role in roles_with_config:
+                roles.add(role)
+    return roles
+
+
+def _deploy_configs_for_roles(app_ctx: "AppContext", roles: set[str]) -> bool:
+    """Deploy configs for roles if not already deployed.
+
+    Returns True if all deployments succeeded, False otherwise.
+    """
+    for role in roles:
+        if not app_ctx.config_deployer.is_deployed(role):
+            result = app_ctx.config_deployer.deploy_role(role, overlay=False)
+            if result.success:
+                console.print(f"[dim]Deployed config for {role}[/]")
+            else:
+                console.print(f"[red]Error:[/] Failed to deploy config for {role}")
+                console.print(f"  {result.message}")
+                return False
+    return True
+
 
 def list_tags() -> None:
     """List all available tags that can be used with 'menv make'.
@@ -111,12 +150,19 @@ def make(
     # Resolve tag groups
     tags_to_run = TAG_GROUPS.get(tag, [tag])
 
+    # Get app context
+    app_ctx: AppContext = ctx.obj
+
+    # Auto-deploy configs for roles that will be executed
+    roles_to_deploy = _get_roles_for_tags(app_ctx, tags_to_run)
+    if not _deploy_configs_for_roles(app_ctx, roles_to_deploy):
+        raise typer.Exit(code=1)
+
     console.print(f"[bold green]Running:[/] {tag}")
     if resolved_profile != "common":
         console.print(f"[bold green]Profile:[/] {resolved_profile}")
     console.print()
 
-    app_ctx: AppContext = ctx.obj
     exit_code = app_ctx.ansible_runner.run_playbook(
         profile=resolved_profile,
         tags=tags_to_run,

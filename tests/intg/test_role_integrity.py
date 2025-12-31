@@ -59,6 +59,13 @@ def _resolve_template_literal(
     """Resolve simple Jinja template strings used in src references."""
     candidate = raw
     ansible_dir = project_root / "src" / "menv" / "ansible"
+    # At runtime, local_config_root = ~/.config/menv/roles
+    # In package, config files are at roles/{role}/config/
+    # The Ansible tasks use: local_config_root/{role}/common/...
+    # So we map local_config_root to a path that, when combined with {role}/common/...,
+    # resolves to roles/{role}/config/common/...
+    # We'll handle this by creating a special mapping
+    roles_root = ansible_dir / "roles"
     replacements = {
         "{{ role_path }}": str(role_path),
         "{{ repo_root_path }}": str(project_root),
@@ -66,6 +73,25 @@ def _resolve_template_literal(
     }
     for placeholder, replacement in replacements.items():
         candidate = candidate.replace(placeholder, replacement)
+
+    # Handle local_config_root specially: roles/{role}/common -> roles/{role}/config/common
+    if "{{ local_config_root }}" in candidate:
+        # Extract the role name and path pattern
+        # Pattern: {{ local_config_root }}/{role}/common/... or {{ local_config_root }}/{role}/profiles/...
+        import re
+
+        match = re.match(
+            r"\{\{ local_config_root \}\}/([^/]+)/(common|profiles)/(.*)",
+            candidate,
+        )
+        if match:
+            role_name = match.group(1)
+            subdir = match.group(2)  # common or profiles
+            rest = match.group(3)
+            candidate = str(roles_root / role_name / "config" / subdir / rest)
+        else:
+            # Fallback: just replace with roles_root
+            candidate = candidate.replace("{{ local_config_root }}", str(roles_root))
 
     if "{{" in candidate or "}}" in candidate:
         return None
@@ -77,6 +103,8 @@ def _resolve_lookup_expression(
     expr: str, project_root: Path, role_path: Path
 ) -> Path | None:
     """Evaluate a lookup('file', ...) expression to a concrete path."""
+    import re
+
     expr = expr.strip()
     if (expr.startswith('"') and expr.endswith('"')) or (
         expr.startswith("'") and expr.endswith("'")
@@ -84,9 +112,29 @@ def _resolve_lookup_expression(
         literal = expr.strip('"') if expr.startswith('"') else expr.strip("'")
         return _normalize_path(literal, project_root)
 
+    ansible_dir = project_root / "src" / "menv" / "ansible"
+    roles_root = ansible_dir / "roles"
+
+    # Create a custom class that handles local_config_root path resolution
+    # At runtime: local_config_root/{role}/common/... -> ~/.config/menv/roles/{role}/common/...
+    # In package: roles/{role}/config/common/...
+    class LocalConfigRoot(str):
+        """Custom string that resolves local_config_root paths to package paths."""
+
+        def __add__(self, other: str) -> str:
+            # Pattern: /{role}/(common|profiles)/...
+            match = re.match(r"/([^/]+)/(common|profiles)/(.*)", other)
+            if match:
+                role_name = match.group(1)
+                subdir = match.group(2)
+                rest = match.group(3)
+                return str(roles_root / role_name / "config" / subdir / rest)
+            return str(roles_root) + other
+
     safe_locals = {
         "role_path": str(role_path),
         "repo_root_path": str(project_root),
+        "local_config_root": LocalConfigRoot(str(roles_root)),
     }
     try:
         value = eval(expr, {"__builtins__": {}}, safe_locals)

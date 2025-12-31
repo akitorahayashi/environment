@@ -10,19 +10,19 @@
     state: directory
     mode: "0755"
 
-- name: "Copy Cursor shared config files"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/{{ item }}"
+- name: "Symlink Cursor shared config files"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/editor/common/{{ item }}"
     dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item }}"
+    state: link
     force: true
-    mode: "0644"
   loop:
     - settings.json
     - keybindings.json
 
 - name: "Read Cursor extensions list"
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/cursor-extensions.json"
+    src: "{{ local_config_root }}/editor/common/cursor-extensions.json"
   register: editor_cursor_extensions_content
 
 - name: "Parse Cursor extensions JSON"

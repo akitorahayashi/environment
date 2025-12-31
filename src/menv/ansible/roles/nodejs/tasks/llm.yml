@@ -22,19 +22,19 @@
     state: directory
     mode: "0755"
 
-- name: "Copy Claude settings.json"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/llm/claude.json"
+- name: "Symlink Claude settings.json"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/common/llm/claude.json"
     dest: "{{ ansible_env.HOME }}/.claude/settings.json"
+    state: link
     force: true
-    mode: "0644"
 
-- name: "Copy Claude AGENTS file"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/llm/AGENTS.md"
+- name: "Symlink Claude AGENTS file"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/common/llm/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
+    state: link
     force: true
-    mode: "0644"
 
 - name: "Create Claude commands directory"
   ansible.builtin.file:
@@ -48,19 +48,19 @@
     state: directory
     mode: "0755"
 
-- name: "Copy Gemini settings.json"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/llm/gemini.json"
+- name: "Symlink Gemini settings.json"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/common/llm/gemini.json"
     dest: "{{ ansible_env.HOME }}/.gemini/settings.json"
+    state: link
     force: true
-    mode: "0644"
 
-- name: "Copy Gemini AGENTS file"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/llm/AGENTS.md"
+- name: "Symlink Gemini AGENTS file"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/common/llm/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
+    state: link
     force: true
-    mode: "0644"
 
 - name: "Check if Gemini CLI is available"
   ansible.builtin.command: which gemini
@@ -90,15 +90,16 @@
     - "{{ ansible_env.HOME }}/.codex"
     - "{{ ansible_env.HOME }}/.codex/prompts"
 
-- name: "Copy Codex configuration file"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/llm/codex.toml"
+- name: "Symlink Codex configuration file"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/common/llm/codex.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
-    mode: "0644"
-
-- name: "Copy Codex AGENTS file"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/llm/AGENTS.md"
-    dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
+    state: link
     force: true
-    mode: "0644"
+
+- name: "Symlink Codex AGENTS file"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/common/llm/AGENTS.md"
+    dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
+    state: link
+    force: true

@@ -3,7 +3,7 @@
 
 - name: Read Docker images list
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/images.txt"
+    src: "{{ local_config_root }}/docker/common/images.txt"
   register: docker_images_file
 
 - name: Set images list

@@ -91,7 +91,11 @@ menv bk system              # Shorthand
 ```sh
 menv config set             # Configure VCS identities interactively
 menv config show            # Show current configuration
+menv config create          # Deploy all role configs to ~/.config/menv/
+menv config create rust     # Deploy only rust role config
+menv config create --overlay # Overwrite existing configs with package defaults
 menv cf set                 # Shorthand
+menv cf cr rust -o          # Shorthand with overlay
 ```
 
 **Switch VCS identity:**
@@ -102,14 +106,6 @@ menv switch work            # Switch to work identity
 menv sw p                   # Shorthand for personal
 menv sw w                   # Shorthand for work
 ```
-
-**Open menv source code:**
-
-```sh
-menv code                   # Open menv project in VS Code
-```
-
-Clones the menv repository to `~/menv` (if not already present) and opens it in Visual Studio Code. This allows you to edit the menv codebase and create pull requests. Requires SSH access to GitHub to be configured.
 
 **Update menv:**
 
@@ -194,7 +190,8 @@ menv/
 | `menv make <tag> [profile]` | `mk` | Run individual Ansible task |
 | `menv list` | `ls` | List available tags |
 | `menv backup <target>` | `bk` | Backup system settings |
-| `menv config <action>` | `cf` | Manage VCS identities configuration |
+| `menv config set` | `cf set` | Set VCS identities interactively |
+| `menv config show` | `cf show` | Show current VCS identity configuration |
+| `menv config create [role]` | `cf cr [role]` | Deploy role configs to ~/.config/menv/ |
 | `menv switch <profile>` | `sw` | Switch VCS identity (personal/work) |
-| `menv code` | - | Open menv source code in VS Code |
 | `menv update` | `u` | Update menv to latest version |

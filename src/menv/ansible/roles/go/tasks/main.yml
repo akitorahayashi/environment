@@ -1,7 +1,7 @@
 ---
 - name: "Set Go version variable from file"
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/.go-version"
+    src: "{{ local_config_root }}/go/common/.go-version"
   register: go_version_file
 
 - name: "Set Go version fact"

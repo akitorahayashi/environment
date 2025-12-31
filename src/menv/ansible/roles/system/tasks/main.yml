@@ -11,4 +11,4 @@
     key: "{{ item.key }}"
     type: "{{ item.type }}"
     value: "{{ item.value }}"
-  loop: "{{ lookup('file', role_path + '/config/common/system.yml') | from_yaml }}"
+  loop: "{{ lookup('file', local_config_root + '/system/common/system.yml') | from_yaml }}"

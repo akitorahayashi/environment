@@ -10,19 +10,19 @@
     state: directory
     mode: "0755"
 
-- name: "Copy VS Code shared config files"
-  ansible.builtin.copy:
-    src: "{{ role_path }}/config/common/{{ item }}"
+- name: "Symlink VS Code shared config files"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/editor/common/{{ item }}"
     dest: "{{ ansible_env.HOME }}/Library/Application Support/Code/User/{{ item }}"
+    state: link
     force: true
-    mode: "0644"
   loop:
     - settings.json
     - keybindings.json
 
 - name: "Read VS Code extensions list"
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/vscode-extensions.json"
+    src: "{{ local_config_root }}/editor/common/vscode-extensions.json"
   register: editor_vscode_extensions_content
 
 - name: "Parse VS Code extensions JSON"

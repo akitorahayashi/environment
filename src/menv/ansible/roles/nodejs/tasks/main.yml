@@ -1,7 +1,7 @@
 ---
 - name: "Set Node.js version variable from file"
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/.nvmrc"
+    src: "{{ local_config_root }}/nodejs/common/.nvmrc"
   register: nodejs_version_file
 
 - name: "Set Node.js version fact"

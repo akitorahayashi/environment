@@ -7,8 +7,7 @@ import typer
 from rich.console import Console
 
 from menv.commands.backup import backup
-from menv.commands.code import code
-from menv.commands.config import config
+from menv.commands.config import config_app
 from menv.commands.introduce import introduce
 from menv.commands.make import list_tags, make
 from menv.commands.switch import switch
@@ -16,6 +15,7 @@ from menv.commands.update import update
 from menv.context import AppContext
 from menv.services.ansible_paths import AnsiblePaths
 from menv.services.ansible_runner import AnsibleRunner
+from menv.services.config_deployer import ConfigDeployer
 from menv.services.config_storage import ConfigStorage
 from menv.services.version_checker import VersionChecker
 
@@ -72,6 +72,7 @@ def main(
         ansible_paths=ansible_paths,
         ansible_runner=AnsibleRunner(paths=ansible_paths),
         version_checker=VersionChecker(),
+        config_deployer=ConfigDeployer(ansible_paths=ansible_paths),
     )
 
 
@@ -106,18 +107,17 @@ app.command(
 )(backup)
 app.command(name="bk", hidden=True)(backup)
 
-# Register config command and alias
-app.command(name="config", help=r"Manage menv configuration. \[aliases: cf]")(config)
-app.command(name="cf", hidden=True)(config)
+# Register config subcommand app and alias
+app.add_typer(
+    config_app, name="config", help=r"Manage menv configuration. \[aliases: cf]"
+)
+app.add_typer(config_app, name="cf", hidden=True)
 
 # Register switch command and alias
 app.command(
     name="switch", help=r"Switch VCS identity between personal and work. \[aliases: sw]"
 )(switch)
 app.command(name="sw", hidden=True)(switch)
-
-# Register code command
-app.command(name="code", help="Open menv source code in VS Code.")(code)
 
 
 if __name__ == "__main__":

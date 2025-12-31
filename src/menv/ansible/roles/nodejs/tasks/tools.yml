@@ -1,7 +1,7 @@
 ---
 - name: "Load packages JSON content"
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/global-packages.json"
+    src: "{{ local_config_root }}/nodejs/common/global-packages.json"
   register: nodejs_pkg_file_raw
 
 - name: "Parse package JSON"

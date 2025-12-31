@@ -1,7 +1,7 @@
 ---
 - name: "Load cargo tools configuration"
   ansible.builtin.include_vars:
-    file: "{{ role_path }}/config/common/tools.yml"
+    file: "{{ local_config_root }}/rust/common/tools.yml"
     name: cargo_tools_config
 
 # [NEW] 1. Check currently installed versions

@@ -1,7 +1,7 @@
 ---
 - name: "Load pipx tools configuration"
   ansible.builtin.include_vars:
-    file: "{{ role_path }}/config/common/pipx-tools.yml"
+    file: "{{ local_config_root }}/python/common/pipx-tools.yml"
     name: pipx_tools_config
 
 # 1. Check currently installed versions

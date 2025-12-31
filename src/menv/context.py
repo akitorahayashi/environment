@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from menv.protocols import (
         AnsiblePathsProtocol,
         AnsibleRunnerProtocol,
+        ConfigDeployerProtocol,
         ConfigStorageProtocol,
         VersionCheckerProtocol,
     )
@@ -22,3 +23,4 @@ class AppContext:
     ansible_paths: AnsiblePathsProtocol
     ansible_runner: AnsibleRunnerProtocol
     version_checker: VersionCheckerProtocol
+    config_deployer: ConfigDeployerProtocol

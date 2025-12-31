@@ -12,9 +12,10 @@ pipx-installable CLI for macOS dev environment setup using bundled Ansible playb
 | `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-deps/brew-cask |
 | `menv list` | `ls` | List available tags |
 | `menv backup <target>` | `bk` | Backup system/VS Code |
-| `menv config <action>` | `cf` | Manage VCS identities (set/show) |
+| `menv config set` | `cf set` | Set VCS identities interactively |
+| `menv config show` | `cf show` | Show current VCS identity configuration |
+| `menv config create [role]` | `cf cr [role]` | Deploy role configs to ~/.config/menv/; use `-o` for overlay |
 | `menv switch <profile>` | `sw` | Switch VCS identity (personal/p, work/w) |
-| `menv code` | - | Clone ~/menv (if needed) and open in VS Code |
 | `menv update` | `u` | Self-update via pipx |
 
 ## Package Structure
@@ -69,7 +70,8 @@ tests/
 ## Design Rules
 
 ### Path Resolution
-- CLI passes `profile`, `config_dir_abs_path`, `repo_root_path` as Ansible extra vars
+- CLI passes `profile`, `config_dir_abs_path`, `repo_root_path`, `local_config_root` as Ansible extra vars
+- `local_config_root` points to `~/.config/menv/roles` for externalized configs
 - Roles handle fallback logic (profile-specific → common)
 - Use `importlib.resources` for package path resolution
 
@@ -80,11 +82,21 @@ tests/
   - All other tasks default to `common` profile
 - Roles store configs in `config/common/` (all roles) and `config/profiles/` (brew only)
 
-### Copy Enforcement
-- Never create symlinks for user-facing config (pipx installs must remain stable across upgrades)
-- Use `ansible.builtin.copy` with `force: true`
+### Config Deployment Strategy
+
+**Two-stage config deployment:**
+1. **Package → `~/.config/menv/roles/{role}/`**: Copy via `menv config create` or auto-deploy on `menv make`
+2. **`~/.config/menv/roles/{role}/` → Local destinations**: Symbolic links (changes reflected immediately)
+
+**Config externalization benefits:**
+- Users can edit configs in `~/.config/menv/roles/` without reinstalling menv
+- Changes to `.rust-version`, `tools.yml`, etc. take effect immediately
+- No `pipx reinstall` required for config updates
+
+**Usage in Ansible tasks:**
+- Read configs from `{{ local_config_root }}/{role}/common/` or `{{ local_config_root }}/{role}/profiles/`
+- Deployment to local destinations (`~/.zshrc`, `~/.gitconfig`, etc.): `ansible.builtin.file` with `state: link`
 - Set `mode: "0644"` for config/text files, `mode: "0755"` for executable scripts
-- For directories, copy contents by using trailing slashes on `src`/`dest` (e.g. `src: .../dir/`, `dest: .../dir/`)
 
 ### Testing
 - Run via `just test` (runs both unit-test and intg-test)

@@ -1,7 +1,7 @@
 ---
 - name: "Set Python version variable from file"
   ansible.builtin.slurp:
-    src: "{{ role_path }}/config/common/.python-version"
+    src: "{{ local_config_root }}/python/common/.python-version"
   register: python_version_file
 
 - name: "Set Python version fact"

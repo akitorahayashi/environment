@@ -1,7 +1,7 @@
 ---
 - name: "Load Go tools configuration"
   ansible.builtin.include_vars:
-    file: "{{ role_path }}/config/common/go-tools.yml"
+    file: "{{ local_config_root }}/go/common/go-tools.yml"
     name: go_tools_config
 
 # 1. Check currently installed versions using `go version -m` for reliable version detection

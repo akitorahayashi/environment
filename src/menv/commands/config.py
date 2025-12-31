@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import typer
 from rich.console import Console
@@ -15,9 +15,16 @@ if TYPE_CHECKING:
 
 console = Console()
 
+config_app = typer.Typer(
+    name="config",
+    help="Manage menv configuration.",
+    no_args_is_help=True,
+)
 
+
+@config_app.command(name="show")
 def show_config(ctx: typer.Context) -> None:
-    """Display current configuration."""
+    """Display current VCS identity configuration."""
     app_ctx: AppContext = ctx.obj
 
     if not app_ctx.config_storage.exists():
@@ -44,8 +51,9 @@ def show_config(ctx: typer.Context) -> None:
     console.print(table)
 
 
+@config_app.command(name="set")
 def set_config(ctx: typer.Context) -> None:
-    """Set configuration interactively."""
+    """Set VCS identity configuration interactively."""
     app_ctx: AppContext = ctx.obj
 
     console.print("[bold]Configure menv VCS identities[/]")
@@ -91,26 +99,65 @@ def set_config(ctx: typer.Context) -> None:
     )
 
 
-def config(
+@config_app.command(name="create")
+def create_config(
     ctx: typer.Context,
-    action: str = typer.Argument(
-        ...,
-        help="Action to perform (set, show).",
+    role: Optional[str] = typer.Argument(
+        None,
+        help="Role name to deploy config for. If omitted, deploys all roles.",
+    ),
+    overlay: bool = typer.Option(
+        False,
+        "--overlay",
+        "-o",
+        help="Overwrite existing config with package defaults.",
     ),
 ) -> None:
-    """Manage menv configuration.
+    """Deploy role configs to ~/.config/menv/roles/.
+
+    This copies config files from the menv package to your local config
+    directory, allowing you to edit them without reinstalling menv.
 
     Examples:
-        menv config set             # Configure interactively
-        menv config show            # Show current config
-        menv cf set                 # Alias
-        menv cf show                # Alias
+        menv config create              # Deploy all role configs
+        menv config create rust         # Deploy only rust config
+        menv config create --overlay    # Overwrite existing with defaults
+        menv cf cr rust -o              # Shorthand with overlay
     """
-    if action == "set":
-        set_config(ctx)
-    elif action == "show":
-        show_config(ctx)
+    app_ctx: AppContext = ctx.obj
+
+    if role:
+        # Deploy single role
+        result = app_ctx.config_deployer.deploy_role(role, overlay=overlay)
+        if result.success:
+            console.print(f"[green]✓[/] {result.role}: {result.message}")
+        else:
+            console.print(f"[red]✗[/] {result.role}: {result.message}")
+            raise typer.Exit(code=1)
     else:
-        console.print(f"[red]Error:[/] Unknown action '{action}'.")
-        console.print("Valid actions: set, show")
-        raise typer.Exit(code=1)
+        # Deploy all roles
+        results = app_ctx.config_deployer.deploy_all(overlay=overlay)
+        success_count = 0
+        fail_count = 0
+
+        for result in results:
+            if result.success:
+                console.print(f"[green]✓[/] {result.role}: {result.message}")
+                success_count += 1
+            else:
+                console.print(f"[red]✗[/] {result.role}: {result.message}")
+                fail_count += 1
+
+        console.print()
+        console.print(
+            f"[bold]Deployed {success_count} configs"
+            + (f", {fail_count} failed" if fail_count > 0 else "")
+            + "[/]"
+        )
+
+        if fail_count > 0:
+            raise typer.Exit(code=1)
+
+
+# Alias for create command
+config_app.command(name="cr", hidden=True)(create_config)
