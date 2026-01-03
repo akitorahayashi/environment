@@ -1,4 +1,9 @@
 ---
+- name: "Install pipx"
+  community.general.homebrew:
+    name: pipx
+    state: present
+
 - name: "Load pipx tools configuration"
   ansible.builtin.include_vars:
     file: "{{ local_config_root }}/python/common/pipx-tools.yml"
