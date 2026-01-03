@@ -1,12 +1,12 @@
 ---
 - name: "Install and configure Visual Studio Code"
   ansible.builtin.include_tasks: vscode.yml
-  when: "'vscode' in ansible_run_tags"
+  when: "'editor' in ansible_run_tags or 'vscode' in ansible_run_tags"
 
 - name: "Install and configure Cursor"
   ansible.builtin.include_tasks: cursor.yml
-  when: "'cursor' in ansible_run_tags"
+  when: "'editor' in ansible_run_tags or 'cursor' in ansible_run_tags"
 
 - name: Configure Xcode settings
   ansible.builtin.include_tasks: xcode.yml
-  when: "'xcode' in ansible_run_tags"
+  when: "'editor' in ansible_run_tags or 'xcode' in ansible_run_tags"
