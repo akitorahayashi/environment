@@ -8,7 +8,7 @@ from rich.console import Console
 
 from menv.commands.backup import backup
 from menv.commands.config import config_app
-from menv.commands.introduce import introduce
+from menv.commands.create import create
 from menv.commands.make import list_tags, make
 from menv.commands.switch import switch
 from menv.commands.update import update
@@ -17,6 +17,7 @@ from menv.services.ansible_paths import AnsiblePaths
 from menv.services.ansible_runner import AnsibleRunner
 from menv.services.config_deployer import ConfigDeployer
 from menv.services.config_storage import ConfigStorage
+from menv.services.playbook import PlaybookService
 from menv.services.version_checker import VersionChecker
 
 console = Console()
@@ -73,15 +74,16 @@ def main(
         ansible_runner=AnsibleRunner(paths=ansible_paths),
         version_checker=VersionChecker(),
         config_deployer=ConfigDeployer(ansible_paths=ansible_paths),
+        playbook_service=PlaybookService(ansible_paths=ansible_paths),
     )
 
 
-# Register introduce command (interactive setup guide) and alias
+# Register create command (full setup) and alias
 app.command(
-    name="introduce",
-    help=r"Interactive setup guide for a profile. \[aliases: itr]",
-)(introduce)
-app.command(name="itr", hidden=True)(introduce)
+    name="create",
+    help=r"Create a complete development environment for a profile. \[aliases: cr]",
+)(create)
+app.command(name="cr", hidden=True)(create)
 
 # Register make command (individual tasks) and alias
 app.command(name="make", help=r"Run individual Ansible task by tag. \[aliases: mk]")(

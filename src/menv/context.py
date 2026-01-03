@@ -11,6 +11,7 @@ if TYPE_CHECKING:
         AnsibleRunnerProtocol,
         ConfigDeployerProtocol,
         ConfigStorageProtocol,
+        PlaybookServiceProtocol,
         VersionCheckerProtocol,
     )
 
@@ -24,3 +25,4 @@ class AppContext:
     ansible_runner: AnsibleRunnerProtocol
     version_checker: VersionCheckerProtocol
     config_deployer: ConfigDeployerProtocol
+    playbook_service: PlaybookServiceProtocol

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 console = Console()
 
 # Predefined tag groups that combine multiple tags
+# These are CLI convenience features, not duplicating SSOT
 TAG_GROUPS = {
     "rust": ["rust-platform", "rust-tools"],
     "python": ["python-platform", "python-tools"],
@@ -29,45 +30,16 @@ PROFILE_ALIASES = {
     "cmn": "common",
 }
 
-# Available tags from playbook.yml - grouped by role
-AVAILABLE_TAGS = {
-    "brew": ["brew-formulae", "brew-cask"],
-    "python": ["python-platform", "python-tools", "aider", "uv"],
-    "nodejs": ["nodejs-platform", "nodejs-tools", "llm"],
-    "ruby": ["ruby"],
-    "rust": ["rust-platform", "rust-tools"],
-    "go": ["go-platform", "go-tools"],
-    "vcs": ["git", "jj"],
-    "gh": ["gh"],
-    "shell": ["shell"],
-    "ssh": ["ssh"],
-    "editor": ["editor", "vscode", "cursor", "xcode"],
-    "coderabbit": ["coderabbit"],
-    "system": ["system"],
-    "docker": ["docker"],
-}
-
-# Mapping from tags to their parent role names
-TAG_TO_ROLE = {}
-for role, tags in AVAILABLE_TAGS.items():
-    for tag in tags:
-        TAG_TO_ROLE[tag] = role
-    # Also map role name itself (for tag groups like "rust" -> "rust")
-    TAG_TO_ROLE[role] = role
-
 
 def _get_roles_for_tags(app_ctx: "AppContext", tags: list[str]) -> set[str]:
     """Get unique role names for a list of tags that have config directories."""
-    roles_with_config = app_ctx.config_deployer.roles_with_config
-
-    roles = set()
-    for tag in tags:
-        if tag in TAG_TO_ROLE:
-            role = TAG_TO_ROLE[tag]
-            # Only include roles that have config directories
-            if role in roles_with_config:
-                roles.add(role)
-    return roles
+    roles_with_config = set(app_ctx.config_deployer.roles_with_config)
+    return {
+        role
+        for tag in tags
+        if (role := app_ctx.playbook_service.get_role_for_tag(tag))
+        and role in roles_with_config
+    }
 
 
 def _deploy_configs_for_roles(app_ctx: "AppContext", roles: set[str]) -> bool:
@@ -87,18 +59,21 @@ def _deploy_configs_for_roles(app_ctx: "AppContext", roles: set[str]) -> bool:
     return True
 
 
-def list_tags() -> None:
+def list_tags(ctx: typer.Context) -> None:
     """List all available tags that can be used with 'menv make'.
 
     Example:
         menv make list
         menv mk ls
     """
+    app_ctx: AppContext = ctx.obj
+    tags_map = app_ctx.playbook_service.get_tags_map()
+
     table = Table(title="Available Tags")
     table.add_column("Role", style="cyan")
     table.add_column("Tags", style="green")
 
-    for role, tags in AVAILABLE_TAGS.items():
+    for role, tags in sorted(tags_map.items()):
         table.add_row(role, ", ".join(tags))
 
     console.print(table)
@@ -152,6 +127,17 @@ def make(
 
     # Get app context
     app_ctx: AppContext = ctx.obj
+
+    # Validate tags exist in playbook
+    all_tags = set(app_ctx.playbook_service.get_all_tags())
+    # Tag groups like "rust" are valid CLI shortcuts, individual tags must exist
+    for t in tags_to_run:
+        if t not in all_tags:
+            console.print(
+                f"[bold red]Error:[/] Unknown tag '{t}'. "
+                "Use 'menv ls' to see available tags."
+            )
+            raise typer.Exit(code=1)
 
     # Auto-deploy configs for roles that will be executed
     roles_to_deploy = _get_roles_for_tags(app_ctx, tags_to_run)

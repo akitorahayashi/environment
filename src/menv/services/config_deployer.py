@@ -148,3 +148,24 @@ class ConfigDeployer:
             List of role names that have config directories.
         """
         return list(self.roles_with_config)
+
+    def deploy_multiple_roles(
+        self, roles: list[str], overlay: bool = False
+    ) -> list[DeployResult]:
+        """Deploy configs for multiple roles, stopping on first failure.
+
+        Args:
+            roles: List of role names to deploy.
+            overlay: If True, overwrite existing configs.
+
+        Returns:
+            List of DeployResult for each role attempted.
+            Stops early if any deployment fails.
+        """
+        results = []
+        for role in roles:
+            result = self.deploy_role(role, overlay=overlay)
+            results.append(result)
+            if not result.success:
+                break
+        return results

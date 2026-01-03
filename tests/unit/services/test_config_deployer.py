@@ -203,3 +203,110 @@ class TestConfigDeployer:
 
         assert result.success is False
         assert "does not have a config directory" in result.message
+
+
+class TestDeployMultipleRoles:
+    """Tests for the deploy_multiple_roles method."""
+
+    @pytest.fixture
+    def temp_home(self, tmp_path: Path) -> Path:
+        """Create a temporary home directory."""
+        home = tmp_path / "home"
+        home.mkdir()
+        return home
+
+    @pytest.fixture
+    def temp_ansible_dir(self, tmp_path: Path) -> Path:
+        """Create a temporary ansible directory with role configs."""
+        ansible_dir = tmp_path / "ansible"
+        ansible_dir.mkdir()
+
+        # Create rust role config
+        rust_config = ansible_dir / "roles" / "rust" / "config" / "common"
+        rust_config.mkdir(parents=True)
+        (rust_config / ".rust-version").write_text("1.75.0")
+
+        # Create shell role config
+        shell_config = ansible_dir / "roles" / "shell" / "config" / "common"
+        shell_config.mkdir(parents=True)
+        (shell_config / ".zshrc").write_text("# zshrc")
+
+        # Create go role config
+        go_config = ansible_dir / "roles" / "go" / "config" / "common"
+        go_config.mkdir(parents=True)
+        (go_config / ".go-version").write_text("1.21.0")
+
+        return ansible_dir
+
+    @pytest.fixture
+    def deployer(
+        self, temp_ansible_dir: Path, temp_home: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> ConfigDeployer:
+        """Create a ConfigDeployer with mocked paths."""
+        monkeypatch.setattr(Path, "home", lambda: temp_home)
+        mock_paths = MockAnsiblePaths(ansible_dir=temp_ansible_dir)
+        return ConfigDeployer(ansible_paths=mock_paths)
+
+    def test_deploy_multiple_roles_deploys_all_roles(
+        self, deployer: ConfigDeployer, temp_home: Path
+    ) -> None:
+        """Test that deploy_multiple_roles deploys all specified roles."""
+        results = deployer.deploy_multiple_roles(["rust", "shell", "go"])
+
+        assert len(results) == 3
+        assert all(r.success for r in results)
+
+        # Check all configs were deployed
+        assert (temp_home / ".config" / "menv" / "roles" / "rust").exists()
+        assert (temp_home / ".config" / "menv" / "roles" / "shell").exists()
+        assert (temp_home / ".config" / "menv" / "roles" / "go").exists()
+
+    def test_deploy_multiple_roles_stops_on_first_failure(
+        self, deployer: ConfigDeployer, temp_home: Path
+    ) -> None:
+        """Test that deploy_multiple_roles stops on first failure."""
+        # Include an invalid role in the middle
+        results = deployer.deploy_multiple_roles(["rust", "nonexistent", "shell"])
+
+        # Should have 2 results: rust (success) and nonexistent (failure)
+        assert len(results) == 2
+        assert results[0].success is True
+        assert results[0].role == "rust"
+        assert results[1].success is False
+        assert results[1].role == "nonexistent"
+
+        # shell should NOT be deployed because we stopped early
+        assert not (temp_home / ".config" / "menv" / "roles" / "shell").exists()
+
+    def test_deploy_multiple_roles_empty_list(self, deployer: ConfigDeployer) -> None:
+        """Test that deploy_multiple_roles with empty list returns empty results."""
+        results = deployer.deploy_multiple_roles([])
+
+        assert results == []
+
+    def test_deploy_multiple_roles_with_overlay(
+        self, deployer: ConfigDeployer, temp_home: Path
+    ) -> None:
+        """Test that deploy_multiple_roles respects overlay flag."""
+        # First deployment
+        deployer.deploy_multiple_roles(["rust"])
+
+        # Modify local file
+        local_file = (
+            temp_home
+            / ".config"
+            / "menv"
+            / "roles"
+            / "rust"
+            / "common"
+            / ".rust-version"
+        )
+        local_file.write_text("modified")
+
+        # Second deployment with overlay
+        results = deployer.deploy_multiple_roles(["rust"], overlay=True)
+
+        assert len(results) == 1
+        assert results[0].success is True
+        # File should be overwritten
+        assert local_file.read_text() == "1.75.0"

@@ -92,3 +92,18 @@ class ConfigDeployerProtocol(Protocol):
             List of role names that have config directories.
         """
         ...
+
+    def deploy_multiple_roles(
+        self, roles: list[str], overlay: bool = False
+    ) -> list[DeployResult]:
+        """Deploy configs for multiple roles, stopping on first failure.
+
+        Args:
+            roles: List of role names to deploy.
+            overlay: If True, overwrite existing configs.
+
+        Returns:
+            List of DeployResult for each role attempted.
+            Stops early if any deployment fails.
+        """
+        ...

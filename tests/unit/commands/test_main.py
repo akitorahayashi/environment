@@ -30,7 +30,7 @@ class TestCLIMain:
 
         assert result.exit_code == 0
         assert "menv" in result.output
-        assert "introduce" in result.output
+        assert "create" in result.output
         assert "make" in result.output
         assert "update" in result.output
 

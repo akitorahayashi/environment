@@ -32,22 +32,22 @@ pipx install git+https://github.com/akitorahayashi/menv.git
 
 ### Usage
 
-**Interactive setup guide (recommended):**
+**Full environment setup (recommended):**
 
 ```sh
 # For MacBook
-menv introduce macbook
+menv create macbook
 # or shorthand:
-menv itr mbk
-menv itr mbk -nw  # Skip wait prompts
+menv cr mbk
+menv cr mbk -v  # Verbose output
 
 # For Mac mini
-menv introduce mac-mini
+menv create mac-mini
 # or shorthand:
-menv itr mmn
+menv cr mmn
 ```
 
-The `introduce` command shows an interactive guide with commands you can run in parallel. Open multiple terminals to speed up setup.
+The `create` command runs all setup tasks in the correct order to provision a complete macOS development environment. It stops immediately on any failure, making it easy to identify and fix issues.
 
 **Design principle**: Most commands use the `common` profile by default (no profile argument needed). Only `brew-deps` and `brew-cask` require profile specification since they have machine-specific configurations.
 
@@ -122,76 +122,3 @@ menv --help
 menv introduce --help
 menv make --help
 ```
-
-## Development
-
-### Setup
-
-```sh
-# Clone the repository
-git clone https://github.com/akitorahayashi/menv.git
-cd menv
-
-# Install dependencies
-uv sync
-```
-
-### Available Commands
-
-```sh
-# Run menv in development mode
-just run --help
-just run introduce macbook
-
-# Run tests
-just test
-
-# Format and lint code
-just fix
-just check
-
-# Clean temporary files
-just clean
-```
-
-### Project Structure
-
-```
-menv/
-├── src/menv/
-│   ├── __init__.py
-│   ├── __main__.py       # python -m menv
-│   ├── main.py           # Typer app definition
-│   ├── context.py        # AppContext (DI container)
-│   ├── commands/
-│   │   ├── backup.py     # backup/bk command
-│   │   ├── config.py     # config/cf command
-│   │   ├── introduce.py  # introduce/itr command (setup guide)
-│   │   ├── make.py       # make/mk command (individual tasks)
-│   │   ├── switch.py     # switch/sw command
-│   │   └── update.py     # update/u command
-│   ├── models/           # Data models (domain-grouped)
-│   ├── services/         # Service implementations (1 class per file)
-│   ├── protocols/        # Service protocols (1 per service)
-│   └── ansible/          # Ansible playbooks and roles
-│       ├── playbook.yml
-│       └── roles/
-├── tests/
-│   └── mocks/            # Mock implementations (1 class per file)
-├── justfile              # Development tasks
-└── pyproject.toml
-```
-
-## Commands Summary
-
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `menv introduce <profile>` | `itr` | Interactive setup guide for a profile |
-| `menv make <tag> [profile]` | `mk` | Run individual Ansible task |
-| `menv list` | `ls` | List available tags |
-| `menv backup <target>` | `bk` | Backup system settings |
-| `menv config set` | `cf set` | Set VCS identities interactively |
-| `menv config show` | `cf show` | Show current VCS identity configuration |
-| `menv config create [role]` | `cf cr [role]` | Deploy role configs to ~/.config/menv/ |
-| `menv switch <profile>` | `sw` | Switch VCS identity (personal/work) |
-| `menv update` | `u` | Update menv to latest version |
