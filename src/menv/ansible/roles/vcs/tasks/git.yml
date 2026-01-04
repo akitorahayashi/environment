@@ -3,7 +3,6 @@
   community.general.homebrew:
     name: git
     state: present
-  tags: [brew-deps]
 
 - name: "Ensure .config/git directory exists"
   ansible.builtin.file:

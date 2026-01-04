@@ -3,7 +3,6 @@
   community.general.homebrew:
     name: gh
     state: present
-  tags: [brew-deps]
 
 - name: "Ensure .config/gh directory exists"
   ansible.builtin.file:

@@ -1,3 +1,0 @@
-voicevox/voicevox_engine:cpu-ubuntu22.04-latest
-ollama/ollama:latest
-mcp/sequentialthinking

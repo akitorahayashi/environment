@@ -32,7 +32,7 @@ pipx install git+https://github.com/akitorahayashi/menv.git
 
 ### Usage
 
-**Full environment setup (recommended):**
+**Core environment setup (recommended):**
 
 ```sh
 # For MacBook
@@ -47,9 +47,9 @@ menv create mac-mini
 menv cr mmn
 ```
 
-The `create` command runs all setup tasks in the correct order to provision a complete macOS development environment. It stops immediately on any failure, making it easy to identify and fix issues.
+The `create` command runs core setup tasks in the correct order to provision a base macOS development environment. It stops immediately on any failure, making it easy to identify and fix issues.
 
-**Design principle**: Most commands use the `common` profile by default (no profile argument needed). Only `brew-deps` and `brew-cask` require profile specification since they have machine-specific configurations.
+**Design principle**: Most commands use the `common` profile by default (no profile argument needed). Only `brew-formulae` and `brew-cask` require profile specification since they have machine-specific configurations.
 
 menv provisions dotfiles by copying them into your home directory (no symlinks) so pipx upgrades won’t break paths.
 
@@ -67,8 +67,8 @@ menv make python-tools      # Run python-tools
 menv make shell             # Run shell setup
 menv mk vscode              # Shorthand
 
-# Profile required only for brew-deps and brew-cask
-menv make brew-deps mbk     # Install brew dependencies for macbook
+# Profile required only for brew-formulae and brew-cask
+menv make brew-formulae mbk     # Install brew dependencies for macbook
 menv make brew-cask mmn     # Install GUI apps for mac-mini
 
 # Tag groups are expanded automatically:

@@ -3,7 +3,6 @@
   community.general.homebrew:
     name: jj
     state: present
-  tags: [brew-deps]
 
 - name: "Ensure .jj directory exists"
   ansible.builtin.file:

@@ -8,8 +8,8 @@ pipx-installable CLI for macOS dev environment setup using bundled Ansible playb
 
 | Command | Alias | Description |
 |---------|-------|-------------|
-| `menv create <profile>` | `cr` | Create complete environment (macbook/mbk, mac-mini/mmn); use `-v` for verbose |
-| `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-deps/brew-cask |
+| `menv create <profile>` | `cr` | Create core environment (macbook/mbk, mac-mini/mmn); use `-v` for verbose |
+| `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-formulae/brew-cask |
 | `menv list` | `ls` | List available tags |
 | `menv backup <target>` | `bk` | Backup system/VS Code |
 | `menv config set` | `cf set` | Set VCS identities interactively |
@@ -78,7 +78,7 @@ tests/
 ### Profile Design
 - **Common profile by default**: Most roles use `common` profile (no explicit profile argument needed)
 - **Profile-specific configs**: Only `brew` role has profile-specific configs (macbook/mac-mini)
-  - `brew-deps` and `brew-cask` require profile specification (use aliases: mbk, mmn)
+  - `brew-formulae` and `brew-cask` require profile specification (use aliases: mbk, mmn)
   - All other tasks default to `common` profile
 - Roles store configs in `config/common/` (all roles) and `config/profiles/` (brew only)
 

@@ -25,7 +25,6 @@ PROFILE_ALIASES = {
 FULL_SETUP_TAGS = [
     # Phase 0: Brew dependencies (must be first)
     "brew-formulae",
-    "brew-cask",
     # Phase 1: Configuration
     "shell",
     "system",
@@ -47,10 +46,7 @@ FULL_SETUP_TAGS = [
     # Phase 4: Editors
     "vscode",
     "cursor",
-    "coderabbit",
     # Phase 5: Additional tools
-    "ssh",
-    "docker",
     "aider",
     "llm",
     "xcode",

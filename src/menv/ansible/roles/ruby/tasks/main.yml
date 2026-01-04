@@ -15,7 +15,6 @@
   loop:
     - openssl
     - rbenv
-  tags: [brew-deps]
 
 - name: "Install specified Ruby version with rbenv"
   ansible.builtin.command:

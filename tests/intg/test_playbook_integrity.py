@@ -57,13 +57,12 @@ class TestPlaybookIntegrity:
     ) -> None:
         """Test that tag names are unique across roles (except intentionally shared ones).
 
-        The 'brew-deps' tag is intentionally used by multiple roles to ensure
-        brew dependencies are installed before running the role's tasks.
+        Currently, there are no intentionally shared tags.
         """
         tags_map = playbook_service.get_tags_map()
 
         # Tags that are intentionally shared across multiple roles
-        shared_tags = {"brew-deps"}
+        shared_tags: set[str] = set()
 
         seen_tags: dict[str, str] = {}
         duplicates: list[str] = []

@@ -3,7 +3,6 @@
   community.general.homebrew:
     name: displayplacer
     state: present
-  tags: [brew-deps]
 
 - name: "Apply macOS system defaults"
   community.general.osx_defaults:

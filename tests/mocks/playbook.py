@@ -30,9 +30,7 @@ class MockPlaybookService(PlaybookServiceProtocol):
             "shell": ["shell"],
             "ssh": ["ssh"],
             "editor": ["editor", "vscode", "cursor", "xcode"],
-            "coderabbit": ["coderabbit"],
             "system": ["system"],
-            "docker": ["docker"],
         }
 
         # Build reverse mapping

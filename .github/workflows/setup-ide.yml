@@ -23,6 +23,3 @@ jobs:
 
       - name: Setup Xcode configuration
         run: just run make xcode 
-
-      - name: Setup CodeRabbit CLI
-        run: just run make coderabbit 

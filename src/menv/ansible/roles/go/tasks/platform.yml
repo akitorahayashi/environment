@@ -3,7 +3,6 @@
   community.general.homebrew:
     name: goenv
     state: present
-  tags: [brew-deps]
 
 - name: "Install specified Go version with goenv"
   ansible.builtin.command:
