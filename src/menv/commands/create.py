@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 import typer
 from rich.console import Console
@@ -52,6 +52,61 @@ FULL_SETUP_TAGS = [
     "xcode",
     "editor",
 ]
+
+
+# Data structure for optional tasks
+class OptionalTask(TypedDict):
+    tag: str
+    name: str
+    description: str
+    profile_specific: bool  # Whether the task requires a profile argument
+
+
+# Optional tasks that are skipped for stability/speed reasons
+OPTIONAL_TASKS: list[OptionalTask] = [
+    {
+        "tag": "brew-cask",
+        "name": "GUI Applications",
+        "description": "Install GUI apps via Homebrew Cask",
+        "profile_specific": True,
+    },
+    # Future extensions can be added here
+    # {
+    #     "tag": "ollama-models",
+    #     "name": "LLM Models",
+    #     "description": "Download large LLM models for Ollama (Requires heavy network usage)",
+    #     "profile_specific": False,
+    # },
+]
+
+
+def _print_optional_tasks_summary(profile: str) -> None:
+    """Show summary of optional tasks that were skipped."""
+    if not OPTIONAL_TASKS:
+        return
+
+    lines = []
+    lines.append(
+        "The following optional components were skipped to ensure stability/speed:\n"
+    )
+
+    for task in OPTIONAL_TASKS:
+        cmd_args = f"{task['tag']}"
+
+        lines.append(f"[bold cyan]➤ {task['name']}[/]")
+        lines.append(f"  Description: {task['description']}")
+        lines.append(f"  Command:     [green]menv make {cmd_args}[/]")
+        lines.append("")  # Empty line for spacing
+
+    console.print()
+    console.print(
+        Panel(
+            "\n".join(lines).rstrip(),
+            title="Optional Steps",
+            border_style="yellow",
+            expand=False,
+        )
+    )
 
 
 def create(
@@ -177,3 +232,6 @@ def create(
             border_style="green",
         )
     )
+
+    # Print optional tasks summary
+    _print_optional_tasks_summary(resolved_profile)
