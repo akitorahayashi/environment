@@ -4,7 +4,8 @@
 alias cr="cargo"
 alias cr-n="cargo new"
 alias cr-i="cargo install"
-alias cr-i-g="cargo install --git"
+alias cr-ls="cargo install --list"
+alias cr-ui="cargo uninstall"
 
 # Formatting
 cr-f() {

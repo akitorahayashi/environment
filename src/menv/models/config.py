@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TypedDict
 
 
-class IdentityConfig(TypedDict):
+class VcsIdentityConfig(TypedDict):
     """Identity configuration for VCS."""
 
     name: str
@@ -15,5 +15,5 @@ class IdentityConfig(TypedDict):
 class MenvConfig(TypedDict):
     """Full menv configuration."""
 
-    personal: IdentityConfig
-    work: IdentityConfig
+    personal: VcsIdentityConfig
+    work: VcsIdentityConfig

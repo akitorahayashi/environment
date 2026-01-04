@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from menv.models.config import IdentityConfig, MenvConfig
+from menv.models.config import MenvConfig, VcsIdentityConfig
 from menv.services.config_storage import ConfigStorage
 
 
@@ -28,8 +28,8 @@ class TestConfigStorage:
         """Test exists returns True when config file exists."""
         storage = ConfigStorage(tmp_path)
         config = MenvConfig(
-            personal=IdentityConfig(name="Test", email="test@example.com"),
-            work=IdentityConfig(name="Work", email="work@example.com"),
+            personal=VcsIdentityConfig(name="Test", email="test@example.com"),
+            work=VcsIdentityConfig(name="Work", email="work@example.com"),
         )
         storage.save(config)
 
@@ -50,8 +50,8 @@ class TestConfigSaveLoad:
         storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
-            personal=IdentityConfig(name="Test User", email="test@example.com"),
-            work=IdentityConfig(name="Work User", email="work@company.com"),
+            personal=VcsIdentityConfig(name="Test User", email="test@example.com"),
+            work=VcsIdentityConfig(name="Work User", email="work@company.com"),
         )
         storage.save(config)
 
@@ -68,8 +68,8 @@ class TestConfigSaveLoad:
         storage = ConfigStorage(config_dir)
 
         config = MenvConfig(
-            personal=IdentityConfig(name="Test", email="test@example.com"),
-            work=IdentityConfig(name="Work", email="work@example.com"),
+            personal=VcsIdentityConfig(name="Test", email="test@example.com"),
+            work=VcsIdentityConfig(name="Work", email="work@example.com"),
         )
         storage.save(config)
 
@@ -85,8 +85,8 @@ class TestGetIdentity:
         storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
-            personal=IdentityConfig(name="Personal", email="personal@example.com"),
-            work=IdentityConfig(name="Work", email="work@example.com"),
+            personal=VcsIdentityConfig(name="Personal", email="personal@example.com"),
+            work=VcsIdentityConfig(name="Work", email="work@example.com"),
         )
         storage.save(config)
 
@@ -101,8 +101,8 @@ class TestGetIdentity:
         storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
-            personal=IdentityConfig(name="Personal", email="personal@example.com"),
-            work=IdentityConfig(name="Work", email="work@example.com"),
+            personal=VcsIdentityConfig(name="Personal", email="personal@example.com"),
+            work=VcsIdentityConfig(name="Work", email="work@example.com"),
         )
         storage.save(config)
 
@@ -117,8 +117,8 @@ class TestGetIdentity:
         storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
-            personal=IdentityConfig(name="Personal", email="personal@example.com"),
-            work=IdentityConfig(name="Work", email="work@example.com"),
+            personal=VcsIdentityConfig(name="Personal", email="personal@example.com"),
+            work=VcsIdentityConfig(name="Work", email="work@example.com"),
         )
         storage.save(config)
 
@@ -140,8 +140,10 @@ class TestSpecialCharacters:
         storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
-            personal=IdentityConfig(name='Test "Nick" User', email="test@example.com"),
-            work=IdentityConfig(name="Work User", email="work@example.com"),
+            personal=VcsIdentityConfig(
+                name='Test "Nick" User', email="test@example.com"
+            ),
+            work=VcsIdentityConfig(name="Work User", email="work@example.com"),
         )
         storage.save(config)
 
@@ -154,8 +156,8 @@ class TestSpecialCharacters:
         storage = ConfigStorage(tmp_path)
 
         config = MenvConfig(
-            personal=IdentityConfig(name=r"User\Name", email="test@example.com"),
-            work=IdentityConfig(name="Work User", email="work@example.com"),
+            personal=VcsIdentityConfig(name=r"User\Name", email="test@example.com"),
+            work=VcsIdentityConfig(name="Work User", email="work@example.com"),
         )
         storage.save(config)
 

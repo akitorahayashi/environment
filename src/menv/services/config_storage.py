@@ -5,7 +5,7 @@ from __future__ import annotations
 import tomllib
 from pathlib import Path
 
-from menv.models.config import IdentityConfig, MenvConfig
+from menv.models.config import MenvConfig, VcsIdentityConfig
 from menv.protocols.config_storage import ConfigStorageProtocol
 
 
@@ -45,11 +45,11 @@ class ConfigStorage(ConfigStorageProtocol):
             data = tomllib.load(f)
 
         return MenvConfig(
-            personal=IdentityConfig(
+            personal=VcsIdentityConfig(
                 name=data.get("personal", {}).get("name", ""),
                 email=data.get("personal", {}).get("email", ""),
             ),
-            work=IdentityConfig(
+            work=VcsIdentityConfig(
                 name=data.get("work", {}).get("name", ""),
                 email=data.get("work", {}).get("email", ""),
             ),
@@ -81,7 +81,7 @@ class ConfigStorage(ConfigStorageProtocol):
 
         self._config_path.write_text("\n".join(lines))
 
-    def get_identity(self, profile: str) -> IdentityConfig | None:
+    def get_identity(self, profile: str) -> VcsIdentityConfig | None:
         """Get identity configuration for a profile.
 
         Args:

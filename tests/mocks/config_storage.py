@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from menv.models.config import IdentityConfig, MenvConfig
+from menv.models.config import MenvConfig, VcsIdentityConfig
 from menv.protocols import ConfigStorageProtocol
 
 
@@ -22,7 +22,7 @@ class MockConfigStorage(ConfigStorageProtocol):
     def save(self, config: MenvConfig) -> None:
         self._config = config
 
-    def get_identity(self, profile: str) -> IdentityConfig | None:
+    def get_identity(self, profile: str) -> VcsIdentityConfig | None:
         if self._config is None:
             return None
 

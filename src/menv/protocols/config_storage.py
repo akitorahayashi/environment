@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from menv.models.config import IdentityConfig, MenvConfig
+    from menv.models.config import MenvConfig, VcsIdentityConfig
 
 
 class ConfigStorageProtocol(Protocol):
@@ -35,7 +35,7 @@ class ConfigStorageProtocol(Protocol):
         """
         ...
 
-    def get_identity(self, profile: str) -> IdentityConfig | None:
+    def get_identity(self, profile: str) -> VcsIdentityConfig | None:
         """Get identity configuration for a profile.
 
         Args:

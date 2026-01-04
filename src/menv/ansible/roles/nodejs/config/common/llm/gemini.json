@@ -23,7 +23,7 @@
     "usageStatisticsEnabled": false
   },
   "model": {
-    "name": "Gemini 3"
+    "name": "gemini-3-pro-preview"
   },
   "context": {
     "fileName": [

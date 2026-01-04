@@ -3,7 +3,7 @@
 
 MODELS = {
     "pr": "gemini-3-pro-preview",
-    "fl": "gemini-2.5-flash",
+    "fl": "gemini-3-flash-preview",
     "lt": "gemini-2.5-flash-lite",
     "i": "gemini-2.5-flash-image-preview",
     "il": "gemini-2.5-flash-image-live-preview",

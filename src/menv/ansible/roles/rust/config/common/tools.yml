@@ -15,17 +15,17 @@ tools:
   - name: pure
     git: git@github.com:akitorahayashi/pure.git
     tag: v0.5.0
-  - name: fusion
-    git: git@github.com:akitorahayashi/fusion.git
-    tag: v1.4.0
-  - name: mix
-    git: git@github.com:akitorahayashi/mix.git
-    tag: v1.0.1
+  - name: fs
+    git: git@github.com:akitorahayashi/fs.git
+    tag: v2.0.0
+  - name: mx
+    git: git@github.com:akitorahayashi/mx.git
+    tag: v2.0.0
   - name: tls-rs
     git: git@github.com:akitorahayashi/tls-rs.git
     tag: v1.6.1
   - name: ssv
-    git: git@github.com:akitorahayashi/ssv.git
+    git: https://github.com/akitorahayashi/ssv.git
     tag: v0.1.1
   # - name: cargo-edit
   #   options: "--locked"

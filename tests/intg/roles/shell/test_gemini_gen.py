@@ -22,9 +22,9 @@ class TestGenGeminiAliases:
 
         # Check some expected aliases
         assert 'alias gm-pr="gemini -m gemini-3-pro-preview "' in lines
-        assert 'alias gm-fl="gemini -m gemini-2.5-flash "' in lines
+        assert 'alias gm-fl="gemini -m gemini-3-flash-preview "' in lines
         assert 'alias gm-pr-y="gemini -m gemini-3-pro-preview -y"' in lines
-        assert 'alias gm-fl-ap="gemini -m gemini-2.5-flash -a -p"' in lines
+        assert 'alias gm-fl-ap="gemini -m gemini-3-flash-preview -a -p"' in lines
 
         # Check total number of aliases (5 models * 6 options = 30)
         assert len(lines) == 30

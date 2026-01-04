@@ -8,7 +8,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from menv.models.config import IdentityConfig, MenvConfig
+from menv.models.config import MenvConfig, VcsIdentityConfig
 
 if TYPE_CHECKING:
     from menv.context import AppContext
@@ -88,8 +88,8 @@ def set_config(ctx: typer.Context) -> None:
 
     # Save configuration
     config = MenvConfig(
-        personal=IdentityConfig(name=personal_name, email=personal_email),
-        work=IdentityConfig(name=work_name, email=work_email),
+        personal=VcsIdentityConfig(name=personal_name, email=personal_email),
+        work=VcsIdentityConfig(name=work_name, email=work_email),
     )
     app_ctx.config_storage.save(config)
 
