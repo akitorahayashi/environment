@@ -67,6 +67,16 @@ menv make python-tools      # Run python-tools
 menv make shell             # Run shell setup
 menv mk vscode              # Shorthand
 
+# LLM infrastructure (local models)
+menv make llm               # Setup Ollama + MLX (no model downloads)
+menv make ollama            # Setup Ollama only
+menv make mlx               # Setup MLX venv only
+menv make ollama-models     # Download Ollama models (requires ollama serve)
+menv make mlx-models        # Download MLX models
+
+# Coder tools (cloud LLM CLI tools)
+menv make coder             # Install Claude, Gemini, Codex CLI tools
+
 # Profile required only for brew-formulae and brew-cask
 menv make brew-formulae mbk     # Install brew dependencies for macbook
 menv make brew-cask mmn     # Install GUI apps for mac-mini

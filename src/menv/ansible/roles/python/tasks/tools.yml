@@ -70,25 +70,3 @@
     label: "{{ item.name }}"
   changed_when: true
   when: item.post_install_exec is defined
-
-- name: "Ensure menv venv directory exists"
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.menv/venvs"
-    state: directory
-    mode: "0755"
-
-- name: "Create mlx-lm venv"
-  ansible.builtin.shell: |
-    uv venv {{ ansible_env.HOME }}/.menv/venvs/mlx-lm
-  args:
-    creates: "{{ ansible_env.HOME }}/.menv/venvs/mlx-lm"
-    chdir: "{{ repo_root_path }}"
-  when: repo_root_path is defined
-
-- name: "Install mlx dependency-group into mlx-lm venv"
-  ansible.builtin.shell: |
-    UV_PROJECT_ENVIRONMENT={{ ansible_env.HOME }}/.menv/venvs/mlx-lm uv sync --only-group mlx
-  args:
-    chdir: "{{ repo_root_path }}"
-  changed_when: false
-  when: repo_root_path is defined

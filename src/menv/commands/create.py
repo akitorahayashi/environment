@@ -25,6 +25,7 @@ PROFILE_ALIASES = {
 FULL_SETUP_TAGS = [
     # Phase 0: Brew dependencies (must be first)
     "brew-formulae",
+    "ollama",
     # Phase 1: Configuration
     "shell",
     "system",
@@ -48,7 +49,8 @@ FULL_SETUP_TAGS = [
     "cursor",
     # Phase 5: Additional tools
     "aider",
-    "llm",
+    "coder",
+    "mlx",
     "xcode",
     "editor",
 ]
@@ -70,13 +72,18 @@ OPTIONAL_TASKS: list[OptionalTask] = [
         "description": "Install GUI apps via Homebrew Cask",
         "profile_specific": True,
     },
-    # Future extensions can be added here
-    # {
-    #     "tag": "ollama-models",
-    #     "name": "LLM Models",
-    #     "description": "Download large LLM models for Ollama (Requires heavy network usage)",
-    #     "profile_specific": False,
-    # },
+    {
+        "tag": "ollama-models",
+        "name": "Ollama Models",
+        "description": "Download Ollama models (requires 'ollama serve' running)",
+        "profile_specific": False,
+    },
+    {
+        "tag": "mlx-models",
+        "name": "MLX Models",
+        "description": "Download MLX models via huggingface-cli",
+        "profile_specific": False,
+    },
 ]
 
 

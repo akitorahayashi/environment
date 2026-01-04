@@ -16,6 +16,6 @@
   ansible.builtin.include_tasks: tools.yml
   when: "'nodejs-tools' in ansible_run_tags"
 
-- name: "Install and configure Node.js LLM tools"
-  ansible.builtin.include_tasks: llm.yml
-  when: "'llm' in ansible_run_tags"
+- name: "Install and configure Node.js coder tools"
+  ansible.builtin.include_tasks: coder.yml
+  when: "'coder' in ansible_run_tags"

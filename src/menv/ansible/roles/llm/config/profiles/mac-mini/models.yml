@@ -1,0 +1,9 @@
+---
+ollama:
+  - deepseek-r1:8b-0528-qwen3-q4_K_M
+  - deepseek-r1:8b-0528-qwen3-q8_0
+  - llama3.2:3b-text-q8_0
+  - qwen3-vl:8b-instruct-q8_0
+  - qwen3-vl:8b-thinking-q8_0
+
+mlx: []

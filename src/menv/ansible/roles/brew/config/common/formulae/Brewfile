@@ -13,9 +13,6 @@ brew "redis"
 brew "poppler"
 brew "pandoc"
 
-## AI
-brew "ollama"
-
 ## CLI Tools
 brew "yq"
 brew "shellcheck"

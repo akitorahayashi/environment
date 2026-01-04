@@ -5,7 +5,7 @@
   roles:
     - { role: brew, tags: ["brew-formulae", "brew-cask"] }
     - { role: python, tags: ["python-platform", "python-tools", "aider", "uv"] }
-    - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "llm"] }
+    - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "coder"] }
     - { role: ruby, tags: ["ruby"] }
     - { role: rust, tags: ["rust-platform", "rust-tools"] }
     - { role: go, tags: ["go-platform", "go-tools"] }
@@ -15,3 +15,4 @@
     - { role: ssh, tags: ["ssh"] }
     - { role: editor, tags: ["editor", "vscode", "cursor", "xcode"] }
     - { role: system, tags: ["system"] }
+    - { role: llm, tags: ["llm", "ollama", "ollama-models", "mlx", "mlx-models"] }

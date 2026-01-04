@@ -1,0 +1,61 @@
+---
+# MLX venv Setup and Model Management
+# Tags:
+#   - llm, mlx: Create venv and sync dependencies
+#   - mlx-models: Download models via huggingface-cli
+
+- name: "Ensure menv venv directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.menv/venvs"
+    state: directory
+    mode: "0755"
+  when: "'llm' in ansible_run_tags or 'mlx' in ansible_run_tags"
+
+- name: "Create mlx-lm venv"
+  ansible.builtin.shell: |
+    uv venv {{ ansible_env.HOME }}/.menv/venvs/mlx-lm
+  args:
+    creates: "{{ ansible_env.HOME }}/.menv/venvs/mlx-lm"
+    chdir: "{{ repo_root_path }}"
+  when: "('llm' in ansible_run_tags or 'mlx' in ansible_run_tags) and repo_root_path is defined"
+
+- name: "Install mlx dependency-group into mlx-lm venv"
+  ansible.builtin.shell: |
+    UV_PROJECT_ENVIRONMENT={{ ansible_env.HOME }}/.menv/venvs/mlx-lm uv sync --only-group mlx
+  args:
+    chdir: "{{ repo_root_path }}"
+  register: llm_mlx_sync_result
+  changed_when: "'Installed' in llm_mlx_sync_result.stdout or 'Updated' in llm_mlx_sync_result.stdout"
+  when: "('llm' in ansible_run_tags or 'mlx' in ansible_run_tags) and repo_root_path is defined"
+
+# Model download tasks (only for mlx-models tag)
+- name: "Load common models configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/llm/common/models.yml"
+    name: llm_common_models_mlx
+  when: "'mlx-models' in ansible_run_tags"
+
+- name: "Load profile models configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/llm/profiles/{{ profile }}/models.yml"
+    name: llm_profile_models_mlx
+  when: "'mlx-models' in ansible_run_tags and profile is defined"
+  failed_when: false
+
+- name: "Set MLX models to download"
+  ansible.builtin.set_fact:
+    llm_mlx_models_to_download: "{{ (llm_common_models_mlx.mlx | default([])) + (llm_profile_models_mlx.mlx | default([])) }}"
+  when: "'mlx-models' in ansible_run_tags"
+
+- name: "Set mlx-lm bin path"
+  ansible.builtin.set_fact:
+    llm_mlx_venv_bin: "{{ ansible_env.HOME }}/.menv/venvs/mlx-lm/bin"
+  when: "'mlx-models' in ansible_run_tags"
+
+- name: "Download MLX models via huggingface-cli"
+  ansible.builtin.command:
+    cmd: "{{ llm_mlx_venv_bin }}/huggingface-cli download {{ item }}"
+  loop: "{{ llm_mlx_models_to_download | default([]) }}"
+  register: llm_mlx_download_result
+  changed_when: "'Downloading' in llm_mlx_download_result.stderr or 'Fetching' in llm_mlx_download_result.stderr"
+  when: "'mlx-models' in ansible_run_tags and (llm_mlx_models_to_download | default([]) | length) > 0"

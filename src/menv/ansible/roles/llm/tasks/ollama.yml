@@ -1,0 +1,53 @@
+---
+# Ollama Installation and Model Management
+# Tags:
+#   - llm, ollama: Install Ollama via Homebrew
+#   - ollama-models: Pull configured models (requires running ollama serve)
+
+- name: "Install Ollama via Homebrew"
+  community.general.homebrew:
+    name: ollama
+    state: present
+  when: "'llm' in ansible_run_tags or 'ollama' in ansible_run_tags"
+
+# Model synchronization tasks (only for ollama-models tag)
+- name: "Load common models configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/llm/common/models.yml"
+    name: llm_common_models
+  when: "'ollama-models' in ansible_run_tags"
+
+- name: "Load profile models configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/llm/profiles/{{ profile }}/models.yml"
+    name: llm_profile_models
+  when: "'ollama-models' in ansible_run_tags and profile is defined"
+  failed_when: false
+
+- name: "Set Ollama models to sync"
+  ansible.builtin.set_fact:
+    llm_ollama_models_to_sync: "{{ (llm_common_models.ollama | default([])) + (llm_profile_models.ollama | default([])) }}"
+  when: "'ollama-models' in ansible_run_tags"
+
+- name: "Check if Ollama server is running on port 11434"
+  ansible.builtin.wait_for:
+    host: localhost
+    port: 11434
+    timeout: 5
+    state: started
+  register: llm_ollama_server_check
+  failed_when: false
+  when: "'ollama-models' in ansible_run_tags"
+
+- name: "Fail if Ollama server is not running"
+  ansible.builtin.fail:
+    msg: "Ollama server is not running. Please start it with 'ollama serve' before pulling models."
+  when: "'ollama-models' in ansible_run_tags and llm_ollama_server_check.failed | default(false)"
+
+- name: "Pull Ollama models"
+  ansible.builtin.command:
+    cmd: "ollama pull {{ item }}"
+  loop: "{{ llm_ollama_models_to_sync | default([]) }}"
+  register: llm_ollama_pull_result
+  changed_when: "'pulling' in llm_ollama_pull_result.stdout or 'downloading' in llm_ollama_pull_result.stderr"
+  when: "'ollama-models' in ansible_run_tags"
