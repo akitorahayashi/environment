@@ -1,14 +1,14 @@
 ---
 # Ollama Installation and Model Management
 # Tags:
-#   - llm, ollama: Install Ollama via Homebrew
+#   - ollama: Install Ollama via Homebrew
 #   - ollama-models: Pull configured models (requires running ollama serve)
 
 - name: "Install Ollama via Homebrew"
   community.general.homebrew:
     name: ollama
     state: present
-  when: "'llm' in ansible_run_tags or 'ollama' in ansible_run_tags"
+  when: "'ollama' in ansible_run_tags"
 
 # Model synchronization tasks (only for ollama-models tag)
 - name: "Load common models configuration"

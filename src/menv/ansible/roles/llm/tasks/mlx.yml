@@ -1,7 +1,7 @@
 ---
 # MLX venv Setup and Model Management
 # Tags:
-#   - llm, mlx: Create venv and sync dependencies
+#   - mlx: Create venv and sync dependencies
 #   - mlx-models: Download models via huggingface-cli
 
 - name: "Ensure menv venv directory exists"
@@ -9,7 +9,7 @@
     path: "{{ ansible_env.HOME }}/.menv/venvs"
     state: directory
     mode: "0755"
-  when: "'llm' in ansible_run_tags or 'mlx' in ansible_run_tags"
+  when: "'mlx' in ansible_run_tags"
 
 - name: "Create mlx-lm venv"
   ansible.builtin.shell: |
@@ -17,7 +17,7 @@
   args:
     creates: "{{ ansible_env.HOME }}/.menv/venvs/mlx-lm"
     chdir: "{{ repo_root_path }}"
-  when: "('llm' in ansible_run_tags or 'mlx' in ansible_run_tags) and repo_root_path is defined"
+  when: "('mlx' in ansible_run_tags) and repo_root_path is defined"
 
 - name: "Install mlx dependency-group into mlx-lm venv"
   ansible.builtin.shell: |
@@ -26,7 +26,7 @@
     chdir: "{{ repo_root_path }}"
   register: llm_mlx_sync_result
   changed_when: "'Installed' in llm_mlx_sync_result.stdout or 'Updated' in llm_mlx_sync_result.stdout"
-  when: "('llm' in ansible_run_tags or 'mlx' in ansible_run_tags) and repo_root_path is defined"
+  when: "('mlx' in ansible_run_tags) and repo_root_path is defined"
 
 # Model download tasks (only for mlx-models tag)
 - name: "Load common models configuration"

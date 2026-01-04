@@ -68,7 +68,6 @@ menv make shell             # Run shell setup
 menv mk vscode              # Shorthand
 
 # LLM infrastructure (local models)
-menv make llm               # Setup Ollama + MLX (no model downloads)
 menv make ollama            # Setup Ollama only
 menv make mlx               # Setup MLX venv only
 menv make ollama-models     # Download Ollama models (requires ollama serve)
