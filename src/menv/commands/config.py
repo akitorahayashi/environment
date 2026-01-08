@@ -106,9 +106,9 @@ def create_config(
         None,
         help="Role name to deploy config for. If omitted, deploys all roles.",
     ),
-    overlay: bool = typer.Option(
+    overwrite: bool = typer.Option(
         False,
-        "--overlay",
+        "--overwrite",
         "-o",
         help="Overwrite existing config with package defaults.",
     ),
@@ -121,14 +121,14 @@ def create_config(
     Examples:
         menv config create              # Deploy all role configs
         menv config create rust         # Deploy only rust config
-        menv config create --overlay    # Overwrite existing with defaults
-        menv cf cr rust -o              # Shorthand with overlay
+        menv config create --overwrite    # Overwrite existing with defaults
+        menv cf cr rust -o              # Shorthand with overwrite
     """
     app_ctx: AppContext = ctx.obj
 
     if role:
         # Deploy single role
-        result = app_ctx.config_deployer.deploy_role(role, overlay=overlay)
+        result = app_ctx.config_deployer.deploy_role(role, overwrite=overwrite)
         if result.success:
             console.print(f"[green]✓[/] {result.role}: {result.message}")
         else:
@@ -136,7 +136,7 @@ def create_config(
             raise typer.Exit(code=1)
     else:
         # Deploy all roles
-        results = app_ctx.config_deployer.deploy_all(overlay=overlay)
+        results = app_ctx.config_deployer.deploy_all(overwrite=overwrite)
         success_count = 0
         fail_count = 0
 

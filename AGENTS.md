@@ -8,13 +8,13 @@ pipx-installable CLI for macOS dev environment setup using bundled Ansible playb
 
 | Command | Alias | Description |
 |---------|-------|-------------|
-| `menv create <profile>` | `cr` | Create core environment (macbook/mbk, mac-mini/mmn); use `-v` for verbose, `-o` for overlay |
-| `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-formulae/brew-cask; use `-o` for overlay |
+| `menv create <profile>` | `cr` | Create core environment (macbook/mbk, mac-mini/mmn); use `-v` for verbose, `-o` for overwrite |
+| `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-formulae/brew-cask; use `-o` for overwrite |
 | `menv list` | `ls` | List available tags |
 | `menv backup <target>` | `bk` | Backup system/VS Code |
 | `menv config set` | `cf set` | Set VCS identities interactively |
 | `menv config show` | `cf show` | Show current VCS identity configuration |
-| `menv config create [role]` | `cf cr [role]` | Deploy role configs to ~/.config/menv/; use `-o` for overlay |
+| `menv config create [role]` | `cf cr [role]` | Deploy role configs to ~/.config/menv/; use `-o` for overwrite |
 | `menv switch <profile>` | `sw` | Switch VCS identity (personal/p, work/w) |
 | `menv update` | `u` | Self-update via pipx |
 

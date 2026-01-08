@@ -43,18 +43,18 @@ def _get_roles_for_tags(app_ctx: AppContext, tags: list[str]) -> set[str]:
 
 
 def _deploy_configs_for_roles(
-    app_ctx: AppContext, roles: set[str], overlay: bool = False
+    app_ctx: AppContext, roles: set[str], overwrite: bool = False
 ) -> bool:
     """Deploy configs for roles if not already deployed.
 
     Returns True if all deployments succeeded, False otherwise.
     """
     for role in roles:
-        if overlay or not app_ctx.config_deployer.is_deployed(role):
-            result = app_ctx.config_deployer.deploy_role(role, overlay=overlay)
+        if overwrite or not app_ctx.config_deployer.is_deployed(role):
+            result = app_ctx.config_deployer.deploy_role(role, overwrite=overwrite)
             if result.success:
                 # Only print a message for newly deployed or overwritten configs
-                if overlay or "already exists" not in result.message:
+                if overwrite or "already exists" not in result.message:
                     console.print(f"[dim]Deployed config for {role}[/]")
             else:
                 console.print(f"[red]Error:[/] Failed to deploy config for {role}")
@@ -105,9 +105,9 @@ def make(
         "-v",
         help="Enable verbose output.",
     ),
-    overlay: bool = typer.Option(
+    overwrite: bool = typer.Option(
         False,
-        "--overlay",
+        "--overwrite",
         "-o",
         help="Overwrite existing configuration files.",
     ),
@@ -151,7 +151,7 @@ def make(
 
     # Auto-deploy configs for roles that will be executed
     roles_to_deploy = _get_roles_for_tags(app_ctx, tags_to_run)
-    if not _deploy_configs_for_roles(app_ctx, roles_to_deploy, overlay=overlay):
+    if not _deploy_configs_for_roles(app_ctx, roles_to_deploy, overwrite=overwrite):
         raise typer.Exit(code=1)
 
     console.print(f"[bold green]Running:[/] {tag}")

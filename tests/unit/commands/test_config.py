@@ -53,14 +53,14 @@ class TestConfigCommand:
         result = cli_runner.invoke(app, ["config", "create", "--help"])
 
         assert result.exit_code == 0
-        assert "--overlay" in result.output or "-o" in result.output
+        assert "--overwrite" in result.output or "-o" in result.output
 
     def test_cf_cr_alias_works(self, cli_runner: CliRunner) -> None:
         """Test that 'cf cr' alias for config create works."""
         result = cli_runner.invoke(app, ["cf", "cr", "--help"])
 
         assert result.exit_code == 0
-        assert "--overlay" in result.output or "-o" in result.output
+        assert "--overwrite" in result.output or "-o" in result.output
 
     def test_config_create_invalid_role_shows_error(
         self, cli_runner: CliRunner

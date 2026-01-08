@@ -125,7 +125,7 @@ class TestConfigDeployer:
         )
         assert rust_version_path.read_text() == "1.75.0"
 
-    def test_deploy_role_skips_if_exists_without_overlay(
+    def test_deploy_role_skips_if_exists_without_overwrite(
         self, deployer: ConfigDeployer, temp_home: Path
     ) -> None:
         """Test that deploy_role skips deployment if config exists."""
@@ -144,18 +144,18 @@ class TestConfigDeployer:
         )
         local_file.write_text("1.80.0")
 
-        # Second deployment without overlay
-        result = deployer.deploy_role("rust", overlay=False)
+        # Second deployment without overwrite
+        result = deployer.deploy_role("rust", overwrite=False)
 
         assert result.success is True
         assert "already exists" in result.message
         # File should not be overwritten
         assert local_file.read_text() == "1.80.0"
 
-    def test_deploy_role_overwrites_with_overlay(
+    def test_deploy_role_overwrites_with_overwrite(
         self, deployer: ConfigDeployer, temp_home: Path
     ) -> None:
-        """Test that deploy_role overwrites config with overlay flag."""
+        """Test that deploy_role overwrites config with overwrite flag."""
         # First deployment
         deployer.deploy_role("rust")
 
@@ -171,8 +171,8 @@ class TestConfigDeployer:
         )
         local_file.write_text("1.80.0")
 
-        # Second deployment with overlay
-        result = deployer.deploy_role("rust", overlay=True)
+        # Second deployment with overwrite
+        result = deployer.deploy_role("rust", overwrite=True)
 
         assert result.success is True
         assert "Deployed" in result.message
@@ -284,10 +284,10 @@ class TestDeployMultipleRoles:
 
         assert results == []
 
-    def test_deploy_multiple_roles_with_overlay(
+    def test_deploy_multiple_roles_with_overwrite(
         self, deployer: ConfigDeployer, temp_home: Path
     ) -> None:
-        """Test that deploy_multiple_roles respects overlay flag."""
+        """Test that deploy_multiple_roles respects overwrite flag."""
         # First deployment
         deployer.deploy_multiple_roles(["rust"])
 
@@ -303,8 +303,8 @@ class TestDeployMultipleRoles:
         )
         local_file.write_text("modified")
 
-        # Second deployment with overlay
-        results = deployer.deploy_multiple_roles(["rust"], overlay=True)
+        # Second deployment with overwrite
+        results = deployer.deploy_multiple_roles(["rust"], overwrite=True)
 
         assert len(results) == 1
         assert results[0].success is True

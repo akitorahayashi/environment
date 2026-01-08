@@ -64,7 +64,7 @@ menv ls
 menv make rust              # Run rust-platform + rust-tools
 menv make go                # Run go-platform + go-tools
 menv make python-tools      # Run python-tools
-menv make shell --overlay   # Force overwrite existing configs
+menv make shell --overwrite   # Force overwrite existing configs
 menv mk vscode              # Shorthand
 
 # LLM infrastructure (local models)
@@ -103,9 +103,9 @@ menv config set             # Configure VCS identities interactively
 menv config show            # Show current configuration
 menv config create          # Deploy all role configs to ~/.config/menv/
 menv config create rust     # Deploy only rust role config
-menv config create --overlay # Overwrite existing configs with package defaults
+menv config create --overwrite # Overwrite existing configs with package defaults
 menv cf set                 # Shorthand
-menv cf cr rust -o          # Shorthand with overlay
+menv cf cr rust -o          # Shorthand with overwrite
 ```
 
 **Switch VCS identity:**
@@ -133,9 +133,9 @@ menv introduce --help
 menv make --help
 ```
 
-**Create environment with overlay:**
+**Create environment with overwrite:**
 
 ```sh
-menv create macbook --overlay  # Force overwrite all configs during setup
-menv cr mbk -o                 # Shorthand with overlay
+menv create macbook --overwrite  # Force overwrite all configs during setup
+menv cr mbk -o                 # Shorthand with overwrite
 ```

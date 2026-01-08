@@ -29,23 +29,23 @@ class ConfigDeployerProtocol(Protocol):
         """
         ...
 
-    def deploy_role(self, role: str, overlay: bool = False) -> DeployResult:
+    def deploy_role(self, role: str, overwrite: bool = False) -> DeployResult:
         """Deploy config for a single role to ~/.config/menv/roles/{role}/.
 
         Args:
             role: The role name to deploy.
-            overlay: If True, overwrite existing config.
+            overwrite: If True, overwrite existing config.
 
         Returns:
             DeployResult with success status and message.
         """
         ...
 
-    def deploy_all(self, overlay: bool = False) -> list[DeployResult]:
+    def deploy_all(self, overwrite: bool = False) -> list[DeployResult]:
         """Deploy configs for all roles.
 
         Args:
-            overlay: If True, overwrite existing configs.
+            overwrite: If True, overwrite existing configs.
 
         Returns:
             List of DeployResult for each role.
@@ -94,13 +94,13 @@ class ConfigDeployerProtocol(Protocol):
         ...
 
     def deploy_multiple_roles(
-        self, roles: list[str], overlay: bool = False
+        self, roles: list[str], overwrite: bool = False
     ) -> list[DeployResult]:
         """Deploy configs for multiple roles, stopping on first failure.
 
         Args:
             roles: List of role names to deploy.
-            overlay: If True, overwrite existing configs.
+            overwrite: If True, overwrite existing configs.
 
         Returns:
             List of DeployResult for each role attempted.
