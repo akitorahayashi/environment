@@ -20,7 +20,7 @@ tools:
     tag: v2.0.0
   - name: mx
     git: git@github.com:akitorahayashi/mx.git
-    tag: v2.0.0
+    tag: v2.0.1
   - name: tls-rs
     git: git@github.com:akitorahayashi/tls-rs.git
     tag: v1.6.1

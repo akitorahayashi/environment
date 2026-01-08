@@ -52,3 +52,9 @@
   type: bool
   value: true
   domain: com.apple.dt.Xcode
+
+# Show invisible characters (spaces, tabs, newlines)
+- key: DVTTextShowInvisibleCharacters
+  type: bool
+  value: true
+  domain: com.apple.dt.Xcode

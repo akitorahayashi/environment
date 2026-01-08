@@ -31,7 +31,7 @@ PROFILE_ALIASES = {
 }
 
 
-def _get_roles_for_tags(app_ctx: "AppContext", tags: list[str]) -> set[str]:
+def _get_roles_for_tags(app_ctx: AppContext, tags: list[str]) -> set[str]:
     """Get unique role names for a list of tags that have config directories."""
     roles_with_config = set(app_ctx.config_deployer.roles_with_config)
     return {
@@ -42,16 +42,20 @@ def _get_roles_for_tags(app_ctx: "AppContext", tags: list[str]) -> set[str]:
     }
 
 
-def _deploy_configs_for_roles(app_ctx: "AppContext", roles: set[str]) -> bool:
+def _deploy_configs_for_roles(
+    app_ctx: AppContext, roles: set[str], overlay: bool = False
+) -> bool:
     """Deploy configs for roles if not already deployed.
 
     Returns True if all deployments succeeded, False otherwise.
     """
     for role in roles:
-        if not app_ctx.config_deployer.is_deployed(role):
-            result = app_ctx.config_deployer.deploy_role(role, overlay=False)
+        if overlay or not app_ctx.config_deployer.is_deployed(role):
+            result = app_ctx.config_deployer.deploy_role(role, overlay=overlay)
             if result.success:
-                console.print(f"[dim]Deployed config for {role}[/]")
+                # Only print a message for newly deployed or overwritten configs
+                if overlay or "already exists" not in result.message:
+                    console.print(f"[dim]Deployed config for {role}[/]")
             else:
                 console.print(f"[red]Error:[/] Failed to deploy config for {role}")
                 console.print(f"  {result.message}")
@@ -101,6 +105,12 @@ def make(
         "-v",
         help="Enable verbose output.",
     ),
+    overlay: bool = typer.Option(
+        False,
+        "--overlay",
+        "-o",
+        help="Overwrite existing configuration files.",
+    ),
 ) -> None:
     """Run Ansible tasks with the specified tag and profile.
 
@@ -141,7 +151,7 @@ def make(
 
     # Auto-deploy configs for roles that will be executed
     roles_to_deploy = _get_roles_for_tags(app_ctx, tags_to_run)
-    if not _deploy_configs_for_roles(app_ctx, roles_to_deploy):
+    if not _deploy_configs_for_roles(app_ctx, roles_to_deploy, overlay=overlay):
         raise typer.Exit(code=1)
 
     console.print(f"[bold green]Running:[/] {tag}")

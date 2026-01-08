@@ -50,3 +50,17 @@ class TestMakeCommand:
 
         # Should show error about missing argument
         assert result.exit_code != 0 or "TAG" in result.output
+
+    def test_make_shows_overlay_option(self, cli_runner: CliRunner) -> None:
+        """Test that make --help shows --overlay/-o option."""
+        result = cli_runner.invoke(app, ["make", "--help"])
+
+        assert result.exit_code == 0
+        assert "--overlay" in result.output or "-o" in result.output
+
+    def test_make_overlay_option_accepted(self, cli_runner: CliRunner) -> None:
+        """Test that --overlay option is accepted without error."""
+        result = cli_runner.invoke(app, ["make", "shell", "--overlay", "--help"])
+
+        # --help should show command help without running
+        assert result.exit_code == 0

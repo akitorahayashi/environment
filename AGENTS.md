@@ -8,8 +8,8 @@ pipx-installable CLI for macOS dev environment setup using bundled Ansible playb
 
 | Command | Alias | Description |
 |---------|-------|-------------|
-| `menv create <profile>` | `cr` | Create core environment (macbook/mbk, mac-mini/mmn); use `-v` for verbose |
-| `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-formulae/brew-cask |
+| `menv create <profile>` | `cr` | Create core environment (macbook/mbk, mac-mini/mmn); use `-v` for verbose, `-o` for overlay |
+| `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-formulae/brew-cask; use `-o` for overlay |
 | `menv list` | `ls` | List available tags |
 | `menv backup <target>` | `bk` | Backup system/VS Code |
 | `menv config set` | `cf set` | Set VCS identities interactively |

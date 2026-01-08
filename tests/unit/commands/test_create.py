@@ -58,3 +58,17 @@ class TestCreateCommand:
 
         assert result.exit_code == 0
         assert "--verbose" in result.output or "-v" in result.output
+
+    def test_create_shows_overlay_option(self, cli_runner: CliRunner) -> None:
+        """Test that create --help shows --overlay/-o option."""
+        result = cli_runner.invoke(app, ["create", "--help"])
+
+        assert result.exit_code == 0
+        assert "--overlay" in result.output or "-o" in result.output
+
+    def test_create_overlay_option_accepted(self, cli_runner: CliRunner) -> None:
+        """Test that --overlay option is accepted without error."""
+        result = cli_runner.invoke(app, ["create", "macbook", "--overlay", "--help"])
+
+        # --help should show command help without running
+        assert result.exit_code == 0

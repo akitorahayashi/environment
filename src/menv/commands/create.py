@@ -128,6 +128,12 @@ def create(
         "-v",
         help="Enable verbose output.",
     ),
+    overlay: bool = typer.Option(
+        False,
+        "--overlay",
+        "-o",
+        help="Overwrite existing configuration files.",
+    ),
 ) -> None:
     """Create a complete development environment for a profile.
 
@@ -187,13 +193,13 @@ def create(
     if roles_to_deploy:
         console.print("[bold]Deploying configurations...[/]")
         results = app_ctx.config_deployer.deploy_multiple_roles(
-            sorted(list(roles_to_deploy)), overlay=False
+            sorted(list(roles_to_deploy)), overlay=overlay
         )
 
         for result in results:
             if result.success:
                 # Only print a message for newly deployed configs
-                if "already exists" not in result.message:
+                if overlay or "already exists" not in result.message:
                     console.print(f"  [dim]Deployed config for {result.role}[/]")
             else:
                 # Failure - which will be the last item in results

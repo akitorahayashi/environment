@@ -64,7 +64,7 @@ menv ls
 menv make rust              # Run rust-platform + rust-tools
 menv make go                # Run go-platform + go-tools
 menv make python-tools      # Run python-tools
-menv make shell             # Run shell setup
+menv make shell --overlay   # Force overwrite existing configs
 menv mk vscode              # Shorthand
 
 # LLM infrastructure (local models)
@@ -79,6 +79,7 @@ menv make coder             # Install Claude, Gemini, Codex CLI tools
 # Profile required only for brew-formulae and brew-cask
 menv make brew-formulae mbk     # Install brew dependencies for macbook
 menv make brew-cask mmn     # Install GUI apps for mac-mini
+menv make brew-formulae mbk -o  # Force overwrite configs
 
 # Tag groups are expanded automatically:
 #   rust → rust-platform, rust-tools
@@ -130,4 +131,11 @@ menv u
 menv --help
 menv introduce --help
 menv make --help
+```
+
+**Create environment with overlay:**
+
+```sh
+menv create macbook --overlay  # Force overwrite all configs during setup
+menv cr mbk -o                 # Shorthand with overlay
 ```
