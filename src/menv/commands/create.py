@@ -52,7 +52,6 @@ FULL_SETUP_TAGS = [
     "coder",
     "mlx",
     "xcode",
-    "editor",
 ]
 
 
