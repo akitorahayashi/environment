@@ -30,15 +30,3 @@ alias u="cd .."
 alias uu="cd ../.."
 alias uuu="cd ../../.."
 alias rt='cd "${SHELL_START_DIR}"'
-
-sw() {
-	[[ -z "$1" ]] && {
-		echo "Usage: sw <pattern> [dir]"
-		return 1
-	}
-	if git rev-parse --git-dir &>/dev/null && [[ -f .gitignore ]]; then
-		git ls-files "${2:-.}" | xargs grep -n "$1" 2>/dev/null
-	else
-		find "${2:-.}" -type f ! -path "*/.*" ! -name "*.log" ! -name ".DS_Store" -exec grep -n "$1" {} \; 2>/dev/null
-	fi
-}

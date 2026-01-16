@@ -24,17 +24,19 @@
 
 - name: "Symlink Claude settings.json"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/llm/claude.json"
+    src: "{{ local_config_root }}/nodejs/common/coder/claude.json"
     dest: "{{ ansible_env.HOME }}/.claude/settings.json"
     state: link
     force: true
+    mode: "0644"
 
 - name: "Symlink Claude AGENTS file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/llm/AGENTS.md"
+    src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
     state: link
     force: true
+    mode: "0644"
 
 - name: "Create Claude commands directory"
   ansible.builtin.file:
@@ -50,17 +52,19 @@
 
 - name: "Symlink Gemini settings.json"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/llm/gemini.json"
+    src: "{{ local_config_root }}/nodejs/common/coder/gemini.json"
     dest: "{{ ansible_env.HOME }}/.gemini/settings.json"
     state: link
     force: true
+    mode: "0644"
 
 - name: "Symlink Gemini AGENTS file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/llm/AGENTS.md"
+    src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
     state: link
     force: true
+    mode: "0644"
 
 - name: "Check if Gemini CLI is available"
   ansible.builtin.command: which gemini
@@ -92,14 +96,16 @@
 
 - name: "Symlink Codex configuration file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/llm/codex.toml"
+    src: "{{ local_config_root }}/nodejs/common/coder/codex.toml"
     dest: "{{ ansible_env.HOME }}/.codex/config.toml"
     state: link
     force: true
+    mode: "0644"
 
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/llm/AGENTS.md"
+    src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
     dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
     state: link
     force: true
+    mode: "0644"

@@ -17,6 +17,7 @@ brew "pandoc"
 brew "yq"
 brew "shellcheck"
 brew "shfmt"
+brew "ripgrep"
 
 ## Media
 brew "ffmpeg"
