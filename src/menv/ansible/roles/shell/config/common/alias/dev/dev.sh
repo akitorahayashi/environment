@@ -19,32 +19,38 @@ dev_alias_as() {
 	# Common development commands
 	alias "${prefix}-h=${cmd_prefix} help"
 	alias "${prefix}-s=${cmd_prefix} setup"
+	alias "${prefix}-op=${cmd_prefix} open"
+
+	alias "${prefix}-g=${cmd_prefix} gen"
+	alias "${prefix}-ga=${cmd_prefix} gen-as"
 	alias "${prefix}-gp=${cmd_prefix} gen-pj"
+
 	alias "${prefix}-fmt=${cmd_prefix} format"
 	alias "${prefix}-f=${cmd_prefix} fix"
 	alias "${prefix}-l=${cmd_prefix} lint"
+	alias "${prefix}-c=${cmd_prefix} check"
+	alias "${prefix}-cln=${cmd_prefix} clean"
+
 	alias "${prefix}-b=${cmd_prefix} build"
 	alias "${prefix}-b-d=${cmd_prefix} build-debug"
 	alias "${prefix}-b-r=${cmd_prefix} build-release"
 	alias "${prefix}-rb=${cmd_prefix} rebuild"
 	alias "${prefix}-rb-p=${cmd_prefix} rebuild-prod"
+
 	alias "${prefix}-r=${cmd_prefix} run"
 	alias "${prefix}-r-d=${cmd_prefix} run-debug"
+	alias "${prefix}-r-r=${cmd_prefix} run-release"
 	alias "${prefix}-r-p=${cmd_prefix} run-prod"
+
 	alias "${prefix}-rp=${cmd_prefix} resolve-packages"
-	alias "${prefix}-op=${cmd_prefix} open"
+
 	alias "${prefix}-u=${cmd_prefix} up"
 	alias "${prefix}-u-p=${cmd_prefix} up-prod"
 	alias "${prefix}-d=${cmd_prefix} down"
 	alias "${prefix}-d-p=${cmd_prefix} down-prod"
-	alias "${prefix}-t=${cmd_prefix} test"
-	alias "${prefix}-c=${cmd_prefix} check"
-	alias "${prefix}-cln=${cmd_prefix} clean"
-
-	# Combined format and lint
-	alias "${prefix}-fl=${cmd_prefix} format && ${cmd_prefix} lint"
 
 	# Test variations
+	alias "${prefix}-t=${cmd_prefix} test"
 	alias "${prefix}-ut=${cmd_prefix} unit-test"
 	alias "${prefix}-uit=${cmd_prefix} ui-test"
 	alias "${prefix}-et=${cmd_prefix} e2e-test"

@@ -4,10 +4,12 @@
 
 - When adding new features or refactoring, removal of old modules and deprecated features is mandatory. Identify and eliminate all sources of technical debt, bugs, and complexity left behind.
 - Never define class or file names with ambiguous responsibilities, such as base, core, utils, or helpers.
+- Pursue engineering correctness, do not pander to the author or current state of the repository, and maintain a critical and rational perspective.
 
 ## Communication
 
 - When reporting completed work or providing routine responses, avoid unnecessary tokens and keep responses concise and clear.
+- Your answer must be based on the context of the repository, even for general engineering questions. Research is required before answering; do not answer immediately without it.
 
 ## Documentation
 
