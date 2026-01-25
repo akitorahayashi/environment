@@ -27,5 +27,8 @@ tools:
   - name: ssv
     git: https://github.com/akitorahayashi/ssv.git
     tag: v0.1.1
+  - name: gho
+    git: git@github.com:akitorahayashi/gho.git
+    tag: v0.1.0
   # - name: cargo-edit
   #   options: "--locked"
