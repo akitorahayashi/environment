@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@github/copilot": "latest",
+    "@google/jules": "latest",
     "@marp-team/marp-cli": "latest"
   }
 }

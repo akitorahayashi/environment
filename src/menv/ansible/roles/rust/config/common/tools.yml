@@ -30,5 +30,8 @@ tools:
   - name: gho
     git: git@github.com:akitorahayashi/gho.git
     tag: v0.1.0
+  - name: jlo
+    git: git@github.com:akitorahayashi/jlo.git
+    tag: v1.0.0
   # - name: cargo-edit
   #   options: "--locked"
