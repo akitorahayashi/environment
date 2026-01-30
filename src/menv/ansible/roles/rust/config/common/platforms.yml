@@ -1,0 +1,14 @@
+---
+# Platform mapping for GitHub release asset names
+#
+# Maps Ansible facts to asset naming conventions used in releases.
+# Asset format: <binary>-<os>-<arch>
+
+os_mapping:
+  Darwin: darwin
+  Linux: linux
+
+arch_mapping:
+  x86_64: x86_64
+  aarch64: aarch64
+  arm64: aarch64

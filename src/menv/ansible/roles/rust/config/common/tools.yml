@@ -1,37 +1,30 @@
 ---
-# Cargo tools to install
-# Each tool can specify:
-#   - name: crate/binary name (required)
-#   - git: Git repository URL (optional, omit for crates.io)
-#   - tag: Git tag (optional, requires git)
-#   - options: additional cargo install flags (optional)
+# Rust CLI tools installed from GitHub releases
+#
+# Each tool specifies:
+#   - name: binary name (required)
+#   - repo: GitHub repository as owner/name (required)
+#   - tag: version tag (required)
+#
+# Asset naming convention: <name>-<os>-<arch>
+#   os: linux, darwin
+#   arch: x86_64, aarch64
 tools:
-  - name: kpv
-    git: git@github.com:akitorahayashi/kpv.git
-    tag: v0.4.1
-  - name: mms
-    git: git@github.com:akitorahayashi/mms.git
-    tag: v0.2.1
-  - name: pure
-    git: git@github.com:akitorahayashi/pure.git
-    tag: v0.5.0
-  - name: fs
-    git: git@github.com:akitorahayashi/fs.git
-    tag: v2.0.0
-  - name: mx
-    git: git@github.com:akitorahayashi/mx.git
-    tag: v2.1.0
-  - name: tls-rs
-    git: git@github.com:akitorahayashi/tls-rs.git
-    tag: v1.6.1
-  - name: ssv
-    git: https://github.com/akitorahayashi/ssv.git
-    tag: v0.1.1
   - name: gho
-    git: git@github.com:akitorahayashi/gho.git
-    tag: v0.1.0
+    repo: akitorahayashi/gho
+    tag: v0.2.0
   - name: jlo
-    git: git@github.com:akitorahayashi/jlo.git
-    tag: v1.0.0
-  # - name: cargo-edit
-  #   options: "--locked"
+    repo: akitorahayashi/jlo
+    tag: v3.0.1
+  - name: kpv
+    repo: akitorahayashi/kpv
+    tag: v0.6.0
+  - name: mx
+    repo: akitorahayashi/mx
+    tag: v2.3.0
+  - name: pure
+    repo: akitorahayashi/pure
+    tag: v0.6.0
+  - name: ssv
+    repo: akitorahayashi/ssv
+    tag: v0.2.0

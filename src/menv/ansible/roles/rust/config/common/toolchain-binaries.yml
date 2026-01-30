@@ -1,0 +1,18 @@
+---
+# Rust toolchain binaries retained in the rust tools directory.
+binaries:
+  - cargo
+  - cargo-clippy
+  - cargo-fmt
+  - cargo-miri
+  - clippy-driver
+  - rls
+  - rust-analyzer
+  - rust-gdb
+  - rust-gdbgui
+  - rust-lldb
+  - rust-lld
+  - rustc
+  - rustdoc
+  - rustfmt
+  - rustup
