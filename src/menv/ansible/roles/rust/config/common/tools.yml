@@ -15,7 +15,7 @@ tools:
     tag: v0.2.0
   - name: jlo
     repo: akitorahayashi/jlo
-    tag: v3.0.1
+    tag: v6.0.0
   - name: kpv
     repo: akitorahayashi/kpv
     tag: v0.6.0
