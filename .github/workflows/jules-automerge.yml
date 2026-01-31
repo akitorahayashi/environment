@@ -1,0 +1,105 @@
+# Jules Auto-Merge
+#
+# Enables squash-merge with branch deletion for PRs from observer/decider/planner.
+# Only applies when:
+#   1. Branch matches jules-{observer,decider,planner}-* pattern
+#   2. All changed files are within .jules/ directory
+#
+# Does NOT apply to:
+#   - jules-implementer-* branches (implementation requires human review)
+#   - Any PR that modifies files outside .jules/
+#
+# Prerequisites:
+# - Repository Settings: Enable "Allow auto-merge"
+# - Branch Protection: Require status checks to pass before merging
+
+name: Jules Auto-Merge
+
+on:
+  push:
+    branches:
+      - 'jules-observer-*'
+      - 'jules-decider-*'
+      - 'jules-planner-*'
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Find PR
+        id: find-pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Waiting for PR to be created for branch $BRANCH_NAME..."
+          PR_NUMBER=""
+          
+          # Retry for up to 60 seconds
+          for i in {1..12}; do
+            PR_NUMBER=$(gh pr list --head "$BRANCH_NAME" --repo "$REPO" --json number -q '.[0].number')
+            if [ -n "$PR_NUMBER" ]; then
+              echo "Found PR #$PR_NUMBER"
+              echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+              break
+            fi
+            sleep 5
+            echo "Retrying... ($i/12)"
+          done
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No PR found. Skipping auto-merge setup."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check Scope and Enable Auto-Merge
+        if: steps.find-pr.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+          PR_NUMBER: ${{ steps.find-pr.outputs.pr_number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Check for Draft status
+          IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft -q '.isDraft')
+          if [ "$IS_DRAFT" = "true" ]; then
+             echo "PR is a draft. Skipping auto-merge."
+             exit 0
+          fi
+
+          # Check changed files using paginated API
+          changed=$(gh api --paginate "/repos/$REPO/pulls/$PR_NUMBER/files" --jq '.[].filename')
+          
+          # Check if any file is outside .jules/
+          non_jules=$(echo "$changed" | grep -v '^\.jules/' || true)
+          
+          if [ -n "$non_jules" ]; then
+             echo "::warning::PR modifies files outside .jules/. Auto-merge skipped."
+             echo "$non_jules"
+             exit 0
+          fi
+          
+          # Check if auto-merge is already enabled
+          AUTO_MERGE=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json autoMergeRequest -q '.autoMergeRequest')
+          if [ "$AUTO_MERGE" != "null" ] && [ -n "$AUTO_MERGE" ]; then
+             echo "Auto-merge is already enabled."
+             exit 0
+          fi
+
+          echo "All changes are within .jules/. Enabling auto-merge..."
+          
+          for i in {1..5}; do
+            if gh pr merge "$PR_NUMBER" --auto --squash --delete-branch --repo "$REPO"; then
+              echo "✅ Auto-merge enabled successfully."
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "❌ Failed to enable auto-merge after retries."
+          exit 1

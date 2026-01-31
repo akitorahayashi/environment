@@ -1,0 +1,146 @@
+# Jules Agent Orchestration
+#
+# Orchestrates workstream pipelines using jlo schedule export and inspection outputs.
+
+name: Jules Workflows
+
+on:
+  schedule:
+    - cron: '0 19 * * *'  # Daily at 19:00 UTC (04:00 JST)
+  workflow_dispatch:
+    inputs:
+      entry_point:
+        description: 'Start from layer'
+        type: choice
+        options:
+          - observers
+          - deciders
+        default: observers
+      wait_minutes:
+        description: 'Minutes to wait between layers (Jules async processing time)'
+        type: number
+        default: 15
+      routing_labels:
+        description: 'Issue labels eligible for planner/implementer routing (comma-separated)'
+        type: string
+        default: docs,tests
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: jules
+  cancel-in-progress: false
+
+jobs:
+  run-workstreams:
+    if: >-
+      vars.JULES_PAUSED != 'true' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      ENTRY_POINT: ${{ inputs.entry_point || 'observers' }}
+      WAIT_MINUTES: ${{ inputs.wait_minutes || 15 }}
+      ROUTING_LABELS: ${{ inputs.routing_labels || 'docs,tests' }}
+      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jules
+          fetch-depth: 0
+
+      - name: Validate .jules workspace
+        shell: bash
+        run: |
+          if [ ! -d ".jules" ]; then
+            echo "::error::.jules directory is missing on the 'jules' branch."
+            exit 1
+          fi
+          if ! ls .jules/workstreams/*/scheduled.toml >/dev/null 2>&1; then
+            echo "::error::No workstream scheduled.toml found under .jules/workstreams/."
+            exit 1
+          fi
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          version: ${{ vars.JLO_VERSION || 'latest' }}
+
+      - name: Run workstreams
+        run: |
+          set -euo pipefail
+          workstreams_json=$(
+            timeout 20s bash -lc \
+              "set -euo pipefail; jlo schedule export --scope workstreams --format github-matrix | jq -c 'del(.schema_version)'"
+          ) || { echo "::error::Timed out while generating workstream matrix (jlo schedule export)"; exit 1; }
+
+          workstreams=$(echo "$workstreams_json" | jq -r '.include[].workstream')
+          if [ -z "$workstreams" ]; then
+            echo "No enabled workstreams."
+            exit 0
+          fi
+
+          labels_json=$(printf '%s' "$ROUTING_LABELS" | jq -R 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length>0))')
+
+          for workstream in $workstreams; do
+            echo "::group::Workstream ${workstream}"
+
+            if [ "$ENTRY_POINT" = "observers" ]; then
+              timeout 20m jlo run observers --workstream "$workstream" --scheduled
+              sleep $((WAIT_MINUTES * 60))
+              timeout 2m jlo doctor --workstream "$workstream"
+            fi
+
+            inspect_before=$(timeout 20s jlo workstreams inspect --workstream "$workstream" --format json)
+            pending=$(echo "$inspect_before" | jq '[.events.items[] | select(.state == "pending")] | length')
+            issues_before=$(echo "$inspect_before" | jq -c '[.issues.items[].path]')
+
+            if [ "$pending" -gt 0 ]; then
+              timeout 20m jlo run deciders --workstream "$workstream" --scheduled
+              sleep $((WAIT_MINUTES * 60))
+              timeout 2m jlo doctor --workstream "$workstream"
+            else
+              echo "No pending events; skipping deciders."
+            fi
+
+            inspect_after=$(timeout 20s jlo workstreams inspect --workstream "$workstream" --format json)
+
+            new_issues=$(echo "$inspect_after" | jq -c --argjson before "$issues_before" '
+              [ .issues.items[].path | select(($before | index(.)) | not) ]
+            ')
+
+            planners=$(echo "$inspect_after" | jq -r --argjson before "$issues_before" --argjson labels "$labels_json" '
+              .issues.items[]
+              | select((($before | index(.path)) | not))
+              | select(($labels | index(.label)) != null)
+              | select(.requires_deep_analysis == true)
+              | .path
+            ')
+
+            for issue in $planners; do
+              timeout 20m jlo run planners "$issue"
+            done
+
+            if [ -n "$planners" ]; then
+              sleep $((WAIT_MINUTES * 60))
+              timeout 2m jlo doctor --workstream "$workstream"
+            fi
+
+            inspect_after_planners=$(timeout 20s jlo workstreams inspect --workstream "$workstream" --format json)
+            implementers=$(echo "$inspect_after_planners" | jq -r --argjson new "$new_issues" --argjson labels "$labels_json" '
+              .issues.items[]
+              | select(($new | index(.path)) != null)
+              | select(($labels | index(.label)) != null)
+              | select(.requires_deep_analysis == false)
+              | .path
+            ')
+
+            for issue in $implementers; do
+              timeout 20m jlo run implementers "$issue"
+            done
+
+            echo "::endgroup::"
+          done
