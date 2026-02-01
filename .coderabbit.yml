@@ -1,9 +1,3 @@
-language: "en"
-
 reviews:
-  high_level_summary: true
   auto_review:
-    enabled: true
-
-chat:
-  auto_reply: true
+    enabled: false
