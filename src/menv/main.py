@@ -67,15 +67,16 @@ def main(
     ),
 ) -> None:
     """menv - Provision and manage your macOS development environment."""
-    ansible_paths = AnsiblePaths()
-    ctx.obj = AppContext(
-        config_storage=ConfigStorage(),
-        ansible_paths=ansible_paths,
-        ansible_runner=AnsibleRunner(paths=ansible_paths),
-        version_checker=VersionChecker(),
-        config_deployer=ConfigDeployer(ansible_paths=ansible_paths),
-        playbook_service=PlaybookService(ansible_paths=ansible_paths),
-    )
+    if ctx.obj is None:
+        ansible_paths = AnsiblePaths()
+        ctx.obj = AppContext(
+            config_storage=ConfigStorage(),
+            ansible_paths=ansible_paths,
+            ansible_runner=AnsibleRunner(paths=ansible_paths),
+            version_checker=VersionChecker(),
+            config_deployer=ConfigDeployer(ansible_paths=ansible_paths),
+            playbook_service=PlaybookService(ansible_paths=ansible_paths),
+        )
 
 
 # Register create command (full setup) and alias
