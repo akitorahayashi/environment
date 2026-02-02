@@ -1,0 +1,37 @@
+name: Sync main to jules
+
+on:
+  push:
+    branches:
+      - main
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jules
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_TOKEN }}
+
+      - name: Configure Git
+        uses: ./.github/actions/configure-git
+
+      - name: Merge main into jules
+        run: |
+          git fetch origin main
+          # Merge main, preferring main's code changes
+          git merge origin/main --no-edit -X theirs || {
+            # On conflict, preserve .jules/ from jules branch
+            git checkout --ours .jules/
+            git add .jules/
+            git commit --no-edit
+          }
+
+      - name: Push changes
+        run: git push origin jules
