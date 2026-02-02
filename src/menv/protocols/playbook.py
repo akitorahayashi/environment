@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Protocol
 
 
-class PlaybookServiceProtocol(Protocol):
+class PlaybookProtocol(Protocol):
     """Playbook service abstraction for parsing and querying playbook.yml."""
 
     def get_tags_map(self) -> dict[str, list[str]]:

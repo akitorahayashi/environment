@@ -11,7 +11,7 @@ from tests.mocks import (
     MockAnsibleRunner,
     MockConfigDeployer,
     MockConfigStorage,
-    MockPlaybookService,
+    MockPlaybook,
     MockVersionChecker,
 )
 
@@ -26,7 +26,7 @@ def mock_app_context() -> AppContext:
         ansible_runner=MockAnsibleRunner(),
         version_checker=MockVersionChecker(),
         config_deployer=MockConfigDeployer(),
-        playbook_service=MockPlaybookService(),
+        playbook=MockPlaybook(),
     )
 
 

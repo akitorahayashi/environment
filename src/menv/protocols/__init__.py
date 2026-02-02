@@ -4,7 +4,7 @@ from menv.protocols.ansible_paths import AnsiblePathsProtocol
 from menv.protocols.ansible_runner import AnsibleRunnerProtocol
 from menv.protocols.config_deployer import ConfigDeployerProtocol, DeployResult
 from menv.protocols.config_storage import ConfigStorageProtocol
-from menv.protocols.playbook import PlaybookServiceProtocol
+from menv.protocols.playbook import PlaybookProtocol
 from menv.protocols.version_checker import VersionCheckerProtocol
 
 __all__ = [
@@ -13,6 +13,6 @@ __all__ = [
     "ConfigDeployerProtocol",
     "ConfigStorageProtocol",
     "DeployResult",
-    "PlaybookServiceProtocol",
+    "PlaybookProtocol",
     "VersionCheckerProtocol",
 ]

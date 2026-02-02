@@ -1,11 +1,11 @@
-"""Mock PlaybookService implementation."""
+"""Mock Playbook implementation."""
 
 from __future__ import annotations
 
-from menv.protocols.playbook import PlaybookServiceProtocol
+from menv.protocols.playbook import PlaybookProtocol
 
 
-class MockPlaybookService(PlaybookServiceProtocol):
+class MockPlaybook(PlaybookProtocol):
     """In-memory mock playbook service for testing."""
 
     def __init__(

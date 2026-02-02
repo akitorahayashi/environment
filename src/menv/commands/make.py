@@ -37,7 +37,7 @@ def _get_roles_for_tags(app_ctx: AppContext, tags: list[str]) -> set[str]:
     return {
         role
         for tag in tags
-        if (role := app_ctx.playbook_service.get_role_for_tag(tag))
+        if (role := app_ctx.playbook.get_role_for_tag(tag))
         and role in roles_with_config
     }
 
@@ -71,7 +71,7 @@ def list_tags(ctx: typer.Context) -> None:
         menv mk ls
     """
     app_ctx: AppContext = ctx.obj
-    tags_map = app_ctx.playbook_service.get_tags_map()
+    tags_map = app_ctx.playbook.get_tags_map()
 
     table = Table(title="Available Tags")
     table.add_column("Role", style="cyan")
@@ -139,7 +139,7 @@ def make(
     app_ctx: AppContext = ctx.obj
 
     # Validate tags exist in playbook
-    all_tags = set(app_ctx.playbook_service.get_all_tags())
+    all_tags = set(app_ctx.playbook.get_all_tags())
     # Tag groups like "rust" are valid CLI shortcuts, individual tags must exist
     for t in tags_to_run:
         if t not in all_tags:

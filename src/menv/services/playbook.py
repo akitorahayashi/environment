@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from menv.protocols.ansible_paths import AnsiblePathsProtocol
 
 
-class PlaybookService:
+class Playbook:
     """Service for parsing and querying playbook.yml.
 
     This service makes playbook.yml the Single Source of Truth (SSOT)
@@ -19,7 +19,7 @@ class PlaybookService:
     """
 
     def __init__(self, ansible_paths: AnsiblePathsProtocol) -> None:
-        """Initialize PlaybookService.
+        """Initialize Playbook.
 
         Args:
             ansible_paths: Path resolver for Ansible resources.

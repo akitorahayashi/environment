@@ -6,7 +6,7 @@ import pytest
 import yaml
 
 from menv.services.ansible_paths import AnsiblePaths
-from menv.services.playbook import PlaybookService
+from menv.services.playbook import Playbook
 
 
 class TestPlaybookIntegrity:
@@ -18,9 +18,9 @@ class TestPlaybookIntegrity:
         return AnsiblePaths()
 
     @pytest.fixture
-    def playbook_service(self, ansible_paths: AnsiblePaths) -> PlaybookService:
-        """Create PlaybookService with real paths."""
-        return PlaybookService(ansible_paths=ansible_paths)
+    def playbook(self, ansible_paths: AnsiblePaths) -> Playbook:
+        """Create Playbook with real paths."""
+        return Playbook(ansible_paths=ansible_paths)
 
     def test_playbook_yml_parses_without_errors(
         self, ansible_paths: AnsiblePaths
@@ -38,10 +38,10 @@ class TestPlaybookIntegrity:
         assert len(data) > 0
 
     def test_all_roles_have_directories(
-        self, playbook_service: PlaybookService, ansible_paths: AnsiblePaths
+        self, playbook: Playbook, ansible_paths: AnsiblePaths
     ) -> None:
         """Test that all roles referenced in playbook have directories."""
-        tags_map = playbook_service.get_tags_map()
+        tags_map = playbook.get_tags_map()
         roles_dir = ansible_paths.ansible_dir() / "roles"
 
         missing_roles = []
@@ -52,14 +52,12 @@ class TestPlaybookIntegrity:
 
         assert not missing_roles, f"Missing role directories: {missing_roles}"
 
-    def test_tag_names_are_unique_except_shared(
-        self, playbook_service: PlaybookService
-    ) -> None:
+    def test_tag_names_are_unique_except_shared(self, playbook: Playbook) -> None:
         """Test that tag names are unique across roles (except intentionally shared ones).
 
         Currently, there are no intentionally shared tags.
         """
-        tags_map = playbook_service.get_tags_map()
+        tags_map = playbook.get_tags_map()
 
         # Tags that are intentionally shared across multiple roles
         shared_tags: set[str] = set()
@@ -93,11 +91,9 @@ class TestPlaybookIntegrity:
         assert "roles" in play
         assert play["hosts"] == "localhost"
 
-    def test_all_roles_have_at_least_one_tag(
-        self, playbook_service: PlaybookService
-    ) -> None:
+    def test_all_roles_have_at_least_one_tag(self, playbook: Playbook) -> None:
         """Test that all roles in playbook have at least one tag."""
-        tags_map = playbook_service.get_tags_map()
+        tags_map = playbook.get_tags_map()
 
         roles_without_tags = [role for role, tags in tags_map.items() if not tags]
 
@@ -106,20 +102,18 @@ class TestPlaybookIntegrity:
         if roles_without_tags:
             pytest.skip(f"Roles without tags (informational): {roles_without_tags}")
 
-    def test_get_all_tags_returns_non_empty_list(
-        self, playbook_service: PlaybookService
-    ) -> None:
+    def test_get_all_tags_returns_non_empty_list(self, playbook: Playbook) -> None:
         """Test that get_all_tags returns a non-empty list."""
-        all_tags = playbook_service.get_all_tags()
+        all_tags = playbook.get_all_tags()
 
         assert len(all_tags) > 0
         assert all(isinstance(tag, str) for tag in all_tags)
         # Tags should be sorted
         assert all_tags == sorted(all_tags)
 
-    def test_common_tags_exist(self, playbook_service: PlaybookService) -> None:
+    def test_common_tags_exist(self, playbook: Playbook) -> None:
         """Test that commonly expected tags exist."""
-        all_tags = set(playbook_service.get_all_tags())
+        all_tags = set(playbook.get_all_tags())
 
         # These are tags that should always exist based on the project structure
         expected_tags = [

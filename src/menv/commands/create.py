@@ -160,7 +160,7 @@ def create(
     app_ctx: AppContext = ctx.obj
 
     # Validate all tags exist - single pass for efficiency
-    all_known_tags = set(app_ctx.playbook_service.get_all_tags())
+    all_known_tags = set(app_ctx.playbook.get_all_tags())
     invalid_tags = [tag for tag in FULL_SETUP_TAGS if tag not in all_known_tags]
     if invalid_tags:
         console.print(
@@ -184,7 +184,7 @@ def create(
     roles_to_deploy = {
         role
         for tag in FULL_SETUP_TAGS
-        if (role := app_ctx.playbook_service.get_role_for_tag(tag))
+        if (role := app_ctx.playbook.get_role_for_tag(tag))
         and role in roles_with_config
     }
 
