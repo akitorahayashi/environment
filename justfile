@@ -39,9 +39,7 @@ fix:
     @files=$(just _find_shell_files); \
     if [ -n "$files" ]; then \
         echo "Found shell files to format"; \
-        for file in $files; do \
-            shfmt -w -d "$file" 2>/dev/null || true; \
-        done; \
+        shfmt -w -d $files; \
     fi
     @uv run ansible-lint src/menv/ansible/ --fix || true
 
@@ -55,9 +53,7 @@ check: fix
     @files=$(just _find_shell_files); \
     if [ -n "$files" ]; then \
         echo "Checking shell files"; \
-        for file in $files; do \
-            shellcheck "$file" 2>/dev/null || true; \
-        done; \
+        shellcheck $files; \
     fi
     @uv run ansible-lint src/menv/ansible/
 

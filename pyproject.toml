@@ -20,6 +20,7 @@ menv = "menv.main:app"
 dev = [
     "mypy>=1.8.0",
     "pytest>=8.4.1,<9.0.0",
+    "pytest-cov>=6.2.0",
     "pytest-xdist>=3.8.0,<4.0.0",
     "ruff>=0.12.10,<1.0.0",
     "ansible-lint>=25.0.0",
@@ -39,7 +40,7 @@ packages = ["src/menv"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
-addopts = "-q -s --tb=short"
+addopts = "-q -s --tb=short --cov=src/menv --cov-report=term-missing --cov-report=xml"
 
 [tool.ruff]
 target-version = "py312"

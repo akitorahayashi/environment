@@ -17,8 +17,8 @@ jobs:
       - name: Setup base environment
         uses: ./.github/actions/setup-base
 
-      - name: Install shellcheck
-        run: brew install shellcheck
+      - name: Install shell tools
+        run: brew install shellcheck shfmt
 
       - name: Prepare menv venv directory
         run: mkdir -p "$HOME/.menv/venvs"
