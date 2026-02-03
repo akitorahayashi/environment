@@ -67,8 +67,8 @@ def list_tags(ctx: typer.Context) -> None:
     """List all available tags that can be used with 'menv make'.
 
     Example:
-        menv make list
-        menv mk ls
+        menv list
+        menv ls
     """
     app_ctx: AppContext = ctx.obj
     tags_map = app_ctx.playbook.get_tags_map()
@@ -119,7 +119,7 @@ def make(
         menv make python-tools      # Run python-tools with common profile
         menv make brew-cask mmn     # Run brew-cask with mac-mini profile
         menv make shell macbook     # Run shell with macbook profile
-        menv mk list                # List available tags
+        menv list                   # List available tags
     """
     # Resolve profile aliases
     resolved_profile = PROFILE_ALIASES.get(profile, profile)
