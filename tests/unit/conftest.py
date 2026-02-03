@@ -46,4 +46,4 @@ class MockContextCliRunner(CliRunner):
 @pytest.fixture
 def cli_runner(mock_app_context: AppContext) -> "MockContextCliRunner":
     """Create a CLI runner for testing Typer commands."""
-    return MockContextCliRunner(mock_app_context, mix_stderr=False)
+    return MockContextCliRunner(mock_app_context)

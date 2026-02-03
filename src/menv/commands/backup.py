@@ -17,14 +17,20 @@ BACKUP_TARGETS = {
     "system": {
         "script": "scripts/system/backup-system.py",
         "description": "Backup macOS system defaults",
+        "role": "system",
+        "subpath": "common",
     },
     "vscode": {
         "script": "scripts/editor/backup-extensions.py",
         "description": "Backup VSCode extensions list",
+        "role": "editor",
+        "subpath": "common",
     },
     "vscode-extensions": {
         "script": "scripts/editor/backup-extensions.py",
         "description": "Backup VSCode extensions list (alias)",
+        "role": "editor",
+        "subpath": "common",
     },
 }
 
@@ -83,12 +89,41 @@ def backup(
         console.print(f"[bold red]Error:[/] Backup script not found: {script_path}")
         raise typer.Exit(code=1)
 
+    # Determine paths
+    role = target_info.get("role")
+    subpath = target_info.get("subpath", "common")
+
+    if not role:
+        # Should not happen if BACKUP_TARGETS is correct
+        console.print(f"[bold red]Error:[/] Misconfigured backup target '{target}'")
+        raise typer.Exit(code=1)
+
+    # Calculate local config directory (output destination)
+    local_config_dir = app_ctx.config_deployer.get_local_config_path(role) / subpath
+
+    command = [sys.executable, str(script_path), str(local_config_dir)]
+
+    # Special handling for 'system' to locate definitions
+    if target == "system":
+        definitions_path = local_config_dir / "definitions"
+        if not definitions_path.exists():
+            console.print(
+                f"[dim]ℹ Local definitions not found at {definitions_path}. Using package defaults.[/]"
+            )
+            # Fallback to package definitions
+            package_definitions_path = (
+                app_ctx.config_deployer.get_package_config_path(role)
+                / subpath
+                / "definitions"
+            )
+            command.extend(["--definitions-dir", str(package_definitions_path)])
+
     console.print(f"[bold blue]🔄 Running backup:[/] {target_info['description']}")
     console.print()
 
     try:
         process = subprocess.Popen(
-            [sys.executable, str(script_path)],
+            command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
