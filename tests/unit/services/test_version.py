@@ -84,7 +84,10 @@ class TestVersionManagement:
         from menv.services.version_checker import VersionChecker
 
         checker = VersionChecker()
-        with patch("menv.services.version_checker.subprocess.run", side_effect=OSError("Exec format error")):
+        with patch(
+            "menv.services.version_checker.subprocess.run",
+            side_effect=OSError("Exec format error"),
+        ):
             result = checker.run_pipx_upgrade()
             # Should return a non-zero exit code (e.g. 1) instead of crashing
             assert result == 1

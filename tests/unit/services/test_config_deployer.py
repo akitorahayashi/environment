@@ -191,7 +191,10 @@ class TestConfigDeployer:
         """Test that deploy_role handles OSError during file operations."""
         role = "rust"
 
-        with patch("menv.services.config_deployer.shutil.copytree", side_effect=OSError("Permission denied")):
+        with patch(
+            "menv.services.config_deployer.shutil.copytree",
+            side_effect=OSError("Permission denied"),
+        ):
             result = deployer.deploy_role(role)
 
             assert result.success is False

@@ -48,8 +48,6 @@ jobs:
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
-        with:
-          version: ${{ vars.JLO_VERSION || 'latest' }}
 
       - name: Validate with doctor
         run: |
@@ -58,6 +56,7 @@ jobs:
           
           if [ -z "$workstreams" ]; then
             echo "No workstream changes detected, running doctor for all workstreams"
+            shopt -s nullglob
             for ws_dir in .jules/workstreams/*/; do
               ws=$(basename "$ws_dir")
               echo "::group::Doctor check for $ws"
