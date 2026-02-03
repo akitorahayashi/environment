@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -185,6 +186,16 @@ class TestConfigDeployer:
 
         assert result.success is False
         assert "does not have a config directory" in result.message
+
+    def test_deploy_role_handles_oserror(self, deployer: ConfigDeployer) -> None:
+        """Test that deploy_role handles OSError during file operations."""
+        role = "rust"
+
+        with patch("menv.services.config_deployer.shutil.copytree", side_effect=OSError("Permission denied")):
+            result = deployer.deploy_role(role)
+
+            assert result.success is False
+            assert "Permission denied" in result.message
 
     def test_deploy_all_deploys_all_roles(self, deployer: ConfigDeployer) -> None:
         """Test that deploy_all deploys all roles."""

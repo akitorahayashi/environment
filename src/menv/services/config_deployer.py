@@ -76,15 +76,22 @@ class ConfigDeployer:
                 path=local_config,
             )
 
-        # Create parent directories
-        local_config.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            # Create parent directories
+            local_config.parent.mkdir(parents=True, exist_ok=True)
 
-        # Remove existing if overwrite
-        if local_config.exists() and overwrite:
-            shutil.rmtree(local_config)
+            # Remove existing if overwrite
+            if local_config.exists() and overwrite:
+                shutil.rmtree(local_config)
 
-        # Copy config directory
-        shutil.copytree(package_config, local_config)
+            # Copy config directory
+            shutil.copytree(package_config, local_config)
+        except OSError as e:
+            return DeployResult(
+                role=role,
+                success=False,
+                message=f"Failed to deploy config: {e}",
+            )
 
         return DeployResult(
             role=role,

@@ -47,7 +47,7 @@ class VersionChecker(VersionCheckerProtocol):
         """Return True if latest > current."""
         try:
             return Version(latest) > Version(current)
-        except Exception:
+        except (ValueError, TypeError):
             return False
 
     def run_pipx_upgrade(self) -> int:
@@ -63,4 +63,7 @@ class VersionChecker(VersionCheckerProtocol):
             self._console.print(
                 "[bold red]Error:[/] pipx not found. Please ensure pipx is installed."
             )
+            return 1
+        except OSError as e:
+            self._console.print(f"[bold red]Error:[/] Failed to run pipx: {e}")
             return 1

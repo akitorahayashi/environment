@@ -78,3 +78,13 @@ class TestVersionManagement:
 
             result = VersionChecker().get_latest_version()
             assert result == "0.2.0"
+
+    def test_run_pipx_upgrade_handles_oserror(self) -> None:
+        """Test that run_pipx_upgrade handles generic OSError."""
+        from menv.services.version_checker import VersionChecker
+
+        checker = VersionChecker()
+        with patch("menv.services.version_checker.subprocess.run", side_effect=OSError("Exec format error")):
+            result = checker.run_pipx_upgrade()
+            # Should return a non-zero exit code (e.g. 1) instead of crashing
+            assert result == 1
