@@ -129,7 +129,6 @@ menv u
 
 ```sh
 menv --help
-menv introduce --help
 menv make --help
 ```
 
