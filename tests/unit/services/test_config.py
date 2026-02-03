@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from menv.models.config import MenvConfig, VcsIdentityConfig
+import pytest
+
+from menv.models.config import ConfigValidationError, MenvConfig, VcsIdentityConfig
 from menv.services.config_storage import ConfigStorage
 
 
@@ -44,6 +46,30 @@ class TestConfigStorage:
 
 class TestConfigSaveLoad:
     """Tests for saving and loading configuration."""
+
+    def test_load_raises_validation_error(self, tmp_path: Path) -> None:
+        """Test that load raises ConfigValidationError for invalid file."""
+        config_dir = tmp_path / "config"
+        config_dir.mkdir()
+        config_path = config_dir / "config.toml"
+        # Invalid config (missing fields)
+        config_path.write_text('[personal]\nname="User"\n')
+
+        storage = ConfigStorage(config_dir)
+        with pytest.raises(ConfigValidationError):
+            storage.load()
+
+    def test_save_raises_validation_error(self, tmp_path: Path) -> None:
+        """Test that save raises ConfigValidationError for invalid data."""
+        storage = ConfigStorage(tmp_path)
+        # Invalid config (empty name)
+        config = MenvConfig(
+            personal=VcsIdentityConfig(name="", email="test@example.com"),
+            work=VcsIdentityConfig(name="Work", email="work@example.com"),
+        )
+
+        with pytest.raises(ConfigValidationError):
+            storage.save(config)
 
     def test_save_and_load_config(self, tmp_path: Path) -> None:
         """Test that config can be saved and loaded."""

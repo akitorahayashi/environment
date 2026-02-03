@@ -5,7 +5,7 @@ from __future__ import annotations
 import tomllib
 from pathlib import Path
 
-from menv.models.config import MenvConfig, VcsIdentityConfig
+from menv.models.config import MenvConfig, VcsIdentityConfig, validate_config
 from menv.protocols.config_storage import ConfigStorageProtocol
 
 
@@ -44,16 +44,7 @@ class ConfigStorage(ConfigStorageProtocol):
         with open(self._config_path, "rb") as f:
             data = tomllib.load(f)
 
-        return MenvConfig(
-            personal=VcsIdentityConfig(
-                name=data.get("personal", {}).get("name", ""),
-                email=data.get("personal", {}).get("email", ""),
-            ),
-            work=VcsIdentityConfig(
-                name=data.get("work", {}).get("name", ""),
-                email=data.get("work", {}).get("email", ""),
-            ),
-        )
+        return validate_config(data)
 
     def save(self, config: MenvConfig) -> None:
         """Save configuration to file.
@@ -61,6 +52,8 @@ class ConfigStorage(ConfigStorageProtocol):
         Args:
             config: Configuration to save.
         """
+        validate_config(config)
+
         self._config_dir.mkdir(parents=True, exist_ok=True)
 
         def _escape(value: str) -> str:

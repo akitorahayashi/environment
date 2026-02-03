@@ -8,7 +8,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from menv.models.config import MenvConfig, VcsIdentityConfig
+from menv.models.config import ConfigValidationError, MenvConfig, VcsIdentityConfig
 
 if TYPE_CHECKING:
     from menv.context import AppContext
@@ -32,7 +32,12 @@ def show_config(ctx: typer.Context) -> None:
         console.print("Run [cyan]menv config set[/] to configure.")
         raise typer.Exit(code=1)
 
-    config = app_ctx.config_storage.load()
+    try:
+        config = app_ctx.config_storage.load()
+    except ConfigValidationError as e:
+        console.print(f"[red]Error:[/] Invalid configuration: {e}")
+        raise typer.Exit(code=1)
+
     if config is None:
         console.print("[red]Error:[/] Failed to load configuration.")
         raise typer.Exit(code=1)
@@ -60,7 +65,14 @@ def set_config(ctx: typer.Context) -> None:
     console.print()
 
     # Load existing config for defaults
-    existing = app_ctx.config_storage.load()
+    try:
+        existing = app_ctx.config_storage.load()
+    except ConfigValidationError:
+        console.print(
+            "[yellow]Warning:[/] Existing configuration is invalid. "
+            "Proceeding with defaults."
+        )
+        existing = None
 
     # Personal settings
     console.print("[cyan]Personal identity:[/]")
@@ -91,7 +103,11 @@ def set_config(ctx: typer.Context) -> None:
         personal=VcsIdentityConfig(name=personal_name, email=personal_email),
         work=VcsIdentityConfig(name=work_name, email=work_email),
     )
-    app_ctx.config_storage.save(config)
+    try:
+        app_ctx.config_storage.save(config)
+    except ConfigValidationError as e:
+        console.print(f"[red]Error:[/] Invalid configuration: {e}")
+        raise typer.Exit(code=1)
 
     console.print()
     console.print(
