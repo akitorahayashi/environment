@@ -49,9 +49,9 @@ menv cr mmn
 
 The `create` command runs core setup tasks in the correct order to provision a base macOS development environment. It stops immediately on any failure, making it easy to identify and fix issues.
 
-**Design principle**: Most commands use the `common` profile by default (no profile argument needed). Only `brew-formulae` and `brew-cask` require profile specification since they have machine-specific configurations.
+**Design principle**: Most commands use the `common` profile by default (no profile argument needed). `brew-formulae` and `brew-cask` prioritize profile-specific configurations but fallback to `common` if not found.
 
-menv provisions dotfiles by copying them into your home directory (no symlinks) so pipx upgrades won’t break paths.
+menv provisions dotfiles by symlinking them into your home directory.
 
 **Run individual tasks:**
 

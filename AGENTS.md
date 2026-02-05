@@ -77,8 +77,8 @@ tests/
 
 ### Profile Design
 - **Common profile by default**: Most roles use `common` profile (no explicit profile argument needed)
-- **Profile-specific configs**: Only `brew` role has profile-specific configs (macbook/mac-mini)
-  - `brew-formulae` and `brew-cask` require profile specification (use aliases: mbk, mmn)
+- **Profile-specific configs**: `brew` role supports profile-specific configs (macbook/mac-mini)
+  - `brew-formulae` and `brew-cask` prioritize profile-specific Brewfiles but fallback to `common` if not found.
   - All other tasks default to `common` profile
 - Roles store configs in `config/common/` (all roles) and `config/profiles/` (brew only)
 
