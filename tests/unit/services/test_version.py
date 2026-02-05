@@ -83,7 +83,8 @@ class TestVersionManagement:
         """Test that run_pipx_upgrade handles generic OSError."""
         from menv.services.version_checker import VersionChecker
 
-        checker = VersionChecker()
+        mock_console = MagicMock()
+        checker = VersionChecker(console=mock_console)
         with patch(
             "menv.services.version_checker.subprocess.run",
             side_effect=OSError("Exec format error"),
@@ -91,3 +92,7 @@ class TestVersionManagement:
             result = checker.run_pipx_upgrade()
             # Should return a non-zero exit code (e.g. 1) instead of crashing
             assert result == 1
+            # Verify error message was printed
+            mock_console.print.assert_called_with(
+                "[bold red]Error:[/] Failed to run pipx: Exec format error"
+            )
