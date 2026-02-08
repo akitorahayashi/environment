@@ -54,10 +54,3 @@
     state: link
     force: true
   loop: "{{ shell_config_files.files }}"
-
-- name: "Symlink ansible/scripts to ~/.menv/scripts"
-  ansible.builtin.file:
-    src: "{{ config_dir_abs_path }}/scripts"
-    dest: "{{ ansible_env.HOME }}/.menv/scripts"
-    state: link
-    force: true

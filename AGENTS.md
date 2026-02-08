@@ -18,6 +18,10 @@ pipx-installable CLI for macOS dev environment setup using bundled Ansible playb
 | `menv switch <profile>` | `sw` | Switch VCS identity (personal/p, work/w) |
 | `menv update` | `u` | Self-update via pipx |
 
+Hidden `menv internal` commands exist for shell alias integration (not user-facing):
+`menv internal vcs delete-submodule`, `menv internal ssh {gk,ls,rm}`,
+`menv internal aider`, `menv internal shell {gen-gemini-aliases,gen-vscode-workspace}`.
+
 ## Package Structure
 
 ```text
@@ -25,6 +29,7 @@ src/menv/
 ├── main.py           # Typer CLI entry point
 ├── context.py        # AppContext (DI container)
 ├── commands/         # CLI commands (1 command per file)
+│   └── internal/     # Hidden alias-backing commands (1 domain per file)
 ├── models/           # Data models (1 file per domain)
 ├── services/         # Service classes (1 class per file)
 ├── protocols/        # Protocol definitions (1 per service)
@@ -66,6 +71,13 @@ tests/
 - **1 class per file** (mirror service structure)
 - Must implement corresponding Protocol
 - Never put implementations in `__init__.py`
+
+### Internal Commands (`commands/internal/`)
+- Hidden Typer sub-app mounted via `app.add_typer(internal_app)`
+- One domain per module: `vcs.py`, `ssh.py`, `aider.py`, `shell.py`
+- `app.py` is assembly-only (creates `internal_app`, registers sub-apps)
+- `__init__.py` is re-export only (`internal_app`)
+- Shell aliases call `menv internal ...` instead of standalone scripts
 
 ## Design Rules
 

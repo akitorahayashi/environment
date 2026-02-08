@@ -33,7 +33,7 @@ alias cdx="codex"
 alias cpt="copilot"
 
 # Generate Gemini model aliases
-eval "$(gen_gemini_aliases.py)"
+eval "$(menv internal shell gen-gemini-aliases)"
 
 # Basic gm alias
 alias gm="gemini"

@@ -9,6 +9,7 @@ from rich.console import Console
 from menv.commands.backup import backup
 from menv.commands.config import config_app
 from menv.commands.create import create
+from menv.commands.internal import internal_app
 from menv.commands.make import list_tags, make
 from menv.commands.switch import switch
 from menv.commands.update import update
@@ -121,6 +122,9 @@ app.command(
     name="switch", help=r"Switch VCS identity between personal and work. \[aliases: sw]"
 )(switch)
 app.command(name="sw", hidden=True)(switch)
+
+# Register hidden internal commands
+app.add_typer(internal_app)
 
 
 if __name__ == "__main__":

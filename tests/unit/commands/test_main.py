@@ -39,3 +39,10 @@ class TestCLIMain:
         result = cli_runner.invoke(app, [])
 
         assert "Usage:" in result.output or "menv" in result.output
+
+    def test_internal_hidden_from_help(self, cli_runner: CliRunner) -> None:
+        """Test that internal commands are not visible in normal help output."""
+        result = cli_runner.invoke(app, ["--help"])
+
+        assert result.exit_code == 0
+        assert "internal" not in result.output

@@ -2,13 +2,15 @@ name: MacOS Environment Setup CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
     paths-ignore:
       - '**.md'
+      - '.mock-*'
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
     paths-ignore:
       - '**.md'
+      - '.mock-*'
   workflow_dispatch:
 
 jobs:

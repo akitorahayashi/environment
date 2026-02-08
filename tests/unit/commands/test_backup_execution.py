@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from typer.testing import CliRunner
 
@@ -12,33 +12,20 @@ from menv.main import app
 class TestBackupExecution:
     """Tests for the backup command execution."""
 
-    @patch("subprocess.Popen")
-    @patch("pathlib.Path.exists")
-    def test_backup_system_passes_config_dir(
-        self, mock_exists, mock_popen, cli_runner: CliRunner
-    ) -> None:
-        """Test that backup system passes the config directory."""
-        # Assume everything exists
-        mock_exists.return_value = True
-
-        # Mock Popen process
-        mock_process = MagicMock()
-        mock_process.stdout = []
-        mock_process.wait.return_value = None
-        mock_process.returncode = 0
-        mock_popen.return_value = mock_process
-
+    @patch("menv.commands.backup.services.system.run", return_value=0)
+    def test_backup_system_calls_service(self, mock_run, cli_runner: CliRunner) -> None:
+        """Test that backup system calls the system service run function."""
         result = cli_runner.invoke(app, ["backup", "system"])
 
         assert result.exit_code == 0
+        mock_run.assert_called_once()
+        kwargs = mock_run.call_args.kwargs
+        assert "common" in str(kwargs["config_dir"])
 
-        # Verify Popen call args
-        args, _ = mock_popen.call_args
-        cmd = args[0]
+    @patch("menv.commands.backup.services.vscode_extensions.run", return_value=0)
+    def test_backup_vscode_calls_service(self, mock_run, cli_runner: CliRunner) -> None:
+        """Test that backup vscode calls the vscode extensions service."""
+        result = cli_runner.invoke(app, ["backup", "vscode"])
 
-        # We expect [python, script_path, config_dir, ...]
-        assert len(cmd) > 2, f"Command should have arguments: {cmd}"
-
-        # Verify config dir path
-        # It should contain 'common'
-        assert "common" in str(cmd[2])
+        assert result.exit_code == 0
+        mock_run.assert_called_once()

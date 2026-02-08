@@ -13,12 +13,12 @@
 # Usage: ai [files...]
 
 ai() {
-	aider.py "$@"
+	menv internal aider run "$@"
 }
 
 ai-st() {
 	local _output
-	if ! _output="$(aider.py set-model "$1")"; then
+	if ! _output="$(menv internal aider set-model "$1")"; then
 		return $?
 	fi
 	eval "$_output"
@@ -26,12 +26,12 @@ ai-st() {
 
 ai-us() {
 	local _output
-	if ! _output="$(aider.py unset-model)"; then
+	if ! _output="$(menv internal aider unset-model)"; then
 		return $?
 	fi
 	eval "$_output"
 }
 
 ai-ls() {
-	aider.py list-models "$@"
+	menv internal aider list-models "$@"
 }
