@@ -4,14 +4,16 @@
 
 - When adding new features or refactoring, removal of old modules and deprecated features is mandatory. Identify and eliminate all sources of technical debt, bugs, and complexity left behind.
 - Never define class or file names with ambiguous responsibilities, such as base, core, utils, or helpers.
-- Never hardcode enumerable values (such as component names, supported types, or configuration options) in templates, documentation, or user-facing output. Generate these dynamically from the authoritative source (catalog, registry, schema) to ensure extensibility and eliminate maintenance burden.
-- Silent fallbacks are forbidden. Any fallback must be explicit, opt-in, and surfaced as a failure or a clearly logged, reviewed decision.
+- Never hardcode enumerable values. Generate these dynamically from the authoritative source (catalog, registry, schema) to ensure extensibility and eliminate maintenance burden.
+- Silent fallbacks are not recommended. Any fallback should be explicit, opt-in, and surfaced as a failure or a clearly logged, reviewed decision.
 - Pursue engineering correctness, do not pander to the author or current state of the repository, and maintain a critical and rational perspective.
+- Prioritize UX simplicity over explicit configuration.
+- When considering whether something is unnecessary, don't use the excuse that "it's being used elsewhere," but demonstrate its necessity by its contribution to the purpose.
 
 ## Communication
 
 - When reporting completed work or providing routine responses, avoid unnecessary tokens and keep responses concise and clear.
-- Your answer must be based on the context of the repository, even for general engineering questions. Research is required before answering.
+- Your answer must be based on the context of the repository. Research is required before answering.
 - Problem reports are grounded in user-stated assumptions and verified repository context.
 - Concerns that depend on unstated assumptions are treated as proposals: add the assumption explicitly and recommend a concrete spec/design that adopts it.
 - Recommendations prioritize reducing user decision load. Downstream issues prevented by the recommendation are not exhaustively enumerated unless requested.
@@ -22,6 +24,7 @@
 - All development-related documentation must be written in English.
 - Keep documentation for LLM (AGENTS.md, CLAUDE.md, etc.) concise for token efficiency. Focus on essential information only.
 - Documentation is written in a declarative style describing the current state. Imperative or changelog-style descriptions are avoided.
+- Declarative updates preserve existing, correct content and integrate new content where appropriate, without duplication. Avoid ripping and replacing everything.
 
 ## Safety
 

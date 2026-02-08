@@ -109,3 +109,33 @@
     state: link
     force: true
     mode: "0644"
+
+- name: "Load agent skills targets"
+  ansible.builtin.set_fact:
+    nodejs_coder_skills_targets: "{{ lookup('file', local_config_root + '/nodejs/common/coder/skills-targets.yml') | from_yaml }}"
+
+- name: "Discover common agent skills"
+  ansible.builtin.find:
+    paths: "{{ local_config_root }}/nodejs/common/coder/skills"
+    file_type: directory
+    depth: 1
+  register: nodejs_coder_skills_find
+
+- name: "Set agent skills list"
+  ansible.builtin.set_fact:
+    nodejs_coder_skills: "{{ nodejs_coder_skills_find.files | map(attribute='path') | map('basename') | list }}"
+
+- name: "Ensure agent skills directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.{{ item }}/skills"
+    state: directory
+    mode: "0755"
+  loop: "{{ nodejs_coder_skills_targets.tools }}"
+
+- name: "Deploy common agent skills to all CLIs"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/common/coder/skills/{{ item.0 }}"
+    dest: "{{ ansible_env.HOME }}/.{{ item.1 }}/skills/{{ item.0 }}"
+    state: link
+    force: true
+  loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools) | list }}"

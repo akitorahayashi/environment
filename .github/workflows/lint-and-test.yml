@@ -20,17 +20,6 @@ jobs:
       - name: Install shell tools
         run: brew install shellcheck shfmt
 
-      - name: Prepare menv venv directory
-        run: mkdir -p "$HOME/.menv/venvs"
-
-      - name: Create mlx-lm venv
-        run: uv venv "$HOME/.menv/venvs/mlx-lm"
-
-      - name: Install mlx dependencies
-        env:
-          UV_PROJECT_ENVIRONMENT: $HOME/.menv/venvs/mlx-lm
-        run: uv sync --only-group mlx
-        
       - name: Run tests
         run: just test
 

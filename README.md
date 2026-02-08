@@ -75,6 +75,8 @@ menv make mlx-models        # Download MLX models
 
 # Coder tools (cloud LLM CLI tools)
 menv make coder             # Install Claude, Gemini, Codex CLI tools
+                            # Deploy shared Agent Skills to ~/.codex/skills, ~/.claude/skills, ~/.gemini/skills
+                            # Source of truth: src/menv/ansible/roles/nodejs/config/common/coder/skills
 
 # Profile required only for brew-formulae and brew-cask
 menv make brew-formulae mbk     # Install brew dependencies for macbook

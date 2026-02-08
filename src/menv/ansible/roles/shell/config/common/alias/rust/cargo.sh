@@ -6,6 +6,7 @@ alias cr-n="cargo new"
 alias cr-i="cargo install"
 alias cr-ls="cargo install --list"
 alias cr-ui="cargo uninstall"
+alias cr-cl="cargo clean"
 
 # Formatting
 cr-f() {

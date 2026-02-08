@@ -18,6 +18,7 @@ brew "yq"
 brew "shellcheck"
 brew "shfmt"
 brew "ripgrep"
+brew "aqua"
 
 ## Media
 brew "ffmpeg"

@@ -20,21 +20,9 @@ jobs:
 
       - name: Run uv setup
         run: just run make uv 
-        
-      - name: Prepare menv venv directory
-        run: mkdir -p "$HOME/.menv/venvs"
-
-      - name: Create mlx-lm venv
-        run: uv venv "$HOME/.menv/venvs/mlx-lm"
-
-      - name: Install mlx dependencies
-        env:
-          UV_PROJECT_ENVIRONMENT: $HOME/.menv/venvs/mlx-lm
-        run: uv sync --only-group mlx
 
       - name: Run python-tools setup
         run: just run make python-tools 
         
       - name: Run aider setup
         run: just run make aider 
-
