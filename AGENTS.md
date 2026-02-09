@@ -6,21 +6,7 @@ pipx-installable CLI for macOS dev environment setup using bundled Ansible playb
 
 ## CLI Commands
 
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `menv create <profile>` | `cr` | Create core environment (macbook/mbk, mac-mini/mmn); use `-v` for verbose, `-o` for overwrite |
-| `menv make <tag> [profile]` | `mk` | Run individual task (default: common); profile only needed for brew-formulae/brew-cask; use `-o` for overwrite |
-| `menv list` | `ls` | List available tags |
-| `menv backup <target>` | `bk` | Backup system/VS Code |
-| `menv config set` | `cf set` | Set VCS identities interactively |
-| `menv config show` | `cf show` | Show current VCS identity configuration |
-| `menv config create [role]` | `cf cr [role]` | Deploy role configs to ~/.config/menv/; use `-o` for overwrite |
-| `menv switch <profile>` | `sw` | Switch VCS identity (personal/p, work/w) |
-| `menv update` | `u` | Self-update via pipx |
-
-Hidden `menv internal` commands exist for shell alias integration (not user-facing):
-`menv internal vcs delete-submodule`, `menv internal ssh {gk,ls,rm}`,
-`menv internal aider`, `menv internal shell {gen-gemini-aliases,gen-vscode-workspace}`.
+See [README.md](README.md) for the list of available commands and usage instructions.
 
 ## Package Structure
 
@@ -45,39 +31,23 @@ tests/
 └── conftest.py       # Shared fixtures
 ```
 
+## Directory Specific Rules
+
+Please refer to the `AGENTS.md` files in specific directories for detailed rules:
+
+- [Internal Commands](src/menv/commands/internal/AGENTS.md)
+- [Models](src/menv/models/AGENTS.md)
+- [Protocols](src/menv/protocols/AGENTS.md)
+- [Rust Role](src/menv/ansible/roles/rust/AGENTS.md)
+- [Services](src/menv/services/AGENTS.md)
+- [Mocks](tests/mocks/AGENTS.md)
+- [Testing](tests/AGENTS.md)
+
 ## Architecture Principles
 
 ### Directory Naming
 - **No ambiguous names**: `core/`, `utils/`, `helpers/` are forbidden
 - Every file must belong to a clear, specific category
-
-### Models (`models/`)
-- **1 file per domain** (group related models)
-- Pure data structures (dataclass, TypedDict)
-- No business logic
-
-### Protocols (`protocols/`)
-- Define interface for each service
-- **Naming**: `XxxProtocol` suffix (e.g., `ConfigStorageProtocol`)
-- Both real implementations and mocks must satisfy the Protocol
-
-### Services (`services/`)
-- **1 class per file**
-- Each service must have a corresponding Protocol in `protocols/`
-- **Naming**: Plain name without suffix (e.g., `ConfigStorage`)
-- Example: `services/config_storage.py` (ConfigStorage) ↔ `protocols/config_storage.py` (ConfigStorageProtocol)
-
-### Mocks (`tests/mocks/`)
-- **1 class per file** (mirror service structure)
-- Must implement corresponding Protocol
-- Never put implementations in `__init__.py`
-
-### Internal Commands (`commands/internal/`)
-- Hidden Typer sub-app mounted via `app.add_typer(internal_app)`
-- One domain per module: `vcs.py`, `ssh.py`, `aider.py`, `shell.py`
-- `app.py` is assembly-only (creates `internal_app`, registers sub-apps)
-- `__init__.py` is re-export only (`internal_app`)
-- Shell aliases call `menv internal ...` instead of standalone scripts
 
 ## Design Rules
 
@@ -109,30 +79,6 @@ tests/
 - Read configs from `{{ local_config_root }}/{role}/common/` or `{{ local_config_root }}/{role}/profiles/`
 - Deployment to local destinations (`~/.zshrc`, `~/.gitconfig`, etc.): `ansible.builtin.file` with `state: link`
 - Set `mode: "0644"` for config/text files, `mode: "0755"` for executable scripts
-
-### Rust Tools Installation
-
-The rust role downloads pre-built binaries from GitHub releases rather than compiling via cargo.
-
-**Configuration files:**
-- `config/common/tools.yml`: List of tools with name, repo (owner/name), and tag
-- `config/common/platforms.yml`: OS and architecture mapping for asset names
-
-**Installation process:**
-1. Check installed version via `<tool> --version`
-2. Download binary from `https://github.com/<repo>/releases/download/<tag>/<name>-<os>-<arch>`
-3. Install to `~/.cargo/bin/` with executable permissions
-
-**Tools included:** gho, jlo, kpv, mx, pure, ssv
-
-**Asset naming convention:** `<binary>-<os>-<arch>` (e.g., `mx-darwin-aarch64`)
-
-### Testing
-- Run via `just test` (runs both unit-test and intg-test)
-- `just unit-test`: Unit tests only (fast, mocks, no external processes)
-- `just intg-test`: Integration tests only (subprocess, real scripts)
-- Mocks must be Protocol-compliant for type safety
-- Prefer DI over monkeypatch where possible
 
 ### Development
 - `just run <args>`: Run menv in dev mode
