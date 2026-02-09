@@ -9,17 +9,29 @@ class VersionCheckerProtocol(Protocol):
     """Version checking abstraction."""
 
     def get_current_version(self) -> str:
-        """Get the currently installed version of menv."""
+        """Get the currently installed version of menv.
+
+        Raises:
+            VersionCheckError: If version cannot be determined.
+        """
         ...
 
-    def get_latest_version(self) -> str | None:
-        """Fetch the latest release version."""
+    def get_latest_version(self) -> str:
+        """Fetch the latest release version.
+
+        Raises:
+            VersionCheckError: If latest version cannot be fetched.
+        """
         ...
 
     def needs_update(self, current: str, latest: str) -> bool:
         """Return True when an update is available."""
         ...
 
-    def run_pipx_upgrade(self) -> int:
-        """Upgrade menv via pipx and return the exit code."""
+    def run_pipx_upgrade(self) -> None:
+        """Upgrade menv via pipx.
+
+        Raises:
+            VersionCheckError: If upgrade fails.
+        """
         ...

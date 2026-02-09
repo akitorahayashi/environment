@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 from menv.constants import PROFILE_ALIASES, TAG_GROUPS, VALID_PROFILES
+from menv.exceptions import AnsibleExecutionError
 
 if TYPE_CHECKING:
     from menv.context import AppContext
@@ -160,16 +161,16 @@ def make(
         console.print(f"[bold green]Profile:[/] {resolved_profile}")
     console.print()
 
-    exit_code = app_ctx.ansible_runner.run_playbook(
-        profile=resolved_profile,
-        tags=tags_to_run,
-        verbose=verbose,
-    )
-
-    if exit_code == 0:
+    try:
+        app_ctx.ansible_runner.run_playbook(
+            profile=resolved_profile,
+            tags=tags_to_run,
+            verbose=verbose,
+        )
         console.print()
         console.print("[bold green]✓ Completed successfully![/]")
-    else:
+    except AnsibleExecutionError as e:
+        exit_code = e.returncode if e.returncode is not None else 1
         console.print()
         console.print(f"[bold red]✗ Failed with exit code {exit_code}[/]")
         raise typer.Exit(code=exit_code)

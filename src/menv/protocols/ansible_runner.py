@@ -13,6 +13,10 @@ class AnsibleRunnerProtocol(Protocol):
         profile: str,
         tags: list[str] | None = None,
         verbose: bool = False,
-    ) -> int:
-        """Execute ansible-playbook and return the exit code."""
+    ) -> None:
+        """Execute ansible-playbook.
+
+        Raises:
+            AnsibleExecutionError: If execution fails.
+        """
         ...

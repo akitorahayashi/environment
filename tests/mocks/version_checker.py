@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from packaging.version import Version
 
+from menv.exceptions import VersionCheckError
 from menv.protocols import VersionCheckerProtocol
 
 
@@ -24,7 +25,9 @@ class MockVersionChecker(VersionCheckerProtocol):
     def get_current_version(self) -> str:
         return self.current_version
 
-    def get_latest_version(self) -> str | None:
+    def get_latest_version(self) -> str:
+        if self.latest_version is None:
+            raise VersionCheckError("Failed to fetch latest version")
         return self.latest_version
 
     def needs_update(self, current: str, latest: str) -> bool:
@@ -33,6 +36,7 @@ class MockVersionChecker(VersionCheckerProtocol):
         except Exception:
             return False
 
-    def run_pipx_upgrade(self) -> int:
+    def run_pipx_upgrade(self) -> None:
         self.upgrade_calls += 1
-        return self.upgrade_exit_code
+        if self.upgrade_exit_code != 0:
+            raise VersionCheckError("Upgrade failed")

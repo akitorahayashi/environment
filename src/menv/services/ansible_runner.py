@@ -9,6 +9,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from menv.exceptions import AnsibleExecutionError
 from menv.protocols.ansible_paths import AnsiblePathsProtocol
 from menv.protocols.ansible_runner import AnsibleRunnerProtocol
 from menv.services.ansible_paths import AnsiblePaths
@@ -30,7 +31,7 @@ class AnsibleRunner(AnsibleRunnerProtocol):
         profile: str,
         tags: list[str] | None = None,
         verbose: bool = False,
-    ) -> int:
+    ) -> None:
         """Execute ansible-playbook with the specified profile."""
         ansible_dir = self._paths.ansible_dir()
         playbook_path = ansible_dir / "playbook.yml"
@@ -82,14 +83,21 @@ class AnsibleRunner(AnsibleRunnerProtocol):
                     sys.stdout.flush()
 
             process.wait()
-            return process.returncode
 
-        except FileNotFoundError:
+            if process.returncode != 0:
+                raise AnsibleExecutionError(
+                    f"ansible-playbook failed with exit code {process.returncode}",
+                    returncode=process.returncode,
+                )
+
+        except FileNotFoundError as e:
             self._console.print(
                 "[bold red]Error:[/] ansible-playbook not found. "
                 "Please ensure Ansible is installed."
             )
-            return 1
+            raise AnsibleExecutionError(
+                "ansible-playbook not found", returncode=1
+            ) from e
         except KeyboardInterrupt:
             self._console.print("\n[yellow]Interrupted by user[/]")
-            return 130
+            raise AnsibleExecutionError("Interrupted by user", returncode=130)

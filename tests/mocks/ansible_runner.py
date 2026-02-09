@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from menv.exceptions import AnsibleExecutionError
 from menv.protocols import AnsibleRunnerProtocol
 
 
@@ -17,7 +18,7 @@ class MockAnsibleRunner(AnsibleRunnerProtocol):
         profile: str,
         tags: list[str] | None = None,
         verbose: bool = False,
-    ) -> int:
+    ) -> None:
         self.calls.append(
             {
                 "profile": profile,
@@ -25,4 +26,5 @@ class MockAnsibleRunner(AnsibleRunnerProtocol):
                 "verbose": verbose,
             }
         )
-        return self.exit_code
+        if self.exit_code != 0:
+            raise AnsibleExecutionError("Execution failed", returncode=self.exit_code)

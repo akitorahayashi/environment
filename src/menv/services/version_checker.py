@@ -9,6 +9,7 @@ import httpx
 from packaging.version import Version
 from rich.console import Console
 
+from menv.exceptions import VersionCheckError
 from menv.protocols.version_checker import VersionCheckerProtocol
 
 GITHUB_REPO = "akitorahayashi/menv"
@@ -25,10 +26,10 @@ class VersionChecker(VersionCheckerProtocol):
         """Get the currently installed version of menv."""
         try:
             return metadata.version("menv")
-        except metadata.PackageNotFoundError:
-            return "0.0.0"
+        except metadata.PackageNotFoundError as e:
+            raise VersionCheckError("menv package not found") from e
 
-    def get_latest_version(self) -> str | None:
+    def get_latest_version(self) -> str:
         """Fetch the latest release version from GitHub."""
         try:
             response = httpx.get(
@@ -39,18 +40,22 @@ class VersionChecker(VersionCheckerProtocol):
             response.raise_for_status()
             data = response.json()
             tag = data.get("tag_name", "")
-            return tag.lstrip("v") if tag else None
-        except (httpx.HTTPError, KeyError, ValueError):
-            return None
+            if not tag:
+                raise VersionCheckError("No tag name found in release data")
+            return tag.lstrip("v")
+        except httpx.HTTPError as e:
+            raise VersionCheckError(f"Failed to fetch latest version: {e}") from e
+        except (KeyError, ValueError) as e:
+            raise VersionCheckError(f"Failed to parse release data: {e}") from e
 
     def needs_update(self, current: str, latest: str) -> bool:
         """Return True if latest > current."""
         try:
             return Version(latest) > Version(current)
-        except (ValueError, TypeError):
-            return False
+        except (ValueError, TypeError) as e:
+            raise VersionCheckError(f"Invalid version comparison: {current} vs {latest}") from e
 
-    def run_pipx_upgrade(self) -> int:
+    def run_pipx_upgrade(self) -> None:
         """Run pipx upgrade menv."""
         self._console.print("[bold blue]Upgrading menv via pipx...[/]")
         try:
@@ -58,12 +63,15 @@ class VersionChecker(VersionCheckerProtocol):
                 ["pipx", "upgrade", "menv"],
                 check=False,
             )
-            return result.returncode
-        except FileNotFoundError:
+            if result.returncode != 0:
+                raise VersionCheckError(
+                    f"pipx upgrade failed with exit code {result.returncode}"
+                )
+        except FileNotFoundError as e:
             self._console.print(
                 "[bold red]Error:[/] pipx not found. Please ensure pipx is installed."
             )
-            return 1
+            raise VersionCheckError("pipx not found") from e
         except OSError as e:
             self._console.print(f"[bold red]Error:[/] Failed to run pipx: {e}")
-            return 1
+            raise VersionCheckError(f"Failed to run pipx: {e}") from e

@@ -42,10 +42,7 @@ class AnsiblePaths(AnsiblePathsProtocol):
     def __del__(self) -> None:
         """Clean up the context manager on deletion."""
         if self._ansible_dir_context is not None:
-            try:
-                self._ansible_dir_context.__exit__(None, None, None)
-            except Exception:
-                pass  # Ignore errors during cleanup
+            self._ansible_dir_context.__exit__(None, None, None)
 
     def playbook_path(self) -> Path:
         """Get the path to the main playbook.yml file."""

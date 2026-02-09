@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from menv.constants import FULL_SETUP_TAGS, MACHINE_PROFILES, PROFILE_ALIASES
+from menv.exceptions import AnsibleExecutionError
 
 if TYPE_CHECKING:
     from menv.context import AppContext
@@ -177,27 +178,28 @@ def create(
     for i, tag in enumerate(FULL_SETUP_TAGS, 1):
         console.print(f"[bold cyan][{i}/{len(FULL_SETUP_TAGS)}][/] Running: {tag}")
 
-        exit_code = app_ctx.ansible_runner.run_playbook(
-            profile=resolved_profile,
-            tags=[tag],
-            verbose=verbose,
-        )
-
-        if exit_code != 0:
+        try:
+            app_ctx.ansible_runner.run_playbook(
+                profile=resolved_profile,
+                tags=[tag],
+                verbose=verbose,
+            )
+            console.print("  [green]✓ Completed[/]")
+        except AnsibleExecutionError as e:
+            exit_code = e.returncode if e.returncode is not None else 1
             console.print(f"  [red]✗ Failed with exit code {exit_code}[/]")
             console.print()
             console.print(
                 Panel(
                     f"[bold red]Setup failed at step {i}/{len(FULL_SETUP_TAGS)}:[/]\n"
                     f"  Tag: {tag}\n"
-                    f"  Exit code: {exit_code}\n\n"
+                    f"  Exit code: {exit_code}\n"
+                    f"  Error: {e}\n\n"
                     "[dim]Fix the issue and run the command again to continue.[/]",
                     border_style="red",
                 )
             )
             raise typer.Exit(code=exit_code)
-        else:
-            console.print("  [green]✓ Completed[/]")
 
     # Success
     console.print()
