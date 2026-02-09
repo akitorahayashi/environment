@@ -140,3 +140,22 @@ menv make --help
 menv create macbook --overwrite  # Force overwrite all configs during setup
 menv cr mbk -o                 # Shorthand with overwrite
 ```
+
+**Shell Aliases:**
+
+`menv` provides several useful aliases via the `shell` role.
+
+**Aider (AI Pair Programmer)**
+
+| Alias | Command | Description |
+|-------|---------|-------------|
+| `ai` | `menv internal aider run` | Run aider on specified files/dirs |
+| `ai-st <model>` | `menv internal aider set-model` | Set default Ollama model for aider |
+| `ai-ls` | `menv internal aider list-models` | List available Ollama models |
+| `ai-us` | `menv internal aider unset-model` | Unset default model |
+
+**Context Management**
+
+| Alias | Description |
+|-------|-------------|
+| `cld-ln` | Symlinks `AGENTS.md` (priority) or `README.md` to `.claude/CLAUDE.md` for Claude CLI context. |

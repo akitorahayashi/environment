@@ -10,22 +10,27 @@ alias cld-m-a="claude mcp add"
 alias cld-m-rm="claude mcp remove"
 alias cld-m-ls="claude mcp list"
 
-# Link AGENTS.md to .claude/CLAUDE.md
+# Link AGENTS.md or README.md to .claude/CLAUDE.md
 alias cld-ln=cld_ln
 cld_ln() {
+	local target_file="AGENTS.md"
 	if [ ! -f "AGENTS.md" ]; then
-		echo "❌ AGENTS.md not found in the project root. Please run this command from the repository root." >&2
-		return 1
+		if [ -f "README.md" ]; then
+			target_file="README.md"
+		else
+			echo "❌ Neither AGENTS.md nor README.md found in the project root. Please run this command from the repository root." >&2
+			return 1
+		fi
 	fi
 
 	# Ensure directory exists
 	mkdir -p .claude
 
 	# Create relative symlink (force overwrite)
-	# Target: ../AGENTS.md (relative from .claude/CLAUDE.md)
-	ln -sf ../AGENTS.md .claude/CLAUDE.md
+	# Target: ../<target_file> (relative from .claude/CLAUDE.md)
+	ln -sf "../${target_file}" .claude/CLAUDE.md
 
-	echo "🔗 Linked .claude/CLAUDE.md -> ../AGENTS.md"
+	echo "🔗 Linked .claude/CLAUDE.md -> ../${target_file}"
 }
 
 alias cdx="codex"
