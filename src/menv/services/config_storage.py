@@ -5,6 +5,8 @@ from __future__ import annotations
 import tomllib
 from pathlib import Path
 
+import tomli_w
+
 from menv.models.config import MenvConfig, VcsIdentityConfig, validate_config
 from menv.protocols.config_storage import ConfigStorageProtocol
 
@@ -56,23 +58,8 @@ class ConfigStorage(ConfigStorageProtocol):
 
         self._config_dir.mkdir(parents=True, exist_ok=True)
 
-        def _escape(value: str) -> str:
-            """Escape special characters for a TOML string."""
-            return value.replace("\\", "\\\\").replace('"', '\\"')
-
-        # Write TOML manually, escaping values to handle special characters.
-        lines = [
-            "[personal]",
-            f'name = "{_escape(config["personal"]["name"])}"',
-            f'email = "{_escape(config["personal"]["email"])}"',
-            "",
-            "[work]",
-            f'name = "{_escape(config["work"]["name"])}"',
-            f'email = "{_escape(config["work"]["email"])}"',
-            "",
-        ]
-
-        self._config_path.write_text("\n".join(lines))
+        with open(self._config_path, "wb") as f:
+            tomli_w.dump(config, f)
 
     def get_identity(self, profile: str) -> VcsIdentityConfig | None:
         """Get identity configuration for a profile.
