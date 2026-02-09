@@ -8,27 +8,12 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from menv.constants import PROFILE_ALIASES, TAG_GROUPS, VALID_PROFILES
+
 if TYPE_CHECKING:
     from menv.context import AppContext
 
 console = Console()
-
-# Predefined tag groups that combine multiple tags
-# These are CLI convenience features, not duplicating SSOT
-TAG_GROUPS = {
-    "rust": ["rust-platform", "rust-tools"],
-    "python": ["python-platform", "python-tools"],
-    "nodejs": ["nodejs-platform", "nodejs-tools"],
-    "go": ["go-platform", "go-tools"],
-}
-
-# Valid profiles and their aliases
-VALID_PROFILES = {"common", "macbook", "mac-mini"}
-PROFILE_ALIASES = {
-    "mmn": "mac-mini",
-    "mbk": "macbook",
-    "cmn": "common",
-}
 
 
 def _get_roles_for_tags(app_ctx: AppContext, tags: list[str]) -> set[str]:
@@ -86,7 +71,20 @@ def list_tags(ctx: typer.Context) -> None:
     for group, tags in TAG_GROUPS.items():
         console.print(f"  [cyan]{group}[/] → {', '.join(tags)}")
     console.print()
-    console.print("[bold]Profiles:[/] common (default), macbook/mbk, mac-mini/mmn")
+    # Sort profiles: common first, then others alphabetically
+    profiles_to_show = []
+    if "common" in VALID_PROFILES:
+        profiles_to_show.append("common")
+    profiles_to_show.extend(sorted(VALID_PROFILES - {"common"}))
+
+    profile_list = []
+    for p in profiles_to_show:
+        aliases = sorted(a for a, target in PROFILE_ALIASES.items() if target == p)
+        alias_str = f" ({', '.join(aliases)})" if aliases else ""
+        suffix = " (default)" if p == "common" else ""
+        profile_list.append(f"{p}{alias_str}{suffix}")
+
+    console.print(f"[bold]Profiles:[/] {', '.join(profile_list)}")
 
 
 def make(
@@ -126,9 +124,12 @@ def make(
 
     # Validate profile
     if resolved_profile not in VALID_PROFILES:
+        profile_aliases = sorted(
+            alias for alias, p in PROFILE_ALIASES.items() if p in VALID_PROFILES
+        )
         console.print(
             f"[bold red]Error:[/] Invalid profile '{profile}'. "
-            f"Valid profiles: {', '.join(sorted(VALID_PROFILES))}"
+            f"Valid profiles: {', '.join(sorted(VALID_PROFILES))} (aliases: {', '.join(profile_aliases)})"
         )
         raise typer.Exit(code=1)
 

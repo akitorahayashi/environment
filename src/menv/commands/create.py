@@ -8,51 +8,12 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
+from menv.constants import FULL_SETUP_TAGS, MACHINE_PROFILES, PROFILE_ALIASES
+
 if TYPE_CHECKING:
     from menv.context import AppContext
 
 console = Console()
-
-# Valid profiles and their aliases
-VALID_PROFILES = {"macbook", "mac-mini"}
-PROFILE_ALIASES = {
-    "mmn": "mac-mini",
-    "mbk": "macbook",
-}
-
-# Ordered list of tags for full setup
-# This defines the execution order for a complete environment setup
-FULL_SETUP_TAGS = [
-    # Phase 0: Brew dependencies (must be first)
-    "brew-formulae",
-    "ollama",
-    # Phase 1: Configuration
-    "shell",
-    "system",
-    "git",
-    "jj",
-    "gh",
-    # Phase 2: Language runtimes
-    "python-platform",
-    "nodejs-platform",
-    "ruby",
-    "rust-platform",
-    "go-platform",
-    # Phase 3: Language tools (require runtimes)
-    "python-tools",
-    "uv",
-    "nodejs-tools",
-    "rust-tools",
-    "go-tools",
-    # Phase 4: Editors
-    "vscode",
-    "cursor",
-    # Phase 5: Additional tools
-    "aider",
-    "coder",
-    "mlx",
-    "xcode",
-]
 
 
 # Data structure for optional tasks
@@ -149,10 +110,13 @@ def create(
     resolved_profile = PROFILE_ALIASES.get(profile, profile)
 
     # Validate profile
-    if resolved_profile not in VALID_PROFILES:
+    if resolved_profile not in MACHINE_PROFILES:
+        machine_aliases = sorted(
+            alias for alias, p in PROFILE_ALIASES.items() if p in MACHINE_PROFILES
+        )
         console.print(
             f"[bold red]Error:[/] Invalid profile '{profile}'. "
-            f"Valid profiles: {', '.join(sorted(VALID_PROFILES))} (aliases: mbk, mmn)"
+            f"Valid profiles: {', '.join(sorted(MACHINE_PROFILES))} (aliases: {', '.join(machine_aliases)})"
         )
         raise typer.Exit(code=1)
 
