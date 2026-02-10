@@ -53,7 +53,9 @@ class VersionChecker(VersionCheckerProtocol):
         try:
             return Version(latest) > Version(current)
         except (ValueError, TypeError) as e:
-            raise VersionCheckError(f"Invalid version comparison: {current} vs {latest}") from e
+            raise VersionCheckError(
+                f"Invalid version comparison: {current} vs {latest}"
+            ) from e
 
     def run_pipx_upgrade(self) -> None:
         """Run pipx upgrade menv."""

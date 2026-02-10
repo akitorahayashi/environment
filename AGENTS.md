@@ -80,6 +80,31 @@ Please refer to the `AGENTS.md` files in specific directories for detailed rules
 - Deployment to local destinations (`~/.zshrc`, `~/.gitconfig`, etc.): `ansible.builtin.file` with `state: link`
 - Set `mode: "0644"` for config/text files, `mode: "0755"` for executable scripts
 
+### Agent Skills SSOT (Single Source of Truth)
+
+**Managed by:** `nodejs` role (coder task)
+
+**Source location:** `~/.config/menv/roles/nodejs/common/coder/skills/{skill_name}/`
+
+**Target consumers:**
+- `~/.codex/skills/` (Codex CLI)
+- `~/.claude/skills/` (Claude CLI)
+- `~/.gemini/skills/` (Gemini CLI)
+- `~/.config/google/antigravity/skills/` (Google Antigravity)
+
+**Configuration:** Add tool names to `skills-targets.yml` to enable automatic skills deployment
+
+**Example integration:**
+- Google Antigravity added to `skills-targets.yml` → Skills automatically deployed by coder role
+- Editor role creates parent directory `~/.config/google/antigravity` as prerequisite
+- Coder role handles individual skill symlinks via standard SSOT mechanism
+
+**Design principle:**
+- Config sharing strategies vary by content type:
+  - **Settings/Keybindings**: Fully shared via symlinks (editor role manages)
+  - **Extensions**: Fully separated per tool (editor role manages)
+  - **Agent Skills**: SSOT with reference sharing (nodejs/coder role manages)
+
 ### Development
 - `just run <args>`: Run menv in dev mode
 - `just check`: Format and lint

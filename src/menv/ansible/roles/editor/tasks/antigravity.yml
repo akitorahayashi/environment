@@ -1,0 +1,47 @@
+---
+- name: "Install Google Antigravity"
+  community.general.homebrew_cask:
+    name: antigravity
+    state: present
+
+- name: "Ensure Antigravity User directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Library/Application Support/Antigravity/User"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Antigravity shared config files"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/editor/common/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/Library/Application Support/Antigravity/User/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - settings.json
+    - keybindings.json
+
+- name: "Read Antigravity extensions list"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/editor/common/antigravity-extensions.json"
+  register: editor_antigravity_extensions_content
+
+- name: "Parse Antigravity extensions JSON"
+  ansible.builtin.set_fact:
+    editor_antigravity_extensions: "{{ (editor_antigravity_extensions_content.content | b64decode | from_json).extensions }}"
+
+- name: "Install Antigravity extensions"
+  ansible.builtin.command: "antigravity --install-extension {{ item }} --force"
+  loop: "{{ editor_antigravity_extensions }}"
+  ignore_errors: true
+  register: editor_antigravity_install_result
+  changed_when: "'successfully installed' in editor_antigravity_install_result.stdout"
+
+- name: "Ensure Antigravity agent skills parent directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/google/antigravity"
+    state: directory
+    mode: "0755"
+
+# Note: Agent skills deployment is handled by nodejs/coder role via skills-targets.yml
+# Skills are automatically deployed from ~/.config/menv/roles/nodejs/common/coder/skills/
+# to ~/.config/google/antigravity/skills/ when the 'coder' role runs

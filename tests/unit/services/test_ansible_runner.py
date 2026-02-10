@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -102,7 +101,9 @@ class TestAnsibleRunner:
     ) -> None:
         """Test playbook execution raises AnsibleExecutionError on FileNotFoundError."""
         with patch("subprocess.Popen", side_effect=FileNotFoundError):
-            with pytest.raises(AnsibleExecutionError, match="ansible-playbook not found") as excinfo:
+            with pytest.raises(
+                AnsibleExecutionError, match="ansible-playbook not found"
+            ) as excinfo:
                 runner.run_playbook(profile="test-profile")
 
             assert excinfo.value.returncode == 1
@@ -116,7 +117,9 @@ class TestAnsibleRunner:
     ) -> None:
         """Test playbook execution raises AnsibleExecutionError on KeyboardInterrupt."""
         with patch("subprocess.Popen", side_effect=KeyboardInterrupt):
-            with pytest.raises(AnsibleExecutionError, match="Interrupted by user") as excinfo:
+            with pytest.raises(
+                AnsibleExecutionError, match="Interrupted by user"
+            ) as excinfo:
                 runner.run_playbook(profile="test-profile")
 
             assert excinfo.value.returncode == 130
@@ -124,9 +127,10 @@ class TestAnsibleRunner:
 
     def test_run_playbook_output_streaming(self, runner: AnsibleRunner) -> None:
         """Test that playbook output is streamed to sys.stdout."""
-        with patch("subprocess.Popen") as mock_popen, patch(
-            "sys.stdout"
-        ) as mock_stdout:
+        with (
+            patch("subprocess.Popen") as mock_popen,
+            patch("sys.stdout") as mock_stdout,
+        ):
             process_mock = MagicMock()
             process_mock.stdout = ["output line 1\n", "output line 2\n"]
             process_mock.returncode = 0

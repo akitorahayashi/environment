@@ -67,6 +67,12 @@ menv make python-tools      # Run python-tools
 menv make shell --overwrite   # Force overwrite existing configs
 menv mk vscode              # Shorthand
 
+# Editors
+menv make vscode            # Setup VS Code (config symlinks + extensions)
+menv make cursor            # Setup Cursor (config symlinks + extensions)
+menv make antigravity       # Setup Google Antigravity (config symlinks + extensions + agent skills)
+                            # Agent skills are sourced from coder SSOT (requires 'menv make coder' first)
+
 # LLM infrastructure (local models)
 menv make ollama            # Setup Ollama only
 menv make mlx               # Setup MLX venv only
@@ -75,8 +81,9 @@ menv make mlx-models        # Download MLX models
 
 # Coder tools (cloud LLM CLI tools)
 menv make coder             # Install Claude, Gemini, Codex CLI tools
-                            # Deploy shared Agent Skills to ~/.codex/skills, ~/.claude/skills, ~/.gemini/skills
-                            # Source of truth: src/menv/ansible/roles/nodejs/config/common/coder/skills
+                            # Deploy shared Agent Skills (SSOT) to tool directories
+                            # Skills deployed to: ~/.codex/skills, ~/.claude/skills, ~/.gemini/skills, ~/.config/google/antigravity/skills
+                            # Source of truth: ~/.config/menv/roles/nodejs/common/coder/skills
 
 # Profile required only for brew-formulae and brew-cask
 menv make brew-formulae mbk     # Install brew dependencies for macbook

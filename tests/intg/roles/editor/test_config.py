@@ -13,6 +13,7 @@ def editor_config_files(editor_config_base: Path) -> Dict[str, Path]:
         "keybindings": editor_config_base / "keybindings.json",
         "vscode_extensions": editor_config_base / "vscode-extensions.json",
         "cursor_extensions": editor_config_base / "cursor-extensions.json",
+        "antigravity_extensions": editor_config_base / "antigravity-extensions.json",
     }
 
 

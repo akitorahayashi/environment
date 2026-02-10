@@ -13,6 +13,6 @@
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: editor, tags: ["vscode", "cursor", "xcode"] }
+    - { role: editor, tags: ["vscode", "cursor", "antigravity", "xcode"] }
     - { role: system, tags: ["system"] }
     - { role: llm, tags: ["ollama", "ollama-models", "mlx", "mlx-models"] }

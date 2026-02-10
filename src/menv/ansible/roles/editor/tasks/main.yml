@@ -7,6 +7,10 @@
   ansible.builtin.include_tasks: cursor.yml
   when: "'cursor' in ansible_run_tags"
 
+- name: "Install and configure Google Antigravity"
+  ansible.builtin.include_tasks: antigravity.yml
+  when: "'antigravity' in ansible_run_tags"
+
 - name: Configure Xcode settings
   ansible.builtin.include_tasks: xcode.yml
   when: "'xcode' in ansible_run_tags"

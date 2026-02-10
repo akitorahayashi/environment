@@ -18,6 +18,9 @@ jobs:
       - name: Setup VSCode configuration
         run: just run make vscode 
 
+      - name: Setup Antigravity configuration
+        run: just run make antigravity 
+
       - name: Setup Cursor configuration
         run: just run make cursor 
 
