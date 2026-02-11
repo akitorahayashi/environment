@@ -3,10 +3,10 @@
   ansible.builtin.include_tasks: formulae.yml
   when:
     - brew_install_formulae | default(true) | bool
-    - "'brew-formulae' in ansible_run_tags"
+    - "'brew-formulae' in ansible_run_tags or 'brew-f' in ansible_run_tags"
 
 - name: "Install Homebrew casks (GUI apps)"
   ansible.builtin.include_tasks: cask.yml
   when:
     - brew_install_cask | default(true) | bool
-    - "'brew-cask' in ansible_run_tags"
+    - "'brew-cask' in ansible_run_tags or 'brew-c' in ansible_run_tags"

@@ -103,4 +103,3 @@ class AnsibleRunner(AnsibleRunnerProtocol):
         except KeyboardInterrupt:
             self._console.print("\n[yellow]Interrupted by user[/]")
             raise AnsibleExecutionError("Interrupted by user", returncode=130)
-

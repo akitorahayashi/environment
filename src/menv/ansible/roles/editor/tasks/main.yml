@@ -1,16 +1,16 @@
 ---
 - name: "Install and configure Visual Studio Code"
   ansible.builtin.include_tasks: vscode.yml
-  when: "'vscode' in ansible_run_tags"
+  when: "'vscode' in ansible_run_tags or 'co' in ansible_run_tags"
 
 - name: "Install and configure Cursor"
   ansible.builtin.include_tasks: cursor.yml
-  when: "'cursor' in ansible_run_tags"
+  when: "'cursor' in ansible_run_tags or 'cur' in ansible_run_tags"
 
 - name: "Install and configure Google Antigravity"
   ansible.builtin.include_tasks: antigravity.yml
-  when: "'antigravity' in ansible_run_tags"
+  when: "'antigravity' in ansible_run_tags or 'agy' in ansible_run_tags"
 
 - name: Configure Xcode settings
   ansible.builtin.include_tasks: xcode.yml
-  when: "'xcode' in ansible_run_tags"
+  when: "'xcode' in ansible_run_tags or 'xc' in ansible_run_tags"

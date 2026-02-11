@@ -2,11 +2,26 @@
 
 from __future__ import annotations
 
+import re
+from collections import defaultdict
+from typing import Iterable
+
 import pytest
 import yaml
 
 from menv.services.ansible_paths import AnsiblePaths
 from menv.services.playbook import Playbook
+
+RUN_TAG_PATTERN = re.compile(r"'([^']+)'\s+in\s+ansible_run_tags")
+
+
+def normalize_when_clauses(when_value: object) -> Iterable[str]:
+    """Normalize an Ansible `when` clause into iterable strings."""
+    if isinstance(when_value, str):
+        return [when_value]
+    if isinstance(when_value, list):
+        return [item for item in when_value if isinstance(item, str)]
+    return []
 
 
 class TestPlaybookIntegrity:
@@ -127,3 +142,37 @@ class TestPlaybookIntegrity:
         missing_tags = [tag for tag in expected_tags if tag not in all_tags]
 
         assert not missing_tags, f"Expected tags missing: {missing_tags}"
+
+    def test_role_task_tag_conditions_match_playbook(
+        self,
+        ansible_role_tasks,
+        ansible_playbook_mapping,
+    ) -> None:
+        """Ensure tag-gated roles reference the full playbook tag set."""
+        role_to_tags = defaultdict(set)
+        for tag, roles in ansible_playbook_mapping.items():
+            for role in roles:
+                role_to_tags[role].add(tag)
+
+        when_tags_by_role = defaultdict(set)
+        for task_file in ansible_role_tasks:
+            if task_file.path.name != "main.yml":
+                continue
+            for task in task_file.tasks:
+                when_value = task.get("when")
+                if when_value is None:
+                    continue
+                for clause in normalize_when_clauses(when_value):
+                    when_tags_by_role[task_file.role].update(
+                        RUN_TAG_PATTERN.findall(clause)
+                    )
+
+        for role, when_tags in when_tags_by_role.items():
+            if not when_tags:
+                continue
+            playbook_tags = role_to_tags.get(role, set())
+            assert playbook_tags, f"Role '{role}' missing playbook tags"
+            assert when_tags == playbook_tags, (
+                f"Role '{role}' tag-gated tasks should cover playbook tags. "
+                f"Playbook: {sorted(playbook_tags)} | When: {sorted(when_tags)}"
+            )

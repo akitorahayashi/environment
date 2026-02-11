@@ -1,7 +1,7 @@
 ---
 - name: "Install and configure Ollama"
   ansible.builtin.include_tasks: ollama.yml
-  when: "'ollama' in ansible_run_tags or 'ollama-models' in ansible_run_tags"
+  when: "'ollama' in ansible_run_tags or 'ol' in ansible_run_tags or 'ollama-models' in ansible_run_tags or 'ol-m' in ansible_run_tags"
 
 - name: "Install and configure MLX"
   ansible.builtin.include_tasks: mlx.yml

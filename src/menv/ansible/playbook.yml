@@ -3,16 +3,16 @@
   hosts: localhost
   connection: local
   roles:
-    - { role: brew, tags: ["brew-formulae", "brew-cask"] }
-    - { role: python, tags: ["python-platform", "python-tools", "aider", "uv"] }
-    - { role: nodejs, tags: ["nodejs-platform", "nodejs-tools", "coder"] }
-    - { role: ruby, tags: ["ruby"] }
-    - { role: rust, tags: ["rust-platform", "rust-tools"] }
-    - { role: go, tags: ["go-platform", "go-tools"] }
+    - { role: brew, tags: ["brew-formulae", "brew-f", "brew-cask", "brew-c"] }
+    - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t", "aider", "ai", "uv"] }
+    - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr"] }
+    - { role: ruby, tags: ["ruby", "rb"] }
+    - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
+    - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
     - { role: vcs, tags: ["git", "jj"] }
     - { role: gh, tags: ["gh"] }
-    - { role: shell, tags: ["shell"] }
+    - { role: shell, tags: ["shell", "sh"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: editor, tags: ["vscode", "cursor", "antigravity", "xcode"] }
-    - { role: system, tags: ["system"] }
-    - { role: llm, tags: ["ollama", "ollama-models", "mlx", "mlx-models"] }
+    - { role: editor, tags: ["vscode", "co", "cursor", "cur", "antigravity", "agy", "xcode", "xc"] }
+    - { role: system, tags: ["system", "sys"] }
+    - { role: llm, tags: ["ollama", "ol", "ollama-models", "ol-m", "mlx", "mlx-models"] }

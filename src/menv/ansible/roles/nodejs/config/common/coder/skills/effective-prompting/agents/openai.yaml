@@ -3,4 +3,3 @@ interface:
   display_name: "Effective Prompter"
   short_description: "Design prompts for goal-output alignment with minimal cognitive and maintenance load"
   default_prompt: "Use $effective-prompting to design prompts for better effectiveness."
-

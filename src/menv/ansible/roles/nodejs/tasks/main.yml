@@ -10,12 +10,12 @@
 
 - name: "Setup Node.js platform"
   ansible.builtin.include_tasks: platform.yml
-  when: "'nodejs-platform' in ansible_run_tags"
+  when: "'nodejs-platform' in ansible_run_tags or 'nd-p' in ansible_run_tags"
 
 - name: "Install Node.js tools and packages"
   ansible.builtin.include_tasks: tools.yml
-  when: "'nodejs-tools' in ansible_run_tags"
+  when: "'nodejs-tools' in ansible_run_tags or 'nd-t' in ansible_run_tags"
 
 - name: "Install and configure Node.js coder tools"
   ansible.builtin.include_tasks: coder.yml
-  when: "'coder' in ansible_run_tags"
+  when: "'coder' in ansible_run_tags or 'cdr' in ansible_run_tags"

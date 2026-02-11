@@ -56,8 +56,10 @@ class TestAnsibleRunner:
             args, kwargs = mock_popen.call_args
             cmd = args[0]
 
-            assert cmd[0] == "ansible-playbook"
-            assert cmd[1] == str(expected_playbook)
+            assert cmd[0] == "uv"
+            assert cmd[1] == "run"
+            assert cmd[2] == "ansible-playbook"
+            assert cmd[3] == str(expected_playbook)
             assert "-e" in cmd
             assert "profile=test-profile" in cmd
             # Check for config_dir_abs_path

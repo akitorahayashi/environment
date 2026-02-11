@@ -10,8 +10,8 @@
 
 - name: "Setup Rust platform"
   ansible.builtin.include_tasks: platform.yml
-  when: "'rust-platform' in ansible_run_tags"
+  when: "'rust-platform' in ansible_run_tags or 'rs-p' in ansible_run_tags"
 
 - name: "Install cargo tools"
   ansible.builtin.include_tasks: tools.yml
-  when: "'rust-tools' in ansible_run_tags"
+  when: "'rust-tools' in ansible_run_tags or 'rs-t' in ansible_run_tags"

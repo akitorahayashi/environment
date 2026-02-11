@@ -10,8 +10,8 @@
 
 - name: "Setup Go platform"
   ansible.builtin.include_tasks: platform.yml
-  when: "'go-platform' in ansible_run_tags"
+  when: "'go-platform' in ansible_run_tags or 'go-p' in ansible_run_tags"
 
 - name: "Install Go tools"
   ansible.builtin.include_tasks: tools.yml
-  when: "'go-tools' in ansible_run_tags"
+  when: "'go-tools' in ansible_run_tags or 'go-t' in ansible_run_tags"

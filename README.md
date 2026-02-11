@@ -95,7 +95,6 @@ menv make brew-formulae mbk -o  # Force overwrite configs
 #   go → go-platform, go-tools
 #   python → python-platform, python-tools
 #   nodejs → nodejs-platform, nodejs-tools
-```
 
 **Backup commands:**
 

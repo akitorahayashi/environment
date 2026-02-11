@@ -10,15 +10,15 @@
 
 - name: "Setup Python platform"
   ansible.builtin.include_tasks: platform.yml
-  when: "'python-platform' in ansible_run_tags"
+  when: "'python-platform' in ansible_run_tags or 'py-p' in ansible_run_tags"
 
 - name: "Install Python tools"
   ansible.builtin.include_tasks: tools.yml
-  when: "'python-tools' in ansible_run_tags"
+  when: "'python-tools' in ansible_run_tags or 'py-t' in ansible_run_tags"
 
 - name: "Install and configure Aider"
   ansible.builtin.include_tasks: aider.yml
-  when: "'aider' in ansible_run_tags"
+  when: "'aider' in ansible_run_tags or 'ai' in ansible_run_tags"
 
 - name: "Setup uv configuration"
   ansible.builtin.include_tasks: uv.yml
