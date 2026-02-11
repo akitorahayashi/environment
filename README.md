@@ -17,9 +17,9 @@ macOS development environment provisioning CLI.
    ```
    Restart your terminal after installation.
 
-3. **pipx**
+3. **uv & pipx**
    ```sh
-   brew install pipx
+   brew install uv pipx
    pipx ensurepath
    ```
    Restart your terminal after installation.

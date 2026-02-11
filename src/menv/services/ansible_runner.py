@@ -39,6 +39,8 @@ class AnsibleRunner(AnsibleRunnerProtocol):
         local_config_root = Path.home() / ".config" / "menv" / "roles"
 
         cmd: list[str | Path] = [
+            "uv",
+            "run",
             "ansible-playbook",
             str(playbook_path),
             "-e",
@@ -101,3 +103,4 @@ class AnsibleRunner(AnsibleRunnerProtocol):
         except KeyboardInterrupt:
             self._console.print("\n[yellow]Interrupted by user[/]")
             raise AnsibleExecutionError("Interrupted by user", returncode=130)
+
