@@ -7,8 +7,9 @@ parallel = true
 max_parallel = 3
 
 [workflow]
-cron = ["0 18 * * *"]
-wait_minutes_default = 30
+runner_mode = "remote"
+cron = ["0 20 * * *"]
+wait_minutes_default = 20
 
 [jules]
 # Jules API endpoint

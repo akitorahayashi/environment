@@ -3,20 +3,13 @@ enabled = true
 
 [observers]
 roles = [
+  { name = "consistency", enabled = true },
   { name = "taxonomy", enabled = true },
   { name = "data_arch", enabled = true },
   { name = "structural_arch", enabled = true },
   { name = "qa", enabled = true },
   { name = "cov", enabled = true },
-  { name = "devops", enabled = true },
-  { name = "consistency", enabled = true },
-  { name = "tactician", enabled = true },
   { name = "pythonista", enabled = true },
-]
-
-[deciders]
-roles = [
-  { name = "triage_generic", enabled = true },
 ]
 
 [innovators]
