@@ -1,47 +1,48 @@
 # Rules
 
-## Coding
+## Conduct
 
-- Remove obsolete and deprecated code during feature work and refactoring.
-- Use names that express a single, unambiguous responsibility.
-- Derive enumerable values from authoritative sources.
-- Keep fallback behavior explicit, opt-in, and observable.
-- Justify necessity by direct contribution to purpose.
-- Complete explicitly requested tasks end-to-end.
-- Match validation depth and evidence to scope and intent.
+### Design
 
-## Design
+- Feature additions and refactorings include the removal of old modules and deprecated features to eliminate technical debt, bugs, and complexity.
+- Class and file names avoid ambiguous responsibilities such as base, common, core, utils, or helpers.
+- Files and classes identify single, specific responsibilities; names that restate package or directory scope are avoided to prevent unrelated concerns.
+- Enumerable values are generated dynamically from authoritative sources (catalog, registry, schema) rather than hardcoded.
+- Silent fallbacks are avoided; any fallback is explicit, opt-in, and surfaced as a failure or a clearly logged, reviewed decision.
+- UX simplicity is prioritized over excessive configuration.
+- Systemic fixes are preferred over patches; invariants and owning components are addressing at boundaries to benefit all call sites without workarounds.
 
-- Enforce single ownership for each concern.
-- Keep layer responsibilities explicit and non-overlapping.
-- Preserve one-way dependency direction and block boundary violations.
-- Maximize cohesion within modules and minimize cross-module coupling.
-- Prevent semantic overlap in module vocabulary.
-- Prefer consolidation over parallel abstractions.
-- Retire legacy paths when a new boundary model is adopted.
+### Implementation
 
-## Communication
+- Ordered tasks are completed without interruption or discretionary refusal.
+- Post-implementation inventorying (git status, git diff, etc.) is avoided; only evidential verification (testing, etc.) is performed.
+- Validation focuses on the appropriate scope, providing minimal evidence unless intent dictates otherwise.
+- Operations are confined to the project root unless external constraints apply (e.g., use `./.tmp/` instead of `/tmp/`).
 
-- Prioritize engineering correctness and critical reasoning.
-- Ground recommendations in repository context and verified evidence.
-- Treat unstated assumptions as explicit proposals.
-- Minimize user decision load.
-- Ask clarifying questions only when uncertainty changes outcomes.
-- Update plans when direction changes.
-- Keep routine responses concise.
+### Documentation
 
-## Documentation
+- Development-related documentation is written in English.
+- Documentation for LLMs (AGENTS.md, CLAUDE.md, etc.) is kept concise for token efficiency, focusing only on essential information.
+- Documentation is written in a declarative style describing the current state. Imperative or changelog-style descriptions are avoided.
+- Declarative updates preserve existing content and integrate new material without duplication or complete replacement.
+- Hierarchy and headings are used for organization instead of bold emphasis in Markdown.
 
-- All development-related documentation must be written in English.
-- Keep LLM-facing documentation concise and essential.
-- Use declarative documentation that describes current state.
-- Preserve correct existing content while integrating updates without duplication.
-- `.mx/*.md` files are context-file storage. Do not read them unless the user explicitly instructs you to do so.
+### Communication
 
-## Safety
+- Base responses on repository context. Research is mandatory at conversation start.
+- Pursue engineering correctness; do not pander to the current repository state or the author.
+- Treat unstated assumptions as proposals: add the assumption and recommend a concrete design.
+- Prioritize reducing user decision load. Do not exhaustively enumerate prevented issues unless requested.
+- Validate necessity by contribution to purpose. Usage elsewhere is not a valid justification.
+- Ask clarifying questions only when uncertainty materially changes implementation.
+- Edit existing plans rather than reiterating them when direction changes.
+- Maintain concise, token-efficient communication for routine updates.
 
-- Commands that discard uncommitted changes require explicit user approval.
+### Safety
 
-## Operational Directives
+- Commands that discard uncommitted changes (for example `git checkout -- <path>`, `git restore`, `git reset`) are only run after explicit user approval.
 
-Operational intent embedded in command text is authoritative and must be followed as intended.
+## User-specific
+
+- `.mx/*.md` files are context-file storage. Read only upon explicit instruction.
+- While maintaining a critical and rational perspective on design and architecture, you must strictly follow operational instructions embedded in terminal commands. For example, if a user uses `echo` to convey a directive or modifies a test command, execute the intended action rather than the literal command. In these operational contexts, user intent overrides command appearance.

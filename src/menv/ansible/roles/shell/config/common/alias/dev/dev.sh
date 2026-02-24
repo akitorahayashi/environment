@@ -56,6 +56,7 @@ dev_alias_as() {
 	alias "${prefix}-et=${cmd_prefix} e2e-test"
 	alias "${prefix}-lt=${cmd_prefix} local-test"
 	alias "${prefix}-dt=${cmd_prefix} docker-test"
+	alias "${prefix}-dmt=${cmd_prefix} demo-test"
 	alias "${prefix}-at=${cmd_prefix} api-test"
 	alias "${prefix}-sqt=${cmd_prefix} sqlt-test"
 	alias "${prefix}-pst=${cmd_prefix} psql-test"

@@ -1,6 +1,8 @@
 #!/bin/bash
 # brew
 alias br="brew"
+alias br-u="brew update"
+alias br-ug="brew upgrade"
 alias br-ls="brew list"
 alias br-i="brew install"
 alias br-i-c="brew install --cask"

@@ -107,9 +107,9 @@
       not rust_tools_version_check.results[idx].stdout | regex_search('\\b' + (item.tag | regex_replace('^v', '')) + '\\b')
     )
 
-- name: "Download and install rust tools from GitHub releases"
+- name: "Download rust tools from GitHub releases (HTTPS)"
   ansible.builtin.get_url:
-    url: "https://github.com/{{ item.repo }}/releases/download/{{ item.tag }}/{{ item.name }}-{{ rust_platform_os }}-{{ rust_platform_arch }}"
+    url: "{{ item.url }}/releases/download/{{ item.tag }}/{{ item.name }}-{{ rust_platform_os }}-{{ rust_platform_arch }}"
     dest: "{{ rust_tools_bin_dir }}/{{ item.name }}"
     mode: "0755"
     force: true
@@ -119,21 +119,52 @@
     label: "{{ item.name }}"
   ignore_errors: true # noqa: ignore-errors
   when: >
-    rust_tools_version_check.results[idx].rc != 0 or
+    item.url is match('^https://') and
     (
-      item.tag is defined and
-    not rust_tools_version_check.results[idx].stdout | regex_search('\\b' + (item.tag | regex_replace('^v', '')) + '\\b')
+      rust_tools_version_check.results[idx].rc != 0 or
+      (
+        item.tag is defined and
+        not rust_tools_version_check.results[idx].stdout | regex_search('\\b' + (item.tag | regex_replace('^v', '')) + '\\b')
+      )
     )
-  register: rust_tools_download_result
+  register: rust_tools_https_download_result
+
+- name: "Download private rust tools via gh CLI (SSH)"
+  ansible.builtin.shell:
+    cmd: |
+      set -e
+      repo="{{ item.url | regex_replace('^git@github\.com:', '') }}"
+      asset="{{ item.name }}-{{ rust_platform_os }}-{{ rust_platform_arch }}"
+      gh release download "{{ item.tag }}" -R "${repo}" --pattern "${asset}" --dir /tmp --clobber
+      install -m 0755 "/tmp/${asset}" "{{ rust_tools_bin_dir }}/{{ item.name }}"
+      rm -f "/tmp/${asset}"
+    executable: /bin/bash
+  loop: "{{ rust_tools_config.tools }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name }}"
+  changed_when: true
+  ignore_errors: true # noqa: ignore-errors
+  when: >
+    item.url is match('^git@') and
+    (
+      rust_tools_version_check.results[idx].rc != 0 or
+      (
+        item.tag is defined and
+        not rust_tools_version_check.results[idx].stdout | regex_search('\\b' + (item.tag | regex_replace('^v', '')) + '\\b')
+      )
+    )
+  register: rust_tools_ssh_download_result
 
 - name: "Report failed downloads"
   vars:
     rust_tools_failed_downloads: >-
-      {{ rust_tools_download_result.results
-         | selectattr('failed', 'defined')
-         | selectattr('failed')
-         | map(attribute='item.name')
-         | list }}
+      {{
+        (
+          (rust_tools_https_download_result.results | default([]) | selectattr('failed', 'defined') | selectattr('failed') | map(attribute='item.name') | list)
+          + (rust_tools_ssh_download_result.results | default([]) | selectattr('failed', 'defined') | selectattr('failed') | map(attribute='item.name') | list)
+        )
+      }}
   ansible.builtin.debug:
     msg: >-
       [WARN] The following tools failed to download (SSH keys may not be configured for private repos):

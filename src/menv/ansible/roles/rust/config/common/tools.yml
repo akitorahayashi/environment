@@ -3,7 +3,9 @@
 #
 # Each tool specifies:
 #   - name: binary name (required)
-#   - repo: GitHub repository as owner/name (required)
+#   - url: release base URL (required)
+#         HTTPS (https://github.com/owner/repo) for public repos
+#         SSH   (git@github.com:owner/repo)     for private repos via gh CLI
 #   - tag: version tag (required)
 #
 # Asset naming convention: <name>-<os>-<arch>
@@ -11,20 +13,20 @@
 #   arch: x86_64, aarch64
 tools:
   - name: gho
-    repo: akitorahayashi/gho
+    url: https://github.com/akitorahayashi/gho
     tag: v0.2.0
   - name: jlo
-    repo: akitorahayashi/jlo
-    tag: v11.1.5
+    url: git@github.com:asterismhq/jlo
+    tag: v14.0.3
   - name: kpv
-    repo: akitorahayashi/kpv
+    url: https://github.com/akitorahayashi/kpv
     tag: v0.6.0
   - name: mx
-    repo: akitorahayashi/mx
-    tag: v2.3.0
+    url: https://github.com/akitorahayashi/mx
+    tag: v2.4.0
   - name: pure
-    repo: akitorahayashi/pure
+    url: https://github.com/akitorahayashi/pure
     tag: v0.6.0
   - name: ssv
-    repo: akitorahayashi/ssv
+    url: https://github.com/akitorahayashi/ssv
     tag: v0.2.0

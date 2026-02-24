@@ -59,8 +59,14 @@
 
     mr = merge
     rb = rebase
+    rb-o-m = rebase origin/main
+    rb-c = rebase --continue
+    rb-a = rebase --abort
     l = log --oneline --graph --decorate --all -n 15
     lg = l
 
 [core]
 	excludesfile = ~/.gitignore_global
+
+[pull]
+    ff = only

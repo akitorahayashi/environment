@@ -12,35 +12,32 @@ class TestRustToolsConfiguration:
     """Validate tools.yml schema and configuration."""
 
     def test_tools_config_has_required_fields(self, rust_config_dir: Path) -> None:
-        """Verify each tool has required name, repo, and tag fields."""
+        """Verify each tool has required name, url, and tag fields."""
         tools_file = rust_config_dir / "tools.yml"
         data = yaml.safe_load(tools_file.read_text())
         tools = data["tools"]
 
         for tool in tools:
             assert "name" in tool, f"Tool missing 'name' field: {tool}"
-            assert "repo" in tool, (
-                f"Tool {tool.get('name', 'unknown')} missing 'repo' field"
+            assert "url" in tool, (
+                f"Tool {tool.get('name', 'unknown')} missing 'url' field"
             )
             assert "tag" in tool, (
                 f"Tool {tool.get('name', 'unknown')} missing 'tag' field"
             )
 
-    def test_tools_config_repo_format(self, rust_config_dir: Path) -> None:
-        """Verify repo field follows owner/name format."""
+    def test_tools_config_url_format(self, rust_config_dir: Path) -> None:
+        """Verify url field follows https:// or git@github.com format."""
         tools_file = rust_config_dir / "tools.yml"
         data = yaml.safe_load(tools_file.read_text())
         tools = data["tools"]
 
         for tool in tools:
-            repo = tool["repo"]
-            parts = repo.split("/")
-            assert len(parts) == 2, (
-                f"Tool {tool['name']} has invalid repo format: {repo}. "
-                "Expected 'owner/name'."
+            url = tool["url"]
+            assert url.startswith("https://") or url.startswith("git@github.com:"), (
+                f"Tool {tool['name']} has invalid url format: {url}. "
+                "Expected 'https://...' or 'git@github.com:...'."
             )
-            assert parts[0], f"Tool {tool['name']} has empty owner in repo: {repo}"
-            assert parts[1], f"Tool {tool['name']} has empty name in repo: {repo}"
 
     def test_tools_config_tag_format(self, rust_config_dir: Path) -> None:
         """Verify tag field starts with 'v' for semver convention."""
@@ -119,11 +116,11 @@ class TestDownloadUrlConstruction:
     """Validate GitHub release download URL construction logic."""
 
     @pytest.mark.parametrize(
-        "tool_name,repo,tag,os,arch,expected_url",
+        "tool_name,url,tag,os,arch,expected_url",
         [
             (
                 "mx",
-                "akitorahayashi/mx",
+                "https://github.com/akitorahayashi/mx",
                 "v2.1.0",
                 "darwin",
                 "aarch64",
@@ -131,35 +128,25 @@ class TestDownloadUrlConstruction:
             ),
             (
                 "kpv",
-                "akitorahayashi/kpv",
+                "https://github.com/akitorahayashi/kpv",
                 "v0.4.1",
                 "linux",
                 "x86_64",
                 "https://github.com/akitorahayashi/kpv/releases/download/v0.4.1/kpv-linux-x86_64",
-            ),
-            (
-                "jlo",
-                "akitorahayashi/jlo",
-                "v3.0.1",
-                "darwin",
-                "x86_64",
-                "https://github.com/akitorahayashi/jlo/releases/download/v3.0.1/jlo-darwin-x86_64",
             ),
         ],
     )
     def test_download_url_format(
         self,
         tool_name: str,
-        repo: str,
+        url: str,
         tag: str,
         os: str,
         arch: str,
         expected_url: str,
     ) -> None:
-        """Verify download URL construction matches expected format."""
+        """Verify download URL construction matches expected format for HTTPS."""
         # Simulates the Ansible template:
-        # https://github.com/{{ item.repo }}/releases/download/{{ item.tag }}/{{ item.name }}-{{ platform_os }}-{{ platform_arch }}
-        url = (
-            f"https://github.com/{repo}/releases/download/{tag}/{tool_name}-{os}-{arch}"
-        )
-        assert url == expected_url
+        # {{ item.url }}/releases/download/{{ item.tag }}/{{ item.name }}-{{ platform_os }}-{{ platform_arch }}
+        constructed_url = f"{url}/releases/download/{tag}/{tool_name}-{os}-{arch}"
+        assert constructed_url == expected_url

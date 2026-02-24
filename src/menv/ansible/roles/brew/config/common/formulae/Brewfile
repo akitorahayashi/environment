@@ -18,7 +18,7 @@ brew "yq"
 brew "shellcheck"
 brew "shfmt"
 brew "ripgrep"
-brew "aqua"
+brew "mise"
 
 ## Media
 brew "ffmpeg"
