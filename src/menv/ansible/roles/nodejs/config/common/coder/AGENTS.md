@@ -5,10 +5,10 @@
 ### Design
 
 - Feature additions and refactorings include the removal of old modules and deprecated features to eliminate technical debt, bugs, and complexity.
-- Class and file names avoid ambiguous responsibilities such as base, common, core, utils, or helpers.
+- Class and file must not have ambiguous names or responsibilities such as base, common, core, utils, or helpers.
 - Files and classes identify single, specific responsibilities; names that restate package or directory scope are avoided to prevent unrelated concerns.
 - Enumerable values are generated dynamically from authoritative sources (catalog, registry, schema) rather than hardcoded.
-- Silent fallbacks are avoided; any fallback is explicit, opt-in, and surfaced as a failure or a clearly logged, reviewed decision.
+- Silent fallbacks are prohibited; any fallback is explicit, opt-in, and surfaced as a failure or a clearly logged, reviewed decision.
 - UX simplicity is prioritized over excessive configuration.
 - Systemic fixes are preferred over patches; invariants and owning components are addressing at boundaries to benefit all call sites without workarounds.
 
@@ -17,15 +17,15 @@
 - Ordered tasks are completed without interruption or discretionary refusal.
 - Post-implementation inventorying (git status, git diff, etc.) is avoided; only evidential verification (testing, etc.) is performed.
 - Validation focuses on the appropriate scope, providing minimal evidence unless intent dictates otherwise.
-- Operations are confined to the project root unless external constraints apply (e.g., use `./.tmp/` instead of `/tmp/`).
+- Temporary operations are confined to the project root unless external constraints apply (e.g., use `./.tmp/` instead of `/tmp/`).
 
 ### Documentation
 
 - Development-related documentation is written in English.
 - Documentation for LLMs (AGENTS.md, CLAUDE.md, etc.) is kept concise for token efficiency, focusing only on essential information.
-- Documentation is written in a declarative style describing the current state. Imperative or changelog-style descriptions are avoided.
+- Documentation is written in a declarative style describing the current state. Imperative or changelog-style descriptions are prohibited.
 - Declarative updates preserve existing content and integrate new material without duplication or complete replacement.
-- Hierarchy and headings are used for organization instead of bold emphasis in Markdown.
+- Do not use bold emphasis (**) in Markdown. Use hierarchy and headings for organization.
 
 ### Communication
 
@@ -36,6 +36,7 @@
 - Validate necessity by contribution to purpose. Usage elsewhere is not a valid justification.
 - Ask clarifying questions only when uncertainty materially changes implementation.
 - Edit existing plans rather than reiterating them when direction changes.
+- Do not consider or comment on issues that have already been resolved.
 - Maintain concise, token-efficient communication for routine updates.
 
 ### Safety

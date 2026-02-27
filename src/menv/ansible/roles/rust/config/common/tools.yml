@@ -17,7 +17,7 @@ tools:
     tag: v0.2.0
   - name: jlo
     url: git@github.com:asterismhq/jlo
-    tag: v14.0.3
+    tag: v15.1.3
   - name: kpv
     url: https://github.com/akitorahayashi/kpv
     tag: v0.6.0
