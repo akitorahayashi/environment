@@ -52,7 +52,7 @@ cr-c() {
 
 # Testing
 cr-t() {
-	echo "Running: RUST_TEST_THREADS=1 cargo test --all-targets --all-features"
+	echo "Running: cargo test --all-targets --all-features"
 	RUST_TEST_THREADS=1 cargo test --all-targets --all-features && echo "✔︎ Tests completed"
 }
 

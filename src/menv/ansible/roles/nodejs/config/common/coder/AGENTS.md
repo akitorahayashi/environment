@@ -17,6 +17,7 @@
 - Ordered tasks are completed without interruption or discretionary refusal.
 - Post-implementation inventorying (git status, git diff, etc.) is avoided; only evidential verification (testing, etc.) is performed.
 - Validation focuses on the appropriate scope, providing minimal evidence unless intent dictates otherwise.
+- When renaming, deleting, or restructuring, a comprehensive search (e.g., `rg`) for the old structure or terms must be performed at the end to ensure no remnants are left behind.
 - Temporary operations are confined to the project root unless external constraints apply (e.g., use `./.tmp/` instead of `/tmp/`).
 
 ### Documentation
@@ -25,6 +26,7 @@
 - Documentation for LLMs (AGENTS.md, CLAUDE.md, etc.) is kept concise for token efficiency, focusing only on essential information.
 - Documentation is written in a declarative style describing the current state. Imperative or changelog-style descriptions are prohibited.
 - Declarative updates preserve existing content and integrate new material without duplication or complete replacement.
+- The documentation must conform to the implementation, and the implementation must not be modified to conform to the documentation.
 - Do not use bold emphasis (**) in Markdown. Use hierarchy and headings for organization.
 
 ### Communication

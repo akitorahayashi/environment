@@ -4,9 +4,8 @@ alias cld-y="claude --dangerously-skip-permissions"
 alias cld-p="claude --print"
 alias cld-yp="claude --dangerously-skip-permissions --print"
 
-alias agy="antigravity"
-alias agy-r="antigravity --reuse-window"
-alias agy-n="antigravity --new-window"
+alias agy-r="agy --reuse-window"
+alias agy-n="agy --new-window"
 
 # MCP
 alias cld-m-st="claude mcp serve"

@@ -12,12 +12,14 @@ Prioritize SVO structure. Use positional arguments for core required inputs. Emp
 ## Decision Workflow
 
 1. Semantic sentence: `verb object required-inputs`
+   - Allow omitting `object` in the CLI if it can typically be inferred implicitly from the context of the current directory, such as a configuration file.
 2. Required inputs: Positional args by default
 3. Options:
    - Additive behaviors based on user preference
    - Limited usages and edge cases not needed daily
    - Modifiers for specific parts or numerical values of regular behavior
    - Output modes and safety flags
+   - Context overrides: Use options (e.g., `--flag <value>`) instead of positional arguments to explicitly force a different value for something that can be automatically resolved via environment variables, system information, or configuration files.
 4. Mandatory options allowed only when:
    - Order-independence needed
    - Repeated keyed input needed

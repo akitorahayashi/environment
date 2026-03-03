@@ -17,7 +17,7 @@ shell_app = typer.Typer(
 console = Console(highlight=False)
 
 GEMINI_MODELS = {
-    "pr": "gemini-3-pro-preview",
+    "pr": "gemini-3.1-pro-preview",
     "fl": "gemini-3-flash-preview",
     "lt": "gemini-2.5-flash-lite",
     "i": "gemini-2.5-flash-image-preview",

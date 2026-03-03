@@ -24,9 +24,10 @@
     "docker-desktop"
   ],
   "chat.editing.confirmEditRequestRetry": false,
-  "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
+  "python.defaultInterpreterPath": "~/.pyenv/shims/python",
   "editor.renderWhitespace": "all",
   "git.confirmSync": false,
   "git.replaceTagsWhenPull": true,
-  "window.commandCenter": true
+  "window.commandCenter": true,
+  "chat.agent.maxRequests": 50
 }
