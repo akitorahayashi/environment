@@ -1,17 +1,13 @@
-"""Internal SSH key and host configuration commands."""
+"""SSH command stubs — execution is handled by menv-internal binary.
+
+These stubs exist to provide CLI structure and help text for Typer.
+Actual behavior is dispatched to the Rust binary via app.py callback.
+If the binary is unavailable, these stubs report the missing binary.
+"""
 
 from __future__ import annotations
 
-import os
-import re
-import subprocess
-from pathlib import Path
-
 import typer
-from rich.console import Console
-
-VALID_KEY_TYPES = ("ed25519", "rsa", "ecdsa")
-HOST_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
 
 ssh_app = typer.Typer(
     name="ssh",
@@ -19,50 +15,9 @@ ssh_app = typer.Typer(
     no_args_is_help=True,
 )
 
-console = Console(highlight=False)
-err_console = Console(stderr=True, highlight=False)
-
-
-def _home() -> Path:
-    return Path(os.environ.get("HOME", str(Path.home())))
-
-
-def _ssh_dir() -> Path:
-    return _home() / ".ssh"
-
-
-def _conf_dir() -> Path:
-    return _ssh_dir() / "conf.d"
-
-
-def _run_ssh_keygen(key_type: str, key_path: Path, host: str) -> None:
-    subprocess.run(
-        [
-            "ssh-keygen",
-            "-q",
-            "-t",
-            key_type,
-            "-f",
-            str(key_path),
-            "-C",
-            host,
-            "-N",
-            "",
-        ],
-        check=True,
-    )
-
-
-def _write_host_config(host: str, key_type: str, config_path: Path) -> None:
-    content = (
-        f"Host {host}\n"
-        f"  HostName {host}\n"
-        "  User git\n"
-        f"  IdentityFile ~/.ssh/id_{key_type}_{host}\n"
-        "  IdentitiesOnly yes\n"
-    )
-    config_path.write_text(content)
-    os.chmod(config_path, 0o600)
+err_console_msg = (
+    "Error: menv-internal binary not found. Run 'just build-internal' to build it."
+)
 
 
 @ssh_app.command("gk")
@@ -71,62 +26,15 @@ def generate_key(
     host: str = typer.Argument(..., help="Host alias."),
 ) -> None:
     """Generate a key and config snippet for a host."""
-    if key_type not in VALID_KEY_TYPES:
-        err_console.print(
-            f"Error: Unsupported key type '{key_type}' "
-            f"(allowed: {'|'.join(VALID_KEY_TYPES)})."
-        )
-        raise typer.Exit(1)
-
-    if not HOST_PATTERN.match(host):
-        err_console.print(f"Error: Invalid host '{host}' (allowed: [A-Za-z0-9._-]+).")
-        raise typer.Exit(1)
-
-    ssh_dir = _ssh_dir()
-    conf_dir = _conf_dir()
-    ssh_dir.mkdir(parents=True, exist_ok=True)
-    conf_dir.mkdir(parents=True, exist_ok=True)
-
-    key_path = ssh_dir / f"id_{key_type}_{host}"
-    config_path = conf_dir / f"{host}.conf"
-
-    if config_path.exists():
-        err_console.print(f"Error: Config for host '{host}' already exists.")
-        raise typer.Exit(1)
-
-    if key_path.exists() or Path(str(key_path) + ".pub").exists():
-        err_console.print(f"Error: Key files already exist: '{key_path}'(.pub).")
-        raise typer.Exit(1)
-
-    try:
-        _run_ssh_keygen(key_type, key_path, host)
-        _write_host_config(host, key_type, config_path)
-    except (subprocess.CalledProcessError, FileNotFoundError, OSError) as exc:
-        for p in (key_path, Path(str(key_path) + ".pub")):
-            try:
-                if p.exists():
-                    p.unlink()
-            except OSError:
-                pass
-        err_console.print(f"Error: {exc}")
-        raise typer.Exit(1)
-
-    pub_key_path = Path(str(key_path) + ".pub")
-    console.print(f"✅ SSH key and config for '{host}' created.")
-    if pub_key_path.exists():
-        console.print("🔑 Public key:")
-        console.print(pub_key_path.read_text().strip())
+    typer.echo(err_console_msg, err=True)
+    raise typer.Exit(1)
 
 
 @ssh_app.command("ls")
 def list_hosts() -> None:
     """List configured SSH hosts."""
-    conf_dir = _conf_dir()
-    if not conf_dir.exists():
-        return
-
-    for conf_file in sorted(conf_dir.glob("*.conf")):
-        console.print(conf_file.stem)
+    typer.echo(err_console_msg, err=True)
+    raise typer.Exit(1)
 
 
 @ssh_app.command("rm")
@@ -134,39 +42,5 @@ def remove_host(
     host: str = typer.Argument(..., help="Host alias."),
 ) -> None:
     """Remove SSH key and config for a host."""
-    if not HOST_PATTERN.match(host):
-        err_console.print(f"Error: Invalid host '{host}' (allowed: [A-Za-z0-9._-]+).")
-        raise typer.Exit(1)
-
-    conf_dir = _conf_dir()
-    base = conf_dir.resolve()
-    config_path = (conf_dir / f"{host}.conf").resolve()
-    try:
-        config_path.relative_to(base)
-    except ValueError:
-        err_console.print(f"Error: Refusing to operate outside {base}.")
-        raise typer.Exit(1)
-
-    if not config_path.exists():
-        err_console.print(f"Error: Config for host '{host}' not found.")
-        raise typer.Exit(1)
-
-    identity_file = None
-    for line in config_path.read_text().splitlines():
-        stripped = line.strip()
-        if stripped.lower().startswith("identityfile"):
-            parts = stripped.split(None, 1)
-            if len(parts) == 2:
-                identity_file = Path(parts[1]).expanduser()
-            break
-
-    if identity_file:
-        priv_path = identity_file
-        pub_path = Path(str(identity_file) + ".pub")
-        for path in (priv_path, pub_path):
-            if path.exists():
-                path.unlink()
-        console.print(f"🗑️ Removed key files for {host}.")
-
-    config_path.unlink()
-    console.print(f"🗑️ Removed config file for '{host}'.")
+    typer.echo(err_console_msg, err=True)
+    raise typer.Exit(1)

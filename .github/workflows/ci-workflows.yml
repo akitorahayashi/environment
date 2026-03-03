@@ -14,8 +14,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint-and-test:
-    uses: ./.github/workflows/lint-and-test.yml
+  test-and-lint:
+    uses: ./.github/workflows/test-and-lint.yml
 
   setup-python:
     uses: ./.github/workflows/setup-python.yml

@@ -45,6 +45,12 @@ __pycache__/
 reference/*
 src/menv/.ansible/*
 
+# Rust build artifacts
+crates/menv-internal/target/
+
+# Bundled binaries (built, not committed)
+src/menv/bundled_binaries/*/menv-internal
+
 # Coverage
 .coverage
 coverage.xml
