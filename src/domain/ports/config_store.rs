@@ -2,8 +2,8 @@
 
 use std::path::PathBuf;
 
-use crate::domain::config::VcsIdentity;
 use crate::domain::error::AppError;
+use crate::domain::vcs_identity::VcsIdentity;
 
 /// Persists and retrieves VCS identity configuration.
 pub trait ConfigStore {

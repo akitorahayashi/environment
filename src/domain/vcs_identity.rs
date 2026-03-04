@@ -1,17 +1,20 @@
-//! Configuration model and invariants.
+//! VCS identity model and switch profile resolution.
+//!
+//! `VcsIdentity` is a mev-specific concept: it represents the name/email pair
+//! stored per profile (personal / work) and applied to Git and Jujutsu.
 
-/// VCS identity for a configuration profile (personal or work).
+/// Name and email pair applied to global VCS configuration.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct VcsIdentity {
     pub name: String,
     pub email: String,
 }
 
-/// Switch profile identifiers.
+/// Canonical switch profile identifiers and their input aliases.
 pub const SWITCH_PROFILES: &[(&str, &str)] =
     &[("p", "personal"), ("personal", "personal"), ("w", "work"), ("work", "work")];
 
-/// Resolve a switch profile identifier.
+/// Resolve a switch profile input (alias or canonical) to its canonical name.
 pub fn resolve_switch_profile(input: &str) -> Option<&'static str> {
     let lower = input.to_lowercase();
     for &(alias, canonical) in SWITCH_PROFILES {

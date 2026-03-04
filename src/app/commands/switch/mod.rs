@@ -1,11 +1,11 @@
 //! `switch` command orchestration — VCS identity switching.
 
 use crate::app::AppContext;
-use crate::domain::config;
 use crate::domain::error::AppError;
 use crate::domain::ports::config_store::ConfigStore;
 use crate::domain::ports::git::GitPort;
 use crate::domain::ports::jj::JjPort;
+use crate::domain::vcs_identity;
 
 /// Execute the `switch` command: change global git/jj identity.
 pub fn execute(ctx: &AppContext, profile_input: &str) -> Result<(), AppError> {
@@ -15,7 +15,7 @@ pub fn execute(ctx: &AppContext, profile_input: &str) -> Result<(), AppError> {
         return Err(AppError::Config("no configuration found".to_string()));
     }
 
-    let resolved = config::resolve_switch_profile(profile_input).ok_or_else(|| {
+    let resolved = vcs_identity::resolve_switch_profile(profile_input).ok_or_else(|| {
         AppError::InvalidProfile(format!(
             "invalid profile '{profile_input}'. Valid: personal (p), work (w)"
         ))

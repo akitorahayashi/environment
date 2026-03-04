@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use serde::Deserialize;
 
 use crate::app::AppContext;
-use crate::domain::backup::BackupTarget;
+use crate::domain::backup_target::BackupTarget;
 use crate::domain::error::AppError;
 use crate::domain::ports::fs::FsPort;
 use crate::domain::ports::macos_defaults::MacosDefaultsPort;

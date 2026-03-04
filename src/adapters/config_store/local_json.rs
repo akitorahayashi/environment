@@ -2,9 +2,9 @@
 
 use std::path::PathBuf;
 
-use crate::domain::config::VcsIdentity;
 use crate::domain::error::AppError;
 use crate::domain::ports::config_store::{ConfigStore, MevConfig};
+use crate::domain::vcs_identity::VcsIdentity;
 
 pub struct ConfigFileStore {
     config_path: PathBuf,

@@ -4,10 +4,10 @@ use std::io::Write;
 use std::path::Path;
 
 use crate::app::AppContext;
-use crate::domain::config::VcsIdentity;
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::ports::config_store::{ConfigStore, MevConfig};
+use crate::domain::vcs_identity::VcsIdentity;
 
 /// Show current VCS identity configuration.
 pub fn show(ctx: &AppContext) -> Result<(), AppError> {
