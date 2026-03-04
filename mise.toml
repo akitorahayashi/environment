@@ -1,5 +1,4 @@
 min_version = "2026.2.19"
 
 [tools]
-sccache = { version = "0.14.0", locked = true }
 "cargo:cargo-tarpaulin" = { version = "0.35.1", locked = true }

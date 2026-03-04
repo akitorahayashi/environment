@@ -48,8 +48,8 @@ dist/mev/.ansible/*
 # Rust build artifacts
 target/
 
-
 # Coverage
 .coverage
 coverage.xml
+coverage/cobertura.xml
 htmlcov/

@@ -32,6 +32,10 @@ Rust-first architecture with a thin Python launcher for `pipx` distribution.
 pipx install git+https://github.com/akitorahayashi/mev.git
 ```
 
+### Distribution Binary Synchronization
+
+`dist/mev/bin/darwin-aarch64/mev` is synchronized on pushes to `main` by `.github/workflows/sync-bundled-binary.yml`.
+
 ### Usage
 
 Core environment setup:

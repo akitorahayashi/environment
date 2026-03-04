@@ -4,10 +4,7 @@ name: Jules Integrator
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+permissions: {}
 
 concurrency:
   group: 'jules-integrator'
@@ -33,14 +30,17 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: 'jules'
+          ref: 'main'
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_TOKEN }}
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_TOKEN }}
+          submodule_token: ${{ secrets.SUBMODULE_PAT }}
 
       - name: Validate gh availability
         run: |
@@ -56,4 +56,4 @@ jobs:
           JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
         run: |
           set -euo pipefail
-          jlo workflow run integrator
+          jlo workflow exec integrator

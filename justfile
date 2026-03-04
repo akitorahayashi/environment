@@ -8,8 +8,6 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set dotenv-load := true
 
-repo_root := `pwd`
-
 default: help
 
 help:
@@ -59,21 +57,6 @@ build:
 
 build-release:
     cargo build --release
-
-b-b: build-bundle
-
-build-bundle: build-release
-    #!/usr/bin/env bash
-    set -euo pipefail
-    system="$(uname -s | tr '[:upper:]' '[:lower:]')"
-    machine="$(uname -m | tr '[:upper:]' '[:lower:]')"
-    [[ "$machine" == "arm64" ]] && machine="aarch64"
-    platform="${system}-${machine}"
-    dest_dir="{{ repo_root }}/dist/mev/bin/${platform}"
-    mkdir -p "$dest_dir"
-    cp "{{ repo_root }}/target/release/mev" "$dest_dir/mev"
-    chmod +x "$dest_dir/mev"
-    echo "Built mev -> ${dest_dir}/mev"
 
 # ==============================================================================
 # TESTING

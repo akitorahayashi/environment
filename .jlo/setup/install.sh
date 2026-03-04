@@ -50,3 +50,130 @@ else
 fi
 
 gh --version
+
+# ==============================================================================
+# Install just - command runner
+# ==============================================================================
+
+if command -v just >/dev/null 2>&1; then
+  installed_version="$(just --version | awk '{print $2}')"
+  requested_version="${JUST_VERSION#v}"
+  if [[ -z "${JUST_VERSION:-}" || "$installed_version" == "$requested_version" ]]; then
+    echo "just already installed: $(just --version)"
+    exit 0
+  fi
+fi
+
+mkdir -p "$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$PATH"
+
+if [[ -n "${JUST_VERSION:-}" ]]; then
+  if ! command -v tar >/dev/null 2>&1; then
+    echo "tar is required for version-pinned just installation." >&2
+    exit 1
+  fi
+
+  version="${JUST_VERSION#v}"
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64) target="x86_64-unknown-linux-musl" ;;
+    aarch64|arm64) target="aarch64-unknown-linux-musl" ;;
+    *)
+      echo "Unsupported architecture for JUST_VERSION install: $arch" >&2
+      exit 1
+      ;;
+  esac
+
+  tmp_dir="$(mktemp -d)"
+  trap 'rm -rf "$tmp_dir"' EXIT
+  archive="$tmp_dir/just.tgz"
+  curl --proto '=https' --tlsv1.2 -fsSL \
+    "https://github.com/casey/just/releases/download/${version}/just-${version}-${target}.tar.gz" \
+    -o "$archive"
+  tar -xzf "$archive" -C "$tmp_dir"
+  install -m 0755 "$tmp_dir/just" "$HOME/.local/bin/just"
+else
+  curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh \
+    | bash -s -- --to "$HOME/.local/bin"
+fi
+
+just --version
+
+# ==============================================================================
+# Install mise
+# ==============================================================================
+
+if command -v mise >/dev/null 2>&1; then
+  installed_version="$(mise --version | awk '{print $1}')"
+  requested_version="${MISE_VERSION#v}"
+  if [[ -z "${MISE_VERSION:-}" || "$installed_version" == "$requested_version" ]]; then
+    echo "mise already installed: $(mise --version)"
+    exit 0
+  fi
+fi
+
+if ! command -v curl >/dev/null 2>&1; then
+  echo "curl is required to install mise." >&2
+  exit 1
+fi
+
+mkdir -p "$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$PATH"
+
+export MISE_CONFIG_DIR="${MISE_CONFIG_DIR:-$HOME/.config/mise}"
+export MISE_STATE_DIR="${MISE_STATE_DIR:-$HOME/.local/state/mise}"
+export MISE_DATA_DIR="${MISE_DATA_DIR:-$HOME/.local/share/mise}"
+export MISE_CACHE_DIR="${MISE_CACHE_DIR:-$HOME/.cache/mise}"
+
+arch="$(uname -m)"
+case "$arch" in
+  x86_64)  target="linux-x64-musl" ;;
+  aarch64|arm64) target="linux-arm64-musl" ;;
+  *)
+    echo "Unsupported architecture for mise installation: $arch" >&2
+    exit 1
+    ;;
+esac
+
+if [[ -n "${MISE_VERSION:-}" ]]; then
+  version="${MISE_VERSION#v}"
+else
+  version="$(curl --proto '=https' --tlsv1.2 -fsSL \
+    "https://api.github.com/repos/jdx/mise/releases/latest" \
+    | grep '"tag_name"' | sed 's/.*"v\([^"]*\)".*/\1/')"
+  if [[ -z "$version" ]]; then
+    echo "Failed to resolve latest mise version." >&2
+    exit 1
+  fi
+fi
+
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
+archive="$tmp_dir/mise.tar.gz"
+
+curl --proto '=https' --tlsv1.2 -fsSL \
+  "https://github.com/jdx/mise/releases/download/v${version}/mise-v${version}-${target}.tar.gz" \
+  -o "$archive"
+tar -xzf "$archive" -C "$tmp_dir"
+install -m 0755 "$tmp_dir/mise/bin/mise" "$HOME/.local/bin/mise"
+
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise install completed but 'mise' command is not available in PATH." >&2
+  exit 1
+fi
+
+echo "mise installed: $(mise --version)"
+
+# ==============================================================================
+# Project-specific post-install hook
+# ==============================================================================
+#
+# Example:
+# if command -v just >/dev/null 2>&1; then
+#   just setup
+# fi
+
+if command -v mise >/dev/null 2>&1; then
+  mise trust
+  mise install --locked
+fi

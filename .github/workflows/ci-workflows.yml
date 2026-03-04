@@ -6,16 +6,34 @@ on:
     paths-ignore:
       - '**.md'
       - '.mock-*'
+      - 'dist/mev/bin/darwin-aarch64/mev'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
       - '**.md'
       - '.mock-*'
+      - 'dist/mev/bin/darwin-aarch64/mev'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  test-and-lint:
-    uses: ./.github/workflows/test-and-lint.yml
+  lint:
+    name: Lint
+    uses: ./.github/workflows/run-linters.yml
+
+  test:
+    name: Test
+    uses: ./.github/workflows/run-tests.yml
+
+  coverage:
+    name: Coverage
+    uses: ./.github/workflows/collect-coverage.yml
+
+  build:
+    name: Build
+    uses: ./.github/workflows/build-bundled-binary.yml
 
   setup-python:
     uses: ./.github/workflows/setup-python.yml

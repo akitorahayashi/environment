@@ -43,7 +43,7 @@ enum Commands {
     #[command(alias = "sw")]
     Switch(switch::SwitchArgs),
 
-    /// Update mev to the latest version.
+    /// Update mev.
     #[command(alias = "u")]
     Update,
 

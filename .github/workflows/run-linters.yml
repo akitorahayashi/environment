@@ -1,0 +1,26 @@
+name: Run Linters
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Run format and lint checks
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
+
+      - name: Install shell tools
+        run: brew install shellcheck shfmt
+
+      - name: Run linters
+        run: just check

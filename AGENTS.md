@@ -47,7 +47,7 @@ src/
 │   ├── local_config/       # JSON config persistence
 │   ├── package_assets/     # Asset root resolution (dev + packaged)
 │   ├── vcs/                # Git and Jujutsu identity configuration
-│   └── version/            # Version information source
+│   └── version_source/     # Update execution source
 ├── assets/                 # Embedded static resources
 └── testing/                # In-process test doubles
 
@@ -102,4 +102,4 @@ Two-stage config deployment:
 - `just run <args>`: Run mev in dev mode
 - `just check`: Format and lint
 - `just test`: Run all Rust tests
-- `just build-bundle`: Build release binary for pipx distribution
+- `dist/mev/bin/darwin-aarch64/mev`: Synchronized by `.github/workflows/sync-bundled-binary.yml` on pushes to `main`

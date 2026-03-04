@@ -6,10 +6,7 @@ on:
     branches:
       - 'jules-implementer-*'
 
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+permissions: {}
 
 env:
   JLO_TARGET_BRANCH: 'main'
@@ -34,7 +31,7 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: 'jules'
           fetch-depth: 1
@@ -68,6 +65,17 @@ jobs:
       - name: Install jlo
         if: steps.discover.outputs.found == 'true'
         uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_TOKEN }}
+          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+
+      - name: Sync category label
+        if: steps.discover.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+        run: |
+          set -euo pipefail
+          jlo workflow process pr sync-category-label ${{ steps.discover.outputs.pr_number }} --fail-on-error
 
       - name: Validate linked GitHub token
         if: steps.discover.outputs.found == 'true'
@@ -76,14 +84,14 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${LINKED_GH_TOKEN}" ]; then
-            echo "::error::JULES_LINKED_GH_PAT is required for implementer PR metadata processing."
+            echo "::error::JULES_LINKED_GH_PAT is required for implementer summary request comments."
             exit 1
           fi
 
-      - name: Process PR metadata
+      - name: Post summary request comment
         if: steps.discover.outputs.found == 'true'
         env:
           GH_TOKEN: ${{ secrets.JULES_LINKED_GH_PAT }}
         run: |
           set -euo pipefail
-          jlo workflow gh process pr metadata ${{ steps.discover.outputs.pr_number }} --fail-on-error
+          jlo workflow process pr comment-summary-request ${{ steps.discover.outputs.pr_number }} --fail-on-error

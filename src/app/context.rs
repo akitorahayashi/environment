@@ -12,7 +12,7 @@ use crate::adapters::fs::std_fs::StdFs;
 use crate::adapters::git::cli::GitCli;
 use crate::adapters::jj::cli::JjCli;
 use crate::adapters::macos_defaults::cli::MacosDefaultsCli;
-use crate::adapters::version_source::cargo::CargoVersion;
+use crate::adapters::version_source::pipx::PipxVersionSource;
 use crate::adapters::vscode::cli::VscodeCli;
 
 /// Application context wiring ports to concrete adapters.
@@ -22,7 +22,7 @@ pub struct AppContext {
     pub local_config_root: PathBuf,
     pub ansible: AnsibleAdapter,
     pub config_store: ConfigFileStore,
-    pub version_source: CargoVersion,
+    pub version_source: PipxVersionSource,
     pub git: GitCli,
     pub jj: JjCli,
     pub fs: StdFs,
@@ -39,7 +39,7 @@ impl AppContext {
         Ok(Self {
             ansible: AnsibleAdapter::new(ansible_dir.clone(), local_config_root.clone())?,
             config_store: ConfigFileStore::new(paths::default_config_path()?),
-            version_source: CargoVersion,
+            version_source: PipxVersionSource,
             git: GitCli,
             jj: JjCli,
             fs: StdFs,
@@ -56,7 +56,7 @@ impl AppContext {
         Ok(Self {
             ansible: AnsibleAdapter::empty(local_config_root.clone()),
             config_store: ConfigFileStore::new(paths::default_config_path()?),
-            version_source: CargoVersion,
+            version_source: PipxVersionSource,
             git: GitCli,
             jj: JjCli,
             fs: StdFs,

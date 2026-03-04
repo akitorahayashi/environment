@@ -1,3 +1,4 @@
+# This file is auto-generated. Do not edit manually.
 name: 'Configure Git'
 description: 'Set up git user name and email'
 runs:

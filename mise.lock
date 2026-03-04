@@ -1,0 +1,3 @@
+[[tools."cargo:cargo-tarpaulin"]]
+version = "0.35.1"
+backend = "cargo:cargo-tarpaulin[locked=true]"

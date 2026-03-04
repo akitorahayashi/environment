@@ -1,13 +1,15 @@
-name: Test and Lint
+name: Run Tests
 
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
-  test-and-lint:
-    runs-on: macos-latest
-    permissions:
-      contents: read
+  test:
+    name: Run Rust tests
+    runs-on: macos-14
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,11 +19,5 @@ jobs:
       - name: Setup base environment
         uses: ./.github/actions/setup-base
 
-      - name: Install shell tools
-        run: brew install shellcheck shfmt
-
       - name: Run tests
         run: just test
-
-      - name: Run Linters
-        run: just check

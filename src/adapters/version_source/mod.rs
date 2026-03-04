@@ -1,3 +1,3 @@
 //! Version source adapter.
 
-pub mod cargo;
+pub mod pipx;

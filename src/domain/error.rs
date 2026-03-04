@@ -17,8 +17,8 @@ pub enum AppError {
     /// Configuration error.
     Config(String),
 
-    /// Version check or upgrade failure.
-    VersionCheck(String),
+    /// Update operation failure.
+    Update(String),
 
     /// Backup operation failed.
     Backup(String),
@@ -40,7 +40,7 @@ impl fmt::Display for AppError {
             Self::InvalidProfile(p) => write!(f, "invalid profile: {p}"),
             Self::InvalidTag(t) => write!(f, "invalid tag: {t}"),
             Self::Config(msg) => write!(f, "configuration error: {msg}"),
-            Self::VersionCheck(msg) => write!(f, "version check failed: {msg}"),
+            Self::Update(msg) => write!(f, "update failed: {msg}"),
             Self::Backup(msg) => write!(f, "backup failed: {msg}"),
             Self::Io(err) => write!(f, "I/O error: {err}"),
         }

@@ -1,0 +1,39 @@
+name: Build Bundled Binary
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build-darwin-aarch64:
+    name: Build mev darwin-aarch64
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
+
+      - name: Add Rust target
+        run: rustup target add aarch64-apple-darwin
+
+      - name: Build release binary
+        run: cargo build --release --locked --target aarch64-apple-darwin
+
+      - name: Prepare artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp target/aarch64-apple-darwin/release/mev mev-darwin-aarch64
+          chmod +x mev-darwin-aarch64
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mev-darwin-aarch64
+          path: mev-darwin-aarch64

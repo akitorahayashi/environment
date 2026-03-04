@@ -70,7 +70,7 @@ def _locate_binary() -> Path:
     raise FileNotFoundError(
         f"Bundled mev binary not found for platform '{key}'.\n"
         f"Searched:\n  {searched}\n"
-        "Run 'just build-bundle' to build and place the binary."
+        "The main branch keeps bundled binaries synchronized via GitHub Actions."
     )
 
 

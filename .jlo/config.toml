@@ -3,21 +3,22 @@
 [run]
 jlo_target_branch = "main"
 jules_worker_branch = "jules"
-parallel = true
-max_parallel = 3
 
 [workflow]
 runner_mode = "remote"
-cron = ["0 17 * * *"]
 wait_minutes_default = 30
+jules_api_worker_max_parallel = 15
 
-[innovators]
+[schedule]
+cron = ["0 19 * * *"]
+skip_narrator_on_schedule = false
+
+[workflow.layers.innovators]
 roles = [
-  { name = "recruiter", enabled = false },
   { name = "leverage_architect", enabled = true },
 ]
 
-[observers]
+[workflow.layers.observers]
 roles = [
   { name = "consistency", enabled = true },
   { name = "taxonomy", enabled = true },
@@ -25,15 +26,12 @@ roles = [
   { name = "structural_arch", enabled = true },
   { name = "qa", enabled = true },
   { name = "cov", enabled = true },
-  { name = "pythonista", enabled = true },
+  { name = "librarian", enabled = true },
+  { name = "tactician", enabled = true },
+  { name = "rustacean", enabled = true },
+  { name = "devops", enabled = true },
+  { name = "cli_sentinel", enabled = true },
 ]
 
-[jules]
-# Jules API endpoint
-api_url = "https://jules.googleapis.com/v1alpha/sessions"
-# Request timeout in seconds
-timeout_secs = 30
-# Maximum retry attempts on transient failures
-max_retries = 3
-# Delay between retries in milliseconds
-retry_delay_ms = 1000
+[workflow.layers.implementer]
+
