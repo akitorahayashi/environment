@@ -7,9 +7,9 @@ use crate::domain::ports::version_source::VersionSource;
 
 const GITHUB_RELEASES_URL: &str = "https://api.github.com/repos/akitorahayashi/mev/releases/latest";
 
-pub struct CargoPkgVersion;
+pub struct CargoVersion;
 
-impl VersionSource for CargoPkgVersion {
+impl VersionSource for CargoVersion {
     fn current_version(&self) -> Result<String, AppError> {
         Ok(env!("CARGO_PKG_VERSION").to_string())
     }

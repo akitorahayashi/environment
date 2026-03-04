@@ -3,11 +3,11 @@
 use std::process::Command;
 
 use crate::domain::error::AppError;
-use crate::domain::ports::vcs_configurator::VcsConfigurator;
+use crate::domain::ports::git::GitPort;
 
-pub struct GitConfigurator;
+pub struct GitCli;
 
-impl VcsConfigurator for GitConfigurator {
+impl GitPort for GitCli {
     fn set_identity(&self, name: &str, email: &str) -> Result<(), AppError> {
         run_config("user.name", name)?;
         run_config("user.email", email)?;
@@ -22,10 +22,6 @@ impl VcsConfigurator for GitConfigurator {
 
     fn is_available(&self) -> bool {
         which::which("git").is_ok()
-    }
-
-    fn tool_name(&self) -> &'static str {
-        "git"
     }
 }
 

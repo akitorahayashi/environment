@@ -5,48 +5,46 @@
 
 use std::path::PathBuf;
 
-use crate::adapters::ansible_process::executor::AnsibleProcessExecutor;
-use crate::adapters::catalogs::playbook_tag_catalog::PlaybookTagCatalog;
-use crate::adapters::catalogs::role_catalog_from_fs::FsRoleCatalog;
-use crate::adapters::local_config::config_file_store::ConfigFileStore;
-use crate::adapters::local_config::config_paths;
-use crate::adapters::vcs::git_configurator::GitConfigurator;
-use crate::adapters::vcs::jj_configurator::JjConfigurator;
-use crate::adapters::version::cargo_pkg_version::CargoPkgVersion;
+use crate::adapters::ansible::executor::AnsibleAdapter;
+use crate::adapters::config_store::local_json::ConfigFileStore;
+use crate::adapters::config_store::paths;
+use crate::adapters::fs::std_fs::StdFs;
+use crate::adapters::git::cli::GitCli;
+use crate::adapters::jj::cli::JjCli;
+use crate::adapters::macos_defaults::cli::MacosDefaultsCli;
+use crate::adapters::version_source::cargo::CargoVersion;
+use crate::adapters::vscode::cli::VscodeCli;
 
 /// Application context wiring ports to concrete adapters.
 #[allow(dead_code)]
 pub struct AppContext {
     pub ansible_dir: PathBuf,
     pub local_config_root: PathBuf,
-    pub ansible_executor: AnsibleProcessExecutor,
-    pub tag_catalog: PlaybookTagCatalog,
-    pub role_catalog: FsRoleCatalog,
+    pub ansible: AnsibleAdapter,
     pub config_store: ConfigFileStore,
-    pub version_source: CargoPkgVersion,
-    pub git_configurator: GitConfigurator,
-    pub jj_configurator: JjConfigurator,
+    pub version_source: CargoVersion,
+    pub git: GitCli,
+    pub jj: JjCli,
+    pub fs: StdFs,
+    pub macos_defaults: MacosDefaultsCli,
+    pub vscode: VscodeCli,
 }
 
 #[allow(dead_code)]
 impl AppContext {
     /// Construct the context from an ansible asset directory.
     pub fn new(ansible_dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
-        let local_config_root = config_paths::local_config_root()?;
-        let playbook_path = ansible_dir.join("playbook.yml");
-        let roles_dir = ansible_dir.join("roles");
+        let local_config_root = paths::local_config_root()?;
 
         Ok(Self {
-            ansible_executor: AnsibleProcessExecutor::new(
-                ansible_dir.clone(),
-                local_config_root.clone(),
-            ),
-            tag_catalog: PlaybookTagCatalog::from_file(&playbook_path)?,
-            role_catalog: FsRoleCatalog::new(roles_dir),
-            config_store: ConfigFileStore::new(config_paths::default_config_path()?),
-            version_source: CargoPkgVersion,
-            git_configurator: GitConfigurator,
-            jj_configurator: JjConfigurator,
+            ansible: AnsibleAdapter::new(ansible_dir.clone(), local_config_root.clone())?,
+            config_store: ConfigFileStore::new(paths::default_config_path()?),
+            version_source: CargoVersion,
+            git: GitCli,
+            jj: JjCli,
+            fs: StdFs,
+            macos_defaults: MacosDefaultsCli,
+            vscode: VscodeCli,
             ansible_dir,
             local_config_root,
         })
@@ -54,18 +52,16 @@ impl AppContext {
 
     /// Construct a config-only context (no ansible asset resolution needed).
     pub fn for_config() -> Result<Self, Box<dyn std::error::Error>> {
-        let local_config_root = config_paths::local_config_root()?;
+        let local_config_root = paths::local_config_root()?;
         Ok(Self {
-            ansible_executor: AnsibleProcessExecutor::new(
-                PathBuf::new(),
-                local_config_root.clone(),
-            ),
-            tag_catalog: PlaybookTagCatalog::empty(),
-            role_catalog: FsRoleCatalog::new(PathBuf::new()),
-            config_store: ConfigFileStore::new(config_paths::default_config_path()?),
-            version_source: CargoPkgVersion,
-            git_configurator: GitConfigurator,
-            jj_configurator: JjConfigurator,
+            ansible: AnsibleAdapter::empty(local_config_root.clone()),
+            config_store: ConfigFileStore::new(paths::default_config_path()?),
+            version_source: CargoVersion,
+            git: GitCli,
+            jj: JjCli,
+            fs: StdFs,
+            macos_defaults: MacosDefaultsCli,
+            vscode: VscodeCli,
             ansible_dir: PathBuf::new(),
             local_config_root,
         })

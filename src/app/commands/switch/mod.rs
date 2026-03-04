@@ -4,7 +4,8 @@ use crate::app::AppContext;
 use crate::domain::config;
 use crate::domain::error::AppError;
 use crate::domain::ports::config_store::ConfigStore;
-use crate::domain::ports::vcs_configurator::VcsConfigurator;
+use crate::domain::ports::git::GitPort;
+use crate::domain::ports::jj::JjPort;
 
 /// Execute the `switch` command: change global git/jj identity.
 pub fn execute(ctx: &AppContext, profile_input: &str) -> Result<(), AppError> {
@@ -34,17 +35,17 @@ pub fn execute(ctx: &AppContext, profile_input: &str) -> Result<(), AppError> {
     println!("Switching to {resolved} identity...");
 
     // Git configuration (required)
-    ctx.git_configurator.set_identity(&identity.name, &identity.email)?;
+    ctx.git.set_identity(&identity.name, &identity.email)?;
 
     // Jujutsu configuration (optional — skip if jj not installed)
-    if ctx.jj_configurator.is_available()
-        && let Err(e) = ctx.jj_configurator.set_identity(&identity.name, &identity.email)
+    if ctx.jj.is_available()
+        && let Err(e) = ctx.jj.set_identity(&identity.name, &identity.email)
     {
         eprintln!("Warning: jj identity update failed: {e}");
     }
 
     // Show current configuration via git (primary VCS)
-    let (name, email) = ctx.git_configurator.get_identity()?;
+    let (name, email) = ctx.git.get_identity()?;
     println!();
     println!("Switched to {resolved} identity");
     println!("  Name:  {name}");

@@ -4,8 +4,8 @@
 //! `cli/` modules delegate here; external callers (tests, scripts) can
 //! import these directly via `mev::api::*`.
 
-use crate::adapters::package_assets::ansible_asset_locator;
-use crate::adapters::version::cargo_pkg_version::CargoPkgVersion;
+use crate::adapters::ansible::locator;
+use crate::adapters::version_source::cargo::CargoVersion;
 use crate::app::AppContext;
 use crate::app::commands;
 use crate::domain::error::AppError;
@@ -23,7 +23,7 @@ pub use crate::domain::ports::config_store::MevConfig;
 
 /// Provision a complete development environment for the given profile.
 pub fn create(profile: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
-    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
+    let ansible_dir = locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
     commands::create::execute(&ctx, profile, overwrite, verbose)
 }
@@ -34,7 +34,7 @@ pub fn create(profile: &str, overwrite: bool, verbose: bool) -> Result<(), AppEr
 
 /// Run a single Ansible task by tag within a profile.
 pub fn make(profile: &str, tag: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
-    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
+    let ansible_dir = locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
     commands::make::execute(&ctx, profile, tag, overwrite, verbose)
 }
@@ -45,7 +45,7 @@ pub fn make(profile: &str, tag: &str, overwrite: bool, verbose: bool) -> Result<
 
 /// Print the available tags, tag groups, and profiles.
 pub fn list() -> Result<(), AppError> {
-    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
+    let ansible_dir = locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
     commands::list::execute(&ctx)
 }
@@ -68,7 +68,7 @@ pub fn config_set() -> Result<(), AppError> {
 
 /// Deploy role configuration files.
 pub fn config_create(role: Option<String>, overwrite: bool) -> Result<(), AppError> {
-    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
+    let ansible_dir = locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
     commands::config::create(&ctx, role, overwrite)
 }
@@ -89,7 +89,7 @@ pub fn switch(profile: &str) -> Result<(), AppError> {
 
 /// Check for and install updates to the mev CLI.
 pub fn update() -> Result<(), AppError> {
-    let source = CargoPkgVersion;
+    let source = CargoVersion;
     commands::update::execute(&source)
 }
 
@@ -105,7 +105,7 @@ pub(crate) fn update_with_source(source: &dyn VersionSource) -> Result<(), AppEr
 
 /// Backup a system setting or configuration target.
 pub fn backup(target: &str) -> Result<(), AppError> {
-    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
+    let ansible_dir = locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
     commands::backup::execute(&ctx, target)
 }

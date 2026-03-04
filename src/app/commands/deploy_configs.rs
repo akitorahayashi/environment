@@ -7,8 +7,7 @@ use std::collections::HashSet;
 use std::path::Path;
 
 use crate::domain::error::AppError;
-use crate::domain::ports::role_catalog::RoleCatalog;
-use crate::domain::ports::tag_catalog::TagCatalog;
+use crate::domain::ports::ansible::AnsiblePort;
 
 /// Deploy configs for roles associated with the given tags.
 ///
@@ -20,15 +19,14 @@ pub fn deploy_for_tags(
     tags: &[String],
     ansible_dir: &Path,
     local_config_root: &Path,
-    tag_catalog: &dyn TagCatalog,
-    role_catalog: &dyn RoleCatalog,
+    ansible: &dyn AnsiblePort,
     overwrite: bool,
 ) -> Result<(), AppError> {
-    let available: HashSet<String> = role_catalog.roles_with_config()?.into_iter().collect();
+    let available: HashSet<String> = ansible.roles_with_config()?.into_iter().collect();
 
     let mut deployed = HashSet::new();
     for tag in tags {
-        let Some(role) = tag_catalog.role_for_tag(tag) else {
+        let Some(role) = ansible.role_for_tag(tag) else {
             continue;
         };
         if !available.contains(&role) || !deployed.insert(role.clone()) {

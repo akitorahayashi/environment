@@ -4,8 +4,7 @@ use crate::app::AppContext;
 use crate::app::commands::deploy_configs;
 use crate::domain::error::AppError;
 use crate::domain::execution_plan::ExecutionPlan;
-use crate::domain::ports::ansible_executor::AnsibleExecutor;
-use crate::domain::ports::tag_catalog::TagCatalog;
+use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::tag::FULL_SETUP_TAGS;
 
 /// Execute the `create` command: deploy configs and run full setup tags.
@@ -17,7 +16,7 @@ pub fn execute(
 ) -> Result<(), AppError> {
     // Validate all tags exist in catalog
     let all_catalog_tags: std::collections::HashSet<String> =
-        ctx.tag_catalog.all_tags().into_iter().collect();
+        ctx.ansible.all_tags().into_iter().collect();
     let invalid: Vec<&&str> =
         FULL_SETUP_TAGS.iter().filter(|t| !all_catalog_tags.contains(**t)).collect();
     if !invalid.is_empty() {
@@ -37,8 +36,7 @@ pub fn execute(
         &plan.tags,
         &ctx.ansible_dir,
         &ctx.local_config_root,
-        &ctx.tag_catalog,
-        &ctx.role_catalog,
+        &ctx.ansible,
         overwrite,
     )?;
 
@@ -48,11 +46,11 @@ pub fn execute(
         let total = plan.tags.len();
         println!("[{step}/{total}] Running: {tag}");
 
-        ctx.ansible_executor
-            .run_playbook(profile, std::slice::from_ref(tag), plan.verbose)
-            .inspect_err(|e| {
+        ctx.ansible.run_playbook(profile, std::slice::from_ref(tag), plan.verbose).inspect_err(
+            |e| {
                 eprintln!("Failed at step {step}/{total}: {tag}: {e}");
-            })?;
+            },
+        )?;
         println!("  ✓ Completed");
     }
 

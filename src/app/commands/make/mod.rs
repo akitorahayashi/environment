@@ -4,8 +4,7 @@ use crate::app::AppContext;
 use crate::app::commands::deploy_configs;
 use crate::domain::error::AppError;
 use crate::domain::execution_plan::ExecutionPlan;
-use crate::domain::ports::ansible_executor::AnsibleExecutor;
-use crate::domain::ports::tag_catalog::TagCatalog;
+use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::tag;
 
 /// Execute the `make` command: deploy configs and run specified tags.
@@ -20,7 +19,7 @@ pub fn execute(
 
     // Validate tags exist in catalog
     for t in &tags_to_run {
-        if ctx.tag_catalog.role_for_tag(t).is_none() {
+        if ctx.ansible.role_for_tag(t).is_none() {
             return Err(AppError::InvalidTag(format!(
                 "unknown tag '{t}'. Use 'mev list' to see available tags."
             )));
@@ -34,8 +33,7 @@ pub fn execute(
         &plan.tags,
         &ctx.ansible_dir,
         &ctx.local_config_root,
-        &ctx.tag_catalog,
-        &ctx.role_catalog,
+        &ctx.ansible,
         overwrite,
     )?;
 
@@ -45,7 +43,7 @@ pub fn execute(
     }
     println!();
 
-    ctx.ansible_executor.run_playbook(profile, &plan.tags, plan.verbose)?;
+    ctx.ansible.run_playbook(profile, &plan.tags, plan.verbose)?;
 
     println!();
     println!("✓ Completed successfully!");

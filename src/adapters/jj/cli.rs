@@ -3,11 +3,11 @@
 use std::process::Command;
 
 use crate::domain::error::AppError;
-use crate::domain::ports::vcs_configurator::VcsConfigurator;
+use crate::domain::ports::jj::JjPort;
 
-pub struct JjConfigurator;
+pub struct JjCli;
 
-impl VcsConfigurator for JjConfigurator {
+impl JjPort for JjCli {
     fn set_identity(&self, name: &str, email: &str) -> Result<(), AppError> {
         run_config("user.name", name)?;
         run_config("user.email", email)?;
@@ -22,10 +22,6 @@ impl VcsConfigurator for JjConfigurator {
 
     fn is_available(&self) -> bool {
         which::which("jj").is_ok()
-    }
-
-    fn tool_name(&self) -> &'static str {
-        "jj"
     }
 }
 

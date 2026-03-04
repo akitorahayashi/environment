@@ -1,3 +1,4 @@
+mod git;
+mod jj;
 mod packaging;
-mod vcs;
 mod version;

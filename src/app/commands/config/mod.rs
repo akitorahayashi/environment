@@ -6,8 +6,8 @@ use std::path::Path;
 use crate::app::AppContext;
 use crate::domain::config::VcsIdentity;
 use crate::domain::error::AppError;
+use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::ports::config_store::{ConfigStore, MevConfig};
-use crate::domain::ports::role_catalog::RoleCatalog;
 
 /// Show current VCS identity configuration.
 pub fn show(ctx: &AppContext) -> Result<(), AppError> {
@@ -71,7 +71,7 @@ pub fn set(ctx: &AppContext) -> Result<(), AppError> {
 
 /// Deploy role configs from ansible assets to local config root.
 pub fn create(ctx: &AppContext, role: Option<String>, overwrite: bool) -> Result<(), AppError> {
-    let available = ctx.role_catalog.roles_with_config()?;
+    let available = ctx.ansible.roles_with_config()?;
 
     let roles_to_deploy = if let Some(role_name) = role {
         if !available.contains(&role_name) {

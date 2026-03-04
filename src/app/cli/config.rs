@@ -2,7 +2,7 @@
 
 use clap::Subcommand;
 
-use crate::adapters::package_assets::ansible_asset_locator;
+use crate::adapters::ansible::locator;
 use crate::app::AppContext;
 use crate::app::commands;
 use crate::domain::error::AppError;
@@ -38,7 +38,7 @@ pub fn run(cmd: ConfigCommand) -> Result<(), AppError> {
             commands::config::set(&ctx)
         }
         ConfigCommand::Create { role, overwrite } => {
-            let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
+            let ansible_dir = locator::locate_ansible_dir()?;
             let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
             commands::config::create(&ctx, role, overwrite)
         }
