@@ -17,6 +17,9 @@ runs:
       with:
         enable-cache: true
 
+    - name: Cache Rust build artifacts
+      uses: Swatinem/rust-cache@v2
+
     - name: Install Ansible and dependencies with uv
       shell: bash
       run: uv sync --frozen

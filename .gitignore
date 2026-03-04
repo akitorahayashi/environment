@@ -46,7 +46,7 @@ reference/*
 src/menv/.ansible/*
 
 # Rust build artifacts
-crates/menv-internal/target/
+target/
 
 # Bundled binaries (built, not committed)
 src/menv/bundled_binaries/*/menv-internal

@@ -1,5 +1,8 @@
 # Bundled binaries
 
-Platform-specific prebuilt `menv-internal` executables.
+Platform-specific prebuilt executables included in the Python package.
 Each subdirectory corresponds to a platform key (e.g. `darwin-aarch64`).
-Binaries are placed here by `just build-internal` and included in the Python package.
+
+Binaries:
+- `mev` — primary CLI (built by `just build-bundle`)
+- `menv-internal` — internal subcommand binary (built by `just build-internal`)

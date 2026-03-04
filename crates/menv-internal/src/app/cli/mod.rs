@@ -1,9 +1,9 @@
 //! CLI adapter — top-level parser and subcommand dispatch.
 
-mod aider;
-mod shell;
-mod ssh;
-mod vcs;
+pub mod aider;
+pub mod shell;
+pub mod ssh;
+pub mod vcs;
 
 use clap::{Parser, Subcommand};
 

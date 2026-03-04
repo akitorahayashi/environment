@@ -1,0 +1,64 @@
+//! `create` command orchestration — full environment setup.
+
+use crate::app::AppContext;
+use crate::app::commands::deploy_configs;
+use crate::domain::error::AppError;
+use crate::domain::execution_plan::ExecutionPlan;
+use crate::domain::ports::ansible_executor::AnsibleExecutor;
+use crate::domain::ports::tag_catalog::TagCatalog;
+use crate::domain::tag::FULL_SETUP_TAGS;
+
+/// Execute the `create` command: deploy configs and run full setup tags.
+pub fn execute(ctx: &AppContext, profile: &str, verbose: bool) -> Result<(), AppError> {
+    // Validate all tags exist in catalog
+    let all_catalog_tags: std::collections::HashSet<String> =
+        ctx.tag_catalog.all_tags().into_iter().collect();
+    let invalid: Vec<&&str> =
+        FULL_SETUP_TAGS.iter().filter(|t| !all_catalog_tags.contains(**t)).collect();
+    if !invalid.is_empty() {
+        let names: Vec<String> = invalid.iter().map(|t| (**t).to_string()).collect();
+        return Err(AppError::InvalidTag(format!("invalid tags in setup: {}", names.join(", "))));
+    }
+
+    let plan = ExecutionPlan::full_setup(profile, verbose);
+
+    println!();
+    println!("mev: Creating {profile} environment");
+    println!("This will run {} tasks.", plan.tags.len());
+    println!();
+
+    // Deploy configs for roles about to be executed
+    deploy_configs::deploy_for_tags(
+        &plan.tags,
+        &ctx.ansible_dir,
+        &ctx.local_config_root,
+        &ctx.tag_catalog,
+        &ctx.role_catalog,
+    )?;
+
+    // Execute each tag
+    for (i, tag) in plan.tags.iter().enumerate() {
+        let step = i + 1;
+        let total = plan.tags.len();
+        println!("[{step}/{total}] Running: {tag}");
+
+        ctx.ansible_executor
+            .run_playbook(profile, std::slice::from_ref(tag), plan.verbose)
+            .inspect_err(|e| {
+                eprintln!("Failed at step {step}/{total}: {tag}: {e}");
+            })?;
+        println!("  ✓ Completed");
+    }
+
+    println!();
+    println!("✓ Environment created successfully!");
+    println!("Profile: {profile}");
+
+    println!();
+    println!("Optional steps (skipped for stability/speed):");
+    println!("  GUI Applications:  mev make brew-cask {profile}");
+    println!("  Ollama Models:     mev make ollama-models");
+    println!("  MLX Models:        mev make mlx-models");
+
+    Ok(())
+}

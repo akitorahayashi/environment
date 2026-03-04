@@ -4,33 +4,48 @@
 
 ### Coding Standards
 
+Rust:
+- Formatter: `cargo fmt` (configuration in `rustfmt.toml`).
+- Linter: `cargo clippy` with all warnings denied.
+- Minimum Supported Rust Version: 1.90.0 (configuration in `clippy.toml`).
+- Edition: 2024.
+
+Python (legacy launcher surface):
 - Formatter: `ruff format` (configuration in `pyproject.toml`).
 - Linter: `ruff check` with all warnings enabled (configuration in `pyproject.toml`).
 - Type Checker: `mypy` for static type checking.
-- Shell Scripts: `shfmt` for formatting, `shellcheck` for linting.
-- Ansible: `ansible-lint` for playbook validation.
+
+Shell Scripts:
+- Formatter: `shfmt`.
+- Linter: `shellcheck`.
+
+Ansible:
+- Linter: `ansible-lint`.
 
 ### Naming Conventions
 
-- Classes: `PascalCase`
+Rust:
+- Types: `PascalCase`
 - Functions and Variables: `snake_case`
-- Modules: `snake_case`, organized by feature domain (`commands/`, `providers/`, `ansible/`)
+- Modules: `snake_case`, organized by layer (`app/`, `domain/`, `adapters/`)
 - Constants: `UPPER_SNAKE_CASE`
 
-### Adding Tests
-
-- Unit tests: located in `tests/unit/` and use `pytest` with fixtures.
-- Integration tests: located in `tests/intg/` for end-to-end validation.
-- Test naming: `test_*.py` files, test functions prefixed with `test_`.
-- Use `pytest-mock` for mocking and `pytest-cov` for coverage reporting.
+Python:
+- Classes: `PascalCase`
+- Functions and Variables: `snake_case`
+- Modules: `snake_case`
 
 ### Configuration Files
 
 | File | Purpose |
 |------|---------|
-| `pyproject.toml` | Project metadata, dependencies, and tool configuration |
+| `Cargo.toml` | Rust package metadata and dependencies |
+| `clippy.toml` | Clippy linter configuration |
+| `rustfmt.toml` | Rust formatter configuration |
+| `rust-toolchain.toml` | Rust toolchain version pinning |
+| `mise.toml` | Development tool version management |
+| `pyproject.toml` | Python metadata and packaging |
 | `justfile` | Development task automation |
-| `.python-version` | Pinned Python version |
 
 ## Procedural Verification
 
@@ -43,14 +58,11 @@ just check
 just test
 ```
 
-Or individually:
+For Python legacy surface:
 
 ```bash
-uv run ruff format src/ tests/
-uv run ruff check src/ tests/
-uv run mypy src/ tests/
-uv run pytest tests/unit/
-uv run pytest tests/intg/
+just py-check
+just py-test
 ```
 
 For shell scripts and Ansible:
