@@ -1,7 +1,7 @@
 //! `mev` — macOS development environment provisioning CLI.
 //!
 //! Rust-first CLI owning command routing, validation, planning, and execution
-//! orchestration. `menv-internal` is consumed as a relative dependency crate
+//! orchestration. `mev-internal` is consumed as a relative dependency crate
 //! for latency-sensitive internal command domains.
 
 pub mod adapters;

@@ -10,10 +10,23 @@ tests/
         test_context.rs      # TestContext
     cli.rs
     cli/                   # CLI behavior contracts
+        backup.rs
+        config.rs
+        create.rs
+        help_and_version.rs
+        list.rs
+        make.rs
+        switch.rs
+        update.rs
     library.rs
     library/               # Public API contracts
+        backup_target.rs
+        domain_exports.rs
     adapters.rs
     adapters/              # Adapter behavior contracts
+        packaging.rs
+        vcs.rs
+        version.rs
     runtime.rs
     runtime/               # Binary invocation contracts
     security.rs

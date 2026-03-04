@@ -29,7 +29,7 @@ Rust-first architecture with a thin Python launcher for `pipx` distribution.
 ### Installation
 
 ```sh
-pipx install git+https://github.com/akitorahayashi/menv.git
+pipx install git+https://github.com/akitorahayashi/mev.git
 ```
 
 ### Usage
@@ -41,6 +41,7 @@ mev create macbook        # Full MacBook setup
 mev create mac-mini       # Full Mac mini setup
 mev cr mbk                # Shorthand
 mev cr mbk -v             # Verbose output
+mev cr mbk --overwrite    # Force overwrite role configs
 ```
 
 Run individual tasks:
@@ -71,7 +72,7 @@ Configuration:
 ```sh
 mev config set            # Configure VCS identities interactively
 mev config show           # Show current configuration
-mev config create         # Deploy all role configs to ~/.config/menv/
+mev config create         # Deploy all role configs to ~/.config/mev/
 mev config create rust    # Deploy only rust role config
 mev cf set                # Shorthand
 ```
@@ -83,6 +84,15 @@ mev switch personal       # Switch to personal identity
 mev switch work           # Switch to work identity
 mev sw p                  # Shorthand
 mev sw w                  # Shorthand
+```
+
+Backup:
+
+```sh
+mev backup system         # Backup macOS system defaults
+mev backup vscode         # Backup VSCode extensions list
+mev backup list           # List available backup targets
+mev bk system             # Shorthand
 ```
 
 Update:

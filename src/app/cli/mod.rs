@@ -1,5 +1,6 @@
 //! CLI adapter — top-level parser and subcommand dispatch.
 
+mod backup;
 mod config;
 mod create;
 mod list;
@@ -47,38 +48,32 @@ enum Commands {
     Update,
 
     /// Backup system settings or configurations.
-    #[command(alias = "bk", hide = true)]
-    Backup(BackupArgs),
+    #[command(alias = "bk")]
+    Backup(backup::BackupArgs),
 
     /// Internal commands used by shell aliases.
     #[command(subcommand, hide = true)]
     Internal(InternalCommand),
 }
 
-#[derive(clap::Args)]
-struct BackupArgs {
-    /// Backup target (system, vscode).
-    target: String,
-}
-
-/// Internal subcommands delegated to `menv-internal`.
+/// Internal subcommands delegated to `mev-internal`.
 #[derive(Subcommand)]
 enum InternalCommand {
     /// Aider integration helpers.
     #[command(subcommand)]
-    Aider(menv_internal::app::cli::aider::AiderCommand),
+    Aider(mev_internal::app::cli::aider::AiderCommand),
 
     /// Shell helper generators.
     #[command(subcommand)]
-    Shell(menv_internal::app::cli::shell::ShellCommand),
+    Shell(mev_internal::app::cli::shell::ShellCommand),
 
     /// SSH key and host configuration.
     #[command(subcommand)]
-    Ssh(menv_internal::app::cli::ssh::SshCommand),
+    Ssh(mev_internal::app::cli::ssh::SshCommand),
 
     /// VCS helpers.
     #[command(subcommand)]
-    Vcs(menv_internal::app::cli::vcs::VcsCommand),
+    Vcs(mev_internal::app::cli::vcs::VcsCommand),
 }
 
 /// Entry point for the CLI.
@@ -92,10 +87,7 @@ pub fn run() {
         Commands::Config(cmd) => config::run(cmd),
         Commands::Switch(args) => switch::run(args),
         Commands::Update => update::run(),
-        Commands::Backup(args) => {
-            eprintln!("backup '{}' not yet migrated to Rust runtime", args.target);
-            Err(AppError::Config("backup not yet implemented".to_string()))
-        }
+        Commands::Backup(args) => backup::run(args),
         Commands::Internal(cmd) => run_internal(cmd),
     };
 
@@ -107,10 +99,10 @@ pub fn run() {
 
 fn run_internal(cmd: InternalCommand) -> Result<(), AppError> {
     let result = match cmd {
-        InternalCommand::Aider(c) => menv_internal::app::cli::aider::run(c),
-        InternalCommand::Shell(c) => menv_internal::app::cli::shell::run(c),
-        InternalCommand::Ssh(c) => menv_internal::app::cli::ssh::run(c),
-        InternalCommand::Vcs(c) => menv_internal::app::cli::vcs::run(c),
+        InternalCommand::Aider(c) => mev_internal::app::cli::aider::run(c),
+        InternalCommand::Shell(c) => mev_internal::app::cli::shell::run(c),
+        InternalCommand::Ssh(c) => mev_internal::app::cli::ssh::run(c),
+        InternalCommand::Vcs(c) => mev_internal::app::cli::vcs::run(c),
     };
     result.map_err(|e| AppError::Config(e.to_string()))
 }

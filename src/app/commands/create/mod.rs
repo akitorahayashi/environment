@@ -9,7 +9,12 @@ use crate::domain::ports::tag_catalog::TagCatalog;
 use crate::domain::tag::FULL_SETUP_TAGS;
 
 /// Execute the `create` command: deploy configs and run full setup tags.
-pub fn execute(ctx: &AppContext, profile: &str, verbose: bool) -> Result<(), AppError> {
+pub fn execute(
+    ctx: &AppContext,
+    profile: &str,
+    overwrite: bool,
+    verbose: bool,
+) -> Result<(), AppError> {
     // Validate all tags exist in catalog
     let all_catalog_tags: std::collections::HashSet<String> =
         ctx.tag_catalog.all_tags().into_iter().collect();
@@ -34,6 +39,7 @@ pub fn execute(ctx: &AppContext, profile: &str, verbose: bool) -> Result<(), App
         &ctx.local_config_root,
         &ctx.tag_catalog,
         &ctx.role_catalog,
+        overwrite,
     )?;
 
     // Execute each tag

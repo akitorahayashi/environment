@@ -13,9 +13,9 @@ Installable via `pipx` through a thin Python launcher that delegates to the preb
 | Domain | `src/domain/` | Pure rules, command invariants, execution planning, interfaces |
 | Ports | `src/domain/ports/` | Interface boundaries required by domain/application |
 | Adapters | `src/adapters/` | Process execution, file I/O, catalog loading, package asset resolution |
-| Internal dep | `crates/menv-internal/` | Internal command domain implementations reused by mev |
-| Python bootstrap | `python/mev_bootstrap/` | Thin launcher delegating to bundled binary |
-| Distribution binary | `src/menv/bundled_binaries/` | Prebuilt executable for pipx install |
+| Internal dep | `crates/mev-internal/` | Internal command domain implementations reused by mev |
+| Python bootstrap | `dist/mev/` | Thin launcher delegating to bundled binary |
+| Distribution assets | `dist/mev/` | Bundled binaries and ansible assets for dev and packaging |
 
 ## CLI Commands
 
@@ -42,18 +42,23 @@ src/
 │   └── execution_plan.rs   # Deterministic ansible plan construction
 ├── adapters/
 │   ├── ansible_process/    # Binary resolution and process execution
+│   ├── backup/             # System defaults and VSCode extension backup
 │   ├── catalogs/           # Dynamic tag/role loading from playbook.yml
 │   ├── local_config/       # JSON config persistence
 │   ├── package_assets/     # Asset root resolution (dev + packaged)
+│   ├── vcs/                # Git and Jujutsu identity configuration
 │   └── version/            # Version information source
 ├── assets/                 # Embedded static resources
 └── testing/                # In-process test doubles
 
 crates/
-└── menv-internal/          # Internal command implementations (aider, shell, ssh, vcs)
+└── mev-internal/          # Internal command implementations (aider, shell, ssh, vcs)
 
-python/
-└── mev_bootstrap/          # Thin Python launcher for pipx entry
+dist/
+└── mev/
+    ├── launcher.py         # Thin Python launcher for pipx entry
+    ├── bin/                # Bundled Rust binaries
+    └── ansible/            # Runtime ansible assets
 
 tests/
 ├── harness/                # Shared fixtures (TestContext)
@@ -64,25 +69,23 @@ tests/
 └── security.rs + security/ # Input validation contracts
 ```
 
-## Legacy Python Surface
+## Python Surface
 
-`src/menv/` contains the original Python CLI implementation (Typer).
-The `menv` entrypoint in `pyproject.toml` still points to `menv.main:app` for backward compatibility.
-The `mev` entrypoint delegates to the Rust binary via `python/mev_bootstrap/launcher.py`.
+Python ownership is limited to `dist/mev/launcher.py`.
+The launcher resolves packaged assets, sets `MEV_ANSIBLE_DIR`, and executes the bundled Rust binary.
 Runtime command ownership belongs to the Rust implementation.
-The Python dispatch boundary (`menv.commands.internal.dispatch`) remains stable for backward compatibility.
 
 ## Architecture Principles
 
 ### Directory Naming
-- **No ambiguous names**: `core/`, `utils/`, `helpers/` are forbidden
+- No ambiguous names: `core/`, `utils/`, `helpers/` are forbidden
 - Every file must belong to a clear, specific category
 
 ## Design Rules
 
 ### Path Resolution
 - CLI passes `profile`, `config_dir_abs_path`, `repo_root_path`, `local_config_root` as Ansible extra vars
-- `local_config_root` points to `~/.config/menv/roles` for externalized configs
+- `local_config_root` points to `~/.config/mev/roles` for externalized configs
 - Roles handle fallback logic (profile-specific → common)
 
 ### Profile Design
@@ -92,8 +95,8 @@ The Python dispatch boundary (`menv.commands.internal.dispatch`) remains stable 
 
 ### Config Deployment Strategy
 Two-stage config deployment:
-1. Package → `~/.config/menv/roles/{role}/`: Copy via `mev config create` or auto-deploy on `mev make`
-2. `~/.config/menv/roles/{role}/` → Local destinations: Symbolic links
+1. Package → `~/.config/mev/roles/{role}/`: Copy via `mev config create` or auto-deploy on `mev make`
+2. `~/.config/mev/roles/{role}/` → Local destinations: Symbolic links
 
 ### Development
 - `just run <args>`: Run mev in dev mode

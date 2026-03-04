@@ -10,10 +10,9 @@ Rust:
 - Minimum Supported Rust Version: 1.90.0 (configuration in `clippy.toml`).
 - Edition: 2024.
 
-Python (legacy launcher surface):
+Python (launcher surface):
 - Formatter: `ruff format` (configuration in `pyproject.toml`).
 - Linter: `ruff check` with all warnings enabled (configuration in `pyproject.toml`).
-- Type Checker: `mypy` for static type checking.
 
 Shell Scripts:
 - Formatter: `shfmt`.
@@ -58,16 +57,8 @@ just check
 just test
 ```
 
-For Python legacy surface:
+For launcher surface and static assets:
 
 ```bash
-just py-check
-just py-test
-```
-
-For shell scripts and Ansible:
-
-```bash
-shellcheck src/menv/*.sh
-uv run ansible-lint src/menv/ansible/
+just check
 ```

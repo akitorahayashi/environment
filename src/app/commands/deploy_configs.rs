@@ -1,7 +1,7 @@
 //! Shared config deployment from ansible roles to local config root.
 //!
 //! Replicates Python `_deploy_configs_for_roles`: before ansible execution,
-//! ensures each role's config directory is deployed to `~/.config/menv/roles/`.
+//! ensures each role's config directory is deployed to `~/.config/mev/roles/`.
 
 use std::collections::HashSet;
 use std::path::Path;
@@ -13,13 +13,16 @@ use crate::domain::ports::tag_catalog::TagCatalog;
 /// Deploy configs for roles associated with the given tags.
 ///
 /// For each tag, resolves the owning role. If that role has a config directory
-/// in the ansible assets, copies it to `local_config_root/{role}` (skip if exists).
+/// in the ansible assets, copies it to `local_config_root/{role}`.
+/// When `overwrite` is false, existing config directories are skipped.
+/// When `overwrite` is true, existing config directories are replaced.
 pub fn deploy_for_tags(
     tags: &[String],
     ansible_dir: &Path,
     local_config_root: &Path,
     tag_catalog: &dyn TagCatalog,
     role_catalog: &dyn RoleCatalog,
+    overwrite: bool,
 ) -> Result<(), AppError> {
     let available: HashSet<String> = role_catalog.roles_with_config()?.into_iter().collect();
 
@@ -33,8 +36,14 @@ pub fn deploy_for_tags(
         }
 
         let target = local_config_root.join(&role);
-        if target.exists() {
+        if target.exists() && !overwrite {
             continue;
+        }
+
+        if target.exists() {
+            std::fs::remove_dir_all(&target).map_err(|e| {
+                AppError::Config(format!("failed to remove existing config for {role}: {e}"))
+            })?;
         }
 
         let source = ansible_dir.join("roles").join(&role).join("config");

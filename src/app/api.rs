@@ -11,6 +11,7 @@ use crate::app::commands;
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;
 
+pub use crate::domain::backup::BackupTarget;
 pub use crate::domain::config::VcsIdentity;
 pub use crate::domain::error::AppError as Error;
 pub use crate::domain::execution_plan::ExecutionPlan;
@@ -21,10 +22,10 @@ pub use crate::domain::ports::config_store::MevConfig;
 // =============================================================================
 
 /// Provision a complete development environment for the given profile.
-pub fn create(profile: &str, verbose: bool) -> Result<(), AppError> {
+pub fn create(profile: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
     let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-    commands::create::execute(&ctx, profile, verbose)
+    commands::create::execute(&ctx, profile, overwrite, verbose)
 }
 
 // =============================================================================
@@ -32,10 +33,10 @@ pub fn create(profile: &str, verbose: bool) -> Result<(), AppError> {
 // =============================================================================
 
 /// Run a single Ansible task by tag within a profile.
-pub fn make(profile: &str, tag: &str, verbose: bool) -> Result<(), AppError> {
+pub fn make(profile: &str, tag: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
     let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-    commands::make::execute(&ctx, profile, tag, verbose)
+    commands::make::execute(&ctx, profile, tag, overwrite, verbose)
 }
 
 // =============================================================================
@@ -55,15 +56,13 @@ pub fn list() -> Result<(), AppError> {
 
 /// Show current VCS identity configuration.
 pub fn config_show() -> Result<(), AppError> {
-    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
+    let ctx = AppContext::for_config().map_err(|e| AppError::Config(e.to_string()))?;
     commands::config::show(&ctx)
 }
 
 /// Interactively set VCS identity configuration.
 pub fn config_set() -> Result<(), AppError> {
-    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
+    let ctx = AppContext::for_config().map_err(|e| AppError::Config(e.to_string()))?;
     commands::config::set(&ctx)
 }
 
@@ -98,4 +97,15 @@ pub fn update() -> Result<(), AppError> {
 #[allow(dead_code)]
 pub(crate) fn update_with_source(source: &dyn VersionSource) -> Result<(), AppError> {
     commands::update::execute(source)
+}
+
+// =============================================================================
+// Backup
+// =============================================================================
+
+/// Backup a system setting or configuration target.
+pub fn backup(target: &str) -> Result<(), AppError> {
+    let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
+    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
+    commands::backup::execute(&ctx, target)
 }

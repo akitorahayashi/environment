@@ -17,6 +17,10 @@ pub struct MakeArgs {
     #[arg(default_value = "common")]
     pub profile: String,
 
+    /// Overwrite existing role configs with package defaults.
+    #[arg(short, long)]
+    pub overwrite: bool,
+
     /// Enable verbose output.
     #[arg(short, long)]
     pub verbose: bool,
@@ -26,5 +30,5 @@ pub fn run(args: MakeArgs) -> Result<(), AppError> {
     let resolved = profile::validate_profile(&args.profile)?;
     let ansible_dir = ansible_asset_locator::locate_ansible_dir()?;
     let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-    commands::make::execute(&ctx, resolved, &args.tag, args.verbose)
+    commands::make::execute(&ctx, resolved, &args.tag, args.overwrite, args.verbose)
 }

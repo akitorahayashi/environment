@@ -22,7 +22,8 @@ fn help_lists_primary_commands() {
             .and(predicate::str::contains("list"))
             .and(predicate::str::contains("config"))
             .and(predicate::str::contains("switch"))
-            .and(predicate::str::contains("update")),
+            .and(predicate::str::contains("update"))
+            .and(predicate::str::contains("backup")),
     );
 }
 

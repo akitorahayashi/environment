@@ -10,9 +10,9 @@ See [root AGENTS.md](../AGENTS.md) for project overview.
 | Domain | src/domain/ | Pure rules, command invariants, execution planning, interfaces |
 | Ports | src/domain/ports/ | Interface boundaries (traits) required by domain/application |
 | Adapters | src/adapters/ | Process execution, file I/O, catalog loading, package asset resolution |
-| Assets | src/assets/ | Embedded static resources |
+| Assets | dist/mev/ | Embedded static resources |
 | Testing | src/testing/ | In-process test doubles and builders |
-| Internal dep | crates/menv-internal/ | Internal command domain implementations reused by mev |
+| Internal dep | crates/mev-internal/ | Internal command domain implementations reused by mev |
 
 ## app structure
 

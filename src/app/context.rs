@@ -10,6 +10,8 @@ use crate::adapters::catalogs::playbook_tag_catalog::PlaybookTagCatalog;
 use crate::adapters::catalogs::role_catalog_from_fs::FsRoleCatalog;
 use crate::adapters::local_config::config_file_store::ConfigFileStore;
 use crate::adapters::local_config::config_paths;
+use crate::adapters::vcs::git_configurator::GitConfigurator;
+use crate::adapters::vcs::jj_configurator::JjConfigurator;
 use crate::adapters::version::cargo_pkg_version::CargoPkgVersion;
 
 /// Application context wiring ports to concrete adapters.
@@ -22,6 +24,8 @@ pub struct AppContext {
     pub role_catalog: FsRoleCatalog,
     pub config_store: ConfigFileStore,
     pub version_source: CargoPkgVersion,
+    pub git_configurator: GitConfigurator,
+    pub jj_configurator: JjConfigurator,
 }
 
 #[allow(dead_code)]
@@ -41,6 +45,8 @@ impl AppContext {
             role_catalog: FsRoleCatalog::new(roles_dir),
             config_store: ConfigFileStore::new(config_paths::default_config_path()?),
             version_source: CargoPkgVersion,
+            git_configurator: GitConfigurator,
+            jj_configurator: JjConfigurator,
             ansible_dir,
             local_config_root,
         })
@@ -58,6 +64,8 @@ impl AppContext {
             role_catalog: FsRoleCatalog::new(PathBuf::new()),
             config_store: ConfigFileStore::new(config_paths::default_config_path()?),
             version_source: CargoPkgVersion,
+            git_configurator: GitConfigurator,
+            jj_configurator: JjConfigurator,
             ansible_dir: PathBuf::new(),
             local_config_root,
         })

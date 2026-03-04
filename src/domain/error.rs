@@ -20,6 +20,9 @@ pub enum AppError {
     /// Version check or upgrade failure.
     VersionCheck(String),
 
+    /// Backup operation failed.
+    Backup(String),
+
     /// I/O error.
     Io(std::io::Error),
 }
@@ -38,6 +41,7 @@ impl fmt::Display for AppError {
             Self::InvalidTag(t) => write!(f, "invalid tag: {t}"),
             Self::Config(msg) => write!(f, "configuration error: {msg}"),
             Self::VersionCheck(msg) => write!(f, "version check failed: {msg}"),
+            Self::Backup(msg) => write!(f, "backup failed: {msg}"),
             Self::Io(err) => write!(f, "I/O error: {err}"),
         }
     }

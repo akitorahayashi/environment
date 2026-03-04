@@ -13,6 +13,7 @@ pub fn execute(
     ctx: &AppContext,
     profile: &str,
     tag_input: &str,
+    overwrite: bool,
     verbose: bool,
 ) -> Result<(), AppError> {
     let tags_to_run = tag::resolve_tags(tag_input);
@@ -35,6 +36,7 @@ pub fn execute(
         &ctx.local_config_root,
         &ctx.tag_catalog,
         &ctx.role_catalog,
+        overwrite,
     )?;
 
     println!("Running tags: {}", plan.tags.join(", "));
