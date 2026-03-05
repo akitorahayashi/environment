@@ -23,8 +23,8 @@ pub struct CreateArgs {
 }
 
 pub fn run(args: CreateArgs) -> Result<(), AppError> {
-    let resolved = profile::validate_machine_profile(&args.profile)?;
+    let profile = profile::validate_machine_profile(&args.profile)?;
     let ansible_dir = locator::locate_ansible_dir()?;
     let ctx = DependencyContainer::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-    commands::create::execute(&ctx, resolved, args.overwrite, args.verbose)
+    commands::create::execute(&ctx, profile, args.overwrite, args.verbose)
 }

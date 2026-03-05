@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use crate::domain::error::AppError;
 use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
-use crate::domain::vcs_identity::VcsIdentity;
+use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
 
 pub struct IdentityFileStore {
     identity_path: PathBuf,
@@ -69,12 +69,11 @@ impl IdentityStore for IdentityFileStore {
         Ok(())
     }
 
-    fn get_identity(&self, identity: &str) -> Result<Option<VcsIdentity>, AppError> {
+    fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<VcsIdentity>, AppError> {
         let state = self.load()?;
         match identity {
-            "personal" => Ok(Some(state.personal)),
-            "work" => Ok(Some(state.work)),
-            _ => Ok(None),
+            SwitchIdentity::Personal => Ok(Some(state.personal)),
+            SwitchIdentity::Work => Ok(Some(state.work)),
         }
     }
 

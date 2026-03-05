@@ -5,41 +5,35 @@ use crate::domain::error::AppError;
 use crate::domain::ports::git::GitPort;
 use crate::domain::ports::identity_store::IdentityStore;
 use crate::domain::ports::jj::JjPort;
-use crate::domain::vcs_identity;
+use crate::domain::vcs_identity::SwitchIdentity;
 
 /// Execute the `switch` command: change global git/jj identity.
-pub fn execute(ctx: &DependencyContainer, identity_input: &str) -> Result<(), AppError> {
+pub fn execute(ctx: &DependencyContainer, identity: SwitchIdentity) -> Result<(), AppError> {
     if !ctx.identity_store.exists() {
         eprintln!("No identity configuration found.");
         eprintln!("Run 'mev identity set' first to configure identities.");
         return Err(AppError::Config("no identity configuration found".to_string()));
     }
 
-    let resolved = vcs_identity::resolve_switch_identity(identity_input).ok_or_else(|| {
-        AppError::InvalidIdentity(format!(
-            "invalid identity '{identity_input}'. Valid: personal (p), work (w)"
-        ))
-    })?;
-
-    let identity = ctx
+    let vcs_identity = ctx
         .identity_store
-        .get_identity(resolved)?
-        .ok_or_else(|| AppError::Config(format!("failed to load {resolved} identity")))?;
+        .get_identity(identity)?
+        .ok_or_else(|| AppError::Config(format!("failed to load {} identity", identity)))?;
 
-    if identity.name.is_empty() || identity.email.is_empty() {
+    if vcs_identity.name.is_empty() || vcs_identity.email.is_empty() {
         return Err(AppError::Config(format!(
-            "{resolved} identity is not configured. Run 'mev identity set' to configure."
+            "{identity} identity is not configured. Run 'mev identity set' to configure."
         )));
     }
 
-    println!("Switching to {resolved} identity...");
+    println!("Switching to {} identity...", identity);
 
     // Git configuration (required)
-    ctx.git.set_identity(&identity.name, &identity.email)?;
+    ctx.git.set_identity(&vcs_identity.name, &vcs_identity.email)?;
 
     // Jujutsu configuration (optional — skip if jj not installed)
     if ctx.jj.is_available()
-        && let Err(e) = ctx.jj.set_identity(&identity.name, &identity.email)
+        && let Err(e) = ctx.jj.set_identity(&vcs_identity.name, &vcs_identity.email)
     {
         eprintln!("Warning: jj identity update failed: {e}");
     }
@@ -47,7 +41,7 @@ pub fn execute(ctx: &DependencyContainer, identity_input: &str) -> Result<(), Ap
     // Show current configuration via git (primary VCS)
     let (name, email) = ctx.git.get_identity()?;
     println!();
-    println!("Switched to {resolved} identity");
+    println!("Switched to {} identity", identity);
     println!("  Name:  {name}");
     println!("  Email: {email}");
 

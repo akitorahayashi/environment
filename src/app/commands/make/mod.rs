@@ -5,12 +5,13 @@ use crate::app::commands::deploy_configs;
 use crate::domain::error::AppError;
 use crate::domain::execution_plan::ExecutionPlan;
 use crate::domain::ports::ansible::AnsiblePort;
+use crate::domain::profile::Profile;
 use crate::domain::tag;
 
 /// Execute the `make` command: deploy configs and run specified tags.
 pub fn execute(
     ctx: &DependencyContainer,
-    profile: &str,
+    profile: Profile,
     tag_input: &str,
     overwrite: bool,
     verbose: bool,
@@ -38,12 +39,12 @@ pub fn execute(
     )?;
 
     println!("Running tags: {}", plan.tags.join(", "));
-    if profile != "common" {
-        println!("Profile: {profile}");
+    if plan.profile != Profile::Common {
+        println!("Profile: {}", plan.profile);
     }
     println!();
 
-    ctx.ansible.run_playbook(profile, &plan.tags, plan.verbose)?;
+    ctx.ansible.run_playbook(plan.profile.as_str(), &plan.tags, plan.verbose)?;
 
     println!();
     println!("✓ Completed successfully!");

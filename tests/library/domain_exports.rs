@@ -8,6 +8,7 @@ fn domain_tag_resolution_is_public() {
 
 #[test]
 fn vcs_identity_resolves_identities() {
+    use mev::domain::vcs_identity::SwitchIdentity;
     let identity = mev::domain::vcs_identity::resolve_switch_identity("p");
-    assert_eq!(identity, Some("personal"));
+    assert_eq!(identity, Some(SwitchIdentity::Personal));
 }

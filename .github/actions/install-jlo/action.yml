@@ -18,4 +18,115 @@ runs:
         INSTALL_JLO_TOKEN: ${{ inputs.token }}
         INSTALL_JLO_SUBMODULE_TOKEN: ${{ inputs.submodule_token }}
       run: |
-        bash "${{ github.action_path }}/scripts/install.sh"
+        set -euo pipefail
+
+        emit_install_error() {
+          local message="${1:-unknown install error}"
+          message="${message//'%'/'%25'}"
+          message="${message//$'\r'/'%0D'}"
+          message="${message//$'\n'/'%0A'}"
+          printf '::error::%s\n' "${message}" >&2
+          exit 1
+        }
+
+        # --- Platform detection ---
+        os_raw="$(uname -s | tr '[:upper:]' '[:lower:]')"
+        arch_raw="$(uname -m)"
+
+        case "${os_raw}" in
+          linux) INSTALLER_OS="linux" ;;
+          darwin) INSTALLER_OS="darwin" ;;
+          *) emit_install_error "Unsupported OS for installer bootstrap: ${os_raw}" ;;
+        esac
+
+        case "${arch_raw}" in
+          x86_64|amd64)
+            if [ "${INSTALLER_OS}" = "darwin" ] && [ "$(sysctl -n hw.optional.arm64 2>/dev/null || echo 0)" = "1" ]; then
+              INSTALLER_ARCH="aarch64"
+            else
+              INSTALLER_ARCH="x86_64"
+            fi
+            ;;
+          arm64|aarch64) INSTALLER_ARCH="aarch64" ;;
+          *) emit_install_error "Unsupported architecture for installer bootstrap: ${arch_raw}" ;;
+        esac
+
+        # --- Acquire installer binary ---
+        INSTALLER_BIN=""
+        INSTALLER_BIN_IS_TEMP="0"
+
+        bootstrap_bin="${JLO_INSTALLER_BOOTSTRAP_BIN:-}"
+        if [ -n "${bootstrap_bin}" ]; then
+          [ -f "${bootstrap_bin}" ] || emit_install_error "JLO_INSTALLER_BOOTSTRAP_BIN '${bootstrap_bin}' was not found."
+          [ -x "${bootstrap_bin}" ] || emit_install_error "JLO_INSTALLER_BOOTSTRAP_BIN '${bootstrap_bin}' must be executable."
+          INSTALLER_BIN="${bootstrap_bin}"
+        else
+          : "${INSTALL_JLO_TOKEN:?INSTALL_JLO_TOKEN must be set}"
+          command -v jq >/dev/null 2>&1 || emit_install_error "Installer bootstrap requires jq on PATH."
+
+          release_repository="${JLO_RELEASE_REPOSITORY:-asterismhq/jlo}"
+          release_tag="${JLO_INSTALLER_RELEASE_TAG:-}"
+
+          if [ -n "${release_tag}" ]; then
+            release_api_url="https://api.github.com/repos/${release_repository}/releases/tags/${release_tag}"
+          else
+            release_api_url="https://api.github.com/repos/${release_repository}/releases/latest"
+          fi
+
+          release_meta="$(mktemp "${RUNNER_TEMP:-/tmp}/jlo-installer-meta.XXXXXX")"
+          INSTALLER_BIN="$(mktemp "${RUNNER_TEMP:-/tmp}/jlo-installer.XXXXXX")"
+          INSTALLER_BIN_IS_TEMP="1"
+
+          release_http_status="$(curl --silent --show-error --location \
+            --header "Authorization: Bearer ${INSTALL_JLO_TOKEN}" \
+            --header "Accept: application/vnd.github+json" \
+            --header "User-Agent: install-jlo-bootstrap" \
+            --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 2 --retry-all-errors \
+            --write-out "%{http_code}" --output "${release_meta}" \
+            "${release_api_url}" || true)"
+
+          if [ -z "${release_http_status}" ]; then
+            emit_install_error "Network error: curl failed to reach '${release_api_url}' (no HTTP status received)."
+          fi
+
+          case "${release_http_status}" in
+            200) ;;
+            401|403) emit_install_error "INSTALL_JLO_TOKEN cannot access installer release metadata in '${release_repository}'. Ensure contents:read and organization SSO authorization." ;;
+            404) emit_install_error "Installer release not found in '${release_repository}' (HTTP 404)." ;;
+            *) emit_install_error "Failed to query installer release metadata from '${release_repository}' (HTTP ${release_http_status})." ;;
+          esac
+
+          asset_candidates=()
+          case "${INSTALLER_ARCH}" in
+            x86_64) asset_candidates+=("jlo-installer-${INSTALLER_OS}-x86_64" "jlo-installer-${INSTALLER_OS}-amd64") ;;
+            aarch64) asset_candidates+=("jlo-installer-${INSTALLER_OS}-aarch64" "jlo-installer-${INSTALLER_OS}-arm64") ;;
+          esac
+
+          selected_asset_id=""
+          for asset in "${asset_candidates[@]}"; do
+            asset_id="$(jq -r --arg name "${asset}" '.assets[] | select(.name == $name) | .id' "${release_meta}" | head -n 1)"
+            if [ -n "${asset_id}" ] && [ "${asset_id}" != "null" ]; then
+              selected_asset_id="${asset_id}"
+              break
+            fi
+          done
+
+          [ -n "${selected_asset_id}" ] || emit_install_error "No matching installer asset for ${INSTALLER_OS}-${INSTALLER_ARCH} in '${release_repository}'."
+
+          curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer ${INSTALL_JLO_TOKEN}" \
+            --header "Accept: application/octet-stream" \
+            --header "User-Agent: install-jlo-bootstrap" \
+            --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 2 --retry-all-errors \
+            "https://api.github.com/repos/${release_repository}/releases/assets/${selected_asset_id}" \
+            -o "${INSTALLER_BIN}"
+
+          [ -s "${INSTALLER_BIN}" ] || emit_install_error "Downloaded installer asset is missing or empty."
+          chmod +x "${INSTALLER_BIN}"
+        fi
+
+        cleanup() { [ -n "${release_meta:-}" ] && rm -f "${release_meta}"; [ "${INSTALLER_BIN_IS_TEMP}" = "1" ] && [ -n "${INSTALLER_BIN}" ] && rm -f "${INSTALLER_BIN}"; }
+        trap cleanup EXIT
+
+        # --- Execute installer ---
+        "${INSTALLER_BIN}" install

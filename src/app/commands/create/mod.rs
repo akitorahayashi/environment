@@ -5,12 +5,13 @@ use crate::app::commands::deploy_configs;
 use crate::domain::error::AppError;
 use crate::domain::execution_plan::ExecutionPlan;
 use crate::domain::ports::ansible::AnsiblePort;
+use crate::domain::profile::Profile;
 use crate::domain::tag::FULL_SETUP_TAGS;
 
 /// Execute the `create` command: deploy configs and run full setup tags.
 pub fn execute(
     ctx: &DependencyContainer,
-    profile: &str,
+    profile: Profile,
     overwrite: bool,
     verbose: bool,
 ) -> Result<(), AppError> {
@@ -27,7 +28,7 @@ pub fn execute(
     let plan = ExecutionPlan::full_setup(profile, verbose);
 
     println!();
-    println!("mev: Creating {profile} environment");
+    println!("mev: Creating {} environment", plan.profile);
     println!("This will run {} tasks.", plan.tags.len());
     println!();
 
@@ -46,21 +47,21 @@ pub fn execute(
         let total = plan.tags.len();
         println!("[{step}/{total}] Running: {tag}");
 
-        ctx.ansible.run_playbook(profile, std::slice::from_ref(tag), plan.verbose).inspect_err(
-            |e| {
+        ctx.ansible
+            .run_playbook(plan.profile.as_str(), std::slice::from_ref(tag), plan.verbose)
+            .inspect_err(|e| {
                 eprintln!("Failed at step {step}/{total}: {tag}: {e}");
-            },
-        )?;
+            })?;
         println!("  ✓ Completed");
     }
 
     println!();
     println!("✓ Environment created successfully!");
-    println!("Profile: {profile}");
+    println!("Profile: {}", plan.profile);
 
     println!();
     println!("Optional steps (skipped for stability/speed):");
-    println!("  GUI Applications:  mev make brew-cask --profile {profile}");
+    println!("  GUI Applications:  mev make brew-cask --profile {}", plan.profile);
     println!("  Ollama Models:     mev make ollama-models");
     println!("  MLX Models:        mev make mlx-models");
 

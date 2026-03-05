@@ -3,7 +3,7 @@
 use crate::app::DependencyContainer;
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
-use crate::domain::profile::{PROFILE_ALIASES, VALID_PROFILES};
+use crate::domain::profile;
 use crate::domain::tag;
 
 /// Execute the `list` command: print tags, groups, and profiles.
@@ -33,28 +33,19 @@ pub fn execute(ctx: &DependencyContainer) -> Result<(), AppError> {
     println!();
 
     // Profiles
-    let mut profiles_to_show = Vec::new();
-    if VALID_PROFILES.contains(&"common") {
-        profiles_to_show.push("common");
-    }
-    for &p in VALID_PROFILES {
-        if p != "common" {
-            profiles_to_show.push(p);
-        }
-    }
-
-    let mut profile_strs = Vec::new();
-    for p in &profiles_to_show {
-        let aliases: Vec<&str> = PROFILE_ALIASES
-            .iter()
-            .filter(|(_, target)| target == p)
-            .map(|(alias, _)| *alias)
-            .collect();
-        let alias_str =
-            if aliases.is_empty() { String::new() } else { format!(" ({})", aliases.join(", ")) };
-        let suffix = if *p == "common" { " (default)" } else { "" };
-        profile_strs.push(format!("{p}{alias_str}{suffix}"));
-    }
+    let profile_strs: Vec<String> = profile::all_profiles()
+        .iter()
+        .map(|p| {
+            let aliases = p.aliases();
+            let alias_str = if aliases.is_empty() {
+                String::new()
+            } else {
+                format!(" ({})", aliases.join(", "))
+            };
+            let suffix = if matches!(p, profile::Profile::Common) { " (default)" } else { "" };
+            format!("{p}{alias_str}{suffix}")
+        })
+        .collect();
     println!("Profiles: {}", profile_strs.join(", "));
 
     Ok(())

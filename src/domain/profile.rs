@@ -1,51 +1,92 @@
 //! Profile identifiers and mapping rules.
 
+use std::fmt;
+
 use crate::domain::error::AppError;
 
-/// Machine-specific profiles that require explicit selection.
-pub const MACHINE_PROFILES: &[&str] = &["macbook", "mac-mini"];
+/// A resolved, valid provisioning profile.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Profile {
+    Macbook,
+    MacMini,
+    Common,
+}
 
-/// All valid profile identifiers including "common".
-pub const VALID_PROFILES: &[&str] = &["common", "macbook", "mac-mini"];
-
-/// Profile alias mappings.
-pub const PROFILE_ALIASES: &[(&str, &str)] =
-    &[("mbk", "macbook"), ("mmn", "mac-mini"), ("cmn", "common")];
-
-/// Resolve a profile identifier or alias to its canonical name.
-pub fn resolve_profile(input: &str) -> Option<&'static str> {
-    // Direct match
-    for &profile in VALID_PROFILES {
-        if input == profile {
-            return Some(profile);
+impl Profile {
+    /// Canonical string representation passed to Ansible.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Macbook => "macbook",
+            Self::MacMini => "mac-mini",
+            Self::Common => "common",
         }
     }
-    // Alias match
-    for &(alias, canonical) in PROFILE_ALIASES {
+
+    fn is_machine_profile(&self) -> bool {
+        matches!(self, Self::Macbook | Self::MacMini)
+    }
+
+    /// Input aliases for this profile (excluding the canonical name).
+    pub fn aliases(&self) -> &'static [&'static str] {
+        match self {
+            Self::Macbook => &["mbk"],
+            Self::MacMini => &["mmn"],
+            Self::Common => &["cmn"],
+        }
+    }
+}
+
+impl fmt::Display for Profile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+/// All profile variants in display order.
+pub fn all_profiles() -> &'static [Profile] {
+    &[Profile::Common, Profile::Macbook, Profile::MacMini]
+}
+
+/// Input aliases mapping user-supplied strings to `Profile` variants.
+const PROFILE_ALIASES: &[(&str, Profile)] = &[
+    ("macbook", Profile::Macbook),
+    ("mbk", Profile::Macbook),
+    ("mac-mini", Profile::MacMini),
+    ("mmn", Profile::MacMini),
+    ("common", Profile::Common),
+    ("cmn", Profile::Common),
+];
+
+/// Resolve a profile identifier or alias to a `Profile`.
+pub fn resolve_profile(input: &str) -> Option<Profile> {
+    for &(alias, profile) in PROFILE_ALIASES {
         if input == alias {
-            return Some(canonical);
+            return Some(profile);
         }
     }
     None
 }
 
-/// Validate that a profile is a machine-specific profile (required for `create`).
-pub fn validate_machine_profile(input: &str) -> Result<&'static str, AppError> {
-    let resolved =
+/// Validate that the input maps to a machine-specific profile (required for `create`).
+pub fn validate_machine_profile(input: &str) -> Result<Profile, AppError> {
+    let profile =
         resolve_profile(input).ok_or_else(|| AppError::InvalidProfile(input.to_string()))?;
-
-    if !MACHINE_PROFILES.contains(&resolved) {
+    if !profile.is_machine_profile() {
         return Err(AppError::InvalidProfile(format!(
             "'{input}' is not a machine profile. Valid: {}",
-            MACHINE_PROFILES.join(", ")
+            all_profiles()
+                .iter()
+                .filter(|p| p.is_machine_profile())
+                .map(Profile::as_str)
+                .collect::<Vec<_>>()
+                .join(", ")
         )));
     }
-
-    Ok(resolved)
+    Ok(profile)
 }
 
-/// Validate any profile including "common" (required for `make`).
-pub fn validate_profile(input: &str) -> Result<&'static str, AppError> {
+/// Validate any profile including `common` (required for `make`).
+pub fn validate_profile(input: &str) -> Result<Profile, AppError> {
     resolve_profile(input).ok_or_else(|| AppError::InvalidProfile(input.to_string()))
 }
 
@@ -55,16 +96,16 @@ mod tests {
 
     #[test]
     fn resolves_canonical_profiles() {
-        assert_eq!(resolve_profile("common"), Some("common"));
-        assert_eq!(resolve_profile("macbook"), Some("macbook"));
-        assert_eq!(resolve_profile("mac-mini"), Some("mac-mini"));
+        assert_eq!(resolve_profile("common"), Some(Profile::Common));
+        assert_eq!(resolve_profile("macbook"), Some(Profile::Macbook));
+        assert_eq!(resolve_profile("mac-mini"), Some(Profile::MacMini));
     }
 
     #[test]
     fn resolves_aliases() {
-        assert_eq!(resolve_profile("mbk"), Some("macbook"));
-        assert_eq!(resolve_profile("mmn"), Some("mac-mini"));
-        assert_eq!(resolve_profile("cmn"), Some("common"));
+        assert_eq!(resolve_profile("mbk"), Some(Profile::Macbook));
+        assert_eq!(resolve_profile("mmn"), Some(Profile::MacMini));
+        assert_eq!(resolve_profile("cmn"), Some(Profile::Common));
     }
 
     #[test]
@@ -79,7 +120,14 @@ mod tests {
 
     #[test]
     fn validate_machine_profile_accepts_macbook() {
-        assert!(matches!(validate_machine_profile("macbook"), Ok("macbook")));
-        assert!(matches!(validate_machine_profile("mbk"), Ok("macbook")));
+        assert_eq!(validate_machine_profile("macbook").unwrap(), Profile::Macbook);
+        assert_eq!(validate_machine_profile("mbk").unwrap(), Profile::Macbook);
+    }
+
+    #[test]
+    fn profile_as_str_roundtrips() {
+        assert_eq!(Profile::Macbook.as_str(), "macbook");
+        assert_eq!(Profile::MacMini.as_str(), "mac-mini");
+        assert_eq!(Profile::Common.as_str(), "common");
     }
 }

@@ -3,9 +3,15 @@ role: librarian
 layer: observers
 description: Maintain documentation information architecture and routing clarity.
 ---
+
 ## Focus
 
 Structure human-facing documentation (**/README.md, docs/) from scratch if needed, minimizing navigation cost, eliminating routing ambiguity, and establishing canonical paths for missing topics.
+
+## Scaffolding
+
+- If `docs/` is missing, scaffold the initial directory tree to house new topics.
+- If root `CONTRIBUTING.md` is missing, scaffold it with baseline policies: coding standards, naming conventions, testing strategies, configuration manifests, and procedural verification.
 
 ## Analysis Points
 
@@ -55,3 +61,7 @@ Structure human-facing documentation (**/README.md, docs/) from scratch if neede
 - For reorganization proposals, cite the structural rule being enforced and the measurable lookup simplification.
 - For structural gap findings, cite the unwritten dependency and propose the exact canonical path that should own it.
 - For foundation findings, cite the missing directory (e.g., docs/) and propose the initial directory tree.
+
+## Constraints
+
+- Root `CONTRIBUTING.md` is the authoritative, fully populated source. Relocation to `docs/` or replacement with path pointers is prohibited.

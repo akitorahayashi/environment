@@ -10,23 +10,22 @@ use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;
-use crate::domain::profile;
 
 pub use crate::domain::backup_target::BackupTarget;
 pub use crate::domain::error::AppError as Error;
 pub use crate::domain::execution_plan::ExecutionPlan;
 pub use crate::domain::ports::identity_store::IdentityState;
-pub use crate::domain::vcs_identity::VcsIdentity;
+pub use crate::domain::profile::Profile;
+pub use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
 
 // =============================================================================
 // Create
 // =============================================================================
 
 /// Provision a complete development environment for the given profile.
-pub fn create(profile: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
-    let resolved = profile::validate_machine_profile(profile)?;
+pub fn create(profile: Profile, overwrite: bool, verbose: bool) -> Result<(), AppError> {
     let ctx = ansible_context()?;
-    commands::create::execute(&ctx, resolved, overwrite, verbose)
+    commands::create::execute(&ctx, profile, overwrite, verbose)
 }
 
 // =============================================================================
@@ -34,10 +33,9 @@ pub fn create(profile: &str, overwrite: bool, verbose: bool) -> Result<(), AppEr
 // =============================================================================
 
 /// Run a single Ansible task by tag within a profile.
-pub fn make(profile: &str, tag: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
-    let resolved = profile::validate_profile(profile)?;
+pub fn make(profile: Profile, tag: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
     let ctx = ansible_context()?;
-    commands::make::execute(&ctx, resolved, tag, overwrite, verbose)
+    commands::make::execute(&ctx, profile, tag, overwrite, verbose)
 }
 
 // =============================================================================
@@ -81,7 +79,7 @@ pub fn identity_set() -> Result<(), AppError> {
 // =============================================================================
 
 /// Switch the global VCS identity between personal and work.
-pub fn switch(identity: &str) -> Result<(), AppError> {
+pub fn switch(identity: SwitchIdentity) -> Result<(), AppError> {
     let ctx = identity_context()?;
     commands::switch::execute(&ctx, identity)
 }
@@ -119,21 +117,4 @@ fn ansible_context() -> Result<DependencyContainer, AppError> {
 
 fn identity_context() -> Result<DependencyContainer, AppError> {
     DependencyContainer::for_identity().map_err(|e| AppError::Config(e.to_string()))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn create_rejects_invalid_machine_profile_before_context_resolution() {
-        let result = create("invalid-profile", false, false);
-        assert!(matches!(result, Err(AppError::InvalidProfile(_))));
-    }
-
-    #[test]
-    fn make_rejects_invalid_profile_before_context_resolution() {
-        let result = make("invalid-profile", "shell", false, false);
-        assert!(matches!(result, Err(AppError::InvalidProfile(_))));
-    }
 }
