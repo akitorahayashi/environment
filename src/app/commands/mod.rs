@@ -4,6 +4,7 @@ pub mod backup;
 pub mod config;
 pub mod create;
 pub mod deploy_configs;
+pub mod identity;
 pub mod list;
 pub mod make;
 pub mod switch;

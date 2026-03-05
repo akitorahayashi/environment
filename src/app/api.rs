@@ -6,15 +6,16 @@
 
 use crate::adapters::ansible::locator;
 use crate::adapters::version_source::pipx::PipxVersionSource;
-use crate::app::AppContext;
+use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;
+use crate::domain::profile;
 
 pub use crate::domain::backup_target::BackupTarget;
 pub use crate::domain::error::AppError as Error;
 pub use crate::domain::execution_plan::ExecutionPlan;
-pub use crate::domain::ports::config_store::MevConfig;
+pub use crate::domain::ports::identity_store::IdentityState;
 pub use crate::domain::vcs_identity::VcsIdentity;
 
 // =============================================================================
@@ -23,9 +24,9 @@ pub use crate::domain::vcs_identity::VcsIdentity;
 
 /// Provision a complete development environment for the given profile.
 pub fn create(profile: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
-    let ansible_dir = locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-    commands::create::execute(&ctx, profile, overwrite, verbose)
+    let resolved = profile::validate_machine_profile(profile)?;
+    let ctx = ansible_context()?;
+    commands::create::execute(&ctx, resolved, overwrite, verbose)
 }
 
 // =============================================================================
@@ -34,9 +35,9 @@ pub fn create(profile: &str, overwrite: bool, verbose: bool) -> Result<(), AppEr
 
 /// Run a single Ansible task by tag within a profile.
 pub fn make(profile: &str, tag: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
-    let ansible_dir = locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-    commands::make::execute(&ctx, profile, tag, overwrite, verbose)
+    let resolved = profile::validate_profile(profile)?;
+    let ctx = ansible_context()?;
+    commands::make::execute(&ctx, resolved, tag, overwrite, verbose)
 }
 
 // =============================================================================
@@ -45,8 +46,7 @@ pub fn make(profile: &str, tag: &str, overwrite: bool, verbose: bool) -> Result<
 
 /// Print the available tags, tag groups, and profiles.
 pub fn list() -> Result<(), AppError> {
-    let ansible_dir = locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
+    let ctx = ansible_context()?;
     commands::list::execute(&ctx)
 }
 
@@ -54,23 +54,26 @@ pub fn list() -> Result<(), AppError> {
 // Config
 // =============================================================================
 
+/// Deploy role configuration files.
+pub fn config_create(role: Option<String>, overwrite: bool) -> Result<(), AppError> {
+    let ctx = ansible_context()?;
+    commands::config::create(&ctx, role, overwrite)
+}
+
+// =============================================================================
+// Identity
+// =============================================================================
+
 /// Show current VCS identity configuration.
-pub fn config_show() -> Result<(), AppError> {
-    let ctx = AppContext::for_config().map_err(|e| AppError::Config(e.to_string()))?;
-    commands::config::show(&ctx)
+pub fn identity_show() -> Result<(), AppError> {
+    let ctx = identity_context()?;
+    commands::identity::show(&ctx)
 }
 
 /// Interactively set VCS identity configuration.
-pub fn config_set() -> Result<(), AppError> {
-    let ctx = AppContext::for_config().map_err(|e| AppError::Config(e.to_string()))?;
-    commands::config::set(&ctx)
-}
-
-/// Deploy role configuration files.
-pub fn config_create(role: Option<String>, overwrite: bool) -> Result<(), AppError> {
-    let ansible_dir = locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
-    commands::config::create(&ctx, role, overwrite)
+pub fn identity_set() -> Result<(), AppError> {
+    let ctx = identity_context()?;
+    commands::identity::set(&ctx)
 }
 
 // =============================================================================
@@ -78,9 +81,9 @@ pub fn config_create(role: Option<String>, overwrite: bool) -> Result<(), AppErr
 // =============================================================================
 
 /// Switch the global VCS identity between personal and work.
-pub fn switch(profile: &str) -> Result<(), AppError> {
-    let ctx = AppContext::for_config().map_err(|e| AppError::Config(e.to_string()))?;
-    commands::switch::execute(&ctx, profile)
+pub fn switch(identity: &str) -> Result<(), AppError> {
+    let ctx = identity_context()?;
+    commands::switch::execute(&ctx, identity)
 }
 
 // =============================================================================
@@ -105,7 +108,32 @@ pub(crate) fn update_with_source(source: &dyn VersionSource) -> Result<(), AppEr
 
 /// Backup a system setting or configuration target.
 pub fn backup(target: &str) -> Result<(), AppError> {
-    let ansible_dir = locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
+    let ctx = ansible_context()?;
     commands::backup::execute(&ctx, target)
+}
+
+fn ansible_context() -> Result<DependencyContainer, AppError> {
+    let ansible_dir = locator::locate_ansible_dir()?;
+    DependencyContainer::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))
+}
+
+fn identity_context() -> Result<DependencyContainer, AppError> {
+    DependencyContainer::for_identity().map_err(|e| AppError::Config(e.to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn create_rejects_invalid_machine_profile_before_context_resolution() {
+        let result = create("invalid-profile", false, false);
+        assert!(matches!(result, Err(AppError::InvalidProfile(_))));
+    }
+
+    #[test]
+    fn make_rejects_invalid_profile_before_context_resolution() {
+        let result = make("invalid-profile", "shell", false, false);
+        assert!(matches!(result, Err(AppError::InvalidProfile(_))));
+    }
 }

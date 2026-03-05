@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
 
-use crate::app::AppContext;
+use crate::app::DependencyContainer;
 use crate::domain::backup_target::BackupTarget;
 use crate::domain::error::AppError;
 use crate::domain::ports::fs::FsPort;
@@ -36,12 +36,7 @@ enum DefinitionsDirResolution {
 }
 
 /// Execute the `backup` command for a given target.
-pub fn execute(ctx: &AppContext, target_input: &str) -> Result<(), AppError> {
-    if matches!(target_input, "list" | "ls") {
-        list_targets();
-        return Ok(());
-    }
-
+pub fn execute(ctx: &DependencyContainer, target_input: &str) -> Result<(), AppError> {
     let target = BackupTarget::from_input(target_input).ok_or_else(|| {
         let valid: Vec<_> = BackupTarget::all().iter().map(|t| t.name()).collect();
         AppError::Backup(format!(
@@ -87,7 +82,7 @@ pub fn execute(ctx: &AppContext, target_input: &str) -> Result<(), AppError> {
 // ---------------------------------------------------------------------------
 
 fn execute_system(
-    ctx: &AppContext,
+    ctx: &DependencyContainer,
     definitions_dir: &Path,
     output_file: &Path,
 ) -> Result<(), AppError> {
@@ -257,7 +252,7 @@ fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
 // VSCode extensions backup
 // ---------------------------------------------------------------------------
 
-fn execute_vscode(ctx: &AppContext, output_file: &Path) -> Result<(), AppError> {
+fn execute_vscode(ctx: &DependencyContainer, output_file: &Path) -> Result<(), AppError> {
     let mut extensions = ctx.vscode.list_extensions()?;
     extensions.sort();
     extensions.dedup();
@@ -282,7 +277,7 @@ fn execute_vscode(ctx: &AppContext, output_file: &Path) -> Result<(), AppError> 
 /// Resolve definitions directory with fallback from local to package defaults.
 fn resolve_definitions_dir(
     local_config_dir: &Path,
-    ctx: &AppContext,
+    ctx: &DependencyContainer,
     target: &BackupTarget,
 ) -> DefinitionsDirResolution {
     let local_definitions = local_config_dir.join("definitions");
@@ -304,7 +299,7 @@ fn resolve_definitions_dir(
     }
 }
 
-fn list_targets() {
+pub fn list_targets() {
     println!("Available backup targets:");
     println!();
     for target in BackupTarget::all() {

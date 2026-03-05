@@ -1,6 +1,6 @@
 pub mod api;
 pub mod cli;
 pub mod commands;
-mod context;
+mod container;
 
-pub use context::AppContext;
+pub use container::DependencyContainer;

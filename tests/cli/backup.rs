@@ -22,7 +22,7 @@ fn backup_alias_bk_is_accepted() {
     let ctx = TestContext::new();
 
     ctx.cli()
-        .args(["bk", "list"])
+        .args(["bk", "--list"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Available backup targets"));
@@ -32,7 +32,7 @@ fn backup_alias_bk_is_accepted() {
 fn backup_list_shows_targets() {
     let ctx = TestContext::new();
 
-    ctx.cli().args(["backup", "list"]).assert().success().stdout(
+    ctx.cli().args(["backup", "--list"]).assert().success().stdout(
         predicate::str::contains("system")
             .and(predicate::str::contains("vscode"))
             .and(predicate::str::contains("Available backup targets")),
@@ -40,11 +40,17 @@ fn backup_list_shows_targets() {
 }
 
 #[test]
-fn backup_ls_alias_shows_targets() {
+fn backup_short_list_flag_shows_targets() {
     let ctx = TestContext::new();
 
     ctx.cli()
-        .args(["backup", "ls"])
+        .args(["backup", "-l"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Available backup targets"));
+
+    ctx.cli()
+        .args(["backup", "--ls"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Available backup targets"));

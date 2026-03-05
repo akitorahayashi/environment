@@ -3,6 +3,7 @@
 mod backup;
 mod config;
 mod create;
+mod identity;
 mod list;
 mod make;
 mod switch;
@@ -38,6 +39,10 @@ enum Commands {
     /// Manage mev configuration.
     #[command(alias = "cf", subcommand)]
     Config(config::ConfigCommand),
+
+    /// Manage VCS identity configuration.
+    #[command(alias = "id", subcommand)]
+    Identity(identity::IdentityCommand),
 
     /// Switch VCS identity between personal and work.
     #[command(alias = "sw")]
@@ -85,6 +90,7 @@ pub fn run() {
         Commands::Make(args) => make::run(args),
         Commands::List => list::run(),
         Commands::Config(cmd) => config::run(cmd),
+        Commands::Identity(cmd) => identity::run(cmd),
         Commands::Switch(args) => switch::run(args),
         Commands::Update => update::run(),
         Commands::Backup(args) => backup::run(args),

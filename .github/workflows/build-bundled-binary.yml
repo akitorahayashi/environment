@@ -23,7 +23,7 @@ jobs:
         run: rustup target add aarch64-apple-darwin
 
       - name: Build release binary
-        run: cargo build --release --locked --target aarch64-apple-darwin
+        run: just build-bundled-darwin-aarch64
 
       - name: Prepare artifact
         shell: bash

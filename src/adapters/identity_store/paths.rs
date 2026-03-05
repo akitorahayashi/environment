@@ -14,9 +14,9 @@ fn config_base() -> Result<PathBuf, AppError> {
         .ok_or_else(|| AppError::Config("home directory could not be resolved".to_string()))
 }
 
-/// Default path to the mev configuration file.
-pub fn default_config_path() -> Result<PathBuf, AppError> {
-    Ok(config_base()?.join("mev").join("config.json"))
+/// Default path to the mev identity configuration file.
+pub fn default_identity_path() -> Result<PathBuf, AppError> {
+    Ok(config_base()?.join("mev").join("identity.json"))
 }
 
 /// Default path to the local config root for deployed role configs.

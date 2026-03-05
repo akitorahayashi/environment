@@ -1,7 +1,7 @@
-//! VCS identity model and switch profile resolution.
+//! VCS identity model and switch identity resolution.
 //!
 //! `VcsIdentity` is a mev-specific concept: it represents the name/email pair
-//! stored per profile (personal / work) and applied to Git and Jujutsu.
+//! stored per identity (personal / work) and applied to Git and Jujutsu.
 
 /// Name and email pair applied to global VCS configuration.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -10,14 +10,14 @@ pub struct VcsIdentity {
     pub email: String,
 }
 
-/// Canonical switch profile identifiers and their input aliases.
-pub const SWITCH_PROFILES: &[(&str, &str)] =
+/// Canonical switch identity identifiers and their input aliases.
+pub const SWITCH_IDENTITIES: &[(&str, &str)] =
     &[("p", "personal"), ("personal", "personal"), ("w", "work"), ("work", "work")];
 
-/// Resolve a switch profile input (alias or canonical) to its canonical name.
-pub fn resolve_switch_profile(input: &str) -> Option<&'static str> {
+/// Resolve a switch identity input (alias or canonical) to its canonical name.
+pub fn resolve_switch_identity(input: &str) -> Option<&'static str> {
     let lower = input.to_lowercase();
-    for &(alias, canonical) in SWITCH_PROFILES {
+    for &(alias, canonical) in SWITCH_IDENTITIES {
         if lower == alias {
             return Some(canonical);
         }
@@ -30,11 +30,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn resolves_switch_profiles() {
-        assert_eq!(resolve_switch_profile("p"), Some("personal"));
-        assert_eq!(resolve_switch_profile("personal"), Some("personal"));
-        assert_eq!(resolve_switch_profile("w"), Some("work"));
-        assert_eq!(resolve_switch_profile("work"), Some("work"));
-        assert_eq!(resolve_switch_profile("unknown"), None);
+    fn resolves_switch_identities() {
+        assert_eq!(resolve_switch_identity("p"), Some("personal"));
+        assert_eq!(resolve_switch_identity("personal"), Some("personal"));
+        assert_eq!(resolve_switch_identity("w"), Some("work"));
+        assert_eq!(resolve_switch_identity("work"), Some("work"));
+        assert_eq!(resolve_switch_identity("unknown"), None);
     }
 }

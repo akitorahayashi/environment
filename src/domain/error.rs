@@ -11,6 +11,9 @@ pub enum AppError {
     /// Invalid profile identifier.
     InvalidProfile(String),
 
+    /// Invalid VCS identity identifier.
+    InvalidIdentity(String),
+
     /// Invalid or unknown tag.
     InvalidTag(String),
 
@@ -38,6 +41,7 @@ impl fmt::Display for AppError {
                 Ok(())
             }
             Self::InvalidProfile(p) => write!(f, "invalid profile: {p}"),
+            Self::InvalidIdentity(i) => write!(f, "invalid identity: {i}"),
             Self::InvalidTag(t) => write!(f, "invalid tag: {t}"),
             Self::Config(msg) => write!(f, "configuration error: {msg}"),
             Self::Update(msg) => write!(f, "update failed: {msg}"),

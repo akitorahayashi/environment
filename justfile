@@ -8,6 +8,8 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set dotenv-load := true
 
+mod internal "crates/mev-internal/justfile"
+
 # Show available recipes
 default: help
 
@@ -40,7 +42,7 @@ setup:
 # Format code
 fix:
     cargo fmt
-    cargo fmt --manifest-path crates/mev-internal/Cargo.toml
+    just internal::fix
     uv run ruff format dist/mev/
     uv run ruff check dist/mev/ --fix
     @files=$(just _find_shell_files); \
@@ -53,9 +55,8 @@ fix:
 # Verify formatting, lint, and compilation
 check:
     cargo fmt --check
-    cargo fmt --manifest-path crates/mev-internal/Cargo.toml --check
     cargo clippy --all-targets --all-features -- -D warnings
-    cargo clippy --manifest-path crates/mev-internal/Cargo.toml --all-targets --all-features -- -D warnings
+    just internal::check
     uv run ruff format --check dist/mev/
     uv run ruff check dist/mev/
     @files=$(just _find_shell_files); \
@@ -72,7 +73,7 @@ check:
 # Run all tests
 test:
     cargo test --all-targets --all-features
-    cargo test --manifest-path crates/mev-internal/Cargo.toml --all-targets --all-features
+    just internal::test
 
 # Generate code coverage report
 coverage:
@@ -90,6 +91,10 @@ build:
 # Compile the project for release
 build-release:
     cargo build --release
+
+# Compile bundled binary for darwin-aarch64 distribution
+build-bundled-darwin-aarch64:
+    cargo build --release --locked --target aarch64-apple-darwin
 
 # ==============================================================================
 # Execution

@@ -2,6 +2,7 @@ mod backup;
 mod config;
 mod create;
 mod help_and_version;
+mod identity;
 mod list;
 mod make;
 mod switch;

@@ -1,0 +1,16 @@
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Format code
+fix:
+    cargo fmt
+    just --fmt --unstable
+
+# Verify formatting, lint, and compilation
+check:
+    cargo fmt --check
+    cargo clippy --all-targets --all-features -- -D warnings
+    just --fmt --check --unstable
+
+# Run all tests
+test:
+    cargo test --all-targets --all-features

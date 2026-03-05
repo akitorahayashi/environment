@@ -59,3 +59,33 @@ impl fmt::Display for BackupTarget {
         f.write_str(self.name())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn backup_target_resolves_system() {
+        assert_eq!(BackupTarget::from_input("system"), Some(BackupTarget::System));
+    }
+
+    #[test]
+    fn backup_target_resolves_vscode() {
+        assert_eq!(BackupTarget::from_input("vscode"), Some(BackupTarget::Vscode));
+    }
+
+    #[test]
+    fn backup_target_resolves_vscode_extensions_alias() {
+        assert_eq!(BackupTarget::from_input("vscode-extensions"), Some(BackupTarget::Vscode));
+    }
+
+    #[test]
+    fn backup_target_rejects_unknown() {
+        assert_eq!(BackupTarget::from_input("unknown"), None);
+    }
+
+    #[test]
+    fn backup_target_all_returns_expected_set() {
+        assert_eq!(BackupTarget::all(), &[BackupTarget::System, BackupTarget::Vscode]);
+    }
+}

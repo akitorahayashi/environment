@@ -1,13 +1,13 @@
 //! `list` command orchestration — display tags, groups, and profiles.
 
-use crate::app::AppContext;
+use crate::app::DependencyContainer;
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::profile::{PROFILE_ALIASES, VALID_PROFILES};
 use crate::domain::tag;
 
 /// Execute the `list` command: print tags, groups, and profiles.
-pub fn execute(ctx: &AppContext) -> Result<(), AppError> {
+pub fn execute(ctx: &DependencyContainer) -> Result<(), AppError> {
     let tags_map = ctx.ansible.tags_by_role();
 
     // Role → tags table

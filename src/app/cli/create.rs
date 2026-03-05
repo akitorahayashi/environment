@@ -3,7 +3,7 @@
 use clap::Args;
 
 use crate::adapters::ansible::locator;
-use crate::app::AppContext;
+use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
 use crate::domain::profile;
@@ -25,6 +25,6 @@ pub struct CreateArgs {
 pub fn run(args: CreateArgs) -> Result<(), AppError> {
     let resolved = profile::validate_machine_profile(&args.profile)?;
     let ansible_dir = locator::locate_ansible_dir()?;
-    let ctx = AppContext::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
+    let ctx = DependencyContainer::new(ansible_dir).map_err(|e| AppError::Config(e.to_string()))?;
     commands::create::execute(&ctx, resolved, args.overwrite, args.verbose)
 }

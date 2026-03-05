@@ -1,6 +1,6 @@
 //! `create` command orchestration — full environment setup.
 
-use crate::app::AppContext;
+use crate::app::DependencyContainer;
 use crate::app::commands::deploy_configs;
 use crate::domain::error::AppError;
 use crate::domain::execution_plan::ExecutionPlan;
@@ -9,7 +9,7 @@ use crate::domain::tag::FULL_SETUP_TAGS;
 
 /// Execute the `create` command: deploy configs and run full setup tags.
 pub fn execute(
-    ctx: &AppContext,
+    ctx: &DependencyContainer,
     profile: &str,
     overwrite: bool,
     verbose: bool,

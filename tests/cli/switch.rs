@@ -4,29 +4,33 @@ use crate::harness::TestContext;
 use predicates::prelude::*;
 
 #[test]
-fn switch_help_shows_profile_argument() {
+fn switch_help_shows_identity_argument() {
     let ctx = TestContext::new();
     ctx.cli()
         .args(["switch", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("PROFILE"));
+        .stdout(predicate::str::contains("IDENTITY"));
 }
 
 #[test]
 fn switch_alias_sw_is_accepted() {
     let ctx = TestContext::new();
-    ctx.cli().args(["sw", "--help"]).assert().success().stdout(predicate::str::contains("PROFILE"));
+    ctx.cli()
+        .args(["sw", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("IDENTITY"));
 }
 
 #[test]
-fn switch_requires_profile_argument() {
+fn switch_requires_identity_argument() {
     let ctx = TestContext::new();
     ctx.cli()
         .arg("switch")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("PROFILE").or(predicate::str::contains("required")));
+        .stderr(predicate::str::contains("IDENTITY").or(predicate::str::contains("required")));
 }
 
 #[test]

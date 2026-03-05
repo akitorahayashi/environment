@@ -84,7 +84,13 @@ fn gen_vscode_workspace_in_dir(
     fs::write(&output_path, content)?;
     println!(
         "✅ Workspace file created: {}",
-        output_path.file_name().ok_or_else(|| format!("Failed to extract file name from path: {}", output_path.display()))?.to_string_lossy()
+        output_path
+            .file_name()
+            .ok_or_else(|| format!(
+                "Failed to extract file name from path: {}",
+                output_path.display()
+            ))?
+            .to_string_lossy()
     );
     Ok(())
 }
