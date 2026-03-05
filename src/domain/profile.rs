@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn validate_machine_profile_accepts_macbook() {
-        assert_eq!(validate_machine_profile("macbook").unwrap(), "macbook");
-        assert_eq!(validate_machine_profile("mbk").unwrap(), "macbook");
+        assert!(matches!(validate_machine_profile("macbook"), Ok("macbook")));
+        assert!(matches!(validate_machine_profile("mbk"), Ok("macbook")));
     }
 }

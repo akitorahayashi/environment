@@ -261,10 +261,11 @@ mod tests {
     }
 
     #[test]
-    fn list_hosts_succeeds_when_conf_dir_absent() {
-        let dir = tempfile::tempdir().unwrap();
+    fn list_hosts_succeeds_when_conf_dir_absent() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempfile::tempdir()?;
         let absent_conf = dir.path().join("conf.d");
-        let hosts = collect_hosts(&absent_conf).unwrap();
+        let hosts = collect_hosts(&absent_conf)?;
         assert!(hosts.is_empty());
+        Ok(())
     }
 }

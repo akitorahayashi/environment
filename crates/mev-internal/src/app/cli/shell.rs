@@ -82,7 +82,10 @@ fn gen_vscode_workspace_in_dir(
     let output_path = output_dir.join("workspace.code-workspace");
     let content = serde_json::to_string_pretty(&workspace)?;
     fs::write(&output_path, content)?;
-    println!("✅ Workspace file created: {}", output_path.file_name().unwrap().to_string_lossy());
+    println!(
+        "✅ Workspace file created: {}",
+        output_path.file_name().ok_or_else(|| format!("Failed to extract file name from path: {}", output_path.display()))?.to_string_lossy()
+    );
     Ok(())
 }
 
@@ -119,22 +122,23 @@ mod tests {
     }
 
     #[test]
-    fn gen_vscode_workspace_creates_file_with_expected_folders() {
-        let dir = tempfile::tempdir().unwrap();
+    fn gen_vscode_workspace_creates_file_with_expected_folders()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempfile::tempdir()?;
         let result = gen_vscode_workspace_in_dir(
             vec!["../path1".to_string(), "/abs/path2".to_string()],
             dir.path(),
         );
-        result.unwrap();
+        result?;
 
         let ws_file = dir.path().join("workspace.code-workspace");
         assert!(ws_file.exists());
 
-        let content: serde_json::Value =
-            serde_json::from_str(&std::fs::read_to_string(&ws_file).unwrap()).unwrap();
-        let folders = content["folders"].as_array().unwrap();
+        let content: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&ws_file)?)?;
+        let folders = content["folders"].as_array().ok_or("folders is not an array")?;
         assert_eq!(folders.len(), 2);
         assert_eq!(folders[0]["path"], "../path1");
         assert_eq!(folders[1]["path"], "/abs/path2");
+        Ok(())
     }
 }
