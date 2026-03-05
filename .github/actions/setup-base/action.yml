@@ -11,6 +11,8 @@ runs:
 
     - name: Setup just
       uses: extractions/setup-just@v2
+      with:
+        just-version: 1.46.0
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v5
