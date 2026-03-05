@@ -16,27 +16,33 @@ help:
     @echo "Development tasks for mev CLI:"
     @just --list | tail -n +2 | awk '{printf "  \033[36m%-20s\033[0m %s\n", $1, substr($0, index($0, $2))}'
 
+# Initialize project: install dependencies and create the .env file
+setup:
+    @echo "🪄 Installing tools with mise..."
+    @mise trust
+    @mise install --locked
+    @echo "🐍 Installing python dependencies with uv..."
+    @uv sync
+
 # ==============================================================================
 # CODE QUALITY
 # ==============================================================================
 
-fmt:
+fix:
     cargo fmt
     cargo fmt --manifest-path crates/mev-internal/Cargo.toml
-
-fix: fmt
     @uv run ruff format dist/mev/
     @uv run ruff check dist/mev/ --fix
     @files=$(just _find_shell_files); \
     if [ -n "$files" ]; then \
         shfmt -w -d $files; \
     fi
-    @uv run ansible-lint dist/mev/ansible/ --fix || true
+    @uv run ansible-lint dist/mev/ansible/ --fix
 
 check:
     cargo check
-    cargo check --manifest-path crates/mev-internal/Cargo.toml
     cargo fmt --check
+    cargo check --manifest-path crates/mev-internal/Cargo.toml
     cargo fmt --manifest-path crates/mev-internal/Cargo.toml --check
     cargo clippy --all-targets --all-features -- -D warnings
     cargo clippy --manifest-path crates/mev-internal/Cargo.toml --all-targets --all-features -- -D warnings
