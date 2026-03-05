@@ -1,10 +1,10 @@
-name: Setup Runtime
+name: Setup Go
 
 on:
   workflow_call:
 
 jobs:
-  setup-runtime:
+  setup-go:
     runs-on: macos-15
     permissions:
       contents: read
@@ -15,11 +15,5 @@ jobs:
       - name: Setup base environment
         uses: ./.github/actions/setup-base
 
-      - name: Setup ruby
-        run: just run make ruby 
-
-      - name: Setup rust
-        run: just run make rust
-
       - name: Setup go
-        run: just run make go 
+        run: just run make go

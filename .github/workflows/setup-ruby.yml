@@ -1,0 +1,19 @@
+name: Setup Ruby
+
+on:
+  workflow_call:
+
+jobs:
+  setup-ruby:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
+
+      - name: Setup ruby
+        run: just run make ruby

@@ -1,0 +1,123 @@
+name: Verify Ansible Setup
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'dist/mev/ansible/**'
+      - '.github/workflows/setup-*.yml'
+      - '.github/workflows/verify-ansible-setup.yml'
+      - '.github/actions/setup-base/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'dist/mev/ansible/**'
+      - '.github/workflows/setup-*.yml'
+      - '.github/workflows/verify-ansible-setup.yml'
+      - '.github/actions/setup-base/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Detect setup-related changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      common: ${{ steps.filter.outputs.common }}
+      setup_python: ${{ steps.filter.outputs.setup_python }}
+      setup_nodejs: ${{ steps.filter.outputs.setup_nodejs }}
+      setup_ruby: ${{ steps.filter.outputs.setup_ruby }}
+      setup_rust: ${{ steps.filter.outputs.setup_rust }}
+      setup_go: ${{ steps.filter.outputs.setup_go }}
+      setup_ide: ${{ steps.filter.outputs.setup_ide }}
+      setup_system: ${{ steps.filter.outputs.setup_system }}
+      setup_brew_formulae: ${{ steps.filter.outputs.setup_brew_formulae }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            common:
+              - 'dist/mev/ansible/playbook.yml'
+              - 'dist/mev/ansible/ansible.cfg'
+              - '.github/workflows/verify-ansible-setup.yml'
+              - '.github/actions/setup-base/**'
+            setup_python:
+              - 'dist/mev/ansible/roles/python/**'
+              - '.github/workflows/setup-python.yml'
+            setup_nodejs:
+              - 'dist/mev/ansible/roles/nodejs/**'
+              - '.github/workflows/setup-nodejs.yml'
+            setup_ruby:
+              - 'dist/mev/ansible/roles/ruby/**'
+              - '.github/workflows/setup-ruby.yml'
+            setup_rust:
+              - 'dist/mev/ansible/roles/rust/**'
+              - '.github/workflows/setup-rust.yml'
+            setup_go:
+              - 'dist/mev/ansible/roles/go/**'
+              - '.github/workflows/setup-go.yml'
+            setup_ide:
+              - 'dist/mev/ansible/roles/editor/**'
+              - '.github/workflows/setup-ide.yml'
+            setup_system:
+              - 'dist/mev/ansible/roles/vcs/**'
+              - 'dist/mev/ansible/roles/gh/**'
+              - 'dist/mev/ansible/roles/shell/**'
+              - 'dist/mev/ansible/roles/ssh/**'
+              - 'dist/mev/ansible/roles/system/**'
+              - '.github/workflows/setup-system.yml'
+            setup_brew_formulae:
+              - 'dist/mev/ansible/roles/brew/**'
+              - '.github/workflows/setup-brew-formulae.yml'
+
+  setup-python:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_python == 'true'
+    uses: ./.github/workflows/setup-python.yml
+
+  setup-nodejs:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_nodejs == 'true'
+    uses: ./.github/workflows/setup-nodejs.yml
+
+  setup-ruby:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_ruby == 'true'
+    uses: ./.github/workflows/setup-ruby.yml
+
+  setup-rust:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_rust == 'true'
+    uses: ./.github/workflows/setup-rust.yml
+
+  setup-go:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_go == 'true'
+    uses: ./.github/workflows/setup-go.yml
+
+  setup-ide:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_ide == 'true'
+    uses: ./.github/workflows/setup-ide.yml
+
+  setup-system:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_system == 'true'
+    uses: ./.github/workflows/setup-system.yml
+
+  setup-brew-formulae:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_brew_formulae == 'true'
+    uses: ./.github/workflows/setup-brew-formulae.yml

@@ -1,0 +1,19 @@
+name: Setup Rust
+
+on:
+  workflow_call:
+
+jobs:
+  setup-rust:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
+
+      - name: Setup rust
+        run: just run make rust
