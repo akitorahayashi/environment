@@ -16,11 +16,16 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup GitHub authentication for Homebrew
-        shell: bash
         run: |
-          set -euo pipefail
-          echo "HOMEBREW_GITHUB_API_TOKEN=${{ github.token }}" >> "$GITHUB_ENV"
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: bearer ${{ github.token }}"
 
       - name: Run Homebrew formulae setup for common
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
         run: just run make brew-formulae
+
+      - name: Cleanup GitHub authentication header
+        if: always()
+        shell: bash
+        run: |
+          git config --global --unset-all http.https://github.com/.extraheader || true
