@@ -24,3 +24,14 @@ fn make_help_shows_verbose_flag() {
         .success()
         .stdout(predicate::str::contains("--verbose"));
 }
+
+#[test]
+fn make_help_shows_profile_flag() {
+    let ctx = TestContext::new();
+
+    ctx.cli()
+        .args(["make", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--profile"));
+}
