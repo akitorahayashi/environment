@@ -19,8 +19,14 @@ impl VersionSource for InstallScriptVersionSource {
     fn run_upgrade(&self) -> Result<(), AppError> {
         println!("Upgrading {} via install script...", env!("CARGO_PKG_NAME"));
 
-        let mut child =
-            Command::new("bash").arg("-s").stdin(Stdio::piped()).spawn().map_err(|e| {
+        let path = std::env::var_os("PATH").unwrap_or_default();
+
+        let mut child = Command::new("/bin/bash")
+            .arg("-s")
+            .env("PATH", path)
+            .stdin(Stdio::piped())
+            .spawn()
+            .map_err(|e| {
                 if e.kind() == std::io::ErrorKind::NotFound {
                     AppError::Update("bash not found. Please ensure bash is installed.".to_string())
                 } else {
