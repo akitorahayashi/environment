@@ -46,6 +46,10 @@ Python:
 | `pyproject.toml` | Python metadata and packaging |
 | `justfile` | Development task automation |
 
+### Testing Strategies
+
+Domain logic tests reside as self-contained unit tests within their respective `src/domain/` modules inside a `#[cfg(test)]` block. Redundant logic coverage in external `tests/library/` integration tests is avoided.
+
 ## Procedural Verification
 
 ### Verify Commands
