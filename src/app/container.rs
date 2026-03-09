@@ -12,7 +12,7 @@ use crate::adapters::identity_store::local_json::IdentityFileStore;
 use crate::adapters::identity_store::paths;
 use crate::adapters::jj::cli::JjCli;
 use crate::adapters::macos_defaults::cli::MacosDefaultsCli;
-use crate::adapters::version_source::pipx::PipxVersionSource;
+use crate::adapters::version_source::install_script::InstallScriptVersionSource;
 use crate::adapters::vscode::cli::VscodeCli;
 
 /// Application context wiring ports to concrete adapters.
@@ -22,7 +22,7 @@ pub struct DependencyContainer {
     pub local_config_root: PathBuf,
     pub ansible: AnsibleAdapter,
     pub identity_store: IdentityFileStore,
-    pub version_source: PipxVersionSource,
+    pub version_source: InstallScriptVersionSource,
     pub git: GitCli,
     pub jj: JjCli,
     pub fs: StdFs,
@@ -39,7 +39,7 @@ impl DependencyContainer {
         Ok(Self {
             ansible: AnsibleAdapter::new(ansible_dir.clone(), local_config_root.clone())?,
             identity_store: IdentityFileStore::new(paths::default_identity_path()?),
-            version_source: PipxVersionSource,
+            version_source: InstallScriptVersionSource,
             git: GitCli,
             jj: JjCli,
             fs: StdFs,
@@ -56,7 +56,7 @@ impl DependencyContainer {
         Ok(Self {
             ansible: AnsibleAdapter::empty(local_config_root.clone()),
             identity_store: IdentityFileStore::new(paths::default_identity_path()?),
-            version_source: PipxVersionSource,
+            version_source: InstallScriptVersionSource,
             git: GitCli,
             jj: JjCli,
             fs: StdFs,

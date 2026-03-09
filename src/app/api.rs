@@ -5,7 +5,7 @@
 //! import these directly via `mev::api::*`.
 
 use crate::adapters::ansible::locator;
-use crate::adapters::version_source::pipx::PipxVersionSource;
+use crate::adapters::version_source::install_script::InstallScriptVersionSource;
 use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
@@ -90,7 +90,7 @@ pub fn switch(identity: SwitchIdentity) -> Result<(), AppError> {
 
 /// Check for and install updates to the mev CLI.
 pub fn update() -> Result<(), AppError> {
-    let source = PipxVersionSource;
+    let source = InstallScriptVersionSource;
     commands::update::execute(&source)
 }
 

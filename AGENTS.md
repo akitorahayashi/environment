@@ -3,7 +3,7 @@
 ## Overview
 
 Rust-first CLI for macOS dev environment setup using bundled Ansible playbooks.
-Installable via `pipx` through a thin Python launcher that delegates to the prebuilt `mev` binary.
+Installable as a standalone Rust binary via `install.sh`.
 
 ## Architecture
 
@@ -12,10 +12,10 @@ Installable via `pipx` through a thin Python launcher that delegates to the preb
 | Application | `src/app/` | CLI boundary, command orchestration, dependency wiring |
 | Domain | `src/domain/` | Pure rules, command invariants, execution planning, interfaces |
 | Ports | `src/domain/ports/` | Interface boundaries required by domain/application |
-| Adapters | `src/adapters/` | Process execution, file I/O, catalog loading, package asset resolution |
+| Adapters | `src/adapters/` | Process execution, file I/O, catalog loading, runtime asset materialization |
 | Internal dep | `crates/mev-internal/` | Internal command domain implementations reused by mev |
-| Python bootstrap | `dist/mev/` | Thin launcher delegating to bundled binary |
-| Distribution assets | `dist/mev/` | Bundled binaries and ansible assets for dev and packaging |
+| Source assets | `src/assets/` | Source-of-truth Ansible playbooks and roles |
+| Release assets | `GitHub Releases` | `mev-darwin-aarch64` binary distribution |
 
 ## CLI Commands
 
@@ -41,24 +41,18 @@ src/
 │   ├── config.rs           # VCS identity configuration model
 │   └── execution_plan.rs   # Deterministic ansible plan construction
 ├── adapters/
-│   ├── ansible_process/    # Binary resolution and process execution
-│   ├── backup/             # System defaults and VSCode extension backup
-│   ├── catalogs/           # Dynamic tag/role loading from playbook.yml
-│   ├── local_config/       # JSON config persistence
-│   ├── package_assets/     # Asset root resolution (dev + packaged)
-│   ├── vcs/                # Git and Jujutsu identity configuration
-│   └── version_source/     # Update execution source
-├── assets/                 # Embedded static resources
+│   ├── ansible/            # Playbook execution, locator, runtime asset materialization
+│   ├── identity_store/     # Identity persistence and path resolution
+│   ├── macos_defaults/     # macOS defaults adapter
+│   ├── version_source/     # Update execution source
+│   ├── git/, jj/, vscode/  # External tool adapters
+│   └── fs/                 # Filesystem adapter
+├── assets/
+│   └── ansible/            # Source-of-truth ansible assets embedded into binary
 └── testing/                # In-process test doubles
 
 crates/
 └── mev-internal/          # Internal command implementations (aider, shell, ssh, vcs)
-
-dist/
-└── mev/
-    ├── launcher.py         # Thin Python launcher for pipx entry
-    ├── bin/                # Bundled Rust binaries
-    └── ansible/            # Runtime ansible assets
 
 tests/
 ├── harness/                # Shared fixtures (TestContext)
@@ -71,8 +65,7 @@ tests/
 
 ## Python Surface
 
-Python ownership is limited to `dist/mev/launcher.py`.
-The launcher resolves packaged assets, sets `MEV_ANSIBLE_DIR`, and executes the bundled Rust binary.
+Python ownership is limited to development tooling (`ansible-lint`) managed by `pyproject.toml`.
 Runtime command ownership belongs to the Rust implementation.
 
 ## Architecture Principles
@@ -102,4 +95,4 @@ Two-stage config deployment:
 - `just run <args>`: Run mev in dev mode
 - `just check`: Format and lint
 - `just test`: Run all Rust tests
-- `dist/mev/bin/darwin-aarch64/mev`: Synchronized by `.github/workflows/sync-bundled-binary.yml` on pushes to `main`
+- `v*` tag push: `.github/workflows/release.yml` publishes `mev-darwin-aarch64` to GitHub Releases

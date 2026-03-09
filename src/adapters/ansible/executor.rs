@@ -1,11 +1,56 @@
 //! Ansible adapter — unified playbook execution, tag resolution, and role discovery.
 
 use std::collections::HashMap;
+use std::env;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
+
+const ANSIBLE_PLAYBOOK_BIN_ENV: &str = "ANSIBLE_PLAYBOOK_BIN";
+const PIPX_HOME_ENV: &str = "PIPX_HOME";
+const PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH: &str = "venvs/ansible/bin/ansible-playbook";
+
+fn resolve_ansible_playbook_bin() -> Result<PathBuf, AppError> {
+    if let Some(custom_bin) = env::var_os(ANSIBLE_PLAYBOOK_BIN_ENV) {
+        let custom_path = PathBuf::from(custom_bin);
+        if custom_path.is_file() {
+            return Ok(custom_path);
+        }
+        return Err(AppError::AnsibleExecution {
+            message: format!(
+                "{ANSIBLE_PLAYBOOK_BIN_ENV} points to a missing ansible-playbook binary: {}",
+                custom_path.display()
+            ),
+            exit_code: None,
+        });
+    }
+
+    let pipx_home = env::var_os(PIPX_HOME_ENV)
+        .map(PathBuf::from)
+        .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".local").join("pipx")))
+        .ok_or_else(|| AppError::AnsibleExecution {
+            message: format!(
+                "neither {PIPX_HOME_ENV} nor HOME is set; cannot resolve pipx ansible-playbook path."
+            ),
+            exit_code: None,
+        })?;
+
+    let pipx_ansible_playbook = pipx_home.join(PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH);
+    if pipx_ansible_playbook.is_file() {
+        return Ok(pipx_ansible_playbook);
+    }
+
+    Err(AppError::AnsibleExecution {
+        message: format!(
+            "ansible-playbook binary not found at '{}'. Install ansible with pipx (`pipx install ansible`) \
+             or set {ANSIBLE_PLAYBOOK_BIN_ENV} explicitly.",
+            pipx_ansible_playbook.display()
+        ),
+        exit_code: None,
+    })
+}
 
 /// Unified adapter for Ansible operations.
 pub struct AnsibleAdapter {
@@ -68,10 +113,10 @@ impl AnsiblePort for AnsibleAdapter {
             });
         }
 
-        let mut cmd = Command::new("uv");
-        cmd.arg("run")
-            .arg("ansible-playbook")
-            .arg(&playbook_path)
+        let ansible_playbook = resolve_ansible_playbook_bin()?;
+
+        let mut cmd = Command::new(ansible_playbook);
+        cmd.arg(&playbook_path)
             .arg("-e")
             .arg(format!("profile={profile}"))
             .arg("-e")

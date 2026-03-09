@@ -4,14 +4,14 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'dist/mev/ansible/**'
+      - 'src/assets/ansible/**'
       - '.github/workflows/setup-*.yml'
       - '.github/workflows/verify-ansible-setup.yml'
       - '.github/actions/setup-base/**'
   pull_request:
     branches: [ "main" ]
     paths:
-      - 'dist/mev/ansible/**'
+      - 'src/assets/ansible/**'
       - '.github/workflows/setup-*.yml'
       - '.github/workflows/verify-ansible-setup.yml'
       - '.github/actions/setup-base/**'
@@ -49,37 +49,37 @@ jobs:
         with:
           filters: |
             common:
-              - 'dist/mev/ansible/playbook.yml'
-              - 'dist/mev/ansible/ansible.cfg'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
               - '.github/workflows/verify-ansible-setup.yml'
               - '.github/actions/setup-base/**'
             setup_python:
-              - 'dist/mev/ansible/roles/python/**'
+              - 'src/assets/ansible/roles/python/**'
               - '.github/workflows/setup-python.yml'
             setup_nodejs:
-              - 'dist/mev/ansible/roles/nodejs/**'
+              - 'src/assets/ansible/roles/nodejs/**'
               - '.github/workflows/setup-nodejs.yml'
             setup_ruby:
-              - 'dist/mev/ansible/roles/ruby/**'
+              - 'src/assets/ansible/roles/ruby/**'
               - '.github/workflows/setup-ruby.yml'
             setup_rust:
-              - 'dist/mev/ansible/roles/rust/**'
+              - 'src/assets/ansible/roles/rust/**'
               - '.github/workflows/setup-rust.yml'
             setup_go:
-              - 'dist/mev/ansible/roles/go/**'
+              - 'src/assets/ansible/roles/go/**'
               - '.github/workflows/setup-go.yml'
             setup_ide:
-              - 'dist/mev/ansible/roles/editor/**'
+              - 'src/assets/ansible/roles/editor/**'
               - '.github/workflows/setup-ide.yml'
             setup_system:
-              - 'dist/mev/ansible/roles/vcs/**'
-              - 'dist/mev/ansible/roles/gh/**'
-              - 'dist/mev/ansible/roles/shell/**'
-              - 'dist/mev/ansible/roles/ssh/**'
-              - 'dist/mev/ansible/roles/system/**'
+              - 'src/assets/ansible/roles/vcs/**'
+              - 'src/assets/ansible/roles/gh/**'
+              - 'src/assets/ansible/roles/shell/**'
+              - 'src/assets/ansible/roles/ssh/**'
+              - 'src/assets/ansible/roles/system/**'
               - '.github/workflows/setup-system.yml'
             setup_brew_formulae:
-              - 'dist/mev/ansible/roles/brew/**'
+              - 'src/assets/ansible/roles/brew/**'
               - '.github/workflows/setup-brew-formulae.yml'
 
   setup-python:

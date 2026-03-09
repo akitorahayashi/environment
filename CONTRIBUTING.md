@@ -10,9 +10,8 @@ Rust:
 - Minimum Supported Rust Version: 1.90.0 (configuration in `clippy.toml`).
 - Edition: 2024.
 
-Python (launcher surface):
-- Formatter: `ruff format` (configuration in `pyproject.toml`).
-- Linter: `ruff check` with all warnings enabled (configuration in `pyproject.toml`).
+Python (development tooling):
+- Dependency management: `uv sync` (configuration in `pyproject.toml`).
 
 Shell Scripts:
 - Formatter: `shfmt`.
@@ -29,11 +28,6 @@ Rust:
 - Modules: `snake_case`, organized by layer (`app/`, `domain/`, `adapters/`)
 - Constants: `UPPER_SNAKE_CASE`
 
-Python:
-- Classes: `PascalCase`
-- Functions and Variables: `snake_case`
-- Modules: `snake_case`
-
 ### Configuration Files
 
 | File | Purpose |
@@ -43,7 +37,7 @@ Python:
 | `rustfmt.toml` | Rust formatter configuration |
 | `rust-toolchain.toml` | Rust toolchain version pinning |
 | `mise.toml` | Development tool version management |
-| `pyproject.toml` | Python metadata and packaging |
+| `pyproject.toml` | Development Python dependency groups (`ansible-lint`) |
 | `justfile` | Development task automation |
 
 ### Testing Strategies
@@ -61,8 +55,8 @@ just check
 just test
 ```
 
-For launcher surface and static assets:
+For ansible asset lint:
 
 ```bash
-just check
+uv run ansible-lint src/assets/ansible/
 ```

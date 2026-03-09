@@ -11,22 +11,25 @@ jules_api_worker_max_parallel = 15
 
 [workflow.layers.innovators]
 roles = [
-  { name = "leverage_architect", enabled = true },
+  { name = "leverage_architect", enabled = true, proposal_file_limit = 3 },
 ]
+
+[workflow.layers.reporter]
+update_file_limit = 5
 
 [workflow.layers.observers]
 roles = [
-  { name = "consistency", enabled = true },
-  { name = "taxonomy", enabled = true },
-  { name = "data_arch", enabled = true },
-  { name = "structural_arch", enabled = true },
-  { name = "qa", enabled = true },
-  { name = "cov", enabled = true },
-  { name = "librarian", enabled = true },
-  { name = "tactician", enabled = true },
-  { name = "rustacean", enabled = true },
-  { name = "devops", enabled = true },
-  { name = "cli_sentinel", enabled = true },
+  { name = "consistency", enabled = true, event_file_limit = 3 },
+  { name = "taxonomy", enabled = true, event_file_limit = 3 },
+  { name = "data_arch", enabled = true, event_file_limit = 3 },
+  { name = "structural_arch", enabled = true, event_file_limit = 3 },
+  { name = "qa", enabled = true, event_file_limit = 3 },
+  { name = "cov", enabled = true, event_file_limit = 3 },
+  { name = "librarian", enabled = true, event_file_limit = 3 },
+  { name = "tactician", enabled = true, event_file_limit = 3 },
+  { name = "rustacean", enabled = true, event_file_limit = 3 },
+  { name = "devops", enabled = true, event_file_limit = 3 },
+  { name = "cli_sentinel", enabled = true, event_file_limit = 3 },
 ]
 
 [workflow.layers.implementer]

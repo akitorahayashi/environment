@@ -1,11 +1,11 @@
 # This file is auto-generated. Do not edit manually.
 # Jules Agent Orchestration
 #
-# Orchestrates scheduled/dispatch layer execution in sequence.
+# Orchestrates optimizer layer execution in sequence.
 # Implementer PR metadata and auto-merge are delegated to dedicated workflows.
 # Layer/task orchestration is command-driven through `jlo workflow`.
 
-name: Jules Scheduled Workflows
+name: Jules Optimizers
 
 on:
   schedule:
@@ -19,7 +19,6 @@ on:
         type: choice
         options:
           - narrator
-          - innovators
           - observers
           - merger
           - dispatcher
@@ -44,11 +43,10 @@ concurrency:
 env:
   WAIT_MINUTES: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.wait_minutes || 30) || 30 }}
   MOCK_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true' || false }}
-  JULES_MOCK_TAG: ${{ format('mock-run-{0}', github.run_id) }}
+  JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
   JLO_RUN_FLAGS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true' && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
-
 
 
 
@@ -99,8 +97,17 @@ jobs:
       - name: Bootstrap managed files
         run: jlo workflow bootstrap managed-files
 
-      - name: Reset narrator changes summary
-        run: jlo workflow bootstrap clean-exchange
+      - name: Clean exchange directory state
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.mock != 'true' }}
+        env:
+          STARTING_LAYER: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.entry_point || '') || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "${STARTING_LAYER}" ]; then
+            jlo workflow bootstrap clean-exchange --starting-layer "${STARTING_LAYER}"
+          else
+            jlo workflow bootstrap clean-exchange
+          fi
 
       - name: Validate repository structure
         run: jlo workflow doctor structure
@@ -114,7 +121,7 @@ jobs:
 
           - synchronize ${JLO_TARGET_BRANCH} into ${JULES_WORKER_BRANCH} via \`jlo workflow bootstrap worker-branch\`
           - bootstrap managed files via \`jlo workflow bootstrap managed-files\`
-          - reset narrator summary via \`jlo workflow bootstrap clean-exchange\`
+          - reset exchange state via \`jlo workflow bootstrap clean-exchange\`
           EOF
           )
           jlo_version="$(jlo --version | cut -d ' ' -f 2)"
@@ -155,7 +162,7 @@ jobs:
   # ============================================================
   # Phase 1: Resolve run plan
   # ============================================================
-  resolve-run-plan:
+  resolve-optimizers-plan:
     needs: [bootstrap]
     if: |
       needs.bootstrap.result == 'success' &&
@@ -178,7 +185,7 @@ jobs:
           token: ${{ secrets.JLO_RELEASE_TOKEN }}
           submodule_token: ${{ secrets.SUBMODULE_PAT }}
 
-      - name: Resolve run plan
+      - name: Resolve optimizers plan
         id: check
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -196,12 +203,14 @@ jobs:
   # Phase 2: Run narrator
   # ============================================================
 
-  run-narrator:
-    needs: [resolve-run-plan]
+  
+  
+  request-narrator-run:
+    needs: ["resolve-optimizers-plan"]
     if: |
       !cancelled() &&
-      needs.resolve-run-plan.result == 'success' &&
-            fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_narrator == true
+      needs.resolve-optimizers-plan.result == 'success' &&
+            fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_narrator == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -230,177 +239,66 @@ jobs:
         run: |
           set -euo pipefail
           jlo workflow exec narrator ${{ env.JLO_RUN_FLAGS }}
-  # ============================================================
-  # Phase 3: Run innovators
-  # ============================================================
 
-  run-innovators:
-    needs: [resolve-run-plan]
-    if: |
-      !cancelled() &&
-      needs.resolve-run-plan.result == 'success' &&
-            fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_innovators == true
-
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    outputs:
-      json: ${{ steps.run.outputs.json }}
-    env:
-      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
-      GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_TOKEN }}
-
-      - name: Configure Git
-        uses: ./.github/actions/configure-git
-
-      - name: Install jlo
-        uses: ./.github/actions/install-jlo
-        with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
-      - name: Run innovators
-        id: run
-        run: |
-          set -euo pipefail
-          jlo workflow exec innovators ${{ env.JLO_RUN_FLAGS }} --task create_three_proposals
-  # ============================================================
-  # Phase 4: Wait for innovators processing
-  # ============================================================
-
-  wait-after-run-innovators:
-    needs: ["run-innovators"]
+  report-narrator-status:
+    needs: ["resolve-optimizers-plan", "request-narrator-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.run-innovators.result == 'success' &&
-      fromJSON(needs.run-innovators.outputs.json || '{"number_of_api_requests_succeeded":0}').number_of_api_requests_succeeded > 0
+      needs.resolve-optimizers-plan.result == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 10
     outputs:
-      json: ${{ steps.wait.outputs.json }}
+      json: ${{ steps.report.outputs.json }}
     steps:
-      - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
-        id: wait
+      - name: Report Run narrator status
+        id: report
         shell: bash
         run: |
           set -euo pipefail
-          SLEEP_PID=""
-          on_cancel() {
-            echo "Cancellation detected. Exiting wait early."
-            if [ -n "$SLEEP_PID" ]; then
-              kill "$SLEEP_PID" 2>/dev/null || true
-              wait "$SLEEP_PID" 2>/dev/null || true
+          requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_narrator == true }}'
+          request_result='${{ needs.request-narrator-run.result }}'
+          request_count='${{ fromJSON(needs.request-narrator-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${request_result}" != "success" ]; then
+              echo "::error::Expected successful run request for 'narrator' but got '${request_result}'."
+              exit 1
             fi
-            exit 130
-          }
-          trap on_cancel INT TERM
-          if [ "${{ env.MOCK_MODE }}" = "true" ]; then
-            TOTAL_SECONDS=15
-            echo "Mock mode enabled: overriding wait to 15 seconds."
+            requested=false
+            if [ "${request_count}" -gt 0 ]; then
+              requested=true
+            fi
           else
-            TOTAL_SECONDS=$((${{ env.WAIT_MINUTES }} * 60))
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'narrator' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
           fi
 
-          if [ "$TOTAL_SECONDS" -le 0 ]; then
-            echo "Wait skipped (TOTAL_SECONDS=$TOTAL_SECONDS)."
-            echo "json={}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process innovators..."
-          # Foreground sleep delays trap handling until sleep returns in bash.
-          # Use background sleep + wait so cancellation signals are processed immediately.
-          sleep "$TOTAL_SECONDS" &
-          SLEEP_PID=$!
-          wait "$SLEEP_PID"
-          echo "Wait complete."
-          echo "json={}" >> "$GITHUB_OUTPUT"
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${request_count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 5: Publish innovators proposals
-  # ============================================================
-  publish-proposals:
-    needs: [wait-after-run-innovators]
-    if: |
-      needs.wait-after-run-innovators.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_TOKEN }}
-
-      - name: Configure Git
-        uses: ./.github/actions/configure-git
-
-      - name: Install jlo
-        uses: ./.github/actions/install-jlo
-        with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
-
-      - name: Publish proposals
-        run: jlo workflow publish-proposals
-
-      - name: Validate structure
-        run: jlo workflow doctor structure
-
-      - name: Create published proposal cleanup sync PR
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain .jules)" ]; then
-            echo "No proposal cleanup changes detected."
-            exit 0
-          fi
-          jlo workflow create-sync-pr \
-            --change-token "publish-proposals" \
-            --commit-message "jules: publish innovator proposals" \
-            --pr-title "chore: publish innovator proposals" \
-            --pr-body "Automated publication cleanup for innovator proposals."
-
-  # ============================================================
-  # Phase 6: Wait after narrator
+  # Phase 3: Wait after narrator
   # ============================================================
 
   wait-after-narrator:
-    needs: ["resolve-run-plan", "run-narrator"]
-    # Boundary contract:
-    # - plan flag true + executable targets => run job is success
-    # - plan flag true + zero matrix targets => run job may be skipped
-    # - plan flag false => run job is skipped
+    needs: ['report-narrator-status']
     if: |
       !cancelled() &&
-      always() &&
-      needs.resolve-run-plan.result == 'success' &&
-      (
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_narrator == true &&
-          needs.run-narrator.result == 'success'
-        ) ||
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_narrator == false &&
-          needs.run-narrator.result == 'skipped'
-        )
-      )
+      needs.report-narrator-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
       json: ${{ steps.wait.outputs.json }}
-    env:
-      WAIT_REQUESTED: ${{ fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_narrator == true && needs.run-narrator.result == 'success' && fromJSON(needs.run-narrator.outputs.json || '{"number_of_api_requests_succeeded":0}').number_of_api_requests_succeeded > 0 }}
     steps:
       - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
         id: wait
         shell: bash
         run: |
           set -euo pipefail
+          requested='${{ fromJSON(needs.report-narrator-status.outputs.json || '{}').requested == true }}'
           SLEEP_PID=""
           on_cancel() {
             echo "Cancellation detected. Exiting wait early."
@@ -412,7 +310,7 @@ jobs:
           }
           trap on_cancel INT TERM
 
-          if [ "$WAIT_REQUESTED" != "true" ]; then
+          if [ "$requested" != "true" ]; then
             TOTAL_SECONDS=0
             echo "Narrator wait not required; skipping wait."
           elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
@@ -427,15 +325,16 @@ jobs:
             echo "json={}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process narrator..."
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process narrator..."
+          # Foreground sleep delays trap handling until sleep returns in bash.
+          # Use background sleep + wait so cancellation signals are processed immediately.
           sleep "$TOTAL_SECONDS" &
           SLEEP_PID=$!
           wait "$SLEEP_PID"
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 7: Resolve and run observers (matrix)
+  # Phase 4: Resolve and run observers (matrix)
   # ============================================================
 
   resolve-observers-matrix:
@@ -473,11 +372,14 @@ jobs:
             jlo workflow resolve matrix --layer observers
           fi
 
-  run-observers:
-    needs: ["resolve-run-plan", "resolve-observers-matrix"]
+  
+  
+  request-observers-run:
+    needs: ["resolve-optimizers-plan", "resolve-observers-matrix"]
     if: |
       !cancelled() &&
-      fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_observers == true &&
+      needs.resolve-optimizers-plan.result == 'success' &&
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_observers == true &&
       needs.resolve-observers-matrix.result == 'success' &&
       fromJSON(needs.resolve-observers-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
@@ -516,49 +418,77 @@ jobs:
         run: |
           set -euo pipefail
           jlo workflow exec observers --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }}
-  # ============================================================
-  # Phase 8: Wait after observers
-  # ============================================================
 
-  wait-after-observers:
-    needs: ["resolve-run-plan", "resolve-observers-matrix", "run-observers"]
-    # Boundary contract:
-    # - plan flag true + executable targets => run job is success
-    # - plan flag true + zero matrix targets => run job may be skipped
-    # - plan flag false => run job is skipped
+  report-observers-status:
+    needs: ["resolve-optimizers-plan", "resolve-observers-matrix", "request-observers-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.resolve-run-plan.result == 'success' &&
-      needs.resolve-observers-matrix.result == 'success' &&
-      (
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_observers == true &&
-          (
-            needs.run-observers.result == 'success' ||
-            (
-              needs.run-observers.result == 'skipped' &&
-              fromJSON(needs.resolve-observers-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count == 0
-            )
-          )
-        ) ||
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_observers == false &&
-          needs.run-observers.result == 'skipped'
-        )
-      )
+      needs.resolve-optimizers-plan.result == 'success' &&
+      needs.resolve-observers-matrix.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.report.outputs.json }}
+    steps:
+      - name: Report Run observers status
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_observers == true }}'
+          target_count='${{ fromJSON(needs.resolve-observers-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
+          request_result='${{ needs.request-observers-run.result }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${target_count}" = "0" ]; then
+              if [ "${request_result}" != "skipped" ]; then
+                echo "::error::Expected skipped run request for 'observers' with zero targets but got '${request_result}'."
+                exit 1
+              fi
+              requested=false
+            else
+              if [ "${request_result}" != "success" ]; then
+                echo "::error::Expected successful run request for 'observers' but got '${request_result}'."
+                exit 1
+              fi
+              requested=true
+            fi
+          else
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'observers' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+          fi
+
+          count=0
+          if [ "${requested}" = "true" ]; then
+            count="${target_count}"
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 5: Wait after observers
+  # ============================================================
+
+  wait-after-observers:
+    needs: ['report-observers-status']
+    if: |
+      !cancelled() &&
+      needs.report-observers-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
       json: ${{ steps.wait.outputs.json }}
-    env:
-      WAIT_REQUESTED: ${{ fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_observers == true && needs.run-observers.result == 'success' && fromJSON(needs.resolve-observers-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 }}
     steps:
       - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
         id: wait
         shell: bash
         run: |
           set -euo pipefail
+          requested='${{ fromJSON(needs.report-observers-status.outputs.json || '{}').requested == true }}'
           SLEEP_PID=""
           on_cancel() {
             echo "Cancellation detected. Exiting wait early."
@@ -570,7 +500,7 @@ jobs:
           }
           trap on_cancel INT TERM
 
-          if [ "$WAIT_REQUESTED" != "true" ]; then
+          if [ "$requested" != "true" ]; then
             TOTAL_SECONDS=0
             echo "Observers wait not required; skipping wait."
           elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
@@ -585,23 +515,26 @@ jobs:
             echo "json={}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process observers..."
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process observers..."
+          # Foreground sleep delays trap handling until sleep returns in bash.
+          # Use background sleep + wait so cancellation signals are processed immediately.
           sleep "$TOTAL_SECONDS" &
           SLEEP_PID=$!
           wait "$SLEEP_PID"
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 9: Run merger
+  # Phase 6: Run merger
   # ============================================================
 
-  run-merger:
-    needs: ["resolve-run-plan", "wait-after-observers"]
+  
+  
+  request-merger-run:
+    needs: ["resolve-optimizers-plan", "wait-after-observers"]
     if: |
       !cancelled() &&
-      needs.resolve-run-plan.result == 'success' &&
-            fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_merger == true
+      needs.resolve-optimizers-plan.result == 'success' &&
+            fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_merger == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -630,42 +563,66 @@ jobs:
         run: |
           set -euo pipefail
           jlo workflow exec merger ${{ env.JLO_RUN_FLAGS }}
-  # ============================================================
-  # Phase 10: Wait after merger
-  # ============================================================
 
-  wait-after-merger:
-    needs: ["resolve-run-plan", "run-merger"]
-    # Boundary contract:
-    # - plan flag true + executable targets => run job is success
-    # - plan flag true + zero matrix targets => run job may be skipped
-    # - plan flag false => run job is skipped
+  report-merger-status:
+    needs: ["resolve-optimizers-plan", "wait-after-observers", "request-merger-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.resolve-run-plan.result == 'success' &&
-      (
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_merger == true &&
-          needs.run-merger.result == 'success'
-        ) ||
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_merger == false &&
-          needs.run-merger.result == 'skipped'
-        )
-      )
+      needs.resolve-optimizers-plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.report.outputs.json }}
+    steps:
+      - name: Report Run merger status
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_merger == true }}'
+          request_result='${{ needs.request-merger-run.result }}'
+          request_count='${{ fromJSON(needs.request-merger-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${request_result}" != "success" ]; then
+              echo "::error::Expected successful run request for 'merger' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+            if [ "${request_count}" -gt 0 ]; then
+              requested=true
+            fi
+          else
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'merger' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${request_count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 7: Wait after merger
+  # ============================================================
+
+  wait-after-merger:
+    needs: ['report-merger-status']
+    if: |
+      !cancelled() &&
+      needs.report-merger-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
       json: ${{ steps.wait.outputs.json }}
-    env:
-      WAIT_REQUESTED: ${{ fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_merger == true && needs.run-merger.result == 'success' && fromJSON(needs.run-merger.outputs.json || '{"number_of_api_requests_succeeded":0}').number_of_api_requests_succeeded > 0 }}
     steps:
       - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
         id: wait
         shell: bash
         run: |
           set -euo pipefail
+          requested='${{ fromJSON(needs.report-merger-status.outputs.json || '{}').requested == true }}'
           SLEEP_PID=""
           on_cancel() {
             echo "Cancellation detected. Exiting wait early."
@@ -677,7 +634,7 @@ jobs:
           }
           trap on_cancel INT TERM
 
-          if [ "$WAIT_REQUESTED" != "true" ]; then
+          if [ "$requested" != "true" ]; then
             TOTAL_SECONDS=0
             echo "Merger wait not required; skipping wait."
           elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
@@ -692,23 +649,26 @@ jobs:
             echo "json={}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process merger..."
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process merger..."
+          # Foreground sleep delays trap handling until sleep returns in bash.
+          # Use background sleep + wait so cancellation signals are processed immediately.
           sleep "$TOTAL_SECONDS" &
           SLEEP_PID=$!
           wait "$SLEEP_PID"
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 11: Run dispatcher
+  # Phase 8: Run dispatcher
   # ============================================================
 
-  run-dispatcher:
-    needs: ["resolve-run-plan", "wait-after-merger"]
+  
+  
+  request-dispatcher-run:
+    needs: ["resolve-optimizers-plan", "wait-after-merger"]
     if: |
       !cancelled() &&
-      needs.resolve-run-plan.result == 'success' &&
-            fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_dispatcher == true
+      needs.resolve-optimizers-plan.result == 'success' &&
+            fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_dispatcher == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -737,42 +697,66 @@ jobs:
         run: |
           set -euo pipefail
           jlo workflow exec dispatcher ${{ env.JLO_RUN_FLAGS }}
-  # ============================================================
-  # Phase 12: Wait after dispatcher
-  # ============================================================
 
-  wait-after-dispatcher:
-    needs: ["resolve-run-plan", "run-dispatcher"]
-    # Boundary contract:
-    # - plan flag true + executable targets => run job is success
-    # - plan flag true + zero matrix targets => run job may be skipped
-    # - plan flag false => run job is skipped
+  report-dispatcher-status:
+    needs: ["resolve-optimizers-plan", "wait-after-merger", "request-dispatcher-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.resolve-run-plan.result == 'success' &&
-      (
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_dispatcher == true &&
-          needs.run-dispatcher.result == 'success'
-        ) ||
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_dispatcher == false &&
-          needs.run-dispatcher.result == 'skipped'
-        )
-      )
+      needs.resolve-optimizers-plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.report.outputs.json }}
+    steps:
+      - name: Report Run dispatcher status
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_dispatcher == true }}'
+          request_result='${{ needs.request-dispatcher-run.result }}'
+          request_count='${{ fromJSON(needs.request-dispatcher-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${request_result}" != "success" ]; then
+              echo "::error::Expected successful run request for 'dispatcher' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+            if [ "${request_count}" -gt 0 ]; then
+              requested=true
+            fi
+          else
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'dispatcher' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${request_count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 9: Wait after dispatcher
+  # ============================================================
+
+  wait-after-dispatcher:
+    needs: ['report-dispatcher-status']
+    if: |
+      !cancelled() &&
+      needs.report-dispatcher-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
       json: ${{ steps.wait.outputs.json }}
-    env:
-      WAIT_REQUESTED: ${{ fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_dispatcher == true && needs.run-dispatcher.result == 'success' && fromJSON(needs.run-dispatcher.outputs.json || '{"number_of_api_requests_succeeded":0}').number_of_api_requests_succeeded > 0 }}
     steps:
       - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
         id: wait
         shell: bash
         run: |
           set -euo pipefail
+          requested='${{ fromJSON(needs.report-dispatcher-status.outputs.json || '{}').requested == true }}'
           SLEEP_PID=""
           on_cancel() {
             echo "Cancellation detected. Exiting wait early."
@@ -784,7 +768,7 @@ jobs:
           }
           trap on_cancel INT TERM
 
-          if [ "$WAIT_REQUESTED" != "true" ]; then
+          if [ "$requested" != "true" ]; then
             TOTAL_SECONDS=0
             echo "Dispatcher wait not required; skipping wait."
           elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
@@ -799,15 +783,16 @@ jobs:
             echo "json={}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process dispatcher..."
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process dispatcher..."
+          # Foreground sleep delays trap handling until sleep returns in bash.
+          # Use background sleep + wait so cancellation signals are processed immediately.
           sleep "$TOTAL_SECONDS" &
           SLEEP_PID=$!
           wait "$SLEEP_PID"
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 13: Resolve and run planner (matrix)
+  # Phase 10: Resolve and run planner (matrix)
   # ============================================================
 
   resolve-planner-matrix:
@@ -845,12 +830,14 @@ jobs:
             jlo workflow resolve matrix --layer planner
           fi
 
-  run-planner:
-    needs: ["resolve-run-plan", "resolve-planner-matrix"]
+  
+  
+  request-planner-run:
+    needs: ["resolve-optimizers-plan", "resolve-planner-matrix"]
     if: |
       !cancelled() &&
-      needs.resolve-run-plan.result == 'success' &&
-      fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_planner == true &&
+      needs.resolve-optimizers-plan.result == 'success' &&
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_planner == true &&
       needs.resolve-planner-matrix.result == 'success' &&
       fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
@@ -889,51 +876,79 @@ jobs:
         run: |
           set -euo pipefail
           jlo workflow exec planner --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }}
-  # ============================================================
-  # Phase 14: Wait for planner PRs
-  # ============================================================
-  # Matrix boundary is normalized in the macro so planner skip/zero-target
-  # behavior does not leak into downstream implementer gating.
 
-  wait-after-planner:
-    needs: ["resolve-run-plan", "resolve-planner-matrix", "run-planner"]
-    # Boundary contract:
-    # - plan flag true + executable targets => run job is success
-    # - plan flag true + zero matrix targets => run job may be skipped
-    # - plan flag false => run job is skipped
+  report-planner-status:
+    needs: ["resolve-optimizers-plan", "resolve-planner-matrix", "request-planner-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.resolve-run-plan.result == 'success' &&
-      needs.resolve-planner-matrix.result == 'success' &&
-      (
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_planner == true &&
-          (
-            needs.run-planner.result == 'success' ||
-            (
-              needs.run-planner.result == 'skipped' &&
-              fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count == 0
-            )
-          )
-        ) ||
-        (
-          fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_planner == false &&
-          needs.run-planner.result == 'skipped'
-        )
-      )
+      needs.resolve-optimizers-plan.result == 'success' &&
+      needs.resolve-planner-matrix.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.report.outputs.json }}
+    steps:
+      - name: Report Run planner status
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_planner == true }}'
+          target_count='${{ fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
+          request_result='${{ needs.request-planner-run.result }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${target_count}" = "0" ]; then
+              if [ "${request_result}" != "skipped" ]; then
+                echo "::error::Expected skipped run request for 'planner' with zero targets but got '${request_result}'."
+                exit 1
+              fi
+              requested=false
+            else
+              if [ "${request_result}" != "success" ]; then
+                echo "::error::Expected successful run request for 'planner' but got '${request_result}'."
+                exit 1
+              fi
+              requested=true
+            fi
+          else
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'planner' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+          fi
+
+          count=0
+          if [ "${requested}" = "true" ]; then
+            count="${target_count}"
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 11: Wait for planner PRs
+  # ============================================================
+  # Matrix boundary is reported in the macro so planner skip/zero-target
+  # behavior does not leak into downstream implementer gating.
+
+  wait-after-planner:
+    needs: ['report-planner-status']
+    if: |
+      !cancelled() &&
+      needs.report-planner-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
       json: ${{ steps.wait.outputs.json }}
-    env:
-      WAIT_REQUESTED: ${{ fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_planner == true && needs.run-planner.result == 'success' && fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 }}
     steps:
       - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
         id: wait
         shell: bash
         run: |
           set -euo pipefail
+          requested='${{ fromJSON(needs.report-planner-status.outputs.json || '{}').requested == true }}'
           SLEEP_PID=""
           on_cancel() {
             echo "Cancellation detected. Exiting wait early."
@@ -945,7 +960,7 @@ jobs:
           }
           trap on_cancel INT TERM
 
-          if [ "$WAIT_REQUESTED" != "true" ]; then
+          if [ "$requested" != "true" ]; then
             TOTAL_SECONDS=0
             echo "Planner wait not required; skipping wait."
           elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
@@ -960,15 +975,16 @@ jobs:
             echo "json={}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process planner..."
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process planner..."
+          # Foreground sleep delays trap handling until sleep returns in bash.
+          # Use background sleep + wait so cancellation signals are processed immediately.
           sleep "$TOTAL_SECONDS" &
           SLEEP_PID=$!
           wait "$SLEEP_PID"
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 15: Resolve and run implementer (matrix)
+  # Phase 12: Resolve and run implementer (matrix)
   # ============================================================
 
   resolve-implementer-matrix:
@@ -1006,12 +1022,14 @@ jobs:
             jlo workflow resolve matrix --layer implementer
           fi
 
-  run-implementer:
-    needs: ["resolve-run-plan", "resolve-implementer-matrix"]
+  
+  
+  request-implementer-run:
+    needs: ["resolve-optimizers-plan", "resolve-implementer-matrix"]
     if: |
       !cancelled() &&
-      needs.resolve-run-plan.result == 'success' &&
-      fromJSON(needs.resolve-run-plan.outputs.json || '{}').run_implementer == true &&
+      needs.resolve-optimizers-plan.result == 'success' &&
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_implementer == true &&
       needs.resolve-implementer-matrix.result == 'success' &&
       fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
@@ -1050,17 +1068,66 @@ jobs:
         run: |
           set -euo pipefail
           jlo workflow exec implementer --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }} --branch "${JLO_TARGET_BRANCH}"
-  # ============================================================
-  # Phase 16: Wait for implementer labels
-  # ============================================================
 
-  wait-after-implementer:
-    needs: ["resolve-implementer-matrix", "run-implementer"]
+  report-implementer-status:
+    needs: ["resolve-optimizers-plan", "resolve-implementer-matrix", "request-implementer-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.run-implementer.result == 'success' &&
-      fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
+      needs.resolve-optimizers-plan.result == 'success' &&
+      needs.resolve-implementer-matrix.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.report.outputs.json }}
+    steps:
+      - name: Report Run implementer status
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_implementer == true }}'
+          target_count='${{ fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
+          request_result='${{ needs.request-implementer-run.result }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${target_count}" = "0" ]; then
+              if [ "${request_result}" != "skipped" ]; then
+                echo "::error::Expected skipped run request for 'implementer' with zero targets but got '${request_result}'."
+                exit 1
+              fi
+              requested=false
+            else
+              if [ "${request_result}" != "success" ]; then
+                echo "::error::Expected successful run request for 'implementer' but got '${request_result}'."
+                exit 1
+              fi
+              requested=true
+            fi
+          else
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'implementer' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+          fi
+
+          count=0
+          if [ "${requested}" = "true" ]; then
+            count="${target_count}"
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 13: Wait for implementer labels
+  # ============================================================
+
+  wait-after-implementer:
+    needs: ['report-implementer-status']
+    if: |
+      !cancelled() &&
+      needs.report-implementer-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
@@ -1071,6 +1138,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          requested='${{ fromJSON(needs.report-implementer-status.outputs.json || '{}').requested == true }}'
           SLEEP_PID=""
           on_cancel() {
             echo "Cancellation detected. Exiting wait early."
@@ -1081,7 +1149,11 @@ jobs:
             exit 130
           }
           trap on_cancel INT TERM
-          if [ "${{ env.MOCK_MODE }}" = "true" ]; then
+
+          if [ "$requested" != "true" ]; then
+            TOTAL_SECONDS=0
+            echo "Wait not requested; skipping wait."
+          elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
             TOTAL_SECONDS=15
             echo "Mock mode enabled: overriding wait to 15 seconds."
           else
@@ -1103,10 +1175,11 @@ jobs:
           echo "json={}" >> "$GITHUB_OUTPUT"
 
   # ============================================================
-  # Phase 17: Cleanup mock artifacts
+  # Phase 14: Cleanup mock artifacts
   # ============================================================
+
   cleanup-mock-artifacts:
-    needs: [publish-proposals, wait-after-planner, wait-after-implementer]
+    needs: ["wait-after-planner", "wait-after-implementer"]
     if: |
       !cancelled() &&
       always() &&

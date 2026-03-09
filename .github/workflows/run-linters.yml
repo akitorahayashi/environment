@@ -19,6 +19,14 @@ jobs:
       - name: Setup base environment
         uses: ./.github/actions/setup-base
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install lint dependencies
+        run: uv sync --frozen --extra ci
+
       - name: Install shell tools
         run: brew install shellcheck shfmt
 

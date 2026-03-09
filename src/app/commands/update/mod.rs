@@ -1,4 +1,4 @@
-//! `update` command orchestration — pipx upgrade execution.
+//! `update` command orchestration.
 
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;

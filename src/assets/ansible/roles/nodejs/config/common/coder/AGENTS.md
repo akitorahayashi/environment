@@ -18,6 +18,10 @@
 - Post-implementation inventorying (git status, git diff, etc.) is avoided; only evidential verification (testing, etc.) is performed.
 - Validation focuses on the appropriate scope, providing minimal evidence unless intent dictates otherwise.
 - When renaming, deleting, or restructuring, a comprehensive search (e.g., `rg`) for the old structure or terms must be performed at the end to ensure no remnants are left behind.
+
+### Testing
+
+- Tests assert externally observable behavior at the owning boundary, never duplicated knowledge of internal implementation or generated structure.
 - Temporary operations are confined to the project root unless external constraints apply (e.g., use `./.tmp/` instead of `/tmp/`).
 
 ### Documentation
@@ -34,12 +38,8 @@
 - Base responses on repository context. Research is mandatory at conversation start.
 - Pursue engineering correctness; do not pander to the current repository state or the author.
 - Treat unstated assumptions as proposals: add the assumption and recommend a concrete design.
-- Prioritize reducing user decision load. Do not exhaustively enumerate prevented issues unless requested.
 - Validate necessity by contribution to purpose. Usage elsewhere is not a valid justification.
-- Ask clarifying questions only when uncertainty materially changes implementation.
-- Edit existing plans rather than reiterating them when direction changes.
 - Do not consider or comment on issues that have already been resolved.
-- Maintain concise, token-efficient communication for routine updates.
 
 ### Safety
 

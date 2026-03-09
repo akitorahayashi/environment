@@ -10,6 +10,7 @@ on:
       - 'jules-dispatcher-*'
       - 'jules-planner-*'
       - 'jules-innovator-*'
+      - 'jules-reporter-*'
       - 'jules-worker-sync-*'
 
 permissions: {}
@@ -112,6 +113,10 @@ jobs:
             jules-innovator-*)
               mode="layer"
               layer="innovators"
+              ;;
+            jules-reporter-*)
+              mode="layer"
+              layer="reporter"
               ;;
             jules-worker-sync-*)
               mode="structure"

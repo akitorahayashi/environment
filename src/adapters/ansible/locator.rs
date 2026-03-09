@@ -1,15 +1,13 @@
-//! Locate ansible assets (playbook, roles) in development and packaged runtimes.
+//! Locate ansible assets for runtime execution.
 //!
 //! Resolution order:
 //! 1. `MEV_ANSIBLE_DIR` environment variable (explicit override).
-//! 2. Walk up from the current executable checking both development layout
-//!    (`dist/mev/ansible/`) and packaged layout (`ansible/`).
-//! 3. `CARGO_MANIFEST_DIR` fallback for `cargo run` development workflows.
-//!
-//! On failure, the error includes all searched candidate paths for diagnosis.
+//! 2. Embedded ansible assets materialized at runtime.
+//! 3. `CARGO_MANIFEST_DIR/src/assets/ansible` for `cargo run` workflows.
 
 use std::path::PathBuf;
 
+use crate::adapters::ansible::runtime_assets;
 use crate::domain::error::AppError;
 
 /// Resolve the ansible directory containing `playbook.yml` and `roles/`.
@@ -19,40 +17,22 @@ pub fn locate_ansible_dir() -> Result<PathBuf, AppError> {
     // 1. Explicit environment variable override.
     if let Ok(env_dir) = std::env::var("MEV_ANSIBLE_DIR") {
         let dir = PathBuf::from(&env_dir);
-        if is_valid_ansible_dir(&dir) {
+        if runtime_assets::is_valid_ansible_dir(&dir) {
             return Ok(dir);
         }
         searched.push(dir);
     }
 
-    // 2. Walk up from the executable.
-    if let Ok(exe) = std::env::current_exe() {
-        let mut candidate = exe.parent().map(|p| p.to_path_buf());
-        for _ in 0..6 {
-            if let Some(ref dir) = candidate {
-                // Development layout: <repo>/dist/mev/ansible/
-                let dev_path = dir.join("dist").join("mev").join("ansible");
-                if is_valid_ansible_dir(&dev_path) {
-                    return Ok(dev_path);
-                }
-                searched.push(dev_path);
+    // 2. Embedded runtime assets.
+    let embedded_error = match runtime_assets::materialize_embedded_ansible_dir() {
+        Ok(dir) => return Ok(dir),
+        Err(err) => Some(err.to_string()),
+    };
 
-                // Packaged layout: <site-packages>/.../mev/ansible/
-                let installed_path = dir.join("ansible");
-                if is_valid_ansible_dir(&installed_path) {
-                    return Ok(installed_path);
-                }
-                searched.push(installed_path);
-
-                candidate = dir.parent().map(|p| p.to_path_buf());
-            }
-        }
-    }
-
-    // 3. CARGO_MANIFEST_DIR fallback (cargo run / cargo test).
+    // 3. CARGO_MANIFEST_DIR fallback for cargo run / cargo test.
     if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
-        let ansible_dir = PathBuf::from(&manifest_dir).join("dist").join("mev").join("ansible");
-        if is_valid_ansible_dir(&ansible_dir) {
+        let ansible_dir = PathBuf::from(&manifest_dir).join("src").join("assets").join("ansible");
+        if runtime_assets::is_valid_ansible_dir(&ansible_dir) {
             return Ok(ansible_dir);
         }
         searched.push(ansible_dir);
@@ -62,18 +42,18 @@ pub fn locate_ansible_dir() -> Result<PathBuf, AppError> {
 
     let candidates =
         searched.iter().map(|p| format!("  {}", p.display())).collect::<Vec<_>>().join("\n");
+    let embedded_detail = embedded_error
+        .as_ref()
+        .map(|message| format!("\nEmbedded materialization error:\n  {message}"))
+        .unwrap_or_default();
 
     Err(AppError::AnsibleExecution {
         message: format!(
             "ansible asset directory not found.\n\
-             Searched candidates:\n{candidates}\n\
+             Searched candidates:\n{candidates}{embedded_detail}\n\
              Set MEV_ANSIBLE_DIR to override, or ensure playbook.yml and roles/ \
              exist in one of these locations."
         ),
         exit_code: None,
     })
-}
-
-fn is_valid_ansible_dir(dir: &std::path::Path) -> bool {
-    dir.join("playbook.yml").exists() && dir.join("roles").is_dir()
 }

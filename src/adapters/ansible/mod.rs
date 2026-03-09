@@ -2,3 +2,4 @@
 
 pub mod executor;
 pub mod locator;
+pub mod runtime_assets;

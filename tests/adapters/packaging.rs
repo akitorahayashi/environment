@@ -1,7 +1,7 @@
 //! Packaging layout contract tests.
 //!
 //! Validates that the project structure required for the packaged
-//! distribution (pyproject.toml + bundled binaries) is present and
+//! distribution (embedded assets + release installer) is present and
 //! consistent.
 
 use std::path::Path;
@@ -17,26 +17,26 @@ fn pyproject_toml_exists() {
 }
 
 #[test]
-fn python_bootstrap_launcher_exists() {
-    let launcher = project_root().join("dist").join("mev").join("launcher.py");
-    assert!(launcher.exists(), "mev bootstrap launcher missing: {}", launcher.display());
+fn install_script_exists() {
+    let script = project_root().join("install.sh");
+    assert!(script.exists(), "install.sh missing: {}", script.display());
 }
 
 #[test]
-fn bundled_binaries_directory_exists() {
-    let dir = project_root().join("dist").join("mev").join("bin");
-    assert!(dir.is_dir(), "bundled_binaries directory missing: {}", dir.display());
+fn release_workflow_exists() {
+    let workflow = project_root().join(".github").join("workflows").join("release.yml");
+    assert!(workflow.exists(), "release workflow missing: {}", workflow.display());
 }
 
 #[test]
 fn ansible_assets_playbook_exists() {
-    let playbook = project_root().join("dist").join("mev").join("ansible").join("playbook.yml");
+    let playbook = project_root().join("src").join("assets").join("ansible").join("playbook.yml");
     assert!(playbook.exists(), "playbook.yml missing: {}", playbook.display());
 }
 
 #[test]
 fn ansible_assets_roles_directory_exists() {
-    let roles = project_root().join("dist").join("mev").join("ansible").join("roles");
+    let roles = project_root().join("src").join("assets").join("ansible").join("roles");
     assert!(roles.is_dir(), "ansible roles directory missing: {}", roles.display());
 }
 

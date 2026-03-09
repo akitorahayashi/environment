@@ -7,7 +7,7 @@ use predicates::prelude::*;
 fn update_prints_current_version() {
     let ctx = TestContext::new();
 
-    // Update prints current version even when pipx upgrade cannot run in test env.
+    // Update prints current version even when install script cannot run in test env.
     let mut cmd = ctx.cli();
     cmd.env_remove("PATH")
         .arg("update")

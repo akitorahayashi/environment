@@ -1,0 +1,46 @@
+name: Verify Installer
+
+on:
+  # Installer logic changes are infrequent and isolated, so this workflow is
+  # executed on demand when installer behavior is updated.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-installer:
+    name: Install Script Smoke Test
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
+
+      - name: Add Rust target
+        run: rustup target add aarch64-apple-darwin
+
+      - name: Build release binary
+        run: cargo build --release --locked --target aarch64-apple-darwin
+
+      - name: Run installer script with local binary URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x install.sh
+          binary_url="file://$PWD/target/aarch64-apple-darwin/release/mev"
+          binary_sha256="$(shasum -a 256 target/aarch64-apple-darwin/release/mev | awk '{print $1}')"
+          MEV_BINARY_URL="$binary_url" MEV_BINARY_SHA256="$binary_sha256" MEV_INSTALL_DIR="$PWD/.tmp/install/bin" ./install.sh
+
+      - name: Verify installed binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          installed="$PWD/.tmp/install/bin/mev"
+          test -x "$installed"
+          "$installed" --version
+          "$installed" list >/dev/null

@@ -42,15 +42,6 @@ jobs:
           token: ${{ secrets.JLO_RELEASE_TOKEN }}
           submodule_token: ${{ secrets.SUBMODULE_PAT }}
 
-      - name: Validate gh availability
-        run: |
-          set -euo pipefail
-          if ! command -v gh &>/dev/null; then
-            echo "::error::gh CLI is required but not found."
-            exit 1
-          fi
-          gh --version
-
       - name: Run integrator
         env:
           JULES_API_KEY: ${{ secrets.JULES_API_KEY }}

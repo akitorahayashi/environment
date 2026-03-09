@@ -6,13 +6,11 @@ on:
     paths-ignore:
       - '**.md'
       - '.mock-*'
-      - 'dist/mev/bin/darwin-aarch64/mev'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
       - '**.md'
       - '.mock-*'
-      - 'dist/mev/bin/darwin-aarch64/mev'
   workflow_dispatch:
 
 permissions:
@@ -33,4 +31,4 @@ jobs:
 
   build:
     name: Build
-    uses: ./.github/workflows/build-bundled-binary.yml
+    uses: ./.github/workflows/build.yml

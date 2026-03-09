@@ -1,4 +1,4 @@
-name: Build Bundled Binary
+name: Build
 
 on:
   workflow_call:
@@ -23,7 +23,7 @@ jobs:
         run: rustup target add aarch64-apple-darwin
 
       - name: Build release binary
-        run: just build-bundled-darwin-aarch64
+        run: just build-release-darwin-aarch64
 
       - name: Prepare artifact
         shell: bash
@@ -31,10 +31,13 @@ jobs:
           set -euo pipefail
           cp target/aarch64-apple-darwin/release/mev mev-darwin-aarch64
           chmod +x mev-darwin-aarch64
+          shasum -a 256 mev-darwin-aarch64 > mev-darwin-aarch64.sha256
 
-      - name: Upload binary artifact
+      - name: Upload artifact
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: mev-darwin-aarch64
-          path: mev-darwin-aarch64
+          path: |
+            mev-darwin-aarch64
+            mev-darwin-aarch64.sha256

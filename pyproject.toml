@@ -1,54 +1,15 @@
 [project]
-name = "mev"
+name = "mev-dev-tools"
 version = "1.0.0"
-description = "macOS development environment provisioning CLI"
-authors = [{ name = "akitorahayashi" }]
-requires-python = ">=3.12"
-dependencies = [
-    "ansible>=11.2.0,<12.0.0",
-]
-
-[project.scripts]
-mev = "mev.launcher:main"
+description = "Development-only Python dependencies for mev"
+requires-python = ">=3.12,<3.13"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12.10,<1.0.0",
-    "ansible-lint>=25.0.0",
+    "ansible-lint>=25.0.0,<27.0.0",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["dist/mev"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"dist/mev/ansible" = "mev/ansible"
-"dist/mev/bin" = "mev/bin"
-
-[tool.hatch.build.targets.sdist.force-include]
-"dist/mev/ansible" = "mev/ansible"
-"dist/mev/bin" = "mev/bin"
-
-[tool.ruff]
-target-version = "py312"
-exclude = [
-    "__pycache__",
-    "*.pyc",
-    ".uv-cache",
-    ".venv",
-    "venv",
-    "env",
-    "mlx-lm",
-    "*/bin/**",
-    "*/lib/**",
-    "*/share/**",
-    "*/etc/**",
-    "*/pyvenv.cfg"
+[project.optional-dependencies]
+ci = [
+    "ansible>=11.0.0,<12.0.0",
 ]
-
-[tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = ["E501"]

@@ -1,4 +1,4 @@
-//! Adapter layer — I/O, process execution, catalog loading, package asset resolution.
+//! Adapter layer — I/O, process execution, catalog loading, runtime asset materialization.
 
 pub mod ansible;
 pub mod fs;

@@ -2,7 +2,7 @@
 # justfile for mev development
 # ==============================================================================
 # Rust-first CLI for macOS development environment provisioning.
-# Python is retained only for the minimal pipx launcher surface.
+# Python is retained only for Ansible tooling in development workflows.
 # ==============================================================================
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
@@ -29,7 +29,7 @@ setup:
     @echo "🪄 Installing tools with mise..."
     @mise trust
     @mise install --locked
-    @echo "🐍 Installing python dependencies with uv..."
+    @echo "🐍 Installing ansible-lint dependencies with uv..."
     @uv sync
     @echo "🪝 Configuring git hooks..."
     chmod +x .githooks/pre-commit
@@ -43,13 +43,11 @@ setup:
 fix:
     cargo fmt
     just internal::fix
-    uv run ruff format dist/mev/
-    uv run ruff check dist/mev/ --fix
     @files=$(just _find_shell_files); \
     if [ -n "$files" ]; then \
         shfmt -w -d $files; \
     fi
-    uv run ansible-lint dist/mev/ansible/ --fix
+    uv run ansible-lint src/assets/ansible/ --fix
     just --fmt --unstable
 
 # Verify formatting, lint, and compilation
@@ -57,13 +55,11 @@ check:
     cargo fmt --check
     cargo clippy --all-targets --all-features -- -D warnings
     just internal::check
-    uv run ruff format --check dist/mev/
-    uv run ruff check dist/mev/
     @files=$(just _find_shell_files); \
     if [ -n "$files" ]; then \
         shellcheck $files; \
     fi
-    uv run ansible-lint dist/mev/ansible/
+    uv run ansible-lint src/assets/ansible/
     just --fmt --check --unstable
 
 # ==============================================================================
@@ -92,8 +88,8 @@ build:
 build-release:
     cargo build --release
 
-# Compile bundled binary for darwin-aarch64 distribution
-build-bundled-darwin-aarch64:
+# Compile release binary for darwin-aarch64 distribution
+build-release-darwin-aarch64:
     cargo build --release --locked --target aarch64-apple-darwin
 
 # ==============================================================================
@@ -114,15 +110,13 @@ clean:
     @cargo clean
     @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
     @rm -rf .pytest_cache
-    @rm -rf .ruff_cache
-    @rm -f dist/*.whl dist/*.tar.gz
-    @rm -rf *.egg-info
     @echo "Cleanup completed"
 
 # @hidden
 _find_shell_files:
     @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
+    grep -v "^./reference/" | \
     grep -v "\.uv-cache" | \
     grep -v "\.venv" | \
     grep -v "\.jlo"

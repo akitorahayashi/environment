@@ -1,3 +1,3 @@
 //! Version source adapter.
 
-pub mod pipx;
+pub mod install_script;

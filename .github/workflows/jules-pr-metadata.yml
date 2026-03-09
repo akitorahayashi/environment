@@ -1,10 +1,12 @@
 # This file is auto-generated. Do not edit manually.
-name: Jules Integrator PR Metadata
+name: Jules PR Metadata
 
 on:
   push:
     branches:
+      - 'jules-implementer-*'
       - 'jules-integrator-*'
+      - 'jules-writer-*'
 
 permissions: {}
 
@@ -13,10 +15,10 @@ env:
   JULES_WORKER_BRANCH: 'jules'
 
 jobs:
-  process-integrator-pr-metadata:
+  process-pr-metadata:
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ format('jules-integrator-pr-{0}', github.ref_name) }}
+      group: ${{ format('jules-pr-metadata-{0}', github.ref_name) }}
       cancel-in-progress: true
     steps:
       - name: Validate branch variables
@@ -48,15 +50,14 @@ jobs:
           PR_NUMBER=""
           # Poll for up to 2 minutes (24 * 5s) for the PR to be created, as there can be a
           # delay between the push event and the PR being available via the API.
-          PR_DISCOVERY_ATTEMPTS=24
-          for _ in $(seq 1 "$PR_DISCOVERY_ATTEMPTS"); do
+          ATTEMPTS=24
+          for _ in $(seq 1 "$ATTEMPTS"); do
             PR_NUMBER=$(gh pr list --head "$BRANCH_NAME" --repo "$REPO" --json number -q '.[0].number')
             if [ -n "$PR_NUMBER" ]; then
               break
             fi
             sleep 5
-            done
-
+          done
           if [ -z "$PR_NUMBER" ]; then
             echo "::notice::No PR found yet for branch $BRANCH_NAME. Skipping metadata sync."
             echo "found=false" >> "$GITHUB_OUTPUT"
@@ -65,7 +66,14 @@ jobs:
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "found=true" >> "$GITHUB_OUTPUT"
 
-      - name: Add integration label
+      - name: Install jlo
+        if: steps.discover.outputs.found == 'true'
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_TOKEN }}
+          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+
+      - name: Sync PR metadata label
         if: steps.discover.outputs.found == 'true'
         env:
           GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
@@ -73,15 +81,22 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          gh label create "integration" --color "000000" --description "Integration PR merging multiple implementer branches" --repo "$REPO" --force
-          gh pr edit "$PR_NUMBER" --add-label "integration" --repo "$REPO"
-
-      - name: Install jlo
-        if: steps.discover.outputs.found == 'true'
-        uses: ./.github/actions/install-jlo
-        with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+          case "${GITHUB_REF_NAME}" in
+            jules-implementer-*)
+              jlo workflow process pr sync-category-label "$PR_NUMBER" --fail-on-error
+              ;;
+            jules-integrator-*)
+              gh label create "integration" --color "000000" --description "Integration PR merging multiple implementer branches" --repo "$REPO" --force
+              gh pr edit "$PR_NUMBER" --add-label "integration" --repo "$REPO"
+              ;;
+            jules-writer-*)
+              jlo workflow process pr sync-category-label "$PR_NUMBER" --fail-on-error
+              ;;
+            *)
+              echo "::error::Unknown PR metadata branch '${GITHUB_REF_NAME}'."
+              exit 1
+              ;;
+          esac
 
       - name: Validate linked GitHub token
         if: steps.discover.outputs.found == 'true'
@@ -90,7 +105,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${LINKED_GH_TOKEN}" ]; then
-            echo "::error::JULES_LINKED_GH_PAT is required for integrator summary request comments."
+            echo "::error::JULES_LINKED_GH_PAT is required for PR metadata summary request comments."
             exit 1
           fi
 
