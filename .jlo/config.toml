@@ -9,10 +9,6 @@ runner_mode = "remote"
 wait_minutes_default = 30
 jules_api_worker_max_parallel = 15
 
-[schedule]
-cron = ["0 19 * * *"]
-skip_narrator_on_schedule = false
-
 [workflow.layers.innovators]
 roles = [
   { name = "leverage_architect", enabled = true, proposal_file_limit = 3 },
@@ -35,4 +31,8 @@ roles = [
 ]
 
 [workflow.layers.implementer]
+
+[schedule]
+cron = ["0 19 * * *"]
+skip_narrator_on_schedule = false
 

@@ -28,10 +28,6 @@ on:
 
           - cov
 
-          - librarian
-
-          - tactician
-
           - rustacean
 
           - devops
