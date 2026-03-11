@@ -1,5 +1,0 @@
----
-interface:
-  display_name: "Create JLO Observer"
-  short_description: "Design or review observer role.md with narrow analytical scope and evidence standards"
-  default_prompt: "Use $create-jlo-observer to create or review an observer role.md."

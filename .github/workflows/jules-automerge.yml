@@ -39,16 +39,16 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_TOKEN }}
+          token: ${{ secrets.JLO_BOT_PAT }}
 
       - name: Discover open PR for pushed branch
         id: discover
         env:
-          GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
         run: |
           set -euo pipefail
           pr_number=""
@@ -79,8 +79,8 @@ jobs:
       - name: Install jlo
         uses: ./.github/actions/install-jlo
         with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Validate branch contract
         run: |
@@ -137,7 +137,7 @@ jobs:
       - name: Process PR auto-merge
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
-          GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
         with:
           max_attempts: 15
           timeout_minutes: 5

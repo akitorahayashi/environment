@@ -32,15 +32,17 @@ jobs:
   # ============================================================
   # Phase 0: Bootstrap runtime repository on worker branch
   # ============================================================
-
   bootstrap:
+    
     if: >-
       (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
-      ((vars.JLO_PAUSED || 'false') != 'true' || github.event_name != 'schedule')
+      
+      true
+      
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     steps:
       - name: Validate branch variables
         run: |
@@ -54,11 +56,11 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: 'main'
           fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_TOKEN }}
+          token: ${{ secrets.JLO_BOT_PAT }}
 
       - name: Configure Git
         uses: ./.github/actions/configure-git
@@ -66,8 +68,8 @@ jobs:
       - name: Install jlo
         uses: ./.github/actions/install-jlo
         with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
         run: jlo workflow bootstrap worker-branch
@@ -78,11 +80,17 @@ jobs:
       - name: Clean exchange directory state
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.mock != 'true' }}
         env:
-          STARTING_LAYER: ${{ 'innovators' }}
+          PRESERVE_EXCHANGE: ${{ '' }}
         run: |
           set -euo pipefail
-          if [ -n "${STARTING_LAYER}" ]; then
-            jlo workflow bootstrap clean-exchange --starting-layer "${STARTING_LAYER}"
+          has_preserve=false
+          preserve_args=()
+          for preserve in ${PRESERVE_EXCHANGE}; do
+            has_preserve=true
+            preserve_args+=(--preserve "${preserve}")
+          done
+          if [ "${has_preserve}" = "true" ]; then
+            jlo workflow bootstrap clean-exchange "${preserve_args[@]}"
           else
             jlo workflow bootstrap clean-exchange
           fi
@@ -112,7 +120,7 @@ jobs:
       - name: Wait for bootstrap sync PR merge
         if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
         env:
-          GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
           PR_NUMBER: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').pr_number }}
           REPO: ${{ github.repository }}
         run: |
@@ -155,13 +163,13 @@ jobs:
       json: ${{ steps.run.outputs.json }}
     env:
       JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
-      GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: 'jules'
           fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_TOKEN }}
+          token: ${{ secrets.JLO_BOT_PAT }}
 
       - name: Configure Git
         uses: ./.github/actions/configure-git
@@ -169,8 +177,8 @@ jobs:
       - name: Install jlo
         uses: ./.github/actions/install-jlo
         with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
       - name: Run innovators
         id: run
         run: |
@@ -280,13 +288,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: 'jules'
           fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_TOKEN }}
+          token: ${{ secrets.JLO_BOT_PAT }}
 
       - name: Configure Git
         uses: ./.github/actions/configure-git
@@ -294,8 +302,8 @@ jobs:
       - name: Install jlo
         uses: ./.github/actions/install-jlo
         with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish proposals
         run: jlo workflow publish-proposals
@@ -330,7 +338,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      GH_TOKEN: ${{ secrets.JLO_BOT_TOKEN }}
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
       GITHUB_REPOSITORY: ${{ github.repository }}
     steps:
       - name: Validate branch variables
@@ -345,11 +353,11 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: 'jules'
           fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_TOKEN }}
+          token: ${{ secrets.JLO_BOT_PAT }}
 
       - name: Configure Git
         uses: ./.github/actions/configure-git
@@ -357,8 +365,8 @@ jobs:
       - name: Install jlo
         uses: ./.github/actions/install-jlo
         with:
-          token: ${{ secrets.JLO_RELEASE_TOKEN }}
-          submodule_token: ${{ secrets.SUBMODULE_PAT }}
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run
         run: |
