@@ -52,7 +52,7 @@ src/
 └── testing/                # In-process test doubles
 
 crates/
-└── mev-internal/          # Internal command implementations (aider, shell, ssh, vcs)
+└── mev-internal/          # Internal command implementations (shell, vcs)
 
 tests/
 ├── harness/                # Shared fixtures (TestContext)

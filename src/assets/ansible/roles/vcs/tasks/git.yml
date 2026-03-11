@@ -6,21 +6,21 @@
 
 - name: "Ensure .config/git directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/git"
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/git"
     state: directory
     mode: "0755"
 
 - name: "Symlink .gitconfig"
   ansible.builtin.file:
     src: "{{ local_config_root }}/vcs/common/git/.gitconfig"
-    dest: "{{ ansible_env.HOME }}/.config/git/config"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/git/config"
     state: link
     force: true
 
 - name: "Symlink .gitignore_global"
   ansible.builtin.file:
     src: "{{ local_config_root }}/vcs/common/git/.gitignore_global"
-    dest: "{{ ansible_env.HOME }}/.gitignore_global"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.gitignore_global"
     state: link
     force: true
 
@@ -28,4 +28,4 @@
   community.general.git_config:
     name: core.excludesfile
     scope: global
-    value: "{{ ansible_env.HOME }}/.gitignore_global"
+    value: "{{ ansible_facts['env']['HOME'] }}/.gitignore_global"

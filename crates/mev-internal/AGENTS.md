@@ -2,7 +2,7 @@
 
 ## Project Summary
 `mev-internal` is the latency-sensitive library crate for `mev` internal commands.
-It provides the `aider`, `shell`, `ssh`, and `vcs` command domains invoked by `mev internal ...`
+It provides the `shell` and `vcs` command domains invoked by `mev internal ...`
 through the Rust CLI boundary.
 
 ## Tech Stack
@@ -25,7 +25,7 @@ through the Rust CLI boundary.
 - Test: cargo test --all-targets --all-features
 
 ## Architectural Highlights
-- Library crate with four command domains: aider, shell, ssh, vcs
+- Library crate with two command domains: shell, vcs
 - `app/cli/mod.rs` owns the clap parser and dispatch
 - Each domain is a sibling module in `app/cli/`
 - Consumed as a dependency by the `mev` CLI internal subcommand dispatch

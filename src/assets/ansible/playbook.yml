@@ -4,7 +4,7 @@
   connection: local
   roles:
     - { role: brew, tags: ["brew-formulae", "brew-f", "brew-cask", "brew-c"] }
-    - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t", "aider", "ai", "uv"] }
+    - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t", "uv"] }
     - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr"] }
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }

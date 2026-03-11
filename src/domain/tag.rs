@@ -33,7 +33,6 @@ pub const FULL_SETUP_TAGS: &[&str] = &[
     "go-tools",
     "vscode",
     "cursor",
-    "aider",
     "coder",
     "mlx",
     "xcode",

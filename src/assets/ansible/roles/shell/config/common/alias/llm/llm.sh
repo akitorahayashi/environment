@@ -1,17 +1,8 @@
 #!/bin/bash
 alias cld="claude"
-alias cld-y="claude --dangerously-skip-permissions"
-alias cld-p="claude --print"
-alias cld-yp="claude --dangerously-skip-permissions --print"
 
 alias agy-r="agy --reuse-window"
 alias agy-n="agy --new-window"
-
-# MCP
-alias cld-m-st="claude mcp serve"
-alias cld-m-a="claude mcp add"
-alias cld-m-rm="claude mcp remove"
-alias cld-m-ls="claude mcp list"
 
 # Link AGENTS.md or README.md to .claude/CLAUDE.md
 alias cld-ln=cld_ln
@@ -40,8 +31,10 @@ alias cdx="codex"
 
 alias cpt="copilot"
 
-# Generate Gemini model aliases
-eval "$(mev internal shell gen-gemini-aliases)"
-
 # Basic gm alias
 alias gm="gemini"
+alias gm-pr="gemini -m gemini-3.1-pro-preview"
+alias gm-fl="gemini -m gemini-3-flash-preview"
+alias gm-lt="gemini -m gemini-2.5-flash-lite"
+alias gm-i="gemini -m gemini-2.5-flash-image-preview"
+alias gm-il="gemini -m gemini-2.5-flash-image-live-preview"

@@ -23,6 +23,3 @@ jobs:
 
       - name: Run python-tools setup
         run: just run make python-tools 
-        
-      - name: Run aider setup
-        run: just run make aider 

@@ -2,26 +2,26 @@
 - name: "Symlink .zprofile"
   ansible.builtin.file:
     src: "{{ local_config_root }}/shell/common/.zprofile"
-    dest: "{{ ansible_env.HOME }}/.zprofile"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.zprofile"
     state: link
     force: true
 
 - name: "Symlink .zshrc"
   ansible.builtin.file:
     src: "{{ local_config_root }}/shell/common/.zshrc"
-    dest: "{{ ansible_env.HOME }}/.zshrc"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
     state: link
     force: true
 
 # --- create symbolic links for all files in local_config_root/shell/common/alias/
 - name: "Clean and recreate ~/.mev/alias directory"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.mev/alias"
+    path: "{{ ansible_facts['env']['HOME'] }}/.mev/alias"
     state: absent
 
 - name: "Create ~/.mev/alias directory"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.mev/alias"
+    path: "{{ ansible_facts['env']['HOME'] }}/.mev/alias"
     state: directory
     mode: "0755"
 
@@ -41,7 +41,7 @@
 
 - name: "Create subdirectories in ~/.mev/alias"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.mev/alias/{{ item }}"
+    path: "{{ ansible_facts['env']['HOME'] }}/.mev/alias/{{ item }}"
     state: directory
     mode: "0755"
   loop: "{{ shell_config_subdirs }}"
@@ -50,7 +50,7 @@
   ansible.builtin.file:
     src: "{{ item.path }}"
     dest: >-
-      {{ ansible_env.HOME }}/.mev/alias/{{ item.path | replace(local_config_root + '/shell/common/alias/', '') }}
+      {{ ansible_facts['env']['HOME'] }}/.mev/alias/{{ item.path | replace(local_config_root + '/shell/common/alias/', '') }}
     state: link
     force: true
   loop: "{{ shell_config_files.files }}"

@@ -16,9 +16,9 @@
 
 - name: "Set platform variables"
   ansible.builtin.set_fact:
-    rust_platform_os: "{{ platform_config.os_mapping[ansible_system] | default('') }}"
-    rust_platform_arch: "{{ platform_config.arch_mapping[ansible_architecture] | default('') }}"
-    rust_tools_bin_dir: "{{ ansible_env.HOME }}/.cargo/bin"
+    rust_platform_os: "{{ platform_config.os_mapping[ansible_facts['system']] | default('') }}"
+    rust_platform_arch: "{{ platform_config.arch_mapping[ansible_facts['architecture']] | default('') }}"
+    rust_tools_bin_dir: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin"
     rust_tools_allowed_binaries: >-
       {{
         (
@@ -34,7 +34,7 @@
 
 - name: "Fail if platform is unsupported"
   ansible.builtin.fail:
-    msg: "Unsupported platform: {{ ansible_system }}/{{ ansible_architecture }}. Supported: Darwin/Linux with x86_64/aarch64/arm64."
+    msg: "Unsupported platform: {{ ansible_facts['system'] }}/{{ ansible_facts['architecture'] }}. Supported: Darwin/Linux with x86_64/aarch64/arm64."
   when: rust_platform_os == '' or rust_platform_arch == ''
 
 - name: "Ensure rust tools directory exists"

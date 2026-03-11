@@ -8,10 +8,10 @@
   ansible.builtin.command:
     cmd: "pyenv install {{ python_version }} --skip-existing"
   args:
-    creates: "{{ ansible_env.HOME }}/.pyenv/versions/{{ python_version }}"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.pyenv/versions/{{ python_version }}"
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Get current global Python version"
   ansible.builtin.command:
@@ -19,7 +19,7 @@
   register: python_current_py_global
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Set global Python version"
   ansible.builtin.command:
@@ -27,4 +27,4 @@
   register: python_py_global_set
   changed_when: "python_current_py_global.stdout != python_version"
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"

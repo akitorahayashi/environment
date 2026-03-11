@@ -24,7 +24,7 @@
 
 - name: "Download MLX models via huggingface-cli"
   ansible.builtin.command:
-    cmd: "{{ ansible_env.HOME }}/.local/bin/huggingface-cli download {{ item }}"
+    cmd: "{{ ansible_facts['env']['HOME'] }}/.local/bin/huggingface-cli download {{ item }}"
   loop: "{{ llm_mlx_models_to_download | default([]) }}"
   register: llm_mlx_download_result
   changed_when: "'Downloading' in llm_mlx_download_result.stderr or 'Fetching' in llm_mlx_download_result.stderr"

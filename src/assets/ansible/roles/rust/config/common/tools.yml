@@ -12,12 +12,9 @@
 #   os: linux, darwin
 #   arch: x86_64, aarch64
 tools:
-  - name: gho
-    url: https://github.com/akitorahayashi/gho
-    tag: v0.2.0
   - name: jlo
     url: git@github.com:asterismhq/jlo
-    tag: v19.0.0
+    tag: v20.0.0
   - name: kpv
     url: https://github.com/akitorahayashi/kpv
     tag: v0.6.0

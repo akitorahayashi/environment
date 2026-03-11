@@ -20,21 +20,21 @@
   ansible.builtin.command:
     cmd: "rbenv install {{ ruby_version }} --skip-existing"
   args:
-    creates: "{{ ansible_env.HOME }}/.rbenv/versions/{{ ruby_version }}"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.rbenv/versions/{{ ruby_version }}"
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Set global Ruby version"
   ansible.builtin.command:
     cmd: "rbenv global {{ ruby_version }}"
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Install bundler gem (version 2.5.22)"
   ansible.builtin.command:
     cmd: "gem install bundler -v 2.5.22 --no-document"
   changed_when: false
   environment:
-    PATH: "{{ ansible_env.HOME }}/.rbenv/shims:/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ ansible_facts['env']['HOME'] }}/.rbenv/shims:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"

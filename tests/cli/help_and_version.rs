@@ -35,6 +35,17 @@ fn help_omits_internal_command() {
 }
 
 #[test]
+fn internal_help_lists_only_supported_subcommands() {
+    let ctx = TestContext::new();
+
+    ctx.cli()
+        .args(["internal", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("shell").and(predicate::str::contains("vcs")));
+}
+
+#[test]
 fn no_args_shows_help() {
     let ctx = TestContext::new();
 

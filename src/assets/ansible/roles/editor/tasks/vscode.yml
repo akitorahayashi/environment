@@ -6,14 +6,14 @@
 
 - name: "Ensure VS Code User directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/Library/Application Support/Code/User"
+    path: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Code/User"
     state: directory
     mode: "0755"
 
 - name: "Symlink VS Code shared config files"
   ansible.builtin.file:
     src: "{{ local_config_root }}/editor/common/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/Library/Application Support/Code/User/{{ item }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Code/User/{{ item }}"
     state: link
     force: true
   loop:

@@ -8,11 +8,11 @@
   ansible.builtin.command:
     cmd: "goenv install {{ go_version }} --skip-existing"
   args:
-    creates: "{{ ansible_env.HOME }}/.goenv/versions/{{ go_version }}"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.goenv/versions/{{ go_version }}"
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-    GOENV_ROOT: "{{ ansible_env.HOME }}/.goenv"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    GOENV_ROOT: "{{ ansible_facts['env']['HOME'] }}/.goenv"
 
 - name: "Get current global Go version"
   ansible.builtin.command:
@@ -20,13 +20,13 @@
   register: go_current_global
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-    GOENV_ROOT: "{{ ansible_env.HOME }}/.goenv"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    GOENV_ROOT: "{{ ansible_facts['env']['HOME'] }}/.goenv"
 
 - name: "Set global Go version"
   ansible.builtin.command:
     cmd: "goenv global {{ go_version }}"
   changed_when: "go_current_global.stdout | trim != go_version"
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-    GOENV_ROOT: "{{ ansible_env.HOME }}/.goenv"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    GOENV_ROOT: "{{ ansible_facts['env']['HOME'] }}/.goenv"

@@ -10,7 +10,7 @@
   ansible.builtin.command:
     cmd: /tmp/rustup-init.sh -y --no-modify-path --profile minimal --default-toolchain {{ rust_version }}
   args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/rustup"
   changed_when: false
 
 - name: "Remove rustup installer"
@@ -20,13 +20,13 @@
 
 - name: "Get current default Rust toolchain"
   ansible.builtin.command:
-    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup default"
+    cmd: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/rustup default"
   register: rust_current_default
   changed_when: false
 
 - name: "Set default Rust toolchain"
   ansible.builtin.command:
-    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup default {{ rust_version }}"
+    cmd: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/rustup default {{ rust_version }}"
   changed_when: "rust_version not in rust_current_default.stdout"
 
 - name: "Load Rust components configuration"
@@ -36,7 +36,7 @@
 
 - name: "Ensure Rust components are available"
   ansible.builtin.command:
-    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup component add {{ item }}"
+    cmd: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/rustup component add {{ item }}"
   loop: "{{ rust_components_config.components }}"
   register: rust_component_add_result
   changed_when: "'is up to date' not in rust_component_add_result.stdout"

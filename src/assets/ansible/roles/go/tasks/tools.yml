@@ -10,8 +10,8 @@
   ansible.builtin.shell:
     cmd: |
       set -o pipefail
-      if [ -f "{{ ansible_env.HOME }}/go/bin/{{ item.name }}" ]; then
-        go version -m "{{ ansible_env.HOME }}/go/bin/{{ item.name }}" 2>/dev/null | grep -E '^\s+mod\s+' | awk '{print $3}'
+      if [ -f "{{ ansible_facts['env']['HOME'] }}/go/bin/{{ item.name }}" ]; then
+        go version -m "{{ ansible_facts['env']['HOME'] }}/go/bin/{{ item.name }}" 2>/dev/null | grep -E '^\s+mod\s+' | awk '{print $3}'
       else
         echo "not-installed"
       fi
@@ -22,8 +22,8 @@
   failed_when: false
   check_mode: false
   environment:
-    PATH: "{{ ansible_env.HOME }}/.goenv/shims:{{ ansible_env.HOME }}/.goenv/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
-    GOENV_ROOT: "{{ ansible_env.HOME }}/.goenv"
+    PATH: "{{ ansible_facts['env']['HOME'] }}/.goenv/shims:{{ ansible_facts['env']['HOME'] }}/.goenv/bin:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    GOENV_ROOT: "{{ ansible_facts['env']['HOME'] }}/.goenv"
 
 # 2. Install or update tools
 # Only install if versions do not match or tool is not installed
@@ -39,10 +39,10 @@
   # changed_when is true only when the when condition triggered installation
   changed_when: true
   environment:
-    PATH: "{{ ansible_env.HOME }}/.goenv/shims:{{ ansible_env.HOME }}/.goenv/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
-    GOENV_ROOT: "{{ ansible_env.HOME }}/.goenv"
-    GOPATH: "{{ ansible_env.HOME }}/go"
-    GOBIN: "{{ ansible_env.HOME }}/go/bin"
+    PATH: "{{ ansible_facts['env']['HOME'] }}/.goenv/shims:{{ ansible_facts['env']['HOME'] }}/.goenv/bin:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    GOENV_ROOT: "{{ ansible_facts['env']['HOME'] }}/.goenv"
+    GOPATH: "{{ ansible_facts['env']['HOME'] }}/go"
+    GOBIN: "{{ ansible_facts['env']['HOME'] }}/go/bin"
   # Condition explanation:
   # 1. Binary not found = not installed -> needs installation
   # 2. Tag is defined and the version output does not contain that version number -> needs update

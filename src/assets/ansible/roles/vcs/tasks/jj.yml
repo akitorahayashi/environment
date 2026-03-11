@@ -6,26 +6,26 @@
 
 - name: "Ensure .jj directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.jj"
+    path: "{{ ansible_facts['env']['HOME'] }}/.jj"
     state: directory
     mode: "0755"
 
 - name: "Ensure .config/jj directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/jj"
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/jj"
     state: directory
     mode: "0755"
 
 - name: "Symlink jj config.toml to $HOME/.config/jj/ (user-level config)"
   ansible.builtin.file:
     src: "{{ local_config_root }}/vcs/common/jj/config.toml"
-    dest: "{{ ansible_env.HOME }}/.config/jj/config.toml"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/jj/config.toml"
     state: link
     force: true
 
 - name: "Ensure .config/jj/conf.d directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/jj/conf.d"
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/jj/conf.d"
     state: directory
     mode: "0755"
 
@@ -38,7 +38,7 @@
 - name: "Symlink jj conf.d files"
   ansible.builtin.file:
     src: "{{ item.path }}"
-    dest: "{{ ansible_env.HOME }}/.config/jj/conf.d/{{ item.path | basename }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/jj/conf.d/{{ item.path | basename }}"
     state: link
     force: true
   loop: "{{ vcs_jj_conf_files.files }}"

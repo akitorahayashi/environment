@@ -6,14 +6,14 @@
 
 - name: "Ensure Antigravity User directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/Library/Application Support/Antigravity/User"
+    path: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Antigravity/User"
     state: directory
     mode: "0755"
 
 - name: "Symlink Antigravity shared config files"
   ansible.builtin.file:
     src: "{{ local_config_root }}/editor/common/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/Library/Application Support/Antigravity/User/{{ item }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Antigravity/User/{{ item }}"
     state: link
     force: true
   loop:
@@ -38,7 +38,7 @@
 
 - name: "Ensure Antigravity agent skills parent directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/google/antigravity"
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity"
     state: directory
     mode: "0755"
 

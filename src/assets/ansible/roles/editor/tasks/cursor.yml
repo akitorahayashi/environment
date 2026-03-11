@@ -6,14 +6,14 @@
 
 - name: "Ensure Cursor User directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User"
+    path: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Cursor/User"
     state: directory
     mode: "0755"
 
 - name: "Symlink Cursor shared config files"
   ansible.builtin.file:
     src: "{{ local_config_root }}/editor/common/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/Library/Application Support/Cursor/User/{{ item }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Cursor/User/{{ item }}"
     state: link
     force: true
   loop:

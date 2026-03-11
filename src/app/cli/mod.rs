@@ -64,18 +64,6 @@ enum Commands {
 /// Internal subcommands delegated to `mev-internal`.
 #[derive(Subcommand)]
 enum InternalCommand {
-    /// Aider integration helpers.
-    #[command(subcommand)]
-    Aider(mev_internal::app::cli::aider::AiderCommand),
-
-    /// Shell helper generators.
-    #[command(subcommand)]
-    Shell(mev_internal::app::cli::shell::ShellCommand),
-
-    /// SSH key and host configuration.
-    #[command(subcommand)]
-    Ssh(mev_internal::app::cli::ssh::SshCommand),
-
     /// VCS helpers.
     #[command(subcommand)]
     Vcs(mev_internal::app::cli::vcs::VcsCommand),
@@ -105,9 +93,6 @@ pub fn run() {
 
 fn run_internal(cmd: InternalCommand) -> Result<(), AppError> {
     let result = match cmd {
-        InternalCommand::Aider(c) => mev_internal::app::cli::aider::run(c),
-        InternalCommand::Shell(c) => mev_internal::app::cli::shell::run(c),
-        InternalCommand::Ssh(c) => mev_internal::app::cli::ssh::run(c),
         InternalCommand::Vcs(c) => mev_internal::app::cli::vcs::run(c),
     };
     result.map_err(|e| AppError::Config(e.to_string()))

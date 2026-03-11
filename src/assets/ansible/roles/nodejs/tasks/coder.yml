@@ -1,7 +1,7 @@
 ---
 - name: "Set Node.js bin path"
   ansible.builtin.set_fact:
-    nodejs_bin_path: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ nodejs_version }}/bin"
+    nodejs_bin_path: "{{ ansible_facts['env']['HOME'] }}/.nvm/versions/node/v{{ nodejs_version }}/bin"
 
 - name: "Install LLM CLI tools via npm"
   community.general.npm:
@@ -14,18 +14,18 @@
     - "@anthropic-ai/claude-code"
     - "@google/gemini-cli"
   environment:
-    PATH: "{{ nodejs_bin_path }}:{{ ansible_env.PATH }}"
+    PATH: "{{ nodejs_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Ensure Claude configuration directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.claude"
+    path: "{{ ansible_facts['env']['HOME'] }}/.claude"
     state: directory
     mode: "0755"
 
 - name: "Symlink Claude settings.json"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/common/coder/claude.json"
-    dest: "{{ ansible_env.HOME }}/.claude/settings.json"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.claude/settings.json"
     state: link
     force: true
     mode: "0644"
@@ -33,27 +33,27 @@
 - name: "Symlink Claude AGENTS file"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
-    dest: "{{ ansible_env.HOME }}/.claude/CLAUDE.md"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.claude/CLAUDE.md"
     state: link
     force: true
     mode: "0644"
 
 - name: "Create Claude commands directory"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.claude/commands"
+    path: "{{ ansible_facts['env']['HOME'] }}/.claude/commands"
     state: directory
     mode: "0755"
 
 - name: "Ensure Gemini configuration directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.gemini"
+    path: "{{ ansible_facts['env']['HOME'] }}/.gemini"
     state: directory
     mode: "0755"
 
 - name: "Symlink Gemini settings.json"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/common/coder/gemini.json"
-    dest: "{{ ansible_env.HOME }}/.gemini/settings.json"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/settings.json"
     state: link
     force: true
     mode: "0644"
@@ -61,7 +61,7 @@
 - name: "Symlink Gemini AGENTS file"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
-    dest: "{{ ansible_env.HOME }}/.gemini/GEMINI.md"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/GEMINI.md"
     state: link
     force: true
     mode: "0644"
@@ -72,7 +72,7 @@
   failed_when: false
   changed_when: false
   environment:
-    PATH: "{{ nodejs_bin_path }}:{{ ansible_env.PATH }}"
+    PATH: "{{ nodejs_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Warning if Gemini CLI not available"
   ansible.builtin.debug:
@@ -81,7 +81,7 @@
 
 - name: "Create Gemini commands directory"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.gemini/commands"
+    path: "{{ ansible_facts['env']['HOME'] }}/.gemini/commands"
     state: directory
     mode: "0755"
 
@@ -91,13 +91,13 @@
     state: directory
     mode: "0755"
   loop:
-    - "{{ ansible_env.HOME }}/.codex"
-    - "{{ ansible_env.HOME }}/.codex/prompts"
+    - "{{ ansible_facts['env']['HOME'] }}/.codex"
+    - "{{ ansible_facts['env']['HOME'] }}/.codex/prompts"
 
 - name: "Symlink Codex configuration file"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/common/coder/codex.toml"
-    dest: "{{ ansible_env.HOME }}/.codex/config.toml"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.codex/config.toml"
     state: link
     force: true
     mode: "0644"
@@ -105,7 +105,7 @@
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
-    dest: "{{ ansible_env.HOME }}/.codex/AGENTS.md"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.codex/AGENTS.md"
     state: link
     force: true
     mode: "0644"
@@ -127,7 +127,7 @@
 
 - name: "Ensure agent skills directories exist"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.{{ item }}/skills"
+    path: "{{ ansible_facts['env']['HOME'] }}/.{{ item }}/skills"
     state: directory
     mode: "0755"
   loop: "{{ nodejs_coder_skills_targets.tools }}"
@@ -135,7 +135,7 @@
 - name: "Deploy common agent skills to all CLIs"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/common/coder/skills/{{ item.0 }}"
-    dest: "{{ ansible_env.HOME }}/.{{ item.1 }}/skills/{{ item.0 }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.{{ item.1 }}/skills/{{ item.0 }}"
     state: link
     force: true
   loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools) | list }}"

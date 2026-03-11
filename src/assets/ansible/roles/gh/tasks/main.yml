@@ -6,13 +6,13 @@
 
 - name: "Ensure .config/gh directory exists"
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/gh"
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/gh"
     state: directory
     mode: "0755"
 
 - name: "Symlink gh config.yml"
   ansible.builtin.file:
     src: "{{ local_config_root }}/gh/common/config.yml"
-    dest: "{{ ansible_env.HOME }}/.config/gh/config.yml"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/gh/config.yml"
     state: link
     force: true
