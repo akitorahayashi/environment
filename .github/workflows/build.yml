@@ -3,9 +3,6 @@ name: Build
 on:
   workflow_call:
 
-permissions:
-  contents: read
-
 jobs:
   build-darwin-aarch64:
     name: Build mev darwin-aarch64
@@ -33,11 +30,12 @@ jobs:
           chmod +x mev-darwin-aarch64
           shasum -a 256 mev-darwin-aarch64 > mev-darwin-aarch64.sha256
 
-      - name: Upload artifact
+      - name: Attach release assets
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
-          name: mev-darwin-aarch64
-          path: |
+          files: |
             mev-darwin-aarch64
             mev-darwin-aarch64.sha256
+          generate_release_notes: true
+          overwrite_files: true

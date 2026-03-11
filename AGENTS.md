@@ -95,4 +95,4 @@ Two-stage config deployment:
 - `just run <args>`: Run mev in dev mode
 - `just check`: Format and lint
 - `just test`: Run all Rust tests
-- `v*` tag push: `.github/workflows/release.yml` publishes `mev-darwin-aarch64` to GitHub Releases
+- `v*` tag push: `.github/workflows/release.yml` delegates to `.github/workflows/build.yml`, and the build job attaches `mev-darwin-aarch64` plus its SHA256 file directly to GitHub Releases

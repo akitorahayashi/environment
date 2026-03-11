@@ -5,47 +5,8 @@ on:
     tags:
       - "v*"
 
-permissions:
-  contents: read
-
 jobs:
-  lint:
-    permissions:
-      contents: read
-    uses: ./.github/workflows/run-linters.yml
-
-  test:
-    permissions:
-      contents: read
-    uses: ./.github/workflows/run-tests.yml
-
-  coverage:
-    permissions:
-      contents: read
-    uses: ./.github/workflows/collect-coverage.yml
-
-  build:
-    permissions:
-      contents: read
-    uses: ./.github/workflows/build.yml
-
-  release:
-    needs: [lint, test, coverage, build]
-    runs-on: ubuntu-latest
+  build-and-release:
     permissions:
       contents: write
-    steps:
-      - name: Download release artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: mev-darwin-aarch64
-          path: .tmp/artifacts
-
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
-        with:
-          files: |
-            .tmp/artifacts/mev-darwin-aarch64
-            .tmp/artifacts/mev-darwin-aarch64.sha256
-          generate_release_notes: true
-          overwrite_files: true
+    uses: ./.github/workflows/build.yml
