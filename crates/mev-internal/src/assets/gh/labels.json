@@ -1,0 +1,52 @@
+[
+  {
+    "name": "bugs",
+    "description": "Something isn't working",
+    "color": "d73a4a"
+  },
+  {
+    "name": "feats",
+    "description": "A new feature",
+    "color": "d93f0b"
+  },
+  {
+    "name": "refacts",
+    "description": "A code change that neither fixes a bug nor adds a feature",
+    "color": "0e8a16"
+  },
+  {
+    "name": "tests",
+    "description": "Adding missing tests or correcting existing tests",
+    "color": "5319e7"
+  },
+  {
+    "name": "docs",
+    "description": "Documentation only changes",
+    "color": "0075ca"
+  },
+  {
+    "name": "jules",
+    "description": "Assign tasks to Jules",
+    "color": "453ced"
+  },
+  {
+    "name": "status/review-requested",
+    "description": "Code review requested",
+    "color": "5360ca"
+  },
+  {
+    "name": "status/require-plan",
+    "description": "Implementation plan required",
+    "color": "006b75"
+  },
+  {
+    "name": "status/check-required",
+    "description": "Check required",
+    "color": "f7379a"
+  },
+  {
+    "name": "status/checked",
+    "description": "Checked",
+    "color": "0052cc"
+  }
+]

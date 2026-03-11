@@ -1,6 +1,7 @@
 //! CLI adapter — top-level parser and subcommand dispatch.
 
-pub mod vcs;
+pub mod gh;
+pub mod git;
 
 use clap::{Parser, Subcommand};
 
@@ -15,9 +16,13 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// VCS helpers.
+    /// Git helpers.
     #[command(subcommand)]
-    Vcs(vcs::VcsCommand),
+    Git(git::GitCommand),
+
+    /// GitHub CLI helpers.
+    #[command(subcommand)]
+    Gh(gh::GhCommand),
 }
 
 /// Entry point for the CLI.
@@ -25,7 +30,8 @@ pub fn run() {
     let cli = Cli::parse();
 
     let result = match cli.command {
-        Commands::Vcs(cmd) => vcs::run(cmd),
+        Commands::Git(cmd) => git::run(cmd),
+        Commands::Gh(cmd) => gh::run(cmd),
     };
 
     if let Err(err) = result {

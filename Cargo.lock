@@ -426,6 +426,7 @@ dependencies = [
  "clap",
  "dirs",
  "glob",
+ "serde",
  "serde_json",
  "thiserror 1.0.69",
  "which",

@@ -34,15 +34,15 @@
     rt = restore
     rm-c = rm --cached
 
-    c = !git add . && git commit -m
-    cm = !git add . && git commit -m
-    amd = !git add . && git commit --amend --no-edit
+    c = commit -m
+    cm = commit -m
+    amd = commit --amend --no-edit
     sb = submodule
     sb-a = submodule add
     sb-u = submodule update --init --recursive
     sb-u-r = submodule update --remote
     sb-ts = submodule status
-    sb-d = !mev internal vcs delete-submodule
+    sb-d = !mev internal git delete-submodule
 
     ps = push
     ps-u-o = push -u origin

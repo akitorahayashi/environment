@@ -42,7 +42,7 @@ fn internal_help_lists_only_supported_subcommands() {
         .args(["internal", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("shell").and(predicate::str::contains("vcs")));
+        .stdout(predicate::str::contains("git").and(predicate::str::contains("gh")));
 }
 
 #[test]

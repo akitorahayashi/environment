@@ -56,7 +56,7 @@ enum Commands {
     #[command(alias = "bk")]
     Backup(backup::BackupArgs),
 
-    /// Internal commands used by shell aliases.
+    /// Internal commands used by local aliases.
     #[command(subcommand, hide = true)]
     Internal(InternalCommand),
 }
@@ -64,9 +64,13 @@ enum Commands {
 /// Internal subcommands delegated to `mev-internal`.
 #[derive(Subcommand)]
 enum InternalCommand {
-    /// VCS helpers.
+    /// Git helpers.
     #[command(subcommand)]
-    Vcs(mev_internal::app::cli::vcs::VcsCommand),
+    Git(mev_internal::app::cli::git::GitCommand),
+
+    /// GitHub CLI helpers.
+    #[command(subcommand)]
+    Gh(mev_internal::app::cli::gh::GhCommand),
 }
 
 /// Entry point for the CLI.
@@ -93,7 +97,8 @@ pub fn run() {
 
 fn run_internal(cmd: InternalCommand) -> Result<(), AppError> {
     let result = match cmd {
-        InternalCommand::Vcs(c) => mev_internal::app::cli::vcs::run(c),
+        InternalCommand::Git(c) => mev_internal::app::cli::git::run(c),
+        InternalCommand::Gh(c) => mev_internal::app::cli::gh::run(c),
     };
     result.map_err(|e| AppError::Config(e.to_string()))
 }
