@@ -14,9 +14,6 @@ roles = [
   { name = "leverage_architect", enabled = true, proposal_file_limit = 3 },
 ]
 
-[workflow.layers.reporter]
-update_file_limit = 5
-
 [workflow.layers.observers]
 roles = [
   { name = "consistency", enabled = true, event_file_limit = 3 },

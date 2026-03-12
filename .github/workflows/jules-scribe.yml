@@ -1,10 +1,10 @@
 # This file is auto-generated. Do not edit manually.
-# Jules Scribes — Documentation Maintenance
+# Jules Scribe — Documentation Maintenance
 #
-# Orchestrates reporter and writer layers for canonical documentation
-# synchronization. Workflow-dispatch only.
+# Orchestrates the scribe layer for canonical documentation synchronization.
+# Workflow-dispatch only.
 
-name: Jules Scribes
+name: Jules Scribe
 
 on:
   workflow_dispatch:
@@ -13,9 +13,8 @@ on:
         description: 'Start from layer'
         type: choice
         options:
-          - reporter
-          - writer
-        default: reporter
+          - scribe
+        default: scribe
       wait_minutes:
         description: 'Minutes to wait between layers (Jules async processing time)'
         type: number
@@ -28,7 +27,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: 'jules-scribes'
+  group: 'jules-scribe'
   cancel-in-progress: false
 
 env:
@@ -40,13 +39,10 @@ env:
   JULES_WORKER_BRANCH: 'jules'
 
 
-
-
 jobs:
   # ============================================================
   # Phase 0: Bootstrap runtime repository on worker branch
   # ============================================================
-
   bootstrap:
     
     if: >-
@@ -95,7 +91,7 @@ jobs:
       - name: Clean exchange directory state
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.mock != 'true' }}
         env:
-          PRESERVE_EXCHANGE: ${{ github.event.inputs.entry_point == 'writer' && 'updates' || '' }}
+          PRESERVE_EXCHANGE: ${{ '' }}
         run: |
           set -euo pipefail
           has_preserve=false
@@ -188,24 +184,24 @@ jobs:
       - name: Resolve scribes plan
         id: check
         env:
-          ENTRY_POINT: ${{ github.event.inputs.entry_point || 'reporter' }}
+          ENTRY_POINT: ${{ github.event.inputs.entry_point || 'scribe' }}
         run: |
           set -euo pipefail
           jlo workflow resolve scribes-plan --entry-point "$ENTRY_POINT"
 
 
   # ============================================================
-  # Phase 2: Run reporter
+  # Phase 2: Run scribe
   # ============================================================
 
   
   
-  request-reporter-run:
+  request-scribe-run:
     needs: ["resolve-scribes-plan"]
     if: |
       !cancelled() &&
       needs.resolve-scribes-plan.result == 'success' &&
-            fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_reporter == true
+            fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_scribe == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -217,7 +213,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          ref: 'jules'
+          ref: 'main'
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
@@ -229,14 +225,16 @@ jobs:
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-      - name: Run reporter
+      - name: Run scribe
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec reporter ${{ env.JLO_RUN_FLAGS }}
+          result=$(jlo run --json scribe ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
-  report-reporter-status:
-    needs: ["resolve-scribes-plan", "request-reporter-run"]
+  report-scribe-status:
+    needs: ["resolve-scribes-plan", "request-scribe-run"]
     if: |
       !cancelled() &&
       always() &&
@@ -246,17 +244,17 @@ jobs:
     outputs:
       json: ${{ steps.report.outputs.json }}
     steps:
-      - name: Report Run reporter status
+      - name: Report Run scribe status
         id: report
         shell: bash
         run: |
           set -euo pipefail
-          requested_flag='${{ fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_reporter == true }}'
-          request_result='${{ needs.request-reporter-run.result }}'
-          request_count='${{ fromJSON(needs.request-reporter-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          requested_flag='${{ fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_scribe == true }}'
+          request_result='${{ needs.request-scribe-run.result }}'
+          request_count='${{ fromJSON(needs.request-scribe-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
           if [ "${requested_flag}" = "true" ]; then
             if [ "${request_result}" != "success" ]; then
-              echo "::error::Expected successful run request for 'reporter' but got '${request_result}'."
+              echo "::error::Expected successful run request for 'scribe' but got '${request_result}'."
               exit 1
             fi
             requested=false
@@ -265,7 +263,7 @@ jobs:
             fi
           else
             if [ "${request_result}" != "skipped" ]; then
-              echo "::error::Expected skipped run request for 'reporter' but got '${request_result}'."
+              echo "::error::Expected skipped run request for 'scribe' but got '${request_result}'."
               exit 1
             fi
             requested=false
@@ -275,14 +273,14 @@ jobs:
           echo "${json}"
           echo "json=${json}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 3: Wait after reporter
+  # Phase 3: Wait after scribe
   # ============================================================
 
-  wait-after-reporter:
-    needs: ['report-reporter-status']
+  wait-after-scribe:
+    needs: ['report-scribe-status']
     if: |
       !cancelled() &&
-      needs.report-reporter-status.result == 'success'
+      needs.report-scribe-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
@@ -293,7 +291,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          requested='${{ fromJSON(needs.report-reporter-status.outputs.json || '{}').requested == true }}'
+          requested='${{ fromJSON(needs.report-scribe-status.outputs.json || '{}').requested == true }}'
           SLEEP_PID=""
           on_cancel() {
             echo "Cancellation detected. Exiting wait early."
@@ -307,7 +305,7 @@ jobs:
 
           if [ "$requested" != "true" ]; then
             TOTAL_SECONDS=0
-            echo "Reporter wait not required; skipping wait."
+            echo "Scribe wait not required; skipping wait."
           elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
             TOTAL_SECONDS=15
             echo "Mock mode enabled: overriding wait to 15 seconds."
@@ -320,7 +318,7 @@ jobs:
             echo "json={}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process reporter..."
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process scribe..."
           # Foreground sleep delays trap handling until sleep returns in bash.
           # Use background sleep + wait so cancellation signals are processed immediately.
           sleep "$TOTAL_SECONDS" &
@@ -329,204 +327,11 @@ jobs:
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 4: Resolve writer matrix
-  # ============================================================
-
-  resolve-writer-matrix:
-    needs: ["wait-after-reporter"]
-    if: |
-      !cancelled() &&
-      needs.wait-after-reporter.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      json: ${{ steps.resolve.outputs.json }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_PAT }}
-
-      - name: Configure Git
-        uses: ./.github/actions/configure-git
-
-      - name: Install jlo
-        uses: ./.github/actions/install-jlo
-        with:
-          token: ${{ secrets.JLO_RELEASE_PAT }}
-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-
-      - name: Resolve writer targets
-        id: resolve
-        run: |
-          set -euo pipefail
-          if [ "${MOCK_MODE}" = "true" ]; then
-            jlo workflow resolve matrix --layer writer --mock --mock-target-count 2
-          else
-            jlo workflow resolve matrix --layer writer
-          fi
-  # ============================================================
-  # Phase 5: Run writer matrix
-  # ============================================================
-
-  
-  
-  request-writer-run:
-    needs: ["resolve-scribes-plan", "resolve-writer-matrix"]
-    if: |
-      !cancelled() &&
-      needs.resolve-scribes-plan.result == 'success' &&
-      fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_writer == true &&
-      needs.resolve-writer-matrix.result == 'success' &&
-      fromJSON(needs.resolve-writer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    # Jules API session creation requests must run strictly one-by-one.
-    # Keep max-parallel fixed to 1; worker limits are enforced by target truncation at matrix-resolution time.
-    # The matrix is kept for visibility of resolved target count in the GitHub Actions GUI.
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.resolve-writer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').matrix }}
-      max-parallel: 1
-      fail-fast: false
-    outputs:
-      json: ${{ steps.run.outputs.json }}
-    env:
-      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
-      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_PAT }}
-
-      - name: Configure Git
-        uses: ./.github/actions/configure-git
-
-      - name: Install jlo
-        uses: ./.github/actions/install-jlo
-        with:
-          token: ${{ secrets.JLO_RELEASE_PAT }}
-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-
-      - name: Run writer (${{ matrix.target }})
-        id: run
-        run: |
-          set -euo pipefail
-          jlo workflow exec writer --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }} --branch "${JLO_TARGET_BRANCH}"
-
-  report-writer-status:
-    needs: ["resolve-scribes-plan", "resolve-writer-matrix", "request-writer-run"]
-    if: |
-      !cancelled() &&
-      always() &&
-      needs.resolve-scribes-plan.result == 'success' &&
-      needs.resolve-writer-matrix.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      json: ${{ steps.report.outputs.json }}
-    steps:
-      - name: Report Run writer status
-        id: report
-        shell: bash
-        run: |
-          set -euo pipefail
-          requested_flag='${{ fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_writer == true }}'
-          target_count='${{ fromJSON(needs.resolve-writer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
-          request_result='${{ needs.request-writer-run.result }}'
-          if [ "${requested_flag}" = "true" ]; then
-            if [ "${target_count}" = "0" ]; then
-              if [ "${request_result}" != "skipped" ]; then
-                echo "::error::Expected skipped run request for 'writer' with zero targets but got '${request_result}'."
-                exit 1
-              fi
-              requested=false
-            else
-              if [ "${request_result}" != "success" ]; then
-                echo "::error::Expected successful run request for 'writer' but got '${request_result}'."
-                exit 1
-              fi
-              requested=true
-            fi
-          else
-            if [ "${request_result}" != "skipped" ]; then
-              echo "::error::Expected skipped run request for 'writer' but got '${request_result}'."
-              exit 1
-            fi
-            requested=false
-          fi
-
-          count=0
-          if [ "${requested}" = "true" ]; then
-            count="${target_count}"
-          fi
-
-          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${count}")"
-          echo "${json}"
-          echo "json=${json}" >> "$GITHUB_OUTPUT"
-  # ============================================================
-  # Phase 6: Wait after writer
-  # ============================================================
-
-  wait-after-writer:
-    needs: ['report-writer-status']
-    if: |
-      !cancelled() &&
-      needs.report-writer-status.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    outputs:
-      json: ${{ steps.wait.outputs.json }}
-    steps:
-      - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
-        id: wait
-        shell: bash
-        run: |
-          set -euo pipefail
-          requested='${{ fromJSON(needs.report-writer-status.outputs.json || '{}').requested == true }}'
-          SLEEP_PID=""
-          on_cancel() {
-            echo "Cancellation detected. Exiting wait early."
-            if [ -n "$SLEEP_PID" ]; then
-              kill "$SLEEP_PID" 2>/dev/null || true
-              wait "$SLEEP_PID" 2>/dev/null || true
-            fi
-            exit 130
-          }
-          trap on_cancel INT TERM
-
-          if [ "$requested" != "true" ]; then
-            TOTAL_SECONDS=0
-            echo "Writer wait not required; skipping wait."
-          elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
-            TOTAL_SECONDS=15
-            echo "Mock mode enabled: overriding wait to 15 seconds."
-          else
-            TOTAL_SECONDS=$((${{ env.WAIT_MINUTES }} * 60))
-          fi
-
-          if [ "$TOTAL_SECONDS" -le 0 ]; then
-            echo "Wait skipped (TOTAL_SECONDS=$TOTAL_SECONDS)."
-            echo "json={}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process writer..."
-          # Foreground sleep delays trap handling until sleep returns in bash.
-          # Use background sleep + wait so cancellation signals are processed immediately.
-          sleep "$TOTAL_SECONDS" &
-          SLEEP_PID=$!
-          wait "$SLEEP_PID"
-          echo "Wait complete."
-          echo "json={}" >> "$GITHUB_OUTPUT"
-  # ============================================================
-  # Phase 7: Cleanup mock artifacts
+  # Phase 4: Cleanup mock artifacts
   # ============================================================
 
   cleanup-mock-artifacts:
-    needs: ["wait-after-writer"]
+    needs: ["wait-after-scribe"]
     if: |
       !cancelled() &&
       always() &&

@@ -9,7 +9,7 @@ on:
       - 'jules-merger-*'
       - 'jules-dispatcher-*'
       - 'jules-planner-*'
-      - 'jules-innovator-*'
+      - 'jules-innovators-*'
       - 'jules-reporter-*'
       - 'jules-worker-sync-*'
 
@@ -110,7 +110,7 @@ jobs:
               mode="layer"
               layer="planner"
               ;;
-            jules-innovator-*)
+            jules-innovators-*)
               mode="layer"
               layer="innovators"
               ;;

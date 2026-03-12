@@ -47,4 +47,4 @@ jobs:
           JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
         run: |
           set -euo pipefail
-          jlo workflow exec integrator
+          jlo run integrator

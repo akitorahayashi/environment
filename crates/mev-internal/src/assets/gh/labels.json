@@ -6,12 +6,12 @@
   },
   {
     "name": "feats",
-    "description": "A new feature",
+    "description": "A new feature or functional specification change",
     "color": "d93f0b"
   },
   {
     "name": "refacts",
-    "description": "A code change that neither fixes a bug nor adds a feature",
+    "description": "Internal code optimization or architectural improvement without specification changes",
     "color": "0e8a16"
   },
   {
@@ -32,7 +32,7 @@
   {
     "name": "status/review-requested",
     "description": "Code review requested",
-    "color": "5360ca"
+    "color": "b55501"
   },
   {
     "name": "status/require-plan",

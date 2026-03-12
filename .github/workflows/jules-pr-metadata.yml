@@ -6,7 +6,7 @@ on:
     branches:
       - 'jules-implementer-*'
       - 'jules-integrator-*'
-      - 'jules-writer-*'
+      - 'jules-scribe-*'
 
 permissions: {}
 
@@ -89,7 +89,7 @@ jobs:
               gh label create "integration" --color "000000" --description "Integration PR merging multiple implementer branches" --repo "$REPO" --force
               gh pr edit "$PR_NUMBER" --add-label "integration" --repo "$REPO"
               ;;
-            jules-writer-*)
+            jules-scribe-*)
               jlo workflow process pr sync-category-label "$PR_NUMBER" --fail-on-error
               ;;
             *)

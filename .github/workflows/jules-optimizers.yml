@@ -281,7 +281,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec narrator ${{ env.JLO_RUN_FLAGS }}
+          result=$(jlo run --json narrator ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-narrator-status:
     needs: ["resolve-optimizers-plan", "request-narrator-run"]
@@ -460,7 +462,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec observers --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }}
+          result=$(jlo run --json observers --role "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-observers-status:
     needs: ["resolve-optimizers-plan", "resolve-observers-matrix", "request-observers-run"]
@@ -605,7 +609,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec merger ${{ env.JLO_RUN_FLAGS }}
+          result=$(jlo run --json merger ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-merger-status:
     needs: ["resolve-optimizers-plan", "wait-after-observers", "request-merger-run"]
@@ -739,7 +745,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec dispatcher ${{ env.JLO_RUN_FLAGS }}
+          result=$(jlo run --json dispatcher ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-dispatcher-status:
     needs: ["resolve-optimizers-plan", "wait-after-merger", "request-dispatcher-run"]
@@ -918,7 +926,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec planner --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }}
+          result=$(jlo run --json planner --requirement "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-planner-status:
     needs: ["resolve-optimizers-plan", "resolve-planner-matrix", "request-planner-run"]
@@ -1093,7 +1103,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          ref: 'jules'
+          ref: 'main'
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
@@ -1110,7 +1120,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec implementer --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }} --branch "${JLO_TARGET_BRANCH}"
+          result=$(jlo run --json implementer --plan "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-implementer-status:
     needs: ["resolve-optimizers-plan", "resolve-implementer-matrix", "request-implementer-run"]

@@ -36,7 +36,7 @@
 
     c = commit -m
     cm = commit -m
-    amd = commit --amend --no-edit
+    amd = !git add . && git commit --amend --no-edit
     sb = submodule
     sb-a = submodule add
     sb-u = submodule update --init --recursive

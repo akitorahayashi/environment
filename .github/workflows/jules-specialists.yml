@@ -216,7 +216,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec observers ${{ env.JLO_RUN_FLAGS }} --target "${OBSERVER_ROLE}"
+          result=$(jlo run --json observers ${{ env.JLO_RUN_FLAGS }} --role "${OBSERVER_ROLE}")
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-observers-status:
     needs: ["bootstrap", "request-observers-run"]
@@ -381,7 +383,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          ref: 'jules'
+          ref: 'main'
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
@@ -398,7 +400,9 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec implementer --target "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }} --branch "${JLO_TARGET_BRANCH}"
+          result=$(jlo run --json implementer --plan "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-implementer-status:
     needs: ["report-observers-status", "resolve-implementer-matrix", "request-implementer-run"]

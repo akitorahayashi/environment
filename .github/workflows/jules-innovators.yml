@@ -1,5 +1,5 @@
 # This file is auto-generated. Do not edit manually.
-name: Jules Innovator
+name: Jules Innovators
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: 'jules-innovator'
+  group: 'jules-innovators'
   cancel-in-progress: false
 
 env:
@@ -26,6 +26,7 @@ env:
   JLO_RUN_FLAGS: ${{ github.event.inputs.mock == 'true' && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
+
 
 
 jobs:
@@ -146,19 +147,67 @@ jobs:
 
 
   # ============================================================
-  # Phase 1: Run innovators
+  # Phase 1: Resolve innovators matrix
+  # ============================================================
+
+  resolve-innovators-matrix:
+    needs: ["bootstrap"]
+    if: |
+      !cancelled() &&
+      needs.bootstrap.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.resolve.outputs.json }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'jules'
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_PAT }}
+
+      - name: Configure Git
+        uses: ./.github/actions/configure-git
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+
+      - name: Resolve innovators targets
+        id: resolve
+        run: |
+          set -euo pipefail
+          if [ "${MOCK_MODE}" = "true" ]; then
+            jlo workflow resolve matrix --layer innovators --mock --mock-target-count 1
+          else
+            jlo workflow resolve matrix --layer innovators
+          fi
+  # ============================================================
+  # Phase 2: Run innovators (matrix)
   # ============================================================
 
   
   
   request-innovators-run:
-    needs: ["bootstrap"]
+    needs: ["bootstrap", "resolve-innovators-matrix"]
     if: |
       !cancelled() &&
-      needs.bootstrap.result == 'success'
-
+      needs.resolve-innovators-matrix.result == 'success' &&
+      fromJSON(needs.resolve-innovators-matrix.outputs.json || '{}').count == true &&
+      needs.resolve-innovators-matrix.result == 'success' &&
+      fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Jules API session creation requests must run strictly one-by-one.
+    # Keep max-parallel fixed to 1; worker limits are enforced by target truncation at matrix-resolution time.
+    # The matrix is kept for visibility of resolved target count in the GitHub Actions GUI.
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').matrix }}
+      max-parallel: 1
+      fail-fast: false
     outputs:
       json: ${{ steps.run.outputs.json }}
     env:
@@ -179,38 +228,47 @@ jobs:
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-      - name: Run innovators
+
+      - name: Run innovator (${{ matrix.target }})
         id: run
         run: |
           set -euo pipefail
-          jlo workflow exec innovators ${{ env.JLO_RUN_FLAGS }} --task create_proposals
+          result=$(jlo run --json innovators --role "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }} --task create_proposals)
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-innovators-status:
-    needs: ["bootstrap", "request-innovators-run"]
+    needs: ["bootstrap", "resolve-innovators-matrix", "request-innovators-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.bootstrap.result == 'success'
+      needs.resolve-innovators-matrix.result == 'success' &&
+      needs.resolve-innovators-matrix.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       json: ${{ steps.report.outputs.json }}
     steps:
-      - name: Report Run innovators status
+      - name: Report Run innovator status
         id: report
         shell: bash
         run: |
           set -euo pipefail
-          requested_flag='${{ true }}'
+          requested_flag='${{ fromJSON(needs.resolve-innovators-matrix.outputs.json || '{}').count == true }}'
+          target_count='${{ fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
           request_result='${{ needs.request-innovators-run.result }}'
-          request_count='${{ fromJSON(needs.request-innovators-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
           if [ "${requested_flag}" = "true" ]; then
-            if [ "${request_result}" != "success" ]; then
-              echo "::error::Expected successful run request for 'innovators' but got '${request_result}'."
-              exit 1
-            fi
-            requested=false
-            if [ "${request_count}" -gt 0 ]; then
+            if [ "${target_count}" = "0" ]; then
+              if [ "${request_result}" != "skipped" ]; then
+                echo "::error::Expected skipped run request for 'innovators' with zero targets but got '${request_result}'."
+                exit 1
+              fi
+              requested=false
+            else
+              if [ "${request_result}" != "success" ]; then
+                echo "::error::Expected successful run request for 'innovators' but got '${request_result}'."
+                exit 1
+              fi
               requested=true
             fi
           else
@@ -221,11 +279,16 @@ jobs:
             requested=false
           fi
 
-          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${request_count}")"
+          count=0
+          if [ "${requested}" = "true" ]; then
+            count="${target_count}"
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${count}")"
           echo "${json}"
           echo "json=${json}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 2: Wait for innovators processing
+  # Phase 3: Wait for innovators processing
   # ============================================================
 
   wait-after-run-innovators:
