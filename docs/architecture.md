@@ -55,8 +55,8 @@ tests/
 ## Architecture Principles
 
 ### Directory Naming
-- No ambiguous names: `core/`, `utils/`, `helpers/` are forbidden
-- Every file must belong to a clear, specific category
+- Ambiguous names such as `core/`, `utils/`, `helpers/` are forbidden
+- Every file belongs to a clear, specific category
 
 ## Design Rules
 
@@ -66,11 +66,11 @@ tests/
 - Roles handle fallback logic (profile-specific → common)
 
 ### Profile Design
-- Common profile by default: most roles use `common` profile
-- Profile-specific configs: `brew` role supports profile-specific configs (macbook/mac-mini)
+- Common profile operates by default: most roles use `common` profile
+- Profile-specific configs apply: `brew` role supports profile-specific configs (macbook/mac-mini)
 - Roles store configs in `config/common/` (all roles) and `config/profiles/` (brew only)
 
 ### Config Deployment Strategy
-Two-stage config deployment:
+Two-stage config deployment executes via:
 1. Package → `~/.config/mev/roles/{role}/`: Copy via `mev config create` or auto-deploy on `mev make`
 2. `~/.config/mev/roles/{role}/` → Local destinations: Symbolic links

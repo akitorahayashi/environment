@@ -13,6 +13,8 @@ Rust-first architecture with embedded Ansible assets.
 
 ## Prerequisites
 
+The following prerequisites are required:
+
 1. Xcode Command Line Tools
    ```sh
    xcode-select --install
@@ -33,11 +35,15 @@ Rust-first architecture with embedded Ansible assets.
 
 ## Installation
 
+The CLI is installed via the following script:
+
 ```sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/akitorahayashi/mev/main/install.sh)"
 ```
 
 ## Verification
+
+The installation is verified via:
 
 ```sh
 mev --version

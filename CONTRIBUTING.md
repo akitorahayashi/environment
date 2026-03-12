@@ -36,20 +36,20 @@ Domain logic tests reside as self-contained unit tests within their respective `
 
 ### Verify Commands
 
-Local execution:
+Local execution is triggered via:
 
 ```bash
 just run <args>
 ```
 
-All commands are run before submitting changes:
+All commands run before submitting changes are:
 
 ```bash
 just check
 just test
 ```
 
-For ansible asset lint:
+Ansible asset linting executes via:
 
 ```bash
 uv run ansible-lint src/assets/ansible/

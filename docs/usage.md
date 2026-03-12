@@ -1,6 +1,6 @@
 # Usage
 
-Core environment setup:
+The core environment setup executes via:
 
 ```sh
 mev create macbook        # Full MacBook setup
@@ -10,7 +10,7 @@ mev cr mbk -v             # Verbose output
 mev cr mbk --overwrite    # Force overwrite role configs
 ```
 
-Run individual tasks:
+Individual tasks execute via:
 
 ```sh
 mev list                  # List available tags
@@ -33,7 +33,7 @@ mev make brew-cask --profile mmn
 #   nodejs → nodejs-platform, nodejs-tools
 ```
 
-Configuration:
+Configuration deploys via:
 
 ```sh
 mev identity set          # Configure VCS identities interactively
@@ -42,7 +42,7 @@ mev config create         # Deploy all role configs to ~/.config/mev/
 mev config create rust    # Deploy only rust role config
 ```
 
-Switch VCS identity:
+VCS identity switches via:
 
 ```sh
 mev switch personal       # Switch to personal identity
@@ -51,7 +51,7 @@ mev sw p                  # Shorthand
 mev sw w                  # Shorthand
 ```
 
-Backup:
+Backup initiates via:
 
 ```sh
 mev backup system         # Backup macOS system defaults
@@ -60,14 +60,14 @@ mev backup --list           # List available backup targets
 mev bk system             # Shorthand
 ```
 
-Update:
+Update executes via:
 
 ```sh
 mev update
 mev u                     # Shorthand
 ```
 
-Help:
+Help displays via:
 
 ```sh
 mev --help
