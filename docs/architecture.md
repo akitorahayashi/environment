@@ -74,9 +74,3 @@ tests/
 Two-stage config deployment:
 1. Package → `~/.config/mev/roles/{role}/`: Copy via `mev config create` or auto-deploy on `mev make`
 2. `~/.config/mev/roles/{role}/` → Local destinations: Symbolic links
-
-### Development
-- `just run <args>`: Run mev in dev mode
-- `just check`: Format and lint
-- `just test`: Run all Rust tests
-- `v*` tag push: `.github/workflows/release.yml` delegates to `.github/workflows/build.yml`, and the build job attaches `mev-darwin-aarch64` plus its SHA256 file directly to GitHub Releases
