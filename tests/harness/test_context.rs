@@ -31,6 +31,7 @@ impl TestContext {
         let bin_path = assert_cmd::cargo::cargo_bin!("mev");
         let mut cmd = Command::new(bin_path);
         cmd.current_dir(&self.work_dir);
+        cmd.env("HOME", &self.work_dir);
         cmd
     }
 

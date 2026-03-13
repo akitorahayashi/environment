@@ -43,6 +43,8 @@ jobs:
   # ============================================================
   # Phase 0: Bootstrap runtime repository on worker branch
   # ============================================================
+
+
   bootstrap:
     
     if: >-
@@ -73,8 +75,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -128,7 +134,9 @@ jobs:
             --pr-title "chore: bootstrap runtime workspace" \
             --pr-body "${pr_body}"
 
+
       - name: Wait for bootstrap sync PR merge
+        id: wait_for_sync_pr
         if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
         env:
           GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
@@ -152,7 +160,7 @@ jobs:
             sleep 5
           done
 
-          echo "::error::Timed out waiting for bootstrap sync PR #$PR_NUMBER to merge."
+          echo "::error::Timed out waiting for bootstrap sync pr #$PR_NUMBER to merge."
           exit 1
 
 
@@ -217,8 +225,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -252,13 +264,14 @@ jobs:
           requested_flag='${{ fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_scribe == true }}'
           request_result='${{ needs.request-scribe-run.result }}'
           request_count='${{ fromJSON(needs.request-scribe-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          should_wait='${{ fromJSON(needs.request-scribe-run.outputs.json || '{}').should_wait == true }}'
           if [ "${requested_flag}" = "true" ]; then
             if [ "${request_result}" != "success" ]; then
               echo "::error::Expected successful run request for 'scribe' but got '${request_result}'."
               exit 1
             fi
             requested=false
-            if [ "${request_count}" -gt 0 ]; then
+            if [ "${should_wait}" = "true" ]; then
               requested=true
             fi
           else
@@ -330,6 +343,7 @@ jobs:
   # Phase 4: Cleanup mock artifacts
   # ============================================================
 
+
   cleanup-mock-artifacts:
     needs: ["wait-after-scribe"]
     if: |
@@ -360,8 +374,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo

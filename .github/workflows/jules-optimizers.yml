@@ -51,6 +51,7 @@ env:
 
 
 
+
 jobs:
   consume-schedule-ticket:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -88,6 +89,8 @@ jobs:
 
 
 
+
+
   bootstrap:
     
     needs: ["consume-schedule-ticket"]
@@ -120,8 +123,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -175,7 +182,9 @@ jobs:
             --pr-title "chore: bootstrap runtime workspace" \
             --pr-body "${pr_body}"
 
+
       - name: Wait for bootstrap sync PR merge
+        id: wait_for_sync_pr
         if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
         env:
           GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
@@ -199,7 +208,7 @@ jobs:
             sleep 5
           done
 
-          echo "::error::Timed out waiting for bootstrap sync PR #$PR_NUMBER to merge."
+          echo "::error::Timed out waiting for bootstrap sync pr #$PR_NUMBER to merge."
           exit 1
 
 
@@ -269,8 +278,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -304,13 +317,14 @@ jobs:
           requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_narrator == true }}'
           request_result='${{ needs.request-narrator-run.result }}'
           request_count='${{ fromJSON(needs.request-narrator-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          should_wait='${{ fromJSON(needs.request-narrator-run.outputs.json || '{}').should_wait == true }}'
           if [ "${requested_flag}" = "true" ]; then
             if [ "${request_result}" != "success" ]; then
               echo "::error::Expected successful run request for 'narrator' but got '${request_result}'."
               exit 1
             fi
             requested=false
-            if [ "${request_count}" -gt 0 ]; then
+            if [ "${should_wait}" = "true" ]; then
               requested=true
             fi
           else
@@ -389,6 +403,8 @@ jobs:
       needs.wait-after-narrator.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     outputs:
       json: ${{ steps.resolve.outputs.json }}
     steps:
@@ -398,8 +414,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -412,7 +432,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${MOCK_MODE}" = "true" ]; then
-            jlo workflow resolve matrix --layer observers --mock --mock-target-count 3
+            jlo workflow resolve matrix --layer observers --mock
           else
             jlo workflow resolve matrix --layer observers
           fi
@@ -449,8 +469,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -597,8 +621,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -632,13 +660,14 @@ jobs:
           requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_merger == true }}'
           request_result='${{ needs.request-merger-run.result }}'
           request_count='${{ fromJSON(needs.request-merger-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          should_wait='${{ fromJSON(needs.request-merger-run.outputs.json || '{}').should_wait == true }}'
           if [ "${requested_flag}" = "true" ]; then
             if [ "${request_result}" != "success" ]; then
               echo "::error::Expected successful run request for 'merger' but got '${request_result}'."
               exit 1
             fi
             requested=false
-            if [ "${request_count}" -gt 0 ]; then
+            if [ "${should_wait}" = "true" ]; then
               requested=true
             fi
           else
@@ -733,8 +762,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -768,13 +801,14 @@ jobs:
           requested_flag='${{ fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_dispatcher == true }}'
           request_result='${{ needs.request-dispatcher-run.result }}'
           request_count='${{ fromJSON(needs.request-dispatcher-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          should_wait='${{ fromJSON(needs.request-dispatcher-run.outputs.json || '{}').should_wait == true }}'
           if [ "${requested_flag}" = "true" ]; then
             if [ "${request_result}" != "success" ]; then
               echo "::error::Expected successful run request for 'dispatcher' but got '${request_result}'."
               exit 1
             fi
             requested=false
-            if [ "${request_count}" -gt 0 ]; then
+            if [ "${should_wait}" = "true" ]; then
               requested=true
             fi
           else
@@ -843,7 +877,106 @@ jobs:
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 10: Resolve and run planner (matrix)
+  # Phase 10: Publish requirements lane to implementer issues
+  # ============================================================
+
+  publish-implementer-requirements:
+    needs: ["wait-after-dispatcher"]
+    if: |
+      !cancelled() &&
+      needs.wait-after-dispatcher.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'jules'
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_PAT }}
+
+
+      - name: Configure Git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+
+      - name: Publish implementer issues (requirements)
+        id: publish
+        run: |
+          set -euo pipefail
+          jlo workflow exchange publish-issues --issue-kind implementer --source-lane requirements
+
+      - name: Validate structure
+        run: jlo workflow doctor structure
+
+      - name: Create sync PR
+        id: sync_pr
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain .jules)" ]; then
+            echo "No exchange publication changes detected."
+            exit 0
+          fi
+          jlo workflow create-sync-pr \
+            --change-token "publish-implementer-requirements" \
+            --commit-message "jules: publish implementer requirements lane" \
+            --pr-title "chore: publish implementer requirements lane" \
+            --pr-body "Automated publication cleanup for requirements lane implementer issues."
+
+
+      - name: Wait for exchange publication sync PR merge
+        id: wait_for_sync_pr
+        if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+          PR_NUMBER: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').pr_number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
+            if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
+              echo "Exchange publication sync PR #$PR_NUMBER merged at ${merged_at}."
+              exit 0
+            fi
+
+            state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
+            if [ "${state}" = "CLOSED" ]; then
+              echo "::error::Exchange publication sync PR #$PR_NUMBER closed without merge."
+              exit 1
+            fi
+
+            sleep 5
+          done
+
+          echo "::error::Timed out waiting for exchange publication sync pr #$PR_NUMBER to merge."
+          exit 1
+
+      - name: Roll back published issues on sync failure
+        if: ${{ always() && steps.publish.outcome == 'success' && fromJSON(steps.publish.outputs.json || '{}').published_count > 0 && (steps.sync_pr.outcome == 'failure' || (fromJSON(steps.sync_pr.outputs.json || '{}').applied == true && steps.wait_for_sync_pr.outcome == 'failure')) }}
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+          PUBLISHED_JSON: ${{ steps.publish.outputs.json || '{}' }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          echo "Rolling back published implementer issues because worker-branch sync was not completed."
+          jq -r '.published[]?.issue_number' <<<"${PUBLISHED_JSON}" | while read -r issue_number; do
+            if [ -n "${issue_number}" ]; then
+              gh issue close "${issue_number}" --repo "${REPO}"
+            fi
+          done
+  # ============================================================
+  # Phase 11: Resolve and run planner (matrix)
   # ============================================================
 
   resolve-planner-matrix:
@@ -853,6 +986,8 @@ jobs:
       needs.wait-after-dispatcher.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     outputs:
       json: ${{ steps.resolve.outputs.json }}
     steps:
@@ -862,8 +997,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -876,7 +1015,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${MOCK_MODE}" = "true" ]; then
-            jlo workflow resolve matrix --layer planner --mock --mock-target-count 2
+            jlo workflow resolve matrix --layer planner --mock
           else
             jlo workflow resolve matrix --layer planner
           fi
@@ -913,8 +1052,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -981,7 +1124,7 @@ jobs:
           echo "${json}"
           echo "json=${json}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 11: Wait for planner PRs
+  # Phase 12: Wait for planner PRs
   # ============================================================
   # Matrix boundary is reported in the macro so planner skip/zero-target
   # behavior does not leak into downstream implementer gating.
@@ -1037,16 +1180,117 @@ jobs:
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 12: Resolve and run implementer (matrix)
+  # Phase 13: Publish plans lane to implementer issues
   # ============================================================
 
-  resolve-implementer-matrix:
+  publish-implementer-plans:
     needs: ["wait-after-planner"]
     if: |
       !cancelled() &&
       needs.wait-after-planner.result == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'jules'
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_PAT }}
+
+
+      - name: Configure Git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+
+      - name: Publish implementer issues (plans)
+        id: publish
+        run: |
+          set -euo pipefail
+          jlo workflow exchange publish-issues --issue-kind implementer --source-lane plans
+
+      - name: Validate structure
+        run: jlo workflow doctor structure
+
+      - name: Create sync PR
+        id: sync_pr
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain .jules)" ]; then
+            echo "No exchange publication changes detected."
+            exit 0
+          fi
+          jlo workflow create-sync-pr \
+            --change-token "publish-implementer-plans" \
+            --commit-message "jules: publish implementer plans lane" \
+            --pr-title "chore: publish implementer plans lane" \
+            --pr-body "Automated publication cleanup for plans lane implementer issues."
+
+
+      - name: Wait for exchange publication sync PR merge
+        id: wait_for_sync_pr
+        if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+          PR_NUMBER: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').pr_number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
+            if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
+              echo "Exchange publication sync PR #$PR_NUMBER merged at ${merged_at}."
+              exit 0
+            fi
+
+            state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
+            if [ "${state}" = "CLOSED" ]; then
+              echo "::error::Exchange publication sync PR #$PR_NUMBER closed without merge."
+              exit 1
+            fi
+
+            sleep 5
+          done
+
+          echo "::error::Timed out waiting for exchange publication sync pr #$PR_NUMBER to merge."
+          exit 1
+
+      - name: Roll back published issues on sync failure
+        if: ${{ always() && steps.publish.outcome == 'success' && fromJSON(steps.publish.outputs.json || '{}').published_count > 0 && (steps.sync_pr.outcome == 'failure' || (fromJSON(steps.sync_pr.outputs.json || '{}').applied == true && steps.wait_for_sync_pr.outcome == 'failure')) }}
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+          PUBLISHED_JSON: ${{ steps.publish.outputs.json || '{}' }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          echo "Rolling back published implementer issues because worker-branch sync was not completed."
+          jq -r '.published[]?.issue_number' <<<"${PUBLISHED_JSON}" | while read -r issue_number; do
+            if [ -n "${issue_number}" ]; then
+              gh issue close "${issue_number}" --repo "${REPO}"
+            fi
+          done
+  # ============================================================
+  # Phase 14: Resolve and run implementer (matrix)
+  # ============================================================
+
+  resolve-implementer-matrix:
+    needs: ["publish-implementer-requirements", "publish-implementer-plans"]
+    if: |
+      !cancelled() &&
+      needs.publish-implementer-requirements.result == 'success'
+    runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     outputs:
       json: ${{ steps.resolve.outputs.json }}
     steps:
@@ -1056,8 +1300,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -1070,7 +1318,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${MOCK_MODE}" = "true" ]; then
-            jlo workflow resolve matrix --layer implementer --mock --mock-target-count 2
+            jlo workflow resolve matrix --layer implementer --mock
           else
             jlo workflow resolve matrix --layer implementer
           fi
@@ -1107,8 +1355,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -1120,7 +1372,7 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          result=$(jlo run --json implementer --plan "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
+          result=$(jlo run --json implementer --issue "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
           echo "${result}"
           echo "json=${result}" >> "$GITHUB_OUTPUT"
 
@@ -1175,7 +1427,7 @@ jobs:
           echo "${json}"
           echo "json=${json}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 13: Wait for implementer labels
+  # Phase 15: Wait for implementer labels
   # ============================================================
 
   wait-after-implementer:
@@ -1230,8 +1482,9 @@ jobs:
           echo "json={}" >> "$GITHUB_OUTPUT"
 
   # ============================================================
-  # Phase 14: Cleanup mock artifacts
+  # Phase 16: Cleanup mock artifacts
   # ============================================================
+
 
   cleanup-mock-artifacts:
     needs: ["wait-after-planner", "wait-after-implementer"]
@@ -1263,8 +1516,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo

@@ -33,6 +33,8 @@ jobs:
   # ============================================================
   # Phase 0: Bootstrap runtime repository on worker branch
   # ============================================================
+
+
   bootstrap:
     
     if: >-
@@ -63,8 +65,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -118,7 +124,9 @@ jobs:
             --pr-title "chore: bootstrap runtime workspace" \
             --pr-body "${pr_body}"
 
+
       - name: Wait for bootstrap sync PR merge
+        id: wait_for_sync_pr
         if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
         env:
           GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
@@ -142,7 +150,7 @@ jobs:
             sleep 5
           done
 
-          echo "::error::Timed out waiting for bootstrap sync PR #$PR_NUMBER to merge."
+          echo "::error::Timed out waiting for bootstrap sync pr #$PR_NUMBER to merge."
           exit 1
 
 
@@ -157,6 +165,8 @@ jobs:
       needs.bootstrap.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     outputs:
       json: ${{ steps.resolve.outputs.json }}
     steps:
@@ -166,8 +176,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -180,7 +194,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${MOCK_MODE}" = "true" ]; then
-            jlo workflow resolve matrix --layer innovators --mock --mock-target-count 1
+            jlo workflow resolve matrix --layer innovators --mock
           else
             jlo workflow resolve matrix --layer innovators
           fi
@@ -220,8 +234,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -344,6 +362,7 @@ jobs:
   # ============================================================
   # Phase 3: Publish innovators proposals
   # ============================================================
+
   publish-proposals:
     needs: [wait-after-run-innovators]
     if: |
@@ -359,8 +378,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
@@ -392,6 +415,7 @@ jobs:
   # Phase 4: Cleanup mock artifacts
   # ============================================================
 
+
   cleanup-mock-artifacts:
     needs: ["publish-proposals"]
     if: |
@@ -422,8 +446,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
+
       - name: Configure Git
-        uses: ./.github/actions/configure-git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
         uses: ./.github/actions/install-jlo
