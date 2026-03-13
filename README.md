@@ -2,7 +2,7 @@
 
 macOS development environment provisioning CLI.
 
-Rust-first architecture with embedded Ansible assets.
+Rust-first architecture with embedded Ansible assets (playbooks and roles), orchestrating an external `ansible-playbook` binary installed on the host via `pipx`.
 
 ## Canonical Model
 
