@@ -2,7 +2,7 @@
 # Jules Scribe — Documentation Maintenance
 #
 # Orchestrates the scribe layer for canonical documentation synchronization.
-# Workflow-dispatch only.
+# Supports direct dispatch and reusable invocation.
 
 name: Jules Scribe
 
@@ -23,18 +23,32 @@ on:
         description: 'Run in mock mode (creates branches/PRs without Jules API)'
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      entry_point:
+        description: 'Start from layer'
+        type: string
+        default: scribe
+      wait_minutes:
+        description: 'Minutes to wait between layers (Jules async processing time)'
+        type: number
+        default: 30
+      mock:
+        description: 'Run in mock mode (creates branches/PRs without Jules API)'
+        type: boolean
+        default: false
 
 permissions: {}
 
 concurrency:
-  group: 'jules-scribe'
+  group: 'jules-worker'
   cancel-in-progress: false
 
 env:
-  WAIT_MINUTES: ${{ github.event.inputs.wait_minutes || 30 }}
-  MOCK_MODE: ${{ github.event.inputs.mock == 'true' || false }}
+  WAIT_MINUTES: ${{ github.event_name == 'workflow_call' && (inputs.wait_minutes || 30) || github.event.inputs.wait_minutes || 30 }}
+  MOCK_MODE: ${{ github.event_name == 'workflow_call' && inputs.mock == true || github.event.inputs.mock == 'true' || false }}
   JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
-  JLO_RUN_FLAGS: ${{ github.event.inputs.mock == 'true' && '--mock' || '' }}
+  JLO_RUN_FLAGS: ${{ ((github.event_name == 'workflow_call' && inputs.mock == true) || github.event.inputs.mock == 'true') && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
 
@@ -48,7 +62,7 @@ jobs:
   bootstrap:
     
     if: >-
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') &&
       
       true
       
@@ -95,7 +109,7 @@ jobs:
         run: jlo workflow bootstrap managed-files
 
       - name: Clean exchange directory state
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.mock != 'true' }}
+        if: ${{ env.MOCK_MODE != 'true' }}
         env:
           PRESERVE_EXCHANGE: ${{ '' }}
         run: |
@@ -165,13 +179,13 @@ jobs:
 
 
   # ============================================================
-  # Phase 1: Resolve scribes plan
+  # Phase 1: Resolve scribe plan
   # ============================================================
-  resolve-scribes-plan:
+  resolve-scribe-plan:
     needs: [bootstrap]
     if: |
       needs.bootstrap.result == 'success' &&
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -189,13 +203,13 @@ jobs:
           token: ${{ secrets.JLO_RELEASE_PAT }}
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
-      - name: Resolve scribes plan
+      - name: Resolve scribe plan
         id: check
         env:
-          ENTRY_POINT: ${{ github.event.inputs.entry_point || 'scribe' }}
+          ENTRY_POINT: ${{ github.event_name == 'workflow_call' && (inputs.entry_point || 'scribe') || github.event.inputs.entry_point || 'scribe' }}
         run: |
           set -euo pipefail
-          jlo workflow resolve scribes-plan --entry-point "$ENTRY_POINT"
+          jlo workflow resolve scribe-plan --entry-point "$ENTRY_POINT"
 
 
   # ============================================================
@@ -205,11 +219,11 @@ jobs:
   
   
   request-scribe-run:
-    needs: ["resolve-scribes-plan"]
+    needs: ["resolve-scribe-plan"]
     if: |
       !cancelled() &&
-      needs.resolve-scribes-plan.result == 'success' &&
-            fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_scribe == true
+      needs.resolve-scribe-plan.result == 'success' &&
+            fromJSON(needs.resolve-scribe-plan.outputs.json || '{}').run_scribe == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -246,11 +260,11 @@ jobs:
           echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-scribe-status:
-    needs: ["resolve-scribes-plan", "request-scribe-run"]
+    needs: ["resolve-scribe-plan", "request-scribe-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.resolve-scribes-plan.result == 'success'
+      needs.resolve-scribe-plan.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -261,7 +275,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          requested_flag='${{ fromJSON(needs.resolve-scribes-plan.outputs.json || '{}').run_scribe == true }}'
+          requested_flag='${{ fromJSON(needs.resolve-scribe-plan.outputs.json || '{}').run_scribe == true }}'
           request_result='${{ needs.request-scribe-run.result }}'
           request_count='${{ fromJSON(needs.request-scribe-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
           should_wait='${{ fromJSON(needs.request-scribe-run.outputs.json || '{}').should_wait == true }}'
@@ -349,7 +363,10 @@ jobs:
     if: |
       !cancelled() &&
       always() &&
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true')
+      (
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true') ||
+        (github.event_name == 'workflow_call' && inputs.mock == true)
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:

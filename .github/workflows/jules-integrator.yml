@@ -7,7 +7,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: 'jules-integrator'
+  group: 'jules-worker'
   cancel-in-progress: false
 
 env:

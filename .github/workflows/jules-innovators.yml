@@ -12,18 +12,28 @@ on:
         description: 'Run in mock mode (creates branches/PRs without Jules API)'
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      wait_minutes:
+        description: 'Minutes to wait for Jules async processing'
+        type: number
+        default: 30
+      mock:
+        description: 'Run in mock mode (creates branches/PRs without Jules API)'
+        type: boolean
+        default: false
 
 permissions: {}
 
 concurrency:
-  group: 'jules-innovators'
+  group: 'jules-worker'
   cancel-in-progress: false
 
 env:
-  WAIT_MINUTES: ${{ github.event.inputs.wait_minutes || 30 }}
-  MOCK_MODE: ${{ github.event.inputs.mock == 'true' || false }}
+  WAIT_MINUTES: ${{ github.event_name == 'workflow_call' && (inputs.wait_minutes || 30) || github.event.inputs.wait_minutes || 30 }}
+  MOCK_MODE: ${{ github.event_name == 'workflow_call' && inputs.mock == true || github.event.inputs.mock == 'true' || false }}
   JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
-  JLO_RUN_FLAGS: ${{ github.event.inputs.mock == 'true' && '--mock' || '' }}
+  JLO_RUN_FLAGS: ${{ ((github.event_name == 'workflow_call' && inputs.mock == true) || github.event.inputs.mock == 'true') && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
 
@@ -38,7 +48,7 @@ jobs:
   bootstrap:
     
     if: >-
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') &&
       
       true
       
@@ -85,7 +95,7 @@ jobs:
         run: jlo workflow bootstrap managed-files
 
       - name: Clean exchange directory state
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.mock != 'true' }}
+        if: ${{ env.MOCK_MODE != 'true' }}
         env:
           PRESERVE_EXCHANGE: ${{ '' }}
         run: |
@@ -162,7 +172,9 @@ jobs:
     needs: ["bootstrap"]
     if: |
       !cancelled() &&
+
       needs.bootstrap.result == 'success'
+
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -363,7 +375,7 @@ jobs:
   # Phase 3: Publish innovators proposals
   # ============================================================
 
-  publish-proposals:
+  publish-innovator-issues:
     needs: [wait-after-run-innovators]
     if: |
       needs.wait-after-run-innovators.result == 'success'
@@ -391,8 +403,8 @@ jobs:
           token: ${{ secrets.JLO_RELEASE_PAT }}
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
-      - name: Publish proposals
-        run: jlo workflow publish-proposals
+      - name: Publish innovator issues
+        run: jlo workflow publish innovator-issues
 
       - name: Validate structure
         run: jlo workflow doctor structure
@@ -405,7 +417,7 @@ jobs:
             exit 0
           fi
           jlo workflow create-sync-pr \
-            --change-token "publish-proposals" \
+            --change-token "publish-innovator-issues" \
             --commit-message "jules: publish innovator proposals" \
             --pr-title "chore: publish innovator proposals" \
             --pr-body "Automated publication cleanup for innovator proposals."
@@ -417,11 +429,14 @@ jobs:
 
 
   cleanup-mock-artifacts:
-    needs: ["publish-proposals"]
+    needs: ["publish-innovator-issues"]
     if: |
       !cancelled() &&
       always() &&
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true')
+      (
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true') ||
+        (github.event_name == 'workflow_call' && inputs.mock == true)
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:

@@ -1,10 +1,10 @@
 # This file is auto-generated. Do not edit manually.
 
-# Jules Specialists — Single Observer → Implementer
+# Jules Specialists — Single Observer Specialist Lane
 #
-# Runs a single observer (selected via workflow_dispatch) and routes the
-# generated events directly to an implementer matrix, bypassing the
-# planner phase.
+# Runs a single observer (selected via workflow_dispatch), skips merger,
+# dispatches ready requirements directly to implementers, and sends
+# remaining requirements through planner before implementer execution.
 
 name: Jules Specialists
 
@@ -46,7 +46,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: 'jules-specialists'
+  group: 'jules-worker'
   cancel-in-progress: false
 
 env:
@@ -71,7 +71,7 @@ jobs:
   bootstrap:
     
     if: >-
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') &&
       
       true
       
@@ -118,7 +118,7 @@ jobs:
         run: jlo workflow bootstrap managed-files
 
       - name: Clean exchange directory state
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.mock != 'true' }}
+        if: ${{ env.MOCK_MODE != 'true' }}
         env:
           PRESERVE_EXCHANGE: ${{ '' }}
         run: |
@@ -229,7 +229,7 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          result=$(jlo run --json observers ${{ env.JLO_RUN_FLAGS }} --role "${OBSERVER_ROLE}")
+          result=$(jlo run --json observers ${{ env.JLO_RUN_FLAGS }} --role "${OBSERVER_ROLE}" --task emit_requirements)
           echo "${result}"
           echo "json=${result}" >> "$GITHUB_OUTPUT"
 
@@ -328,14 +328,154 @@ jobs:
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 3: Publish events lane to implementer issues
+  # Phase 2.5: Run dispatcher
   # ============================================================
 
-  publish-implementer-events:
+  
+  
+  request-dispatcher-run:
     needs: ["wait-after-observer"]
     if: |
       !cancelled() &&
       needs.wait-after-observer.result == 'success'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      json: ${{ steps.run.outputs.json }}
+    env:
+      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'jules'
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_PAT }}
+
+
+      - name: Configure Git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+      - name: Run dispatcher
+        id: run
+        run: |
+          set -euo pipefail
+          result=$(jlo run --json dispatcher ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
+
+  report-dispatcher-status:
+    needs: ["wait-after-observer", "request-dispatcher-run"]
+    if: |
+      !cancelled() &&
+      always() &&
+      needs.wait-after-observer.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.report.outputs.json }}
+    steps:
+      - name: Report Run dispatcher status
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested_flag='${{ true }}'
+          request_result='${{ needs.request-dispatcher-run.result }}'
+          request_count='${{ fromJSON(needs.request-dispatcher-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
+          should_wait='${{ fromJSON(needs.request-dispatcher-run.outputs.json || '{}').should_wait == true }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${request_result}" != "success" ]; then
+              echo "::error::Expected successful run request for 'dispatcher' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+            if [ "${should_wait}" = "true" ]; then
+              requested=true
+            fi
+          else
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'dispatcher' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${request_count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 2.6: Wait after dispatcher
+  # ============================================================
+
+  wait-after-dispatcher:
+    needs: ['report-dispatcher-status']
+    if: |
+      !cancelled() &&
+      needs.report-dispatcher-status.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      json: ${{ steps.wait.outputs.json }}
+    steps:
+      - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
+        id: wait
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested='${{ fromJSON(needs.report-dispatcher-status.outputs.json || '{}').requested == true }}'
+          SLEEP_PID=""
+          on_cancel() {
+            echo "Cancellation detected. Exiting wait early."
+            if [ -n "$SLEEP_PID" ]; then
+              kill "$SLEEP_PID" 2>/dev/null || true
+              wait "$SLEEP_PID" 2>/dev/null || true
+            fi
+            exit 130
+          }
+          trap on_cancel INT TERM
+
+          if [ "$requested" != "true" ]; then
+            TOTAL_SECONDS=0
+            echo "Dispatcher wait not required; skipping wait."
+          elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
+            TOTAL_SECONDS=15
+            echo "Mock mode enabled: overriding wait to 15 seconds."
+          else
+            TOTAL_SECONDS=$((${{ env.WAIT_MINUTES }} * 60))
+          fi
+
+          if [ "$TOTAL_SECONDS" -le 0 ]; then
+            echo "Wait skipped (TOTAL_SECONDS=$TOTAL_SECONDS)."
+            echo "json={}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process dispatcher..."
+          # Foreground sleep delays trap handling until sleep returns in bash.
+          # Use background sleep + wait so cancellation signals are processed immediately.
+          sleep "$TOTAL_SECONDS" &
+          SLEEP_PID=$!
+          wait "$SLEEP_PID"
+          echo "Wait complete."
+          echo "json={}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 3: Publish ready requirements lane to implementer issues
+  # ============================================================
+
+  publish-implementer-requirements:
+    needs: ["wait-after-dispatcher"]
+    if: |
+      !cancelled() &&
+      needs.wait-after-dispatcher.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -360,11 +500,11 @@ jobs:
           token: ${{ secrets.JLO_RELEASE_PAT }}
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
-      - name: Publish implementer issues (events)
+      - name: Publish implementer issues (requirements)
         id: publish
         run: |
           set -euo pipefail
-          jlo workflow exchange publish-issues --issue-kind implementer --source-lane events
+          jlo workflow publish implementer-issues requirements
 
       - name: Validate structure
         run: jlo workflow doctor structure
@@ -374,17 +514,17 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain .jules)" ]; then
-            echo "No exchange publication changes detected."
+            echo "No implementer issue publication changes detected."
             exit 0
           fi
           jlo workflow create-sync-pr \
-            --change-token "publish-implementer-events" \
-            --commit-message "jules: publish implementer events lane" \
-            --pr-title "chore: publish implementer events lane" \
-            --pr-body "Automated publication cleanup for events lane implementer issues."
+            --change-token "publish-implementer-requirements" \
+            --commit-message "jules: publish implementer requirements lane" \
+            --pr-title "chore: publish implementer requirements lane" \
+            --pr-body "Automated publication cleanup for requirements lane implementer issues."
 
 
-      - name: Wait for exchange publication sync PR merge
+      - name: Wait for implementer issue publication sync PR merge
         id: wait_for_sync_pr
         if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
         env:
@@ -396,20 +536,20 @@ jobs:
           for _ in $(seq 1 60); do
             merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
             if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
-              echo "Exchange publication sync PR #$PR_NUMBER merged at ${merged_at}."
+              echo "Implementer issue publication sync PR #$PR_NUMBER merged at ${merged_at}."
               exit 0
             fi
 
             state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
             if [ "${state}" = "CLOSED" ]; then
-              echo "::error::Exchange publication sync PR #$PR_NUMBER closed without merge."
+              echo "::error::Implementer issue publication sync PR #$PR_NUMBER closed without merge."
               exit 1
             fi
 
             sleep 5
           done
 
-          echo "::error::Timed out waiting for exchange publication sync pr #$PR_NUMBER to merge."
+          echo "::error::Timed out waiting for implementer issue publication sync pr #$PR_NUMBER to merge."
           exit 1
 
       - name: Roll back published issues on sync failure
@@ -427,14 +567,324 @@ jobs:
             fi
           done
   # ============================================================
-  # Phase 4: Resolve implementer matrix
+  # Phase 4: Resolve planner matrix
+  # ============================================================
+
+  resolve-planner-matrix:
+    needs: ["wait-after-dispatcher"]
+    if: |
+      !cancelled() &&
+
+      needs.wait-after-dispatcher.result == 'success'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+    outputs:
+      json: ${{ steps.resolve.outputs.json }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'jules'
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_PAT }}
+
+
+      - name: Configure Git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+
+      - name: Resolve planner targets
+        id: resolve
+        run: |
+          set -euo pipefail
+          if [ "${MOCK_MODE}" = "true" ]; then
+            jlo workflow resolve matrix --layer planner --mock
+          else
+            jlo workflow resolve matrix --layer planner
+          fi
+  # ============================================================
+  # Phase 5: Run planner matrix
+  # ============================================================
+
+  
+  
+  request-planner-run:
+    needs: ["report-dispatcher-status", "resolve-planner-matrix"]
+    if: |
+      !cancelled() &&
+      needs.report-dispatcher-status.result == 'success' &&
+      fromJSON(needs.report-dispatcher-status.outputs.json || '{}').requested == true &&
+      needs.resolve-planner-matrix.result == 'success' &&
+      fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Jules API session creation requests must run strictly one-by-one.
+    # Keep max-parallel fixed to 1; worker limits are enforced by target truncation at matrix-resolution time.
+    # The matrix is kept for visibility of resolved target count in the GitHub Actions GUI.
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').matrix }}
+      max-parallel: 1
+      fail-fast: false
+    outputs:
+      json: ${{ steps.run.outputs.json }}
+    env:
+      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'jules'
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_PAT }}
+
+
+      - name: Configure Git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+
+      - name: Run planner (${{ matrix.target }})
+        id: run
+        run: |
+          set -euo pipefail
+          result=$(jlo run --json planner --requirement "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
+          echo "${result}"
+          echo "json=${result}" >> "$GITHUB_OUTPUT"
+
+  report-planner-status:
+    needs: ["report-dispatcher-status", "resolve-planner-matrix", "request-planner-run"]
+    if: |
+      !cancelled() &&
+      always() &&
+      needs.report-dispatcher-status.result == 'success' &&
+      needs.resolve-planner-matrix.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      json: ${{ steps.report.outputs.json }}
+    steps:
+      - name: Report Run planner status
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested_flag='${{ fromJSON(needs.report-dispatcher-status.outputs.json || '{}').requested == true }}'
+          target_count='${{ fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
+          request_result='${{ needs.request-planner-run.result }}'
+          if [ "${requested_flag}" = "true" ]; then
+            if [ "${target_count}" = "0" ]; then
+              if [ "${request_result}" != "skipped" ]; then
+                echo "::error::Expected skipped run request for 'planner' with zero targets but got '${request_result}'."
+                exit 1
+              fi
+              requested=false
+            else
+              if [ "${request_result}" != "success" ]; then
+                echo "::error::Expected successful run request for 'planner' but got '${request_result}'."
+                exit 1
+              fi
+              requested=true
+            fi
+          else
+            if [ "${request_result}" != "skipped" ]; then
+              echo "::error::Expected skipped run request for 'planner' but got '${request_result}'."
+              exit 1
+            fi
+            requested=false
+          fi
+
+          count=0
+          if [ "${requested}" = "true" ]; then
+            count="${target_count}"
+          fi
+
+          json="$(printf '{"requested":%s,"count":%s}\n' "${requested}" "${count}")"
+          echo "${json}"
+          echo "json=${json}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 6: Wait after planner
+  # ============================================================
+
+  wait-after-planner:
+    needs: ['report-planner-status']
+    if: |
+      !cancelled() &&
+      needs.report-planner-status.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      json: ${{ steps.wait.outputs.json }}
+    steps:
+      - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
+        id: wait
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested='${{ fromJSON(needs.report-planner-status.outputs.json || '{}').requested == true }}'
+          SLEEP_PID=""
+          on_cancel() {
+            echo "Cancellation detected. Exiting wait early."
+            if [ -n "$SLEEP_PID" ]; then
+              kill "$SLEEP_PID" 2>/dev/null || true
+              wait "$SLEEP_PID" 2>/dev/null || true
+            fi
+            exit 130
+          }
+          trap on_cancel INT TERM
+
+          if [ "$requested" != "true" ]; then
+            TOTAL_SECONDS=0
+            echo "Planner wait not required; skipping wait."
+          elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
+            TOTAL_SECONDS=15
+            echo "Mock mode enabled: overriding wait to 15 seconds."
+          else
+            TOTAL_SECONDS=$((${{ env.WAIT_MINUTES }} * 60))
+          fi
+
+          if [ "$TOTAL_SECONDS" -le 0 ]; then
+            echo "Wait skipped (TOTAL_SECONDS=$TOTAL_SECONDS)."
+            echo "json={}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process planner..."
+          # Foreground sleep delays trap handling until sleep returns in bash.
+          # Use background sleep + wait so cancellation signals are processed immediately.
+          sleep "$TOTAL_SECONDS" &
+          SLEEP_PID=$!
+          wait "$SLEEP_PID"
+          echo "Wait complete."
+          echo "json={}" >> "$GITHUB_OUTPUT"
+  # ============================================================
+  # Phase 7: Publish plans lane to implementer issues
+  # ============================================================
+
+  publish-implementer-plans:
+    needs: ["wait-after-planner"]
+    if: |
+      !cancelled() &&
+      needs.wait-after-planner.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'jules'
+          fetch-depth: 0
+          token: ${{ secrets.JLO_BOT_PAT }}
+
+
+      - name: Configure Git
+        run: |
+          set -euo pipefail
+          git config user.name "aria"
+          git config user.email "aria67323@gmail.com"
+
+      - name: Install jlo
+        uses: ./.github/actions/install-jlo
+        with:
+          token: ${{ secrets.JLO_RELEASE_PAT }}
+          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+
+      - name: Publish implementer issues (plans)
+        id: publish
+        run: |
+          set -euo pipefail
+          jlo workflow publish implementer-issues plans
+
+      - name: Validate structure
+        run: jlo workflow doctor structure
+
+      - name: Create sync PR
+        id: sync_pr
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain .jules)" ]; then
+            echo "No implementer issue publication changes detected."
+            exit 0
+          fi
+          jlo workflow create-sync-pr \
+            --change-token "publish-implementer-plans" \
+            --commit-message "jules: publish implementer plans lane" \
+            --pr-title "chore: publish implementer plans lane" \
+            --pr-body "Automated publication cleanup for plans lane implementer issues."
+
+
+      - name: Wait for implementer issue publication sync PR merge
+        id: wait_for_sync_pr
+        if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+          PR_NUMBER: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').pr_number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
+            if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
+              echo "Implementer issue publication sync PR #$PR_NUMBER merged at ${merged_at}."
+              exit 0
+            fi
+
+            state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
+            if [ "${state}" = "CLOSED" ]; then
+              echo "::error::Implementer issue publication sync PR #$PR_NUMBER closed without merge."
+              exit 1
+            fi
+
+            sleep 5
+          done
+
+          echo "::error::Timed out waiting for implementer issue publication sync pr #$PR_NUMBER to merge."
+          exit 1
+
+      - name: Roll back published issues on sync failure
+        if: ${{ always() && steps.publish.outcome == 'success' && fromJSON(steps.publish.outputs.json || '{}').published_count > 0 && (steps.sync_pr.outcome == 'failure' || (fromJSON(steps.sync_pr.outputs.json || '{}').applied == true && steps.wait_for_sync_pr.outcome == 'failure')) }}
+        env:
+          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
+          PUBLISHED_JSON: ${{ steps.publish.outputs.json || '{}' }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          echo "Rolling back published implementer issues because worker-branch sync was not completed."
+          jq -r '.published[]?.issue_number' <<<"${PUBLISHED_JSON}" | while read -r issue_number; do
+            if [ -n "${issue_number}" ]; then
+              gh issue close "${issue_number}" --repo "${REPO}"
+            fi
+          done
+  # ============================================================
+  # Phase 8: Resolve implementer matrix
   # ============================================================
 
   resolve-implementer-matrix:
-    needs: ["publish-implementer-events"]
+    needs: ["publish-implementer-requirements", "publish-implementer-plans"]
     if: |
       !cancelled() &&
-      needs.publish-implementer-events.result == 'success'
+
+      needs.publish-implementer-requirements.result == 'success' &&
+
+      needs.publish-implementer-plans.result == 'success'
+
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -471,17 +921,17 @@ jobs:
             jlo workflow resolve matrix --layer implementer
           fi
   # ============================================================
-  # Phase 5: Run implementer matrix
+  # Phase 9: Run implementer matrix
   # ============================================================
 
   
   
   request-implementer-run:
-    needs: ["report-observers-status", "resolve-implementer-matrix"]
+    needs: ["report-dispatcher-status", "resolve-implementer-matrix"]
     if: |
       !cancelled() &&
-      needs.report-observers-status.result == 'success' &&
-      fromJSON(needs.report-observers-status.outputs.json || '{}').requested == true &&
+      needs.report-dispatcher-status.result == 'success' &&
+      fromJSON(needs.report-dispatcher-status.outputs.json || '{}').requested == true &&
       needs.resolve-implementer-matrix.result == 'success' &&
       fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
@@ -528,11 +978,11 @@ jobs:
           echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-implementer-status:
-    needs: ["report-observers-status", "resolve-implementer-matrix", "request-implementer-run"]
+    needs: ["report-dispatcher-status", "resolve-implementer-matrix", "request-implementer-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.report-observers-status.result == 'success' &&
+      needs.report-dispatcher-status.result == 'success' &&
       needs.resolve-implementer-matrix.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -544,7 +994,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          requested_flag='${{ fromJSON(needs.report-observers-status.outputs.json || '{}').requested == true }}'
+          requested_flag='${{ fromJSON(needs.report-dispatcher-status.outputs.json || '{}').requested == true }}'
           target_count='${{ fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
           request_result='${{ needs.request-implementer-run.result }}'
           if [ "${requested_flag}" = "true" ]; then
@@ -578,7 +1028,7 @@ jobs:
           echo "${json}"
           echo "json=${json}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 6: Wait after implementer
+  # Phase 10: Wait after implementer
   # ============================================================
 
   wait-after-implementer:
@@ -632,16 +1082,19 @@ jobs:
           echo "Wait complete."
           echo "json={}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 7: Cleanup mock artifacts
+  # Phase 11: Cleanup mock artifacts
   # ============================================================
 
 
   cleanup-mock-artifacts:
-    needs: ["wait-after-observer", "wait-after-implementer"]
+    needs: ["wait-after-observer", "wait-after-dispatcher", "wait-after-planner", "wait-after-implementer"]
     if: |
       !cancelled() &&
       always() &&
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true')
+      (
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true') ||
+        (github.event_name == 'workflow_call' && inputs.mock == true)
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:

@@ -33,18 +33,32 @@ on:
         description: 'Run in mock mode (creates branches/PRs without Jules API)'
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      entry_point:
+        description: 'Start from layer'
+        type: string
+        default: narrator
+      wait_minutes:
+        description: 'Minutes to wait between layers (Jules async processing time)'
+        type: number
+        default: 30
+      mock:
+        description: 'Run in mock mode (creates branches/PRs without Jules API)'
+        type: boolean
+        default: false
 
 permissions: {}
 
 concurrency:
-  group: 'jules-orchestration'
+  group: 'jules-worker'
   cancel-in-progress: false
 
 env:
-  WAIT_MINUTES: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.wait_minutes || 30) || 30 }}
-  MOCK_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true' || false }}
+  WAIT_MINUTES: ${{ github.event_name == 'workflow_call' && (inputs.wait_minutes || 30) || github.event_name == 'workflow_dispatch' && (github.event.inputs.wait_minutes || 30) || 30 }}
+  MOCK_MODE: ${{ github.event_name == 'workflow_call' && inputs.mock == true || github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true' || false }}
   JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
-  JLO_RUN_FLAGS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true' && '--mock' || '' }}
+  JLO_RUN_FLAGS: ${{ ((github.event_name == 'workflow_call' && inputs.mock == true) || (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true')) && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
 
@@ -54,7 +68,7 @@ env:
 
 jobs:
   consume-schedule-ticket:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -69,7 +83,7 @@ jobs:
           SCHEDULE_TICKET: ${{ vars.JLO_OPTIMIZERS_SCHEDULE_TICKET || 'false' }}
         run: |
           set -euo pipefail
-          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+          if [ "${EVENT_NAME}" != "schedule" ]; then
             echo "allowed=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -96,7 +110,7 @@ jobs:
     needs: ["consume-schedule-ticket"]
     
     if: >-
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call') &&
       
       needs.consume-schedule-ticket.result == 'success' && needs.consume-schedule-ticket.outputs.allowed == 'true'
       
@@ -143,9 +157,9 @@ jobs:
         run: jlo workflow bootstrap managed-files
 
       - name: Clean exchange directory state
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.mock != 'true' }}
+        if: ${{ env.MOCK_MODE != 'true' }}
         env:
-          PRESERVE_EXCHANGE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.entry_point == 'implementer' && 'plans ready-requirements' || '' }}
+          PRESERVE_EXCHANGE: ${{ github.event_name == 'workflow_call' && inputs.entry_point == 'implementer' && 'plans ready-requirements' || github.event_name == 'workflow_dispatch' && github.event.inputs.entry_point == 'implementer' && 'plans ready-requirements' || '' }}
         run: |
           set -euo pipefail
           has_preserve=false
@@ -219,7 +233,7 @@ jobs:
     needs: [bootstrap]
     if: |
       needs.bootstrap.result == 'success' &&
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -240,15 +254,11 @@ jobs:
       - name: Resolve optimizers plan
         id: check
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          ENTRY_POINT: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.entry_point || 'narrator') || '' }}
+          EVENT_NAME: ${{ github.event_name == 'workflow_call' && 'workflow_dispatch' || github.event_name }}
+          ENTRY_POINT: ${{ github.event_name == 'workflow_call' && (inputs.entry_point || 'narrator') || github.event_name == 'workflow_dispatch' && (github.event.inputs.entry_point || 'narrator') || '' }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            jlo workflow resolve plan "$EVENT_NAME" --entry-point "$ENTRY_POINT"
-          else
-            jlo workflow resolve plan "$EVENT_NAME"
-          fi
+          jlo workflow resolve optimizers-plan "$EVENT_NAME" --entry-point "$ENTRY_POINT"
 
 
   # ============================================================
@@ -400,7 +410,9 @@ jobs:
     needs: ["wait-after-narrator"]
     if: |
       !cancelled() &&
+
       needs.wait-after-narrator.result == 'success'
+
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -486,7 +498,7 @@ jobs:
         id: run
         run: |
           set -euo pipefail
-          result=$(jlo run --json observers --role "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }})
+          result=$(jlo run --json observers --role "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }} --task emit_events)
           echo "${result}"
           echo "json=${result}" >> "$GITHUB_OUTPUT"
 
@@ -913,7 +925,7 @@ jobs:
         id: publish
         run: |
           set -euo pipefail
-          jlo workflow exchange publish-issues --issue-kind implementer --source-lane requirements
+          jlo workflow publish implementer-issues requirements
 
       - name: Validate structure
         run: jlo workflow doctor structure
@@ -923,7 +935,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain .jules)" ]; then
-            echo "No exchange publication changes detected."
+            echo "No implementer issue publication changes detected."
             exit 0
           fi
           jlo workflow create-sync-pr \
@@ -933,7 +945,7 @@ jobs:
             --pr-body "Automated publication cleanup for requirements lane implementer issues."
 
 
-      - name: Wait for exchange publication sync PR merge
+      - name: Wait for implementer issue publication sync PR merge
         id: wait_for_sync_pr
         if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
         env:
@@ -945,20 +957,20 @@ jobs:
           for _ in $(seq 1 60); do
             merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
             if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
-              echo "Exchange publication sync PR #$PR_NUMBER merged at ${merged_at}."
+              echo "Implementer issue publication sync PR #$PR_NUMBER merged at ${merged_at}."
               exit 0
             fi
 
             state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
             if [ "${state}" = "CLOSED" ]; then
-              echo "::error::Exchange publication sync PR #$PR_NUMBER closed without merge."
+              echo "::error::Implementer issue publication sync PR #$PR_NUMBER closed without merge."
               exit 1
             fi
 
             sleep 5
           done
 
-          echo "::error::Timed out waiting for exchange publication sync pr #$PR_NUMBER to merge."
+          echo "::error::Timed out waiting for implementer issue publication sync pr #$PR_NUMBER to merge."
           exit 1
 
       - name: Roll back published issues on sync failure
@@ -983,7 +995,9 @@ jobs:
     needs: ["wait-after-dispatcher"]
     if: |
       !cancelled() &&
+
       needs.wait-after-dispatcher.result == 'success'
+
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -1216,7 +1230,7 @@ jobs:
         id: publish
         run: |
           set -euo pipefail
-          jlo workflow exchange publish-issues --issue-kind implementer --source-lane plans
+          jlo workflow publish implementer-issues plans
 
       - name: Validate structure
         run: jlo workflow doctor structure
@@ -1226,7 +1240,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain .jules)" ]; then
-            echo "No exchange publication changes detected."
+            echo "No implementer issue publication changes detected."
             exit 0
           fi
           jlo workflow create-sync-pr \
@@ -1236,7 +1250,7 @@ jobs:
             --pr-body "Automated publication cleanup for plans lane implementer issues."
 
 
-      - name: Wait for exchange publication sync PR merge
+      - name: Wait for implementer issue publication sync PR merge
         id: wait_for_sync_pr
         if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
         env:
@@ -1248,20 +1262,20 @@ jobs:
           for _ in $(seq 1 60); do
             merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
             if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
-              echo "Exchange publication sync PR #$PR_NUMBER merged at ${merged_at}."
+              echo "Implementer issue publication sync PR #$PR_NUMBER merged at ${merged_at}."
               exit 0
             fi
 
             state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
             if [ "${state}" = "CLOSED" ]; then
-              echo "::error::Exchange publication sync PR #$PR_NUMBER closed without merge."
+              echo "::error::Implementer issue publication sync PR #$PR_NUMBER closed without merge."
               exit 1
             fi
 
             sleep 5
           done
 
-          echo "::error::Timed out waiting for exchange publication sync pr #$PR_NUMBER to merge."
+          echo "::error::Timed out waiting for implementer issue publication sync pr #$PR_NUMBER to merge."
           exit 1
 
       - name: Roll back published issues on sync failure
@@ -1286,7 +1300,11 @@ jobs:
     needs: ["publish-implementer-requirements", "publish-implementer-plans"]
     if: |
       !cancelled() &&
-      needs.publish-implementer-requirements.result == 'success'
+
+      needs.publish-implementer-requirements.result == 'success' &&
+
+      needs.publish-implementer-plans.result == 'success'
+
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -1491,7 +1509,10 @@ jobs:
     if: |
       !cancelled() &&
       always() &&
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true')
+      (
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true') ||
+        (github.event_name == 'workflow_call' && inputs.mock == true)
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
