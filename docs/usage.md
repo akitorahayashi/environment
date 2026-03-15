@@ -38,8 +38,8 @@ Configuration deploys via:
 ```sh
 mev identity set          # Configure VCS identities interactively
 mev identity show         # Show current configuration
-mev config create         # Deploy all role configs to ~/.config/mev/roles/
-mev config create rust    # Deploy only rust role config
+mev config deploy         # Deploy all role configs to ~/.config/mev/roles/
+mev config deploy rust    # Deploy only rust role config
 ```
 
 VCS identity switches via:

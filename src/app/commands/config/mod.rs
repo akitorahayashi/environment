@@ -7,7 +7,7 @@ use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
 
 /// Deploy role configs from ansible assets to local config root.
-pub fn create(
+pub fn deploy(
     ctx: &DependencyContainer,
     role: Option<String>,
     overwrite: bool,

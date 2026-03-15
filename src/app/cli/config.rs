@@ -2,16 +2,14 @@
 
 use clap::Subcommand;
 
-use crate::adapters::ansible::locator;
-use crate::app::DependencyContainer;
-use crate::app::commands;
+use crate::app::api;
 use crate::domain::error::AppError;
 
 #[derive(Subcommand)]
 pub enum ConfigCommand {
     /// Deploy role configs to ~/.config/mev/roles/.
-    #[command(alias = "cr")]
-    Create {
+    #[command(alias = "dp")]
+    Deploy {
         /// Role name to deploy config for. If omitted, deploys all roles.
         role: Option<String>,
 
@@ -23,11 +21,6 @@ pub enum ConfigCommand {
 
 pub fn run(cmd: ConfigCommand) -> Result<(), AppError> {
     match cmd {
-        ConfigCommand::Create { role, overwrite } => {
-            let ansible_dir = locator::locate_ansible_dir()?;
-            let ctx = DependencyContainer::new(ansible_dir)
-                .map_err(|e| AppError::Config(e.to_string()))?;
-            commands::config::create(&ctx, role, overwrite)
-        }
+        ConfigCommand::Deploy { role, overwrite } => api::config_deploy(role, overwrite),
     }
 }

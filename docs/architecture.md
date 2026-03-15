@@ -73,5 +73,5 @@ tests/
 
 ### Config Deployment Strategy
 Two-stage config deployment executes via:
-1. Package → `~/.config/mev/roles/{role}/`: Copy via `mev config create` or auto-deploy on `mev make`
+1. Package → `~/.config/mev/roles/{role}/`: Copy via `mev config deploy` or auto-deploy on `mev make`
 2. `~/.config/mev/roles/{role}/` → Local destinations: Symbolic links

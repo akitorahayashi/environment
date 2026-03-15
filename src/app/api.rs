@@ -53,9 +53,9 @@ pub fn list() -> Result<(), AppError> {
 // =============================================================================
 
 /// Deploy role configuration files.
-pub fn config_create(role: Option<String>, overwrite: bool) -> Result<(), AppError> {
+pub fn config_deploy(role: Option<String>, overwrite: bool) -> Result<(), AppError> {
     let ctx = ansible_context()?;
-    commands::config::create(&ctx, role, overwrite)
+    commands::config::deploy(&ctx, role, overwrite)
 }
 
 // =============================================================================
@@ -108,6 +108,11 @@ pub(crate) fn update_with_source(source: &dyn VersionSource) -> Result<(), AppEr
 pub fn backup(target: &str) -> Result<(), AppError> {
     let ctx = ansible_context()?;
     commands::backup::execute(&ctx, target)
+}
+
+/// List available backup targets.
+pub fn backup_list() {
+    commands::backup::list_targets();
 }
 
 fn ansible_context() -> Result<DependencyContainer, AppError> {

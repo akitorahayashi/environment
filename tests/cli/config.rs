@@ -4,11 +4,11 @@ use crate::harness::TestContext;
 use predicates::prelude::*;
 
 #[test]
-fn config_create_help() {
+fn config_deploy_help() {
     let ctx = TestContext::new();
 
     ctx.cli()
-        .args(["config", "create", "--help"])
+        .args(["config", "deploy", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Deploy role configs"));

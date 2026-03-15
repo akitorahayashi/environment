@@ -2,8 +2,7 @@
 
 use clap::Args;
 
-use crate::app::DependencyContainer;
-use crate::app::commands;
+use crate::app::api;
 use crate::domain::error::AppError;
 use crate::domain::vcs_identity;
 
@@ -20,6 +19,5 @@ pub fn run(args: SwitchArgs) -> Result<(), AppError> {
             args.identity
         ))
     })?;
-    let ctx = DependencyContainer::for_identity().map_err(|e| AppError::Config(e.to_string()))?;
-    commands::switch::execute(&ctx, identity)
+    api::switch(identity)
 }
