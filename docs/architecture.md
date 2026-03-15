@@ -20,14 +20,15 @@ src/
 │   ├── cli/               # clap argument contracts (1 file per command)
 │   │   └── mod.rs         # Single owner of clap parser and command dispatch
 │   ├── commands/           # Orchestration units per command domain
-│   ├── context.rs          # Dependency wiring (ports → adapters)
+│   ├── container.rs        # Dependency wiring (ports → adapters)
 │   └── api.rs              # Stable library entrypoints
 ├── domain/
 │   ├── error.rs            # Typed domain errors
 │   ├── ports/              # Trait interfaces
 │   ├── profile.rs          # Profile identifiers and mapping
 │   ├── tag.rs              # Tag resolution from catalogs
-│   ├── config.rs           # VCS identity configuration model
+│   ├── vcs_identity.rs     # VCS identity configuration model
+│   ├── backup_target.rs    # Backup target resolution and metadata
 │   └── execution_plan.rs   # Deterministic ansible plan construction
 ├── adapters/
 │   ├── ansible/            # Playbook execution, locator, runtime asset materialization
@@ -41,7 +42,7 @@ src/
 └── testing/                # In-process test doubles
 
 crates/
-└── mev-internal/          # Internal command implementations (shell, vcs)
+└── mev-internal/          # Internal command implementations (vcs)
 
 tests/
 ├── harness/                # Shared fixtures (TestContext)
