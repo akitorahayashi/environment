@@ -64,22 +64,28 @@ pub struct AnsibleAdapter {
 impl AnsibleAdapter {
     /// Construct from an ansible asset directory, loading the tag catalog from playbook.yml.
     pub fn new(
-        ansible_dir: PathBuf,
-        local_config_root: PathBuf,
+        ansible_dir: &Path,
+        local_config_root: &Path,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
         let (tags_by_role, tag_to_role) = load_catalog(&playbook_path)?;
 
-        Ok(Self { ansible_dir, local_config_root, roles_dir, tags_by_role, tag_to_role })
+        Ok(Self {
+            ansible_dir: ansible_dir.to_path_buf(),
+            local_config_root: local_config_root.to_path_buf(),
+            roles_dir,
+            tags_by_role,
+            tag_to_role,
+        })
     }
 
     /// Empty adapter for contexts that don't need ansible resolution.
-    pub fn empty(local_config_root: PathBuf) -> Self {
+    pub fn empty(local_config_root: &Path) -> Self {
         Self {
             ansible_dir: PathBuf::new(),
-            local_config_root,
+            local_config_root: local_config_root.to_path_buf(),
             roles_dir: PathBuf::new(),
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
@@ -188,12 +194,12 @@ impl AnsiblePort for AnsibleAdapter {
         tags
     }
 
-    fn tags_by_role(&self) -> HashMap<String, Vec<String>> {
-        self.tags_by_role.clone()
+    fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
+        &self.tags_by_role
     }
 
-    fn role_for_tag(&self, tag: &str) -> Option<String> {
-        self.tag_to_role.get(tag).cloned()
+    fn role_for_tag(&self, tag: &str) -> Option<&str> {
+        self.tag_to_role.get(tag).map(|s| s.as_str())
     }
 
     fn validate_tags(&self, tags: &[String]) -> bool {

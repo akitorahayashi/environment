@@ -29,11 +29,11 @@ pub fn deploy_for_tags(
         let Some(role) = ansible.role_for_tag(tag) else {
             continue;
         };
-        if !available.contains(&role) || !deployed.insert(role.clone()) {
+        if !available.contains(role) || !deployed.insert(role.to_string()) {
             continue;
         }
 
-        let target = local_config_root.join(&role);
+        let target = local_config_root.join(role);
         if target.exists() && !overwrite {
             continue;
         }
@@ -44,7 +44,7 @@ pub fn deploy_for_tags(
             })?;
         }
 
-        let source = ansible_dir.join("roles").join(&role).join("config");
+        let source = ansible_dir.join("roles").join(role).join("config");
         if let Err(e) = copy_dir_recursive(&source, &target) {
             let _ = std::fs::remove_dir_all(&target);
             return Err(e);

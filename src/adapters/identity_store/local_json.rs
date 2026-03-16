@@ -1,6 +1,6 @@
 //! Configuration file store using JSON on disk.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::domain::error::AppError;
 use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
@@ -77,7 +77,7 @@ impl IdentityStore for IdentityFileStore {
         }
     }
 
-    fn identity_path(&self) -> PathBuf {
-        self.identity_path.clone()
+    fn identity_path(&self) -> &Path {
+        self.identity_path.as_path()
     }
 }

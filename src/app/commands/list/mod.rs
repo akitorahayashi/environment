@@ -15,7 +15,7 @@ pub fn execute(ctx: &DependencyContainer) -> Result<(), AppError> {
     println!("{:<20} Tags", "Role");
     println!("{:-<20} {:-<40}", "", "");
     let mut roles: Vec<_> = tags_map.iter().collect();
-    roles.sort_by_key(|(name, _)| (*name).clone());
+    roles.sort_by_key(|&(name, _)| name);
     for (role, tags) in &roles {
         println!("{:<20} {}", role, tags.join(", "));
     }

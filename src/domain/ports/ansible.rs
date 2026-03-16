@@ -16,10 +16,10 @@ pub trait AnsiblePort {
     fn all_tags(&self) -> Vec<String>;
 
     /// Get mapping of role names to their associated tags.
-    fn tags_by_role(&self) -> HashMap<String, Vec<String>>;
+    fn tags_by_role(&self) -> &HashMap<String, Vec<String>>;
 
     /// Get the role name for a given tag.
-    fn role_for_tag(&self, tag: &str) -> Option<String>;
+    fn role_for_tag(&self, tag: &str) -> Option<&str>;
 
     /// Validate that all provided tags exist in the catalog.
     fn validate_tags(&self, tags: &[String]) -> bool;

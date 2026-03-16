@@ -1,6 +1,6 @@
 //! Configuration storage port.
 
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::domain::error::AppError;
 use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
@@ -20,7 +20,7 @@ pub trait IdentityStore {
     fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<VcsIdentity>, AppError>;
 
     /// Get the identity configuration file path.
-    fn identity_path(&self) -> PathBuf;
+    fn identity_path(&self) -> &Path;
 }
 
 /// Top-level identity model stored on disk.
