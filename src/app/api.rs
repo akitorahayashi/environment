@@ -1,8 +1,8 @@
-//! Stable library entrypoints for programmatic consumers.
+//! Internal entrypoints for command execution.
 //!
-//! Each public function wires context creation to command execution.
-//! `cli/` modules delegate here; external callers (tests, scripts) can
-//! import these directly via `mev::api::*`.
+//! Each function wires context creation to command execution.
+//! `cli/` modules and other crate-level callers delegate here to ensure
+//! consistent execution logic.
 
 use crate::adapters::ansible::locator;
 use crate::adapters::version_source::install_script::InstallScriptVersionSource;
@@ -10,13 +10,8 @@ use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;
-
-pub use crate::domain::backup_target::BackupTarget;
-pub use crate::domain::error::AppError as Error;
-pub use crate::domain::execution_plan::ExecutionPlan;
-pub use crate::domain::ports::identity_store::IdentityState;
-pub use crate::domain::profile::Profile;
-pub use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
+use crate::domain::profile::Profile;
+use crate::domain::vcs_identity::SwitchIdentity;
 
 // =============================================================================
 // Create
