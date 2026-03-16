@@ -83,9 +83,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
@@ -196,9 +197,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve innovators targets
@@ -254,9 +256,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run innovator (${{ matrix.target }})
@@ -398,9 +401,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish innovator issues
@@ -469,9 +473,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run

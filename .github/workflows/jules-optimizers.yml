@@ -145,9 +145,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
@@ -246,9 +247,10 @@ jobs:
           token: ${{ secrets.JLO_BOT_PAT }}
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve optimizers plan
@@ -296,9 +298,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
       - name: Run narrator
         id: run
@@ -434,9 +437,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve observers targets
@@ -489,9 +493,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run observers (${{ matrix.target }})
@@ -641,9 +646,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
       - name: Run merger
         id: run
@@ -782,9 +788,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
       - name: Run dispatcher
         id: run
@@ -916,9 +923,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish implementer issues (requirements)
@@ -1019,9 +1027,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve planner targets
@@ -1074,9 +1083,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run planner (${{ matrix.target }})
@@ -1221,9 +1231,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish implementer issues (plans)
@@ -1326,9 +1337,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve implementer targets
@@ -1381,9 +1393,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run implementer (${{ matrix.target }})
@@ -1545,9 +1558,10 @@ jobs:
           git config user.email "aria67323@gmail.com"
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run

@@ -37,9 +37,10 @@ jobs:
           token: ${{ secrets.JLO_BOT_PAT }}
 
       - name: Install jlo
-        uses: ./.github/actions/install-jlo
+        uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
+          version: '23.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run integrator
