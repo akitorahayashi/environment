@@ -4,7 +4,7 @@
     url: https://sh.rustup.rs
     dest: /tmp/rustup-init.sh
     mode: "0755"
-    checksum: "sha256:17247e4bcacf6027ec2e11c79a72c494c9af69ac8d1abcc1b271fa4375a106c2"
+    checksum: "sha256:6c30b75a75b28a96fd913a037c8581b580080b6ee9b8169a3c0feb1af7fe8caf"
 
 - name: "Install rustup"
   ansible.builtin.command:

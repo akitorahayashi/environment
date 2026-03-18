@@ -20,8 +20,8 @@ runs:
     - name: Install ansible with pipx and export binary path
       shell: bash
       run: |
-        python -m pip install --user pipx
-        python -m pipx install --force ansible
+        python -m pip install --user pipx==1.8.0
+        python -m pipx install --force ansible==11.0.0
         pipx_home="$(python -m pipx environment --value PIPX_HOME)"
         ansible_playbook_bin="${pipx_home}/venvs/ansible/bin/ansible-playbook"
         test -x "$ansible_playbook_bin"

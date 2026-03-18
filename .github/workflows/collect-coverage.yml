@@ -34,11 +34,10 @@ jobs:
       - name: Trust mise config
         run: mise trust --yes mise.toml
 
-      - name: Install mise tools
-        run: mise install --locked
+      - name: Install cargo-tarpaulin
+        run: mise install --locked cargo:cargo-tarpaulin
 
       - name: Generate coverage
         continue-on-error: true
         run: just coverage
-
 

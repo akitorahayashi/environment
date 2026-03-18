@@ -29,6 +29,8 @@ setup:
     @echo "🪄 Installing tools with mise..."
     @mise trust
     @mise install --locked
+    @echo "🐚 Installing shell tools with Homebrew..."
+    brew install shellcheck shfmt
     @echo "🐍 Installing ansible-lint dependencies with uv..."
     @uv sync
     @echo "🪝 Configuring git hooks..."

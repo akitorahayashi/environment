@@ -60,7 +60,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.0.0'
+          version: '23.1.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve stewards plan
@@ -86,7 +86,7 @@ jobs:
     with:
       entry_point: scribe
       wait_minutes: ${{ fromJSON(github.event.inputs.wait_minutes || '30') }}
-      mock: ${{ github.event.inputs.mock == 'true' || false }}
+      mock: ${{ github.event.inputs.mock == 'true' }}
 
   # ============================================================
   # Phase 2: Run optimizers workflow
@@ -103,7 +103,7 @@ jobs:
     with:
       entry_point: narrator
       wait_minutes: ${{ fromJSON(github.event.inputs.wait_minutes || '30') }}
-      mock: ${{ github.event.inputs.mock == 'true' || false }}
+      mock: ${{ github.event.inputs.mock == 'true' }}
 
   # ============================================================
   # Phase 3: Run innovators workflow
@@ -119,4 +119,4 @@ jobs:
     secrets: inherit
     with:
       wait_minutes: ${{ fromJSON(github.event.inputs.wait_minutes || '30') }}
-      mock: ${{ github.event.inputs.mock == 'true' || false }}
+      mock: ${{ github.event.inputs.mock == 'true' }}
