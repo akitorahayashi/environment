@@ -23,4 +23,7 @@ pub trait AnsiblePort {
 
     /// Validate that all provided tags exist in the catalog.
     fn validate_tags(&self, tags: &[String]) -> bool;
+
+    /// Get the config directory path for a given role, if it exists.
+    fn role_config_dir(&self, role: &str) -> Option<std::path::PathBuf>;
 }

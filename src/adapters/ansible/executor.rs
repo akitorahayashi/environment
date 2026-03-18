@@ -223,6 +223,15 @@ impl AnsiblePort for AnsibleAdapter {
     fn validate_tags(&self, tags: &[String]) -> bool {
         tags.iter().all(|t| self.tag_to_role.contains_key(t))
     }
+
+    fn role_config_dir(&self, role: &str) -> Option<PathBuf> {
+        if self.roles_dir.as_os_str().is_empty() {
+            return None;
+        }
+
+        let config_dir = self.roles_dir.join(role).join("config");
+        if config_dir.is_dir() { Some(config_dir) } else { None }
+    }
 }
 
 /// Tag catalog: role→tags mapping and tag→role mapping.

@@ -20,4 +20,16 @@ pub trait FsPort {
 
     /// Create a directory and all parent directories.
     fn create_dir_all(&self, path: &Path) -> Result<(), AppError>;
+
+    /// Remove a directory and all of its contents.
+    fn remove_dir_all(&self, path: &Path) -> Result<(), AppError>;
+
+    /// Copy a file from one location to another.
+    fn copy(&self, from: &Path, to: &Path) -> Result<u64, AppError>;
+
+    /// Rename a file or directory.
+    fn rename(&self, from: &Path, to: &Path) -> Result<(), AppError>;
+
+    /// Check whether a path exists and is a directory.
+    fn is_dir(&self, path: &Path) -> bool;
 }

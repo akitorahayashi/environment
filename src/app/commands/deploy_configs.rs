@@ -8,6 +8,7 @@ use std::path::Path;
 
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
+use crate::domain::ports::fs::FsPort;
 
 /// Deploy configs for roles associated with the given tags.
 ///
@@ -17,7 +18,7 @@ use crate::domain::ports::ansible::AnsiblePort;
 /// When `overwrite` is true, existing config directories are replaced.
 pub fn deploy_for_tags(
     tags: &[String],
-    ansible_dir: &Path,
+    fs: &dyn FsPort,
     local_config_root: &Path,
     ansible: &dyn AnsiblePort,
     overwrite: bool,
@@ -34,19 +35,22 @@ pub fn deploy_for_tags(
         }
 
         let target = local_config_root.join(role);
-        if target.exists() && !overwrite {
+        if fs.exists(&target) && !overwrite {
             continue;
         }
 
-        if target.exists() {
-            std::fs::remove_dir_all(&target).map_err(|e| {
+        if fs.exists(&target) {
+            fs.remove_dir_all(&target).map_err(|e| {
                 AppError::Config(format!("failed to remove existing config for {role}: {e}"))
             })?;
         }
 
-        let source = ansible_dir.join("roles").join(role).join("config");
-        if let Err(e) = copy_dir_recursive(&source, &target) {
-            let _ = std::fs::remove_dir_all(&target);
+        let Some(source) = ansible.role_config_dir(role) else {
+            continue;
+        };
+
+        if let Err(e) = copy_dir_recursive(&source, &target, fs) {
+            let _ = fs.remove_dir_all(&target);
             return Err(e);
         }
         println!("  Deployed config for {role}");
@@ -56,23 +60,55 @@ pub fn deploy_for_tags(
 }
 
 /// Recursively copy a directory tree.
-pub fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), AppError> {
-    if !src.is_dir() {
+pub fn copy_dir_recursive(src: &Path, dst: &Path, fs: &dyn FsPort) -> Result<(), AppError> {
+    if !fs.is_dir(src) {
         return Err(AppError::Config(format!(
             "config source directory is missing: {}",
             src.display()
         )));
     }
-    std::fs::create_dir_all(dst)?;
-    for entry in std::fs::read_dir(src)? {
-        let entry = entry?;
-        let src_path = entry.path();
-        let dst_path = dst.join(entry.file_name());
-        if src_path.is_dir() {
-            copy_dir_recursive(&src_path, &dst_path)?;
+    fs.create_dir_all(dst)?;
+    for src_path in fs.read_dir(src)? {
+        let file_name = src_path.file_name().ok_or_else(|| {
+            AppError::Io(std::io::Error::new(std::io::ErrorKind::InvalidInput, "invalid file name"))
+        })?;
+        let dst_path = dst.join(file_name);
+        if fs.is_dir(&src_path) {
+            copy_dir_recursive(&src_path, &dst_path, fs)?;
         } else {
-            std::fs::copy(&src_path, &dst_path)?;
+            fs.copy(&src_path, &dst_path)?;
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::testing::fakes::{FakeAnsiblePort, FakeFsPort};
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_deploy_for_tags_success() {
+        let fs = FakeFsPort::new();
+        let mut ansible = FakeAnsiblePort::new();
+
+        ansible.roles_with_config = vec!["zsh".to_string()];
+        ansible.tag_to_role.insert("shell".to_string(), "zsh".to_string());
+        ansible
+            .roles_config_dir
+            .insert("zsh".to_string(), PathBuf::from("/ansible/roles/zsh/config"));
+
+        fs.add_dir(Path::new("/ansible/roles/zsh/config"));
+        fs.add_file(Path::new("/ansible/roles/zsh/config/.zshrc"), "zsh config");
+
+        let tags = vec!["shell".to_string()];
+        let local_config_root = PathBuf::from("/local/config");
+
+        let result = deploy_for_tags(&tags, &fs, &local_config_root, &ansible, false);
+        assert!(result.is_ok());
+
+        // Target path is /local/config/zsh
+        assert!(fs.exists(Path::new("/local/config/zsh/.zshrc")));
+    }
 }

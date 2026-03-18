@@ -7,6 +7,7 @@ use serde::Deserialize;
 use crate::app::DependencyContainer;
 use crate::domain::backup_target::BackupTarget;
 use crate::domain::error::AppError;
+use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::ports::fs::FsPort;
 use crate::domain::ports::macos_defaults::MacosDefaultsPort;
 use crate::domain::ports::vscode::VscodePort;
@@ -286,12 +287,10 @@ fn resolve_definitions_dir(
     }
 
     let package_default_dir = ctx
-        .ansible_dir
-        .join("roles")
-        .join(target.role())
-        .join("config")
-        .join(target.subpath())
-        .join("definitions");
+        .ansible
+        .role_config_dir(target.role())
+        .map(|p| p.join(target.subpath()).join("definitions"))
+        .unwrap_or_default();
 
     DefinitionsDirResolution::PackageDefault {
         resolved_dir: package_default_dir,

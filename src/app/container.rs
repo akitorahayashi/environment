@@ -21,7 +21,7 @@ use crate::adapters::vscode::cli::VscodeCli;
 /// Application context wiring ports to concrete adapters.
 #[allow(dead_code)]
 pub struct DependencyContainer {
-    pub ansible_dir: PathBuf,
+    ansible_dir: PathBuf,
     _ansible_temp_dir: Option<TempDir>,
     pub local_config_root: PathBuf,
     pub ansible: AnsibleAdapter,

@@ -30,4 +30,20 @@ impl FsPort for StdFs {
     fn create_dir_all(&self, path: &Path) -> Result<(), AppError> {
         std::fs::create_dir_all(path).map_err(AppError::Io)
     }
+
+    fn remove_dir_all(&self, path: &Path) -> Result<(), AppError> {
+        std::fs::remove_dir_all(path).map_err(AppError::Io)
+    }
+
+    fn copy(&self, from: &Path, to: &Path) -> Result<u64, AppError> {
+        std::fs::copy(from, to).map_err(AppError::Io)
+    }
+
+    fn rename(&self, from: &Path, to: &Path) -> Result<(), AppError> {
+        std::fs::rename(from, to).map_err(AppError::Io)
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        path.is_dir()
+    }
 }

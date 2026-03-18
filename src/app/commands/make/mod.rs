@@ -32,7 +32,7 @@ pub fn execute(
     // Deploy configs for roles about to be executed
     deploy_configs::deploy_for_tags(
         &plan.tags,
-        &ctx.ansible_dir,
+        &ctx.fs,
         &ctx.local_config_root,
         &ctx.ansible,
         overwrite,
