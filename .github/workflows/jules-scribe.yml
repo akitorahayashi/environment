@@ -9,30 +9,12 @@ name: Jules Scribe
 on:
   workflow_dispatch:
     inputs:
-      entry_point:
-        description: 'Start from layer'
-        type: choice
-        options:
-          - scribe
-        default: scribe
-      wait_minutes:
-        description: 'Minutes to wait between layers (Jules async processing time)'
-        type: number
-        default: 30
       mock:
         description: 'Run in mock mode (creates branches/PRs without Jules API)'
         type: boolean
         default: false
   workflow_call:
     inputs:
-      entry_point:
-        description: 'Start from layer'
-        type: string
-        default: scribe
-      wait_minutes:
-        description: 'Minutes to wait between layers (Jules async processing time)'
-        type: number
-        default: 30
       mock:
         description: 'Run in mock mode (creates branches/PRs without Jules API)'
         type: boolean
@@ -45,13 +27,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  WAIT_MINUTES: ${{ github.event_name == 'workflow_call' && (inputs.wait_minutes || 30) || github.event.inputs.wait_minutes || 30 }}
   MOCK_MODE: ${{ github.event_name == 'workflow_call' && inputs.mock == true || github.event.inputs.mock == 'true' }}
   JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
   JLO_RUN_FLAGS: ${{ ((github.event_name == 'workflow_call' && inputs.mock == true) || github.event.inputs.mock == 'true') && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
-
 
 jobs:
   # ============================================================
@@ -180,52 +160,16 @@ jobs:
 
 
   # ============================================================
-  # Phase 1: Resolve scribe plan
-  # ============================================================
-  resolve-scribe-plan:
-    needs: [bootstrap]
-    if: |
-      needs.bootstrap.result == 'success' &&
-      (github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      json: ${{ steps.check.outputs.json }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_PAT }}
-
-      - name: Install jlo
-        uses: asterismhq/setup-jlo@v1
-        with:
-          token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-
-      - name: Resolve scribe plan
-        id: check
-        env:
-          ENTRY_POINT: ${{ github.event_name == 'workflow_call' && (inputs.entry_point || 'scribe') || github.event.inputs.entry_point || 'scribe' }}
-        run: |
-          set -euo pipefail
-          jlo workflow resolve scribe-plan --entry-point "$ENTRY_POINT"
-
-
-  # ============================================================
-  # Phase 2: Run scribe
+  # Phase 1: Run scribe
   # ============================================================
 
   
   
   request-scribe-run:
-    needs: ["resolve-scribe-plan"]
+    needs: ["bootstrap"]
     if: |
       !cancelled() &&
-      needs.resolve-scribe-plan.result == 'success' &&
-            fromJSON(needs.resolve-scribe-plan.outputs.json || '{}').run_scribe == true
+      needs.bootstrap.result == 'success'
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -263,11 +207,11 @@ jobs:
           echo "json=${result}" >> "$GITHUB_OUTPUT"
 
   report-scribe-status:
-    needs: ["resolve-scribe-plan", "request-scribe-run"]
+    needs: ["bootstrap", "request-scribe-run"]
     if: |
       !cancelled() &&
       always() &&
-      needs.resolve-scribe-plan.result == 'success'
+      needs.bootstrap.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -278,7 +222,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          requested_flag='${{ fromJSON(needs.resolve-scribe-plan.outputs.json || '{}').run_scribe == true }}'
+          requested_flag='${{ true }}'
           request_result='${{ needs.request-scribe-run.result }}'
           request_count='${{ fromJSON(needs.request-scribe-run.outputs.json || '{}').number_of_api_requests_succeeded || 0 }}'
           should_wait='${{ fromJSON(needs.request-scribe-run.outputs.json || '{}').should_wait == true }}'
@@ -303,66 +247,12 @@ jobs:
           echo "${json}"
           echo "json=${json}" >> "$GITHUB_OUTPUT"
   # ============================================================
-  # Phase 3: Wait after scribe
-  # ============================================================
-
-  wait-after-scribe:
-    needs: ['report-scribe-status']
-    if: |
-      !cancelled() &&
-      needs.report-scribe-status.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    outputs:
-      json: ${{ steps.wait.outputs.json }}
-    steps:
-      - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
-        id: wait
-        shell: bash
-        run: |
-          set -euo pipefail
-          requested='${{ fromJSON(needs.report-scribe-status.outputs.json || '{}').requested == true }}'
-          SLEEP_PID=""
-          on_cancel() {
-            echo "Cancellation detected. Exiting wait early."
-            if [ -n "$SLEEP_PID" ]; then
-              kill "$SLEEP_PID" 2>/dev/null || true
-              wait "$SLEEP_PID" 2>/dev/null || true
-            fi
-            exit 130
-          }
-          trap on_cancel INT TERM
-
-          if [ "$requested" != "true" ]; then
-            TOTAL_SECONDS=0
-            echo "Scribe wait not required; skipping wait."
-          elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
-            TOTAL_SECONDS=15
-            echo "Mock mode enabled: overriding wait to 15 seconds."
-          else
-            TOTAL_SECONDS=$((${{ env.WAIT_MINUTES }} * 60))
-          fi
-
-          if [ "$TOTAL_SECONDS" -le 0 ]; then
-            echo "Wait skipped (TOTAL_SECONDS=$TOTAL_SECONDS)."
-            echo "json={}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process scribe..."
-          # Foreground sleep delays trap handling until sleep returns in bash.
-          # Use background sleep + wait so cancellation signals are processed immediately.
-          sleep "$TOTAL_SECONDS" &
-          SLEEP_PID=$!
-          wait "$SLEEP_PID"
-          echo "Wait complete."
-          echo "json={}" >> "$GITHUB_OUTPUT"
-  # ============================================================
-  # Phase 4: Cleanup mock artifacts
+  # Phase 2: Cleanup mock artifacts
   # ============================================================
 
 
   cleanup-mock-artifacts:
-    needs: ["wait-after-scribe"]
+    needs: ["report-scribe-status"]
     if: |
       !cancelled() &&
       always() &&

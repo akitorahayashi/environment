@@ -4,14 +4,9 @@ macOS development environment provisioning CLI.
 
 Rust-first architecture with embedded Ansible assets (playbooks and roles), orchestrating an external `ansible-playbook` binary installed on the host via `pipx`.
 
-## Canonical Model
+## Quick Start
 
-- Profile: A machine hardware configuration target (e.g., Macbook, MacMini, Common) mapped to an Ansible execution context.
-- Identity: Personal or work VCS configuration elements (name, email) applied to Git and Jujutsu.
-- Tag: An individual provisioning task or group of tasks resolved into an execution plan.
-- Backup Target: A defined system state or application configuration (e.g., macOS defaults, VSCode extensions) preserved by the tool.
-
-## Prerequisites
+### Prerequisites
 
 The following prerequisites are required:
 
@@ -33,7 +28,7 @@ The following prerequisites are required:
    pipx install ansible
    ```
 
-## Installation
+### Installation
 
 The CLI is installed via the following script:
 
@@ -41,7 +36,7 @@ The CLI is installed via the following script:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/akitorahayashi/mev/main/install.sh)"
 ```
 
-## Verification
+### Verification
 
 The installation is verified via:
 

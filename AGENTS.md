@@ -11,7 +11,7 @@ For detailed work and architectural guidelines, agents use the following as thei
 - [Contributing](CONTRIBUTING.md): Workflow, coding standards, and procedural verification rules.
 - [Docs](docs/): The central index for architectural decisions, system usage, and configuration specifications.
 
-The CLI commands are detailed in [README.md](README.md).
+The CLI commands are detailed in [Docs Usage](docs/usage.md).
 
 ## Python Surface
 

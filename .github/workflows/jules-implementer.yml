@@ -1,10 +1,10 @@
 # This file is auto-generated. Do not edit manually.
-# Jules Implementers
+# Jules Implementer
 #
 # Runs all open implementer-eligible issues selected by the implementer issue
 # contract in a serialized matrix.
 
-name: Jules Implementers
+name: Jules Implementer
 
 on:
   workflow_dispatch:
@@ -212,7 +212,7 @@ jobs:
     if: |
       !cancelled() &&
       needs.resolve-implementer-matrix.result == 'success' &&
-      fromJSON(needs.resolve-implementer-matrix.outputs.json || '{}').count == true &&
+      fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 &&
       needs.resolve-implementer-matrix.result == 'success' &&
       fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
@@ -276,7 +276,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          requested_flag='${{ fromJSON(needs.resolve-implementer-matrix.outputs.json || '{}').count == true }}'
+          requested_flag='${{ fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 }}'
           target_count='${{ fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
           request_result='${{ needs.request-implementer-run.result }}'
           if [ "${requested_flag}" = "true" ]; then

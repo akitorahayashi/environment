@@ -223,7 +223,7 @@ jobs:
     if: |
       !cancelled() &&
       needs.resolve-innovators-matrix.result == 'success' &&
-      fromJSON(needs.resolve-innovators-matrix.outputs.json || '{}').count == true &&
+      fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 &&
       needs.resolve-innovators-matrix.result == 'success' &&
       fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
@@ -287,7 +287,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          requested_flag='${{ fromJSON(needs.resolve-innovators-matrix.outputs.json || '{}').count == true }}'
+          requested_flag='${{ fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 }}'
           target_count='${{ fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}'
           request_result='${{ needs.request-innovators-run.result }}'
           if [ "${requested_flag}" = "true" ]; then

@@ -3,7 +3,7 @@
 # Jules Specialists — Single Observer Specialist Lane
 #
 # Runs a single observer (selected via workflow_dispatch), skips merger,
-# dispatches ready requirements directly to implementers, and sends
+# dispatches ready requirements directly to implementer, and sends
 # remaining requirements through planner before implementer execution.
 
 name: Jules Specialists

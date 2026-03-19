@@ -84,8 +84,6 @@ jobs:
     uses: ./.github/workflows/jules-scribe.yml
     secrets: inherit
     with:
-      entry_point: scribe
-      wait_minutes: ${{ fromJSON(github.event.inputs.wait_minutes || '30') }}
       mock: ${{ github.event.inputs.mock == 'true' }}
 
   # ============================================================
