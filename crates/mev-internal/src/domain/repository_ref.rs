@@ -121,4 +121,43 @@ mod tests {
             .expect("ssh remote should parse");
         assert_eq!(repo.as_gh_repo_arg(), "github.com/owner/repo");
     }
+
+    #[test]
+    fn from_remote_url_parses_scp_like_ssh() {
+        let repo = RepositoryRef::from_remote_url("git@github.com:owner/repo.git")
+            .expect("scp-like ssh remote should parse");
+        assert_eq!(repo.host.as_deref(), Some("github.com"));
+        assert_eq!(repo.owner, "owner");
+        assert_eq!(repo.name, "repo");
+    }
+
+    #[test]
+    fn from_remote_url_parses_standard_ssh() {
+        let repo = RepositoryRef::from_remote_url("ssh://git@github.com/owner/repo.git")
+            .expect("standard ssh remote should parse");
+        assert_eq!(repo.host.as_deref(), Some("github.com"));
+        assert_eq!(repo.owner, "owner");
+        assert_eq!(repo.name, "repo");
+    }
+
+    #[test]
+    fn from_remote_url_parses_http() {
+        let repo = RepositoryRef::from_remote_url("http://github.com/owner/repo.git")
+            .expect("http remote should parse");
+        assert_eq!(repo.host.as_deref(), Some("github.com"));
+        assert_eq!(repo.owner, "owner");
+        assert_eq!(repo.name, "repo");
+    }
+
+    #[test]
+    fn from_remote_url_fails_on_unsupported_url() {
+        let result = RepositoryRef::from_remote_url("ftp://github.com/owner/repo.git");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn from_repo_arg_fails_on_invalid_format() {
+        assert!(RepositoryRef::from_repo_arg("just-one-part").is_err());
+        assert!(RepositoryRef::from_repo_arg("host/owner/repo/extra").is_err());
+    }
 }
