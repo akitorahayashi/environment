@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use serde::Deserialize;
 
 use crate::app::DependencyContainer;
-use crate::domain::backup_target::BackupTarget;
+use crate::domain::backup_target::{BackupTarget, validate_backup_target};
 use crate::domain::error::AppError;
 use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::ports::fs::FsPort;
@@ -38,13 +38,7 @@ enum DefinitionsDirResolution {
 
 /// Execute the `backup` command for a given target.
 pub fn execute(ctx: &DependencyContainer, target_input: &str) -> Result<(), AppError> {
-    let target = BackupTarget::from_input(target_input).ok_or_else(|| {
-        let valid: Vec<_> = BackupTarget::all().iter().map(|t| t.name()).collect();
-        AppError::Backup(format!(
-            "unknown backup target '{target_input}'. Valid targets: {}",
-            valid.join(", ")
-        ))
-    })?;
+    let target = validate_backup_target(target_input)?;
 
     let local_config_dir = ctx.local_config_root.join(target.role()).join(target.subpath());
 

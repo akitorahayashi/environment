@@ -64,7 +64,7 @@ fn backup_unknown_target_fails() {
         .args(["backup", "nonexistent"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("unknown backup target"));
+        .stderr(predicate::str::contains("is not a valid target"));
 }
 
 #[test]

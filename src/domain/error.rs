@@ -20,6 +20,9 @@ pub enum AppError {
     /// Configuration error.
     Config(String),
 
+    /// Invalid backup target identifier.
+    InvalidBackupTarget(String),
+
     /// Update operation failure.
     Update(String),
 
@@ -43,6 +46,7 @@ impl fmt::Display for AppError {
             Self::InvalidProfile(p) => write!(f, "invalid profile: {p}"),
             Self::InvalidIdentity(i) => write!(f, "invalid identity: {i}"),
             Self::InvalidTag(t) => write!(f, "invalid tag: {t}"),
+            Self::InvalidBackupTarget(t) => write!(f, "invalid backup target: {t}"),
             Self::Config(msg) => write!(f, "configuration error: {msg}"),
             Self::Update(msg) => write!(f, "update failed: {msg}"),
             Self::Backup(msg) => write!(f, "backup failed: {msg}"),
