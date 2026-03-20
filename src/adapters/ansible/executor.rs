@@ -391,7 +391,7 @@ mod tests {
         env_map.insert(ANSIBLE_PLAYBOOK_BIN_ENV.to_string(), bin_path.clone().into());
 
         let adapter = AnsibleAdapter {
-            ansible_dir: ansible_dir.clone(),
+            ansible_dir,
             local_config_root: PathBuf::from("/local/config"),
             roles_dir,
             tags_by_role: HashMap::new(),
@@ -415,7 +415,7 @@ mod tests {
 
         assert_eq!(args[0], playbook_path.to_string_lossy());
         assert!(args.contains(&"profile=my_profile".to_string()));
-        assert!(args.contains(&format!("config_dir_abs_path={}", ansible_dir.display())));
+        assert!(args.contains(&format!("config_dir_abs_path={}", adapter.ansible_dir.display())));
         assert!(args.contains(&format!("repo_root_path={}", dir.path().display())));
         assert!(args.contains(&"--tags".to_string()));
         assert!(args.contains(&"tag1,tag2".to_string()));

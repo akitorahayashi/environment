@@ -1,5 +1,6 @@
 //! `backup` command orchestration — backup system settings or configurations.
 
+use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
@@ -101,7 +102,7 @@ fn execute_system(
     for def in &definitions {
         let raw_value = match ctx.macos_defaults.read_key(&def.domain, &def.key)? {
             Some(v) => v,
-            None => value_to_string(&def.default),
+            None => value_to_string(&def.default).into_owned(),
         };
         let formatted = format_value(def, &raw_value);
         lines.extend(build_entry(def, &formatted));
@@ -139,13 +140,13 @@ fn load_definitions(fs: &dyn FsPort, dir: &Path) -> Result<Vec<SettingDefinition
     Ok(definitions)
 }
 
-fn value_to_string(v: &serde_yaml::Value) -> String {
+fn value_to_string(v: &serde_yaml::Value) -> Cow<'_, str> {
     match v {
-        serde_yaml::Value::Bool(b) => b.to_string(),
-        serde_yaml::Value::Number(n) => n.to_string(),
-        serde_yaml::Value::String(s) => s.clone(),
-        serde_yaml::Value::Null => String::new(),
-        other => format!("{other:?}"),
+        serde_yaml::Value::Bool(b) => Cow::Owned(b.to_string()),
+        serde_yaml::Value::Number(n) => Cow::Owned(n.to_string()),
+        serde_yaml::Value::String(s) => Cow::Borrowed(s.as_str()),
+        serde_yaml::Value::Null => Cow::Borrowed(""),
+        other => Cow::Owned(format!("{other:?}")),
     }
 }
 
@@ -159,9 +160,9 @@ fn format_value(def: &SettingDefinition, raw_value: &str) -> String {
             let value = if raw_value.is_empty() {
                 value_to_string(&def.default)
             } else {
-                raw_value.to_string()
+                Cow::Borrowed(raw_value)
             };
-            serde_json::to_string(&value).unwrap_or(value)
+            serde_json::to_string(&value).unwrap_or_else(|_| value.into_owned())
         }
     }
 }
@@ -191,7 +192,7 @@ fn format_bool(raw_value: &str, default: &serde_yaml::Value) -> String {
 
 fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) -> String {
     let target = if raw_value.trim().is_empty() {
-        value_to_string(default)
+        value_to_string(default).into_owned()
     } else {
         raw_value.trim().to_string()
     };
@@ -207,21 +208,21 @@ fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) 
 fn format_string(raw_value: &str, key: &str, default: &serde_yaml::Value) -> String {
     let mut value = if raw_value.is_empty() {
         match default {
-            serde_yaml::Value::String(s) => s.clone(),
-            _ => String::new(),
+            serde_yaml::Value::String(s) => Cow::Borrowed(s.as_str()),
+            _ => Cow::Borrowed(""),
         }
     } else {
-        raw_value.to_string()
+        Cow::Borrowed(raw_value)
     };
 
     if key == "location"
         && let Ok(home) = std::env::var("HOME")
         && value.starts_with(&home)
     {
-        value = value.replacen(&home, "$HOME", 1);
+        value = Cow::Owned(value.replacen(&home, "$HOME", 1));
     }
 
-    serde_json::to_string(&value).unwrap_or(value)
+    serde_json::to_string(&value).unwrap_or_else(|_| value.into_owned())
 }
 
 fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
