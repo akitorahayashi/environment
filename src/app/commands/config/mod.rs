@@ -74,7 +74,8 @@ fn deploy_internal(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::testing::fakes::{FakeAnsiblePort, FakeFsPort};
+    use crate::testing::ansible::FakeAnsiblePort;
+    use crate::testing::fs::FakeFsPort;
     use std::path::PathBuf;
 
     #[test]

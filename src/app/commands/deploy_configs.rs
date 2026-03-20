@@ -85,7 +85,8 @@ pub fn copy_dir_recursive(src: &Path, dst: &Path, fs: &dyn FsPort) -> Result<(),
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::testing::fakes::{FakeAnsiblePort, FakeFsPort};
+    use crate::testing::ansible::FakeAnsiblePort;
+    use crate::testing::fs::FakeFsPort;
     use std::path::PathBuf;
 
     #[test]

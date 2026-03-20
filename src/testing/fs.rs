@@ -3,15 +3,14 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use crate::domain::error::AppError;
-use crate::domain::ports::ansible::AnsiblePort;
 use crate::domain::ports::fs::FsPort;
 
 pub struct FakeFsPort {
-    // files maps a file path to its string content
+    /// maps a file path to its string content
     pub files: RefCell<HashMap<PathBuf, String>>,
-    // dirs is a set of directory paths
+    /// set of directory paths
     pub dirs: RefCell<HashSet<PathBuf>>,
-    // events tracks method calls for assertions
+    /// tracks method calls for assertions
     pub events: RefCell<Vec<String>>,
 }
 
@@ -165,58 +164,5 @@ impl FsPort for FakeFsPort {
 
     fn is_dir(&self, path: &Path) -> bool {
         self.dirs.borrow().contains(path)
-    }
-}
-
-pub struct FakeAnsiblePort {
-    pub roles_with_config: Vec<String>,
-    pub tag_to_role: HashMap<String, String>,
-    pub roles_config_dir: HashMap<String, PathBuf>,
-    pub all_tags: Vec<String>,
-    pub tags_by_role: HashMap<String, Vec<String>>,
-    pub events: RefCell<Vec<String>>,
-}
-
-impl FakeAnsiblePort {
-    pub fn new() -> Self {
-        Self {
-            roles_with_config: Vec::new(),
-            tag_to_role: HashMap::new(),
-            roles_config_dir: HashMap::new(),
-            all_tags: Vec::new(),
-            tags_by_role: HashMap::new(),
-            events: RefCell::new(Vec::new()),
-        }
-    }
-}
-
-impl AnsiblePort for FakeAnsiblePort {
-    fn run_playbook(&self, profile: &str, tags: &[String], _verbose: bool) -> Result<(), AppError> {
-        self.events.borrow_mut().push(format!("run_playbook: {} with tags {:?}", profile, tags));
-        Ok(())
-    }
-
-    fn roles_with_config(&self) -> Result<Vec<String>, AppError> {
-        Ok(self.roles_with_config.clone())
-    }
-
-    fn all_tags(&self) -> Vec<String> {
-        self.all_tags.clone()
-    }
-
-    fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
-        &self.tags_by_role
-    }
-
-    fn role_for_tag(&self, tag: &str) -> Option<&str> {
-        self.tag_to_role.get(tag).map(|s| s.as_str())
-    }
-
-    fn validate_tags(&self, tags: &[String]) -> bool {
-        tags.iter().all(|t| self.all_tags.contains(t))
-    }
-
-    fn role_config_dir(&self, role: &str) -> Option<PathBuf> {
-        self.roles_config_dir.get(role).cloned()
     }
 }

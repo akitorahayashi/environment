@@ -1,3 +1,4 @@
-//! In-process test doubles and builders.
+//! In-process test doubles.
 
-pub mod fakes;
+pub mod ansible;
+pub mod fs;

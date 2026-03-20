@@ -7,4 +7,7 @@ mod adapters;
 pub mod app;
 mod domain;
 
+#[cfg(test)]
+pub mod testing;
+
 pub use app::cli::run as cli;
