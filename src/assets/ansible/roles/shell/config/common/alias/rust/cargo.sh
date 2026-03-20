@@ -4,6 +4,7 @@
 alias cr="cargo"
 alias cr-n="cargo new"
 alias cr-i="cargo install"
+alias cr-i-c="cargo install --path ."
 alias cr-ls="cargo install --list"
 alias cr-ui="cargo uninstall"
 alias cr-cl="cargo clean"

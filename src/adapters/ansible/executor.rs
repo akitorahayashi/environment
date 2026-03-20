@@ -17,8 +17,10 @@ const ANSIBLE_PLAYBOOK_BIN_ENV: &str = "ANSIBLE_PLAYBOOK_BIN";
 const PIPX_HOME_ENV: &str = "PIPX_HOME";
 const PIPX_ANSIBLE_PLAYBOOK_RELATIVE_PATH: &str = "venvs/ansible/bin/ansible-playbook";
 
-fn resolve_ansible_playbook_bin() -> Result<PathBuf, AppError> {
-    if let Some(custom_bin) = env::var_os(ANSIBLE_PLAYBOOK_BIN_ENV) {
+fn resolve_ansible_playbook_bin_with_env(
+    env_var: impl Fn(&str) -> Option<std::ffi::OsString>,
+) -> Result<PathBuf, AppError> {
+    if let Some(custom_bin) = env_var(ANSIBLE_PLAYBOOK_BIN_ENV) {
         let custom_path = PathBuf::from(custom_bin);
         if custom_path.is_file() {
             return Ok(custom_path);
@@ -32,9 +34,9 @@ fn resolve_ansible_playbook_bin() -> Result<PathBuf, AppError> {
         });
     }
 
-    let pipx_home = env::var_os(PIPX_HOME_ENV)
+    let pipx_home = env_var(PIPX_HOME_ENV)
         .map(PathBuf::from)
-        .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".local").join("pipx")))
+        .or_else(|| env_var("HOME").map(|home| PathBuf::from(home).join(".local").join("pipx")))
         .ok_or_else(|| AppError::AnsibleExecution {
             message: format!(
                 "neither {PIPX_HOME_ENV} nor HOME is set; cannot resolve pipx ansible-playbook path."
@@ -104,6 +106,16 @@ impl AnsibleAdapter {
         tags: &[String],
         verbose: bool,
     ) -> Result<Command, AppError> {
+        self.build_command_with_env(profile, tags, verbose, |k| env::var_os(k))
+    }
+
+    pub(crate) fn build_command_with_env(
+        &self,
+        profile: &str,
+        tags: &[String],
+        verbose: bool,
+        env_var: impl Fn(&str) -> Option<std::ffi::OsString>,
+    ) -> Result<Command, AppError> {
         if self.ansible_dir.as_os_str().is_empty() {
             return Err(AppError::AnsibleExecution {
                 message: "ansible adapter not initialised (no ansible_dir)".to_string(),
@@ -128,7 +140,7 @@ impl AnsibleAdapter {
             });
         }
 
-        let ansible_playbook = resolve_ansible_playbook_bin()?;
+        let ansible_playbook = resolve_ansible_playbook_bin_with_env(env_var)?;
 
         let mut cmd = Command::new(ansible_playbook);
         cmd.arg(&playbook_path)
@@ -287,66 +299,37 @@ fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serial_test::serial;
+    use std::collections::HashMap;
     use std::ffi::OsString;
     use std::fs;
     use tempfile::tempdir;
 
-    struct EnvGuard {
-        key: String,
-        old_value: Option<OsString>,
-    }
-
-    impl EnvGuard {
-        fn set(key: &str, value: impl Into<OsString>) -> Self {
-            let key_str = key.to_string();
-            let old_value = env::var_os(&key_str);
-            unsafe { env::set_var(&key_str, value.into()) };
-            Self { key: key_str, old_value }
-        }
-
-        fn remove(key: &str) -> Self {
-            let key_str = key.to_string();
-            let old_value = env::var_os(&key_str);
-            unsafe { env::remove_var(&key_str) };
-            Self { key: key_str, old_value }
-        }
-    }
-
-    impl Drop for EnvGuard {
-        fn drop(&mut self) {
-            if let Some(ref old) = self.old_value {
-                unsafe { env::set_var(&self.key, old) };
-            } else {
-                unsafe { env::remove_var(&self.key) };
-            }
-        }
-    }
-
     #[test]
-    #[serial]
     fn test_resolve_ansible_playbook_bin_custom_valid() {
         let dir = tempdir().unwrap();
         let bin_path = dir.path().join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
 
-        let _guard = EnvGuard::set(ANSIBLE_PLAYBOOK_BIN_ENV, &bin_path);
-        let result = resolve_ansible_playbook_bin();
+        let mut env_map: HashMap<String, OsString> = HashMap::new();
+        env_map.insert(ANSIBLE_PLAYBOOK_BIN_ENV.to_string(), bin_path.clone().into());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
         assert_eq!(result.unwrap(), bin_path);
     }
 
     #[test]
-    #[serial]
     fn test_resolve_ansible_playbook_bin_custom_invalid() {
-        let _guard = EnvGuard::set(ANSIBLE_PLAYBOOK_BIN_ENV, "/invalid/path/to/ansible-playbook");
-        let result = resolve_ansible_playbook_bin();
+        let mut env_map: HashMap<String, OsString> = HashMap::new();
+        env_map.insert(
+            ANSIBLE_PLAYBOOK_BIN_ENV.to_string(),
+            OsString::from("/invalid/path/to/ansible-playbook"),
+        );
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
 
     #[test]
-    #[serial]
     fn test_resolve_ansible_playbook_bin_pipx_home_valid() {
         let dir = tempdir().unwrap();
         let pipx_home = dir.path().join("pipx");
@@ -355,16 +338,14 @@ mod tests {
         let bin_path = bin_dir.join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
 
-        let _bin_guard = EnvGuard::remove(ANSIBLE_PLAYBOOK_BIN_ENV);
-        let _pipx_guard = EnvGuard::set(PIPX_HOME_ENV, &pipx_home);
-
-        let result = resolve_ansible_playbook_bin();
+        let mut env_map: HashMap<String, OsString> = HashMap::new();
+        env_map.insert(PIPX_HOME_ENV.to_string(), pipx_home.into());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
         assert_eq!(result.unwrap(), bin_path);
     }
 
     #[test]
-    #[serial]
     fn test_resolve_ansible_playbook_bin_home_valid() {
         let dir = tempdir().unwrap();
         let home = dir.path().join("home");
@@ -373,29 +354,22 @@ mod tests {
         let bin_path = bin_dir.join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
 
-        let _bin_guard = EnvGuard::remove(ANSIBLE_PLAYBOOK_BIN_ENV);
-        let _pipx_guard = EnvGuard::remove(PIPX_HOME_ENV);
-        let _home_guard = EnvGuard::set("HOME", &home);
-
-        let result = resolve_ansible_playbook_bin();
+        let mut env_map: HashMap<String, OsString> = HashMap::new();
+        env_map.insert("HOME".to_string(), home.into());
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
         assert_eq!(result.unwrap(), bin_path);
     }
 
     #[test]
-    #[serial]
     fn test_resolve_ansible_playbook_bin_not_found() {
-        let _bin_guard = EnvGuard::remove(ANSIBLE_PLAYBOOK_BIN_ENV);
-        let _pipx_guard = EnvGuard::remove(PIPX_HOME_ENV);
-        let _home_guard = EnvGuard::remove("HOME");
-
-        let result = resolve_ansible_playbook_bin();
+        let env_map: HashMap<String, OsString> = HashMap::new();
+        let result = resolve_ansible_playbook_bin_with_env(|k| env_map.get(k).cloned());
 
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
 
     #[test]
-    #[serial]
     fn test_build_command_success() {
         let dir = tempdir().unwrap();
         let ansible_dir = dir.path().join("ansible");
@@ -413,7 +387,8 @@ mod tests {
         // Mock playbook binary resolution via ANSIBLE_PLAYBOOK_BIN_ENV
         let bin_path = dir.path().join("ansible-playbook");
         fs::write(&bin_path, "").unwrap();
-        let _guard = EnvGuard::set(ANSIBLE_PLAYBOOK_BIN_ENV, &bin_path);
+        let mut env_map: HashMap<String, OsString> = HashMap::new();
+        env_map.insert(ANSIBLE_PLAYBOOK_BIN_ENV.to_string(), bin_path.clone().into());
 
         let adapter = AnsibleAdapter {
             ansible_dir: ansible_dir.clone(),
@@ -423,8 +398,12 @@ mod tests {
             tag_to_role: HashMap::new(),
         };
 
-        let cmd_result =
-            adapter.build_command("my_profile", &["tag1".to_string(), "tag2".to_string()], true);
+        let cmd_result = adapter.build_command_with_env(
+            "my_profile",
+            &["tag1".to_string(), "tag2".to_string()],
+            true,
+            |k| env_map.get(k).cloned(),
+        );
 
         assert!(cmd_result.is_ok(), "build_command failed: {:?}", cmd_result.unwrap_err());
         let cmd = cmd_result.unwrap();
