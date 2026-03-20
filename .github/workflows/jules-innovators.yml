@@ -86,7 +86,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
@@ -142,27 +142,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
           PR_NUMBER: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').pr_number }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          for _ in $(seq 1 60); do
-            merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
-            if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
-              echo "Bootstrap sync PR #$PR_NUMBER merged at ${merged_at}."
-              exit 0
-            fi
-
-            state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
-            if [ "${state}" = "CLOSED" ]; then
-              echo "::error::Bootstrap sync PR #$PR_NUMBER closed without merge."
-              exit 1
-            fi
-
-            sleep 5
-          done
-
-          echo "::error::Timed out waiting for bootstrap sync pr #$PR_NUMBER to merge."
-          exit 1
+        uses: akitorahayashi/retry@v1
+        with:
+          command: >-
+            jlo workflow gh inspect-pr-merge "$PR_NUMBER"
+          max_attempts: '60'
+          retry_on: error
+          retry_on_exit_codes: '11'
+          retry_delay_seconds: '5'
 
 
   # ============================================================
@@ -200,7 +187,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve innovators targets
@@ -218,13 +205,20 @@ jobs:
 
   
   
+  
   request-innovators-run:
     needs: ["bootstrap", "resolve-innovators-matrix"]
+    
     if: |
       !cancelled() &&
+
+
+
+      needs.bootstrap.result == 'success' &&
+
       needs.resolve-innovators-matrix.result == 'success' &&
+
       fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 &&
-      needs.resolve-innovators-matrix.result == 'success' &&
       fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -259,7 +253,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run innovator (${{ matrix.target }})
@@ -331,49 +325,14 @@ jobs:
       needs.report-innovators-status.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    outputs:
-      json: ${{ steps.wait.outputs.json }}
     steps:
       - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
-        id: wait
-        shell: bash
-        run: |
-          set -euo pipefail
-          requested='${{ fromJSON(needs.report-innovators-status.outputs.json || '{}').requested == true }}'
-          SLEEP_PID=""
-          on_cancel() {
-            echo "Cancellation detected. Exiting wait early."
-            if [ -n "$SLEEP_PID" ]; then
-              kill "$SLEEP_PID" 2>/dev/null || true
-              wait "$SLEEP_PID" 2>/dev/null || true
-            fi
-            exit 130
-          }
-          trap on_cancel INT TERM
-
-          if [ "$requested" != "true" ]; then
-            TOTAL_SECONDS=0
-            echo "Wait not requested; skipping wait."
-          elif [ "${{ env.MOCK_MODE }}" = "true" ]; then
-            TOTAL_SECONDS=15
-            echo "Mock mode enabled: overriding wait to 15 seconds."
-          else
-            TOTAL_SECONDS=$((${{ env.WAIT_MINUTES }} * 60))
-          fi
-
-          if [ "$TOTAL_SECONDS" -le 0 ]; then
-            echo "Wait skipped (TOTAL_SECONDS=$TOTAL_SECONDS)."
-            echo "json={}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-            echo "Waiting ${TOTAL_SECONDS} seconds for Jules to process innovators..."
-          # Foreground sleep delays trap handling until sleep returns in bash.
-          # Use background sleep + wait so cancellation signals are processed immediately.
-          sleep "$TOTAL_SECONDS" &
-          SLEEP_PID=$!
-          wait "$SLEEP_PID"
-          echo "Wait complete."
-          echo "json={}" >> "$GITHUB_OUTPUT"
+        uses: akitorahayashi/wait@v1
+        with:
+          enabled: ${{ fromJSON(needs.report-innovators-status.outputs.json || '{}').requested == true }}
+          minutes: ${{ env.WAIT_MINUTES }}
+          seconds: ${{ env.MOCK_MODE == 'true' && '15' || '' }}
+          label: 'Jules async processing for innovators'
   # ============================================================
   # Phase 3: Publish innovators proposals
   # ============================================================
@@ -404,7 +363,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish innovator issues
@@ -476,7 +435,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run

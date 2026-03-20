@@ -173,7 +173,6 @@ echo "mise installed: $(mise --version)"
 #   just setup
 # fi
 
-if command -v mise >/dev/null 2>&1; then
-  mise trust
-  mise install --locked
+if command -v just >/dev/null 2>&1; then
+  just setup
 fi

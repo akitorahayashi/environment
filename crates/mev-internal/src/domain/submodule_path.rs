@@ -48,4 +48,9 @@ mod tests {
     fn dotted_segment_is_accepted() {
         assert!(validate_submodule_path("vendor/some..dep").is_ok());
     }
+
+    #[test]
+    fn empty_path_is_rejected() {
+        assert!(validate_submodule_path("").is_err());
+    }
 }

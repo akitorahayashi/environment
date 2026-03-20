@@ -157,7 +157,45 @@ mod tests {
 
     #[test]
     fn from_repo_arg_fails_on_invalid_format() {
-        assert!(RepositoryRef::from_repo_arg("just-one-part").is_err());
-        assert!(RepositoryRef::from_repo_arg("host/owner/repo/extra").is_err());
+        let cases = ["just-one-part", "host/owner/repo/extra"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_repo_arg(input).is_err(),
+                "from_repo_arg should fail for '{input}'"
+            );
+        }
+    }
+
+    #[test]
+    fn from_repo_arg_fails_on_empty_owner_or_name() {
+        let cases = ["/repo", "owner/", "/", "host//repo", "host/owner/"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_repo_arg(input).is_err(),
+                "from_repo_arg should fail for '{input}'"
+            );
+        }
+    }
+
+    #[test]
+    fn from_remote_url_fails_on_invalid_ssh_remote() {
+        let cases = ["git@github.com", "ssh://git@github.com"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_remote_url(input).is_err(),
+                "from_remote_url should fail for '{input}'"
+            );
+        }
+    }
+
+    #[test]
+    fn from_remote_url_fails_on_invalid_https_remote() {
+        let cases = ["https://github.com", "https://github.com/owner"];
+        for input in cases {
+            assert!(
+                RepositoryRef::from_remote_url(input).is_err(),
+                "from_remote_url should fail for '{input}'"
+            );
+        }
     }
 }

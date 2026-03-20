@@ -32,8 +32,8 @@
 
 ### Communication
 
+- When providing responses, avoid unnecessary tokens and keep responses concise and clear.
 - Base responses on repository context. Research is mandatory at conversation start.
-- Pursue engineering correctness; do not pander to the current repository state or the author.
 - Treat unstated assumptions as proposals: add the assumption and recommend a concrete design.
 - Validate necessity by contribution to purpose. Usage elsewhere is not a valid justification.
 - Do not consider or comment on issues that have already been resolved.

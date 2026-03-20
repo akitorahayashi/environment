@@ -80,7 +80,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
@@ -136,27 +136,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
           PR_NUMBER: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').pr_number }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          for _ in $(seq 1 60); do
-            merged_at="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergedAt -q '.mergedAt')"
-            if [ -n "${merged_at}" ] && [ "${merged_at}" != "null" ]; then
-              echo "Bootstrap sync PR #$PR_NUMBER merged at ${merged_at}."
-              exit 0
-            fi
-
-            state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state -q '.state')"
-            if [ "${state}" = "CLOSED" ]; then
-              echo "::error::Bootstrap sync PR #$PR_NUMBER closed without merge."
-              exit 1
-            fi
-
-            sleep 5
-          done
-
-          echo "::error::Timed out waiting for bootstrap sync pr #$PR_NUMBER to merge."
-          exit 1
+        uses: akitorahayashi/retry@v1
+        with:
+          command: >-
+            jlo workflow gh inspect-pr-merge "$PR_NUMBER"
+          max_attempts: '60'
+          retry_on: error
+          retry_on_exit_codes: '11'
+          retry_delay_seconds: '5'
 
 
   # ============================================================
@@ -165,10 +152,16 @@ jobs:
 
   
   
+  
   request-scribe-run:
     needs: ["bootstrap"]
+    
     if: |
       !cancelled() &&
+
+
+      needs.bootstrap.result == 'success' &&
+
       needs.bootstrap.result == 'success'
 
     runs-on: ubuntu-latest
@@ -196,7 +189,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
       - name: Run scribe
         id: run
@@ -295,7 +288,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_RELEASE_PAT }}
-          version: '23.1.0'
+          version: '24.0.1'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run

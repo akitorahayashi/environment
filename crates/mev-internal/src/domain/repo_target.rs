@@ -35,4 +35,16 @@ mod tests {
             .expect("origin url should resolve");
         assert_eq!(repo.as_gh_repo_arg(), "github.com/owner/repo");
     }
+
+    #[test]
+    fn fails_when_both_none() {
+        assert!(resolve_repo_ref(None, None).is_err());
+    }
+
+    #[test]
+    fn explicit_repo_only() {
+        let repo = resolve_repo_ref(Some("owner/repo"), None)
+            .expect("explicit repo without origin should win");
+        assert_eq!(repo.as_gh_repo_arg(), "owner/repo");
+    }
 }
