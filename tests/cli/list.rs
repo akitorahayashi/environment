@@ -20,3 +20,17 @@ fn list_visible_in_main_help() {
     let ctx = TestContext::new();
     ctx.cli().arg("--help").assert().success().stdout(predicate::str::contains("list"));
 }
+
+#[test]
+fn list_shows_expected_sections() {
+    let ctx = TestContext::new();
+
+    ctx.cli()
+        .args(["list"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Available Tags"))
+        .stdout(predicate::str::contains("Tag Groups (expanded automatically):"))
+        .stdout(predicate::str::contains("Profiles:"))
+        .stdout(predicate::str::contains("brew-formulae"));
+}
