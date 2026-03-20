@@ -25,35 +25,35 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Create a complete development environment for a profile.
-    #[command(alias = "cr")]
+    #[command(visible_alias = "cr")]
     Create(create::CreateArgs),
 
     /// Run individual Ansible task by tag.
-    #[command(alias = "mk")]
+    #[command(visible_alias = "mk")]
     Make(make::MakeArgs),
 
     /// List available tags for make command.
-    #[command(alias = "ls")]
+    #[command(visible_alias = "ls")]
     List,
 
     /// Manage mev configuration.
-    #[command(alias = "cf", subcommand)]
+    #[command(visible_alias = "cf", subcommand)]
     Config(config::ConfigCommand),
 
     /// Manage VCS identity configuration.
-    #[command(alias = "id", subcommand)]
+    #[command(visible_alias = "id", subcommand)]
     Identity(identity::IdentityCommand),
 
     /// Switch VCS identity between personal and work.
-    #[command(alias = "sw")]
+    #[command(visible_alias = "sw")]
     Switch(switch::SwitchArgs),
 
     /// Update mev.
-    #[command(alias = "u")]
+    #[command(visible_alias = "u")]
     Update,
 
     /// Backup system settings or configurations.
-    #[command(alias = "bk")]
+    #[command(visible_alias = "bk")]
     Backup(backup::BackupArgs),
 
     /// Internal commands used by local aliases.
