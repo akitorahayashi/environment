@@ -38,3 +38,40 @@ pub fn create_mock_bin(name: &str, temp_dir: &TempDir, script_content: &str) -> 
 
     temp_dir.path().to_path_buf()
 }
+
+/// Guard that prepends a directory to the PATH environment variable and restores it when dropped.
+/// Note: Tests using this should be marked with #[serial] to avoid environment variable races.
+pub struct PathGuard {
+    original_path: Option<std::ffi::OsString>,
+}
+
+impl PathGuard {
+    pub fn new(bin_dir: &Path) -> Self {
+        let original_path = env::var_os("PATH");
+        let mut paths =
+            env::split_paths(original_path.as_deref().unwrap_or_default()).collect::<Vec<_>>();
+        paths.insert(0, bin_dir.to_path_buf());
+        let new_path = env::join_paths(paths).expect("Failed to construct new PATH");
+        // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+        unsafe {
+            env::set_var("PATH", new_path);
+        }
+        Self { original_path }
+    }
+}
+
+impl Drop for PathGuard {
+    fn drop(&mut self) {
+        if let Some(original) = &self.original_path {
+            // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+            unsafe {
+                env::set_var("PATH", original);
+            }
+        } else {
+            // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+            unsafe {
+                env::remove_var("PATH");
+            }
+        }
+    }
+}
