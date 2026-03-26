@@ -6,9 +6,6 @@ bot_name = "aria"
 bot_email = "aria67323@gmail.com"
 jules_api_worker_max_parallel = 15
 
-[schedule]
-cron = ["0 19 * * *"]
-
 [run]
 jlo_target_branch = "main"
 jules_worker_branch = "jules"
@@ -16,6 +13,9 @@ wait_minutes_default = 30
 
 [layers.implementer]
 max_tasks_per_run = 10
+
+[layers.merger]
+requirement_file_limit = 15
 
 [layers.innovators]
 roles = [
@@ -29,6 +29,6 @@ roles = [
   { name = "data_arch", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "qa", enabled = true, tags = ["testing"], event_file_limit = 3, requirement_file_limit = 3 },
   { name = "cov", enabled = true, tags = ["testing"], event_file_limit = 3, requirement_file_limit = 3 },
-  { name = "rustacean", enabled = true, tags = [], event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "rustacean", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
 ]
 
