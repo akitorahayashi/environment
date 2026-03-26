@@ -12,7 +12,7 @@
 
 - name: "Symlink Antigravity shared config files"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/editor/common/{{ item }}"
+    src: "{{ local_config_root }}/editor/global/{{ item }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Antigravity/User/{{ item }}"
     state: link
     force: true
@@ -22,7 +22,7 @@
 
 - name: "Read Antigravity extensions list"
   ansible.builtin.slurp:
-    src: "{{ local_config_root }}/editor/common/antigravity-extensions.json"
+    src: "{{ local_config_root }}/editor/global/antigravity-extensions.json"
   register: editor_antigravity_extensions_content
 
 - name: "Parse Antigravity extensions JSON"
@@ -43,5 +43,5 @@
     mode: "0755"
 
 # Note: Agent skills deployment is handled by nodejs/coder role via skills-targets.yml
-# Skills are automatically deployed from ~/.config/mev/roles/nodejs/common/coder/skills/
+# Skills are automatically deployed from ~/.config/mev/roles/nodejs/global/coder/skills/
 # to ~/.config/google/antigravity/skills/ when the 'coder' role runs

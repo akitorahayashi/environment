@@ -13,14 +13,14 @@
 
 - name: Symlink main ssh config file
   ansible.builtin.file:
-    src: "{{ local_config_root }}/ssh/common/config"
+    src: "{{ local_config_root }}/ssh/global/config"
     dest: "{{ ansible_facts['env']['HOME'] }}/.ssh/config"
     state: link
     force: true
 
 - name: Find ssh config files in conf.d
   ansible.builtin.find:
-    paths: "{{ local_config_root }}/ssh/common/conf.d"
+    paths: "{{ local_config_root }}/ssh/global/conf.d"
     patterns: "*.conf"
   register: ssh_conf_files
 

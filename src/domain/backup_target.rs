@@ -43,7 +43,7 @@ impl BackupTarget {
 
     /// Subdirectory within the role config directory.
     pub fn subpath(self) -> &'static str {
-        "common"
+        "global"
     }
 }
 
@@ -122,5 +122,12 @@ mod tests {
     #[test]
     fn backup_target_all_returns_expected_set() {
         assert_eq!(BackupTarget::all(), &[BackupTarget::System, BackupTarget::Vscode]);
+    }
+
+    #[test]
+    fn backup_target_subpath_is_global_for_all_targets() {
+        for target in BackupTarget::all() {
+            assert_eq!(target.subpath(), "global");
+        }
     }
 }

@@ -12,7 +12,7 @@
 
 - name: "Symlink gh config.yml"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/gh/common/config.yml"
+    src: "{{ local_config_root }}/gh/global/config.yml"
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/gh/config.yml"
     state: link
     force: true

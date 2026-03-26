@@ -7,7 +7,7 @@
 
 - name: "Symlink uv.toml"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/python/common/uv.toml"
+    src: "{{ local_config_root }}/python/global/uv.toml"
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/uv/uv.toml"
     state: link
     force: true

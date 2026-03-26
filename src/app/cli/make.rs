@@ -11,8 +11,8 @@ pub struct MakeArgs {
     /// Ansible tag to run (e.g., rust, python-tools, shell, brew-cask).
     pub tag: String,
 
-    /// Profile to use (common, macbook/mbk, mac-mini/mmn).
-    #[arg(short = 'p', long, default_value = "common")]
+    /// Profile to use (global, macbook/mbk, mac-mini/mmn).
+    #[arg(short = 'p', long, default_value = "global")]
     pub profile: String,
 
     /// Overwrite existing role configs with package defaults.

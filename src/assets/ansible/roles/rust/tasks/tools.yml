@@ -1,17 +1,17 @@
 ---
 - name: "Load rust tools configuration"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/rust/common/tools.yml"
+    file: "{{ local_config_root }}/rust/global/tools.yml"
     name: rust_tools_config
 
 - name: "Load rust toolchain binary allowlist"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/rust/common/toolchain-binaries.yml"
+    file: "{{ local_config_root }}/rust/global/toolchain-binaries.yml"
     name: rust_toolchain_binaries_config
 
 - name: "Load platform mapping configuration"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/rust/common/platforms.yml"
+    file: "{{ local_config_root }}/rust/global/platforms.yml"
     name: platform_config
 
 - name: "Set platform variables"

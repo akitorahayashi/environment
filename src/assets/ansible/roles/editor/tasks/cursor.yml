@@ -12,7 +12,7 @@
 
 - name: "Symlink Cursor shared config files"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/editor/common/{{ item }}"
+    src: "{{ local_config_root }}/editor/global/{{ item }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Cursor/User/{{ item }}"
     state: link
     force: true
@@ -22,7 +22,7 @@
 
 - name: "Read Cursor extensions list"
   ansible.builtin.slurp:
-    src: "{{ local_config_root }}/editor/common/cursor-extensions.json"
+    src: "{{ local_config_root }}/editor/global/cursor-extensions.json"
   register: editor_cursor_extensions_content
 
 - name: "Parse Cursor extensions JSON"

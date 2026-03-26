@@ -78,7 +78,7 @@ fn backup_help_visible_in_main_help() {
 fn backup_system_success() {
     let ctx = TestContext::new();
 
-    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/common/definitions");
+    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global/definitions");
     std::fs::create_dir_all(&defs_dir).unwrap();
     std::fs::write(
         defs_dir.join("test.yml"),
@@ -94,7 +94,7 @@ fn backup_system_success() {
         .assert()
         .success();
 
-    let output_file = ctx.work_dir().join(".config/mev/roles/system/common/system.yml");
+    let output_file = ctx.work_dir().join(".config/mev/roles/system/global/system.yml");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file).unwrap();
     assert!(content.contains("AppleShowAllFiles"));
@@ -112,7 +112,7 @@ fn backup_vscode_success() {
         .assert()
         .success();
 
-    let output_file = ctx.work_dir().join(".config/mev/roles/editor/common/vscode-extensions.json");
+    let output_file = ctx.work_dir().join(".config/mev/roles/editor/global/vscode-extensions.json");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file).unwrap();
     assert!(content.contains("ms-python.python"));
@@ -122,7 +122,7 @@ fn backup_vscode_success() {
 fn backup_system_failure_no_definitions() {
     let ctx = TestContext::new();
 
-    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/common/definitions");
+    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global/definitions");
     std::fs::create_dir_all(&defs_dir).unwrap();
     // Directory exists, but no definitions in it
 

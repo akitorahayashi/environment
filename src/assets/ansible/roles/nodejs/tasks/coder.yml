@@ -24,7 +24,7 @@
 
 - name: "Symlink Claude settings.json"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/coder/claude.json"
+    src: "{{ local_config_root }}/nodejs/global/coder/claude.json"
     dest: "{{ ansible_facts['env']['HOME'] }}/.claude/settings.json"
     state: link
     force: true
@@ -32,7 +32,7 @@
 
 - name: "Symlink Claude AGENTS file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
+    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
     dest: "{{ ansible_facts['env']['HOME'] }}/.claude/CLAUDE.md"
     state: link
     force: true
@@ -52,7 +52,7 @@
 
 - name: "Symlink Gemini settings.json"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/coder/gemini.json"
+    src: "{{ local_config_root }}/nodejs/global/coder/gemini.json"
     dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/settings.json"
     state: link
     force: true
@@ -60,7 +60,7 @@
 
 - name: "Symlink Gemini AGENTS file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
+    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
     dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/GEMINI.md"
     state: link
     force: true
@@ -96,7 +96,7 @@
 
 - name: "Symlink Codex configuration file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/coder/codex.toml"
+    src: "{{ local_config_root }}/nodejs/global/coder/codex.toml"
     dest: "{{ ansible_facts['env']['HOME'] }}/.codex/config.toml"
     state: link
     force: true
@@ -104,7 +104,7 @@
 
 - name: "Symlink Codex AGENTS file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/coder/AGENTS.md"
+    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
     dest: "{{ ansible_facts['env']['HOME'] }}/.codex/AGENTS.md"
     state: link
     force: true
@@ -112,11 +112,11 @@
 
 - name: "Load agent skills targets"
   ansible.builtin.set_fact:
-    nodejs_coder_skills_targets: "{{ lookup('file', local_config_root + '/nodejs/common/coder/skills-targets.yml') | from_yaml }}"
+    nodejs_coder_skills_targets: "{{ lookup('file', local_config_root + '/nodejs/global/coder/skills-targets.yml') | from_yaml }}"
 
-- name: "Discover common agent skills"
+- name: "Discover global agent skills"
   ansible.builtin.find:
-    paths: "{{ local_config_root }}/nodejs/common/coder/skills"
+    paths: "{{ local_config_root }}/nodejs/global/coder/skills"
     file_type: directory
     depth: 1
   register: nodejs_coder_skills_find
@@ -132,9 +132,9 @@
     mode: "0755"
   loop: "{{ nodejs_coder_skills_targets.tools }}"
 
-- name: "Deploy common agent skills to all CLIs"
+- name: "Deploy global agent skills to all CLIs"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/common/coder/skills/{{ item.0 }}"
+    src: "{{ local_config_root }}/nodejs/global/coder/skills/{{ item.0 }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/.{{ item.1 }}/skills/{{ item.0 }}"
     state: link
     force: true

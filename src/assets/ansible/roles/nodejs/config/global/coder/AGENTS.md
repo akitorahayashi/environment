@@ -3,7 +3,7 @@
 ### Design
 
 - Feature additions and refactorings include the removal of old modules and deprecated features to eliminate technical debt, bugs, and complexity.
-- Class and file must not have ambiguous names or responsibilities such as base, common, core, utils, or helpers.
+- Class and file must not have ambiguous names or responsibilities such as base, global, core, utils, or helpers.
 - Files and classes identify single, specific responsibilities; names that restate package or directory scope are avoided to prevent unrelated concerns.
 - Enumerable values are generated dynamically from authoritative sources (catalog, registry, schema) rather than hardcoded.
 - Silent fallbacks are prohibited; any fallback is explicit, opt-in, and surfaced as a failure or a clearly logged, reviewed decision.

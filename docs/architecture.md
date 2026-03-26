@@ -2,7 +2,7 @@
 
 ## Canonical Model
 
-- Profile: A machine hardware configuration target (e.g., Macbook, MacMini, Common) mapped to an Ansible execution context.
+- Profile: A machine hardware configuration target (e.g., Macbook, MacMini, Global) mapped to an Ansible execution context.
 - Identity: Personal or work VCS configuration elements (name, email) applied to Git and Jujutsu.
 - Tag: An individual provisioning task or group of tasks resolved into an execution plan.
 - Backup Target: A defined system state or application configuration (e.g., macOS defaults, VSCode extensions) preserved by the tool.
@@ -73,12 +73,12 @@ tests/
 ### Path Resolution
 - CLI passes `profile`, `config_dir_abs_path`, `repo_root_path`, `local_config_root` as Ansible extra vars
 - `local_config_root` points to `~/.config/mev/roles` for externalized configs
-- Roles handle fallback logic (profile-specific → common)
+- Roles handle fallback logic (profile-specific → global)
 
 ### Profile Design
-- Common profile operates by default: most roles use `common` profile
+- Global profile operates by default: most roles use `global` profile
 - Profile-specific configs apply: `brew` role supports profile-specific configs (macbook/mac-mini)
-- Roles store configs in `config/common/` (all roles) and `config/profiles/` (e.g., brew, llm)
+- Roles store configs in `config/global/` (all roles) and `config/profiles/` (e.g., brew, llm)
 
 ### Config Deployment Strategy
 Two-stage config deployment executes via:

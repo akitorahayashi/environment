@@ -3,8 +3,8 @@
 The rust role downloads pre-built binaries from GitHub releases rather than compiling via cargo.
 
 **Configuration files:**
-- `config/common/tools.yml`: List of tools with name, repo (owner/name), and tag
-- `config/common/platforms.yml`: OS and architecture mapping for asset names
+- `config/global/tools.yml`: List of tools with name, repo (owner/name), and tag
+- `config/global/platforms.yml`: OS and architecture mapping for asset names
 
 **Installation process:**
 1. Check installed version via `<tool> --version`

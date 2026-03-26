@@ -11,9 +11,9 @@
   when: "'ollama' in ansible_run_tags"
 
 # Model synchronization tasks (only for ollama-models tag)
-- name: "Load common models configuration"
+- name: "Load global models configuration"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/llm/common/models.yml"
+    file: "{{ local_config_root }}/llm/global/models.yml"
     name: llm_common_models
   when: "'ollama-models' in ansible_run_tags"
 

@@ -1,19 +1,19 @@
 ---
 - name: "Symlink .zprofile"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/shell/common/.zprofile"
+    src: "{{ local_config_root }}/shell/global/.zprofile"
     dest: "{{ ansible_facts['env']['HOME'] }}/.zprofile"
     state: link
     force: true
 
 - name: "Symlink .zshrc"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/shell/common/.zshrc"
+    src: "{{ local_config_root }}/shell/global/.zshrc"
     dest: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
     state: link
     force: true
 
-# --- create symbolic links for all files in local_config_root/shell/common/alias/
+# --- create symbolic links for all files in local_config_root/shell/global/alias/
 - name: "Clean and recreate ~/.mev/alias directory"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.mev/alias"
@@ -27,7 +27,7 @@
 
 - name: "Find shell config files recursively"
   ansible.builtin.find:
-    paths: "{{ local_config_root }}/shell/common/alias"
+    paths: "{{ local_config_root }}/shell/global/alias"
     patterns: ["*.sh", "*.zsh"]
     recurse: true
   register: shell_config_files
@@ -36,7 +36,7 @@
   ansible.builtin.set_fact:
     shell_config_subdirs: >-
       {{ shell_config_files.files | map(attribute='path')
-         | map('replace', local_config_root + '/shell/common/alias/', '')
+         | map('replace', local_config_root + '/shell/global/alias/', '')
          | map('dirname') | unique | reject('equalto', '.') | list }}
 
 - name: "Create subdirectories in ~/.mev/alias"
@@ -50,7 +50,7 @@
   ansible.builtin.file:
     src: "{{ item.path }}"
     dest: >-
-      {{ ansible_facts['env']['HOME'] }}/.mev/alias/{{ item.path | replace(local_config_root + '/shell/common/alias/', '') }}
+      {{ ansible_facts['env']['HOME'] }}/.mev/alias/{{ item.path | replace(local_config_root + '/shell/global/alias/', '') }}
     state: link
     force: true
   loop: "{{ shell_config_files.files }}"

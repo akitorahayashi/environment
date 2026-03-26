@@ -12,14 +12,14 @@
 
 - name: "Symlink .gitconfig"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/vcs/common/git/.gitconfig"
+    src: "{{ local_config_root }}/vcs/global/git/.gitconfig"
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/git/config"
     state: link
     force: true
 
 - name: "Symlink .gitignore_global"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/vcs/common/git/.gitignore_global"
+    src: "{{ local_config_root }}/vcs/global/git/.gitignore_global"
     dest: "{{ ansible_facts['env']['HOME'] }}/.gitignore_global"
     state: link
     force: true

@@ -4,9 +4,9 @@
 #   - mlx-models: Download models via huggingface-cli
 
 # Model download tasks (only for mlx-models tag)
-- name: "Load common models configuration"
+- name: "Load global models configuration"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/llm/common/models.yml"
+    file: "{{ local_config_root }}/llm/global/models.yml"
     name: llm_common_models_mlx
   when: "'mlx-models' in ansible_run_tags"
 

@@ -18,7 +18,7 @@
 
 - name: "Symlink jj config.toml to $HOME/.config/jj/ (user-level config)"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/vcs/common/jj/config.toml"
+    src: "{{ local_config_root }}/vcs/global/jj/config.toml"
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/jj/config.toml"
     state: link
     force: true
@@ -31,7 +31,7 @@
 
 - name: "Find jj conf.d files"
   ansible.builtin.find:
-    paths: "{{ local_config_root }}/vcs/common/jj/conf.d"
+    paths: "{{ local_config_root }}/vcs/global/jj/conf.d"
     patterns: "*.toml"
   register: vcs_jj_conf_files
 

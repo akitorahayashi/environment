@@ -1,7 +1,7 @@
 ---
 - name: "Set Rust version variable from file"
   ansible.builtin.slurp:
-    src: "{{ local_config_root }}/rust/common/.rust-version"
+    src: "{{ local_config_root }}/rust/global/.rust-version"
   register: rust_version_file
 
 - name: "Set Rust version fact"

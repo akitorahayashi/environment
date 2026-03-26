@@ -9,7 +9,7 @@
 - name: Load and combine all Xcode definitions
   ansible.builtin.set_fact:
     editor_xcode_settings: "{{ editor_xcode_settings | default([]) + (lookup('file', item) | from_yaml) }}"
-  loop: "{{ lookup('fileglob', role_path + '/config/common/xcode/*.yml', wantlist=True) }}"
+  loop: "{{ lookup('fileglob', role_path + '/config/global/xcode/*.yml', wantlist=True) }}"
 
 - name: Apply all Xcode preferences
   community.general.osx_defaults:

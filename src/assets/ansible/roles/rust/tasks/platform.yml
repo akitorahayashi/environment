@@ -31,7 +31,7 @@
 
 - name: "Load Rust components configuration"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/rust/common/rust-components.yml"
+    file: "{{ local_config_root }}/rust/global/rust-components.yml"
     name: rust_components_config
 
 - name: "Ensure Rust components are available"

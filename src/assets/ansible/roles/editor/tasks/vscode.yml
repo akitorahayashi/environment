@@ -12,7 +12,7 @@
 
 - name: "Symlink VS Code shared config files"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/editor/common/{{ item }}"
+    src: "{{ local_config_root }}/editor/global/{{ item }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Code/User/{{ item }}"
     state: link
     force: true
@@ -22,7 +22,7 @@
 
 - name: "Read VS Code extensions list"
   ansible.builtin.slurp:
-    src: "{{ local_config_root }}/editor/common/vscode-extensions.json"
+    src: "{{ local_config_root }}/editor/global/vscode-extensions.json"
   register: editor_vscode_extensions_content
 
 - name: "Parse VS Code extensions JSON"
