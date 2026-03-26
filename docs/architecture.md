@@ -78,7 +78,7 @@ tests/
 ### Profile Design
 - Common profile operates by default: most roles use `common` profile
 - Profile-specific configs apply: `brew` role supports profile-specific configs (macbook/mac-mini)
-- Roles store configs in `config/common/` (all roles) and `config/profiles/` (brew only)
+- Roles store configs in `config/common/` (all roles) and `config/profiles/` (e.g., brew, llm)
 
 ### Config Deployment Strategy
 Two-stage config deployment executes via:

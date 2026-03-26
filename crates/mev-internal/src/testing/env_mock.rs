@@ -1,4 +1,4 @@
-//! Test helpers for mocking the environment.
+//! Environment mocking for tests.
 
 use std::env;
 use std::fs;
