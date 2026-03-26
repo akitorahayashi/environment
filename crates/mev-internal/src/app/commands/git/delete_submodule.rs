@@ -15,9 +15,10 @@ pub fn run(args: DeleteSubmoduleArgs) -> Result<(), Box<dyn std::error::Error>> 
     submodule_path::validate_submodule_path(&args.submodule_path)?;
 
     println!("Deleting submodule {}...", args.submodule_path);
-    git::delete_submodule_worktree(&args.submodule_path)?;
-    git::remove_submodule_module_dir(&args.submodule_path)?;
-    git::remove_submodule_config_section(&args.submodule_path)?;
+    let git_adapter = git::GitAdapter::default();
+    git_adapter.delete_submodule_worktree(&args.submodule_path)?;
+    git_adapter.remove_submodule_module_dir(&args.submodule_path)?;
+    git_adapter.remove_submodule_config_section(&args.submodule_path)?;
     println!("Submodule {} deleted successfully.", args.submodule_path);
     Ok(())
 }

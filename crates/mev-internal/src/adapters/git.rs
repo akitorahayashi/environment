@@ -1,79 +1,106 @@
 //! Git CLI adapter.
 
 use std::fs;
-use std::path::Path;
 use std::process::Command;
 
 use crate::adapters::process;
 
-pub fn delete_submodule_worktree(submodule_path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    process::run_status(
-        git_command(["submodule", "deinit", "-f", submodule_path]),
-        &format!("git submodule deinit -f {submodule_path}"),
-    )?;
-
-    process::run_status(
-        git_command(["rm", "-f", "-r", submodule_path]),
-        &format!("git rm -f -r {submodule_path}"),
-    )?;
-
-    Ok(())
+#[derive(Default)]
+pub struct GitAdapter {
+    pub mock_env_path: Option<String>,
+    pub current_dir: Option<std::path::PathBuf>,
 }
 
-pub fn remove_submodule_module_dir(submodule_path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let modules_path = Path::new(".git").join("modules").join(submodule_path);
-    if modules_path.exists() {
-        fs::remove_dir_all(&modules_path)?;
+impl GitAdapter {
+    pub fn delete_submodule_worktree(
+        &self,
+        submodule_path: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        process::run_status(
+            self.git_command(["submodule", "deinit", "-f", submodule_path]),
+            &format!("git submodule deinit -f {submodule_path}"),
+        )?;
+
+        process::run_status(
+            self.git_command(["rm", "-f", "-r", submodule_path]),
+            &format!("git rm -f -r {submodule_path}"),
+        )?;
+
+        Ok(())
     }
-    Ok(())
-}
 
-pub fn remove_submodule_config_section(
-    submodule_path: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let output = process::run_output(
-        git_command(["config", "--remove-section", &format!("submodule.{submodule_path}")]),
-        &format!("git config --remove-section submodule.{submodule_path}"),
-    );
-
-    match output {
-        Ok(_) => Ok(()),
-        Err(err) if err.to_string().contains("No such section") => Ok(()),
-        Err(err) => Err(err),
+    pub fn remove_submodule_module_dir(
+        &self,
+        submodule_path: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let base_dir = self.current_dir.clone().unwrap_or_else(|| std::env::current_dir().unwrap());
+        let modules_path = base_dir.join(".git").join("modules").join(submodule_path);
+        if modules_path.exists() {
+            fs::remove_dir_all(&modules_path)?;
+        }
+        Ok(())
     }
-}
 
-pub fn current_origin_url() -> Result<String, Box<dyn std::error::Error>> {
-    let output = process::run_output(
-        git_command(["remote", "get-url", "origin"]),
-        "git remote get-url origin",
-    )?;
-    Ok(String::from_utf8(output.stdout)?.trim().to_owned())
-}
+    pub fn remove_submodule_config_section(
+        &self,
+        submodule_path: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let output = process::run_output(
+            self.git_command([
+                "config",
+                "--remove-section",
+                &format!("submodule.{submodule_path}"),
+            ]),
+            &format!("git config --remove-section submodule.{submodule_path}"),
+        );
 
-fn git_command<const N: usize, S>(args: [S; N]) -> Command
-where
-    S: AsRef<std::ffi::OsStr>,
-{
-    let mut command = Command::new("git");
-    command.args(args);
-    command
+        match output {
+            Ok(_) => Ok(()),
+            Err(err) if err.to_string().contains("No such section") => Ok(()),
+            Err(err) => Err(err),
+        }
+    }
+
+    pub fn current_origin_url(&self) -> Result<String, Box<dyn std::error::Error>> {
+        let output = process::run_output(
+            self.git_command(["remote", "get-url", "origin"]),
+            "git remote get-url origin",
+        )?;
+        Ok(String::from_utf8(output.stdout)?.trim().to_owned())
+    }
+
+    fn git_command<const N: usize, S>(&self, args: [S; N]) -> Command
+    where
+        S: AsRef<std::ffi::OsStr>,
+    {
+        let mut command = Command::new("git");
+        if let Some(env_path) = &self.mock_env_path {
+            let original_path = std::env::var_os("PATH").unwrap_or_default();
+            let mut paths = std::env::split_paths(&original_path).collect::<Vec<_>>();
+            paths.insert(0, std::path::PathBuf::from(env_path));
+            if let Ok(new_path) = std::env::join_paths(paths) {
+                command.env("PATH", new_path);
+            }
+        }
+        if let Some(current_dir) = &self.current_dir {
+            command.current_dir(current_dir);
+        }
+        command.args(args);
+        command
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use serial_test::serial;
-
     use std::fs;
 
     use super::*;
     use crate::testing::env_mock;
 
     #[test]
-    #[serial(env_path)]
     fn current_origin_url_parses_output() {
         let temp_dir = tempfile::tempdir().unwrap();
-        let _path_guard = env_mock::create_mock_bin(
+        let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
             r#"#!/bin/sh
@@ -81,15 +108,19 @@ mod tests {
             "#,
         );
 
-        let url = current_origin_url().expect("current_origin_url should succeed");
+        let adapter = GitAdapter {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            ..Default::default()
+        };
+
+        let url = adapter.current_origin_url().expect("current_origin_url should succeed");
         assert_eq!(url, "git@github.com:owner/repo.git");
     }
 
     #[test]
-    #[serial(env_path)]
     fn remove_submodule_config_section_handles_success() {
         let temp_dir = tempfile::tempdir().unwrap();
-        let _path_guard = env_mock::create_mock_bin(
+        let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
             r#"#!/bin/sh
@@ -97,15 +128,19 @@ mod tests {
             "#,
         );
 
-        let result = remove_submodule_config_section("test-submodule");
+        let adapter = GitAdapter {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            ..Default::default()
+        };
+
+        let result = adapter.remove_submodule_config_section("test-submodule");
         assert!(result.is_ok());
     }
 
     #[test]
-    #[serial(env_path)]
     fn remove_submodule_config_section_handles_no_such_section() {
         let temp_dir = tempfile::tempdir().unwrap();
-        let _path_guard = env_mock::create_mock_bin(
+        let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
             r#"#!/bin/sh
@@ -114,30 +149,35 @@ mod tests {
             "#,
         );
 
-        let result = remove_submodule_config_section("test-submodule");
+        let adapter = GitAdapter {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            ..Default::default()
+        };
+
+        let result = adapter.remove_submodule_config_section("test-submodule");
         assert!(result.is_ok());
     }
 
     #[test]
-    #[serial(env_dir)]
     fn remove_submodule_module_dir_removes_directory() {
         let temp_dir = tempfile::tempdir().unwrap();
-        let _dir_guard = env_mock::DirGuard::new(temp_dir.path());
 
-        let modules_dir = Path::new(".git").join("modules").join("test-submodule");
+        let modules_dir = temp_dir.path().join(".git").join("modules").join("test-submodule");
         fs::create_dir_all(&modules_dir).unwrap();
         assert!(modules_dir.exists());
 
-        remove_submodule_module_dir("test-submodule").unwrap();
+        let adapter =
+            GitAdapter { current_dir: Some(temp_dir.path().to_path_buf()), ..Default::default() };
+
+        adapter.remove_submodule_module_dir("test-submodule").unwrap();
         assert!(!modules_dir.exists());
     }
 
     #[test]
-    #[serial(env_path)]
     fn delete_submodule_worktree_executes_correct_commands() {
         let temp_dir = tempfile::tempdir().unwrap();
         let args_file = temp_dir.path().join("args.txt");
-        let _path_guard = env_mock::create_mock_bin(
+        let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
             &format!(
@@ -148,7 +188,13 @@ mod tests {
             ),
         );
 
-        delete_submodule_worktree("test-submodule")
+        let adapter = GitAdapter {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            ..Default::default()
+        };
+
+        adapter
+            .delete_submodule_worktree("test-submodule")
             .expect("delete_submodule_worktree should succeed");
 
         let executed_args = fs::read_to_string(args_file).unwrap();

@@ -7,19 +7,6 @@ use std::path::{Path, PathBuf};
 
 use tempfile::TempDir;
 
-/// Guard that restores the PATH environment variable when dropped.
-pub struct PathGuard {
-    original_path: String,
-}
-
-impl Drop for PathGuard {
-    fn drop(&mut self) {
-        unsafe {
-            env::set_var("PATH", &self.original_path);
-        }
-    }
-}
-
 /// Guard that restores the current working directory when dropped.
 pub struct DirGuard {
     original_dir: PathBuf,
@@ -39,9 +26,9 @@ impl Drop for DirGuard {
     }
 }
 
-/// Creates a mock binary in the given temporary directory and adds it to the PATH.
-/// Returns a `PathGuard` to restore the PATH when it goes out of scope.
-pub fn create_mock_bin(name: &str, temp_dir: &TempDir, script_content: &str) -> PathGuard {
+/// Creates a mock binary in the given temporary directory.
+/// Returns a `PathBuf` to the temporary directory path containing the script.
+pub fn create_mock_bin(name: &str, temp_dir: &TempDir, script_content: &str) -> PathBuf {
     let bin_path = temp_dir.path().join(name);
     fs::write(&bin_path, script_content).unwrap();
 
@@ -49,11 +36,5 @@ pub fn create_mock_bin(name: &str, temp_dir: &TempDir, script_content: &str) -> 
     perms.set_mode(0o755);
     fs::set_permissions(&bin_path, perms).unwrap();
 
-    let original_path = env::var("PATH").unwrap_or_default();
-    let new_path = format!("{}:{}", temp_dir.path().display(), original_path);
-    unsafe {
-        env::set_var("PATH", new_path);
-    }
-
-    PathGuard { original_path }
+    temp_dir.path().to_path_buf()
 }
