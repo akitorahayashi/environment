@@ -38,7 +38,9 @@ Configuration deploys via:
 ```sh
 mev identity set          # Configure VCS identities interactively
 mev identity show         # Show current configuration
+mev id show               # Shorthand
 mev config deploy         # Deploy all role configs to ~/.config/mev/roles/
+mev cf dp                 # Shorthand
 mev config deploy rust    # Deploy only rust role config
 ```
 
@@ -56,7 +58,8 @@ Backup initiates via:
 ```sh
 mev backup system         # Backup macOS system defaults
 mev backup vscode         # Backup VSCode extensions list
-mev backup --list           # List available backup targets
+mev backup --list         # List available backup targets
+mev backup -l             # Short flag
 mev bk system             # Shorthand
 ```
 
