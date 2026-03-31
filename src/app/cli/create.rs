@@ -21,6 +21,6 @@ pub struct CreateArgs {
 }
 
 pub fn run(args: CreateArgs) -> Result<(), AppError> {
-    let profile = profile::validate_machine_profile(&args.profile)?;
+    let profile = profile::validate_hardware_profile(&args.profile)?;
     api::create(profile, args.overwrite, args.verbose)
 }

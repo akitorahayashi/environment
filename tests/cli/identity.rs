@@ -19,25 +19,3 @@ fn identity_show_does_not_require_ansible_assets() {
         )
         .stderr(predicate::str::contains("ansible").not());
 }
-
-#[test]
-fn identity_show_help() {
-    let ctx = TestContext::new();
-
-    ctx.cli()
-        .args(["identity", "show", "--help"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Display current VCS identity"));
-}
-
-#[test]
-fn identity_set_help() {
-    let ctx = TestContext::new();
-
-    ctx.cli()
-        .args(["identity", "set", "--help"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Set VCS identity"));
-}

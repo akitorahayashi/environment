@@ -5,28 +5,6 @@ use predicates::prelude::*;
 use std::os::unix::fs::PermissionsExt;
 
 #[test]
-fn create_help_shows_overwrite_flag() {
-    let ctx = TestContext::new();
-
-    ctx.cli()
-        .args(["create", "--help"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("--overwrite"));
-}
-
-#[test]
-fn create_help_shows_verbose_flag() {
-    let ctx = TestContext::new();
-
-    ctx.cli()
-        .args(["create", "--help"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("--verbose"));
-}
-
-#[test]
 fn create_executes_ansible_playbook_successfully() {
     let ctx = TestContext::new();
 

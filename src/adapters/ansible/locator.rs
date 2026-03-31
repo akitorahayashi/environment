@@ -37,29 +37,27 @@ impl ResolvedAnsibleDir {
 
 /// Resolve the ansible directory containing `playbook.yml` and `roles/`.
 pub fn locate_ansible_dir() -> Result<ResolvedAnsibleDir, AppError> {
-    locate_ansible_dir_with(
-        std::env::var("CARGO_MANIFEST_DIR").ok().map(|manifest_dir| {
-            PathBuf::from(manifest_dir).join("src").join("assets").join("ansible")
-        }),
-        || {
-            runtime_assets::materialize_embedded_ansible_dir()
-                .map(ResolvedAnsibleDir::from_temp_dir)
-        },
-    )
+    let manifest_dir_buf = std::env::var("CARGO_MANIFEST_DIR")
+        .ok()
+        .map(|manifest_dir| PathBuf::from(manifest_dir).join("src").join("assets").join("ansible"));
+
+    locate_ansible_dir_with(manifest_dir_buf.as_deref(), || {
+        runtime_assets::materialize_embedded_ansible_dir().map(ResolvedAnsibleDir::from_temp_dir)
+    })
 }
 
 fn locate_ansible_dir_with(
-    manifest_dir: Option<PathBuf>,
+    manifest_dir: Option<&Path>,
     materialize_embedded_ansible_dir: impl FnOnce() -> Result<ResolvedAnsibleDir, AppError>,
 ) -> Result<ResolvedAnsibleDir, AppError> {
     let mut searched: Vec<PathBuf> = Vec::new();
 
     // 1. Prefer workspace assets during cargo-driven workflows.
     if let Some(ansible_dir) = manifest_dir {
-        if runtime_assets::is_valid_ansible_dir(&ansible_dir) {
-            return Ok(ResolvedAnsibleDir::from_path(ansible_dir));
+        if runtime_assets::is_valid_ansible_dir(ansible_dir) {
+            return Ok(ResolvedAnsibleDir::from_path(ansible_dir.to_path_buf()));
         }
-        searched.push(ansible_dir);
+        searched.push(ansible_dir.to_path_buf());
     }
 
     // 2. Embedded runtime assets.
@@ -93,38 +91,43 @@ mod tests {
 
     use super::*;
 
-    fn create_ansible_dir(root: &std::path::Path, relative: &str) -> PathBuf {
+    fn create_ansible_dir(
+        root: &std::path::Path,
+        relative: &str,
+    ) -> Result<PathBuf, std::io::Error> {
         let dir = root.join(relative);
-        std::fs::create_dir_all(dir.join("roles")).unwrap();
-        std::fs::write(dir.join("playbook.yml"), "---\nroles: []\n").unwrap();
-        dir
+        std::fs::create_dir_all(dir.join("roles"))?;
+        std::fs::write(dir.join("playbook.yml"), "---\nroles: []\n")?;
+        Ok(dir)
     }
 
     #[test]
-    fn prefers_manifest_assets_over_embedded_cache() {
-        let temp = TempDir::new().unwrap();
-        let manifest_dir = create_ansible_dir(temp.path(), "workspace/src/assets/ansible");
-        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible");
+    fn prefers_manifest_assets_over_embedded_cache() -> Result<(), Box<dyn std::error::Error>> {
+        let temp = TempDir::new()?;
+        let manifest_dir = create_ansible_dir(temp.path(), "workspace/src/assets/ansible")?;
+        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible")?;
 
-        let resolved = locate_ansible_dir_with(Some(manifest_dir.clone()), || {
-            Ok(ResolvedAnsibleDir::from_path(embedded_dir.clone()))
-        })
-        .unwrap();
+        let resolved = locate_ansible_dir_with(Some(manifest_dir.as_path()), || {
+            Ok(ResolvedAnsibleDir::from_path(embedded_dir))
+        })?;
 
         assert_eq!(resolved.path(), manifest_dir.as_path());
+        Ok(())
     }
 
     #[test]
-    fn uses_embedded_assets_when_manifest_assets_are_missing() {
-        let temp = TempDir::new().unwrap();
+    fn uses_embedded_assets_when_manifest_assets_are_missing()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let temp = TempDir::new()?;
         let manifest_dir = temp.path().join("workspace/src/assets/ansible");
-        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible");
+        let embedded_dir = create_ansible_dir(temp.path(), "cache/ansible")?;
+        let expected_path = embedded_dir.clone();
 
-        let resolved = locate_ansible_dir_with(Some(manifest_dir), || {
-            Ok(ResolvedAnsibleDir::from_path(embedded_dir.clone()))
-        })
-        .unwrap();
+        let resolved = locate_ansible_dir_with(Some(manifest_dir.as_path()), || {
+            Ok(ResolvedAnsibleDir::from_path(embedded_dir))
+        })?;
 
-        assert_eq!(resolved.path(), embedded_dir.as_path());
+        assert_eq!(resolved.path(), expected_path.as_path());
+        Ok(())
     }
 }

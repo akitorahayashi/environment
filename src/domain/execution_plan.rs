@@ -40,10 +40,10 @@ mod tests {
     #[test]
     fn make_contains_provided_tags() {
         let tags = vec!["tag1".to_string(), "tag2".to_string()];
-        let plan = ExecutionPlan::make(Profile::MacMini, tags.clone(), false);
+        let plan = ExecutionPlan::make(Profile::MacMini, tags, false);
 
         assert_eq!(plan.profile, Profile::MacMini);
         assert!(!plan.verbose);
-        assert_eq!(plan.tags, tags);
+        assert_eq!(plan.tags, vec!["tag1".to_string(), "tag2".to_string()]);
     }
 }

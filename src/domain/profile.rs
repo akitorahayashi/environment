@@ -22,7 +22,7 @@ impl Profile {
         }
     }
 
-    fn is_machine_profile(&self) -> bool {
+    fn is_hardware_profile(&self) -> bool {
         matches!(self, Self::Macbook | Self::MacMini)
     }
 
@@ -67,16 +67,16 @@ pub fn resolve_profile(input: &str) -> Option<Profile> {
     None
 }
 
-/// Validate that the input maps to a machine-specific profile (required for `create`).
-pub fn validate_machine_profile(input: &str) -> Result<Profile, AppError> {
+/// Validate that the input maps to a hardware-specific profile (required for `create`).
+pub fn validate_hardware_profile(input: &str) -> Result<Profile, AppError> {
     let profile =
         resolve_profile(input).ok_or_else(|| AppError::InvalidProfile(input.to_string()))?;
-    if !profile.is_machine_profile() {
+    if !profile.is_hardware_profile() {
         return Err(AppError::InvalidProfile(format!(
-            "'{input}' is not a machine profile. Valid: {}",
+            "'{input}' is not a hardware profile. Valid: {}",
             all_profiles()
                 .iter()
-                .filter(|p| p.is_machine_profile())
+                .filter(|p| p.is_hardware_profile())
                 .map(Profile::as_str)
                 .collect::<Vec<_>>()
                 .join(", ")
@@ -114,14 +114,14 @@ mod tests {
     }
 
     #[test]
-    fn validate_machine_profile_rejects_global() {
-        assert!(validate_machine_profile("global").is_err());
+    fn validate_hardware_profile_rejects_global() {
+        assert!(validate_hardware_profile("global").is_err());
     }
 
     #[test]
-    fn validate_machine_profile_accepts_macbook() {
-        assert_eq!(validate_machine_profile("macbook").unwrap(), Profile::Macbook);
-        assert_eq!(validate_machine_profile("mbk").unwrap(), Profile::Macbook);
+    fn validate_hardware_profile_accepts_macbook() {
+        assert_eq!(validate_hardware_profile("macbook").unwrap(), Profile::Macbook);
+        assert_eq!(validate_hardware_profile("mbk").unwrap(), Profile::Macbook);
     }
 
     #[test]

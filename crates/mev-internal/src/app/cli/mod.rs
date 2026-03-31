@@ -39,3 +39,28 @@ pub fn run() {
         std::process::exit(1);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use clap::CommandFactory;
+
+    #[test]
+    fn verify_internal_cli_shapes() {
+        let cases: &[&[&str]] = &[
+            &["mev-internal", "gh", "labels", "deploy", "--help"],
+            &["mev-internal", "gh", "labels", "reset", "--help"],
+            &["mev-internal", "git", "delete-submodule", "--help"],
+        ];
+
+        for args in cases {
+            let err = Cli::command().try_get_matches_from(*args).unwrap_err();
+            assert_eq!(
+                err.kind(),
+                clap::error::ErrorKind::DisplayHelp,
+                "Failed for args: {:?}",
+                args
+            );
+        }
+    }
+}

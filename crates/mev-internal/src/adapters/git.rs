@@ -33,7 +33,10 @@ impl GitAdapter {
         &self,
         submodule_path: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let base_dir = self.current_dir.clone().unwrap_or_else(|| std::env::current_dir().unwrap());
+        let base_dir = match &self.current_dir {
+            Some(dir) => dir.clone(),
+            None => std::env::current_dir()?,
+        };
         let modules_path = base_dir.join(".git").join("modules").join(submodule_path);
         if modules_path.exists() {
             fs::remove_dir_all(&modules_path)?;
@@ -98,8 +101,8 @@ mod tests {
     use crate::testing::env_mock;
 
     #[test]
-    fn current_origin_url_parses_output() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn current_origin_url_parses_output() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
@@ -113,13 +116,14 @@ mod tests {
             ..Default::default()
         };
 
-        let url = adapter.current_origin_url().expect("current_origin_url should succeed");
+        let url = adapter.current_origin_url()?;
         assert_eq!(url, "git@github.com:owner/repo.git");
+        Ok(())
     }
 
     #[test]
-    fn remove_submodule_config_section_handles_success() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn remove_submodule_config_section_handles_success() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
@@ -133,13 +137,14 @@ mod tests {
             ..Default::default()
         };
 
-        let result = adapter.remove_submodule_config_section("test-submodule");
-        assert!(result.is_ok());
+        adapter.remove_submodule_config_section("test-submodule")?;
+        Ok(())
     }
 
     #[test]
-    fn remove_submodule_config_section_handles_no_such_section() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn remove_submodule_config_section_handles_no_such_section()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "git",
             &temp_dir,
@@ -154,28 +159,30 @@ mod tests {
             ..Default::default()
         };
 
-        let result = adapter.remove_submodule_config_section("test-submodule");
-        assert!(result.is_ok());
+        adapter.remove_submodule_config_section("test-submodule")?;
+        Ok(())
     }
 
     #[test]
-    fn remove_submodule_module_dir_removes_directory() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn remove_submodule_module_dir_removes_directory() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
 
         let modules_dir = temp_dir.path().join(".git").join("modules").join("test-submodule");
-        fs::create_dir_all(&modules_dir).unwrap();
+        fs::create_dir_all(&modules_dir)?;
         assert!(modules_dir.exists());
 
         let adapter =
             GitAdapter { current_dir: Some(temp_dir.path().to_path_buf()), ..Default::default() };
 
-        adapter.remove_submodule_module_dir("test-submodule").unwrap();
+        adapter.remove_submodule_module_dir("test-submodule")?;
         assert!(!modules_dir.exists());
+        Ok(())
     }
 
     #[test]
-    fn delete_submodule_worktree_executes_correct_commands() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn delete_submodule_worktree_executes_correct_commands()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
         let bin_path = env_mock::create_mock_bin(
             "git",
@@ -193,13 +200,15 @@ mod tests {
             ..Default::default()
         };
 
-        adapter
-            .delete_submodule_worktree("test-submodule")
-            .expect("delete_submodule_worktree should succeed");
+        adapter.delete_submodule_worktree("test-submodule")?;
 
-        let executed_args = fs::read_to_string(args_file).unwrap();
+        let executed_args = fs::read_to_string(args_file)?;
         let mut lines = executed_args.lines();
-        assert_eq!(lines.next().unwrap().trim(), "submodule deinit -f test-submodule");
-        assert_eq!(lines.next().unwrap().trim(), "rm -f -r test-submodule");
+        assert_eq!(
+            lines.next().ok_or("missing first line")?.trim(),
+            "submodule deinit -f test-submodule"
+        );
+        assert_eq!(lines.next().ok_or("missing second line")?.trim(), "rm -f -r test-submodule");
+        Ok(())
     }
 }

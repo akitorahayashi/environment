@@ -89,8 +89,8 @@ mod tests {
     use crate::testing::env_mock;
 
     #[test]
-    fn list_label_names_parses_output() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn list_label_names_parses_output() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
             "gh",
             &temp_dir,
@@ -99,15 +99,16 @@ mod tests {
             "#,
         );
 
-        let repo = RepositoryRef::from_repo_arg("owner/repo").unwrap();
+        let repo = RepositoryRef::from_repo_arg("owner/repo")?;
         let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
-        let labels = adapter.list_label_names(&repo).expect("list_label_names should succeed");
+        let labels = adapter.list_label_names(&repo)?;
         assert_eq!(labels, vec!["bug", "feature", "help wanted"]);
+        Ok(())
     }
 
     #[test]
-    fn create_label_executes_correct_command() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn create_label_executes_correct_command() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
         let bin_path = env_mock::create_mock_bin(
             "gh",
@@ -120,7 +121,7 @@ mod tests {
             ),
         );
 
-        let repo = RepositoryRef::from_repo_arg("owner/repo").unwrap();
+        let repo = RepositoryRef::from_repo_arg("owner/repo")?;
         let label = LabelSpec {
             name: "bug".to_string(),
             description: "Something isn't working".to_string(),
@@ -128,18 +129,19 @@ mod tests {
         };
 
         let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
-        adapter.create_label(&repo, &label).expect("create_label should succeed");
+        adapter.create_label(&repo, &label)?;
 
-        let executed_args = fs::read_to_string(args_file).unwrap();
+        let executed_args = fs::read_to_string(args_file)?;
         assert_eq!(
             executed_args.trim(),
             "label create bug --description Something isn't working --color d73a4a --repo owner/repo"
         );
+        Ok(())
     }
 
     #[test]
-    fn delete_label_executes_correct_command() {
-        let temp_dir = tempfile::tempdir().unwrap();
+    fn delete_label_executes_correct_command() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
         let bin_path = env_mock::create_mock_bin(
             "gh",
@@ -152,11 +154,12 @@ mod tests {
             ),
         );
 
-        let repo = RepositoryRef::from_repo_arg("owner/repo").unwrap();
+        let repo = RepositoryRef::from_repo_arg("owner/repo")?;
         let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
-        adapter.delete_label(&repo, "bug").expect("delete_label should succeed");
+        adapter.delete_label(&repo, "bug")?;
 
-        let executed_args = fs::read_to_string(args_file).unwrap();
+        let executed_args = fs::read_to_string(args_file)?;
         assert_eq!(executed_args.trim(), "label delete bug --yes --repo owner/repo");
+        Ok(())
     }
 }
