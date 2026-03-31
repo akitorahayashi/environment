@@ -1,5 +1,5 @@
 name: Setup Base Environment
-description: Install Python, just, pipx ansible, and Rust cache for CI
+description: Install Python, mise-managed just, pipx ansible, and Rust cache for CI
 
 runs:
   using: "composite"
@@ -9,10 +9,11 @@ runs:
       with:
         python-version: '3.12'
 
-    - name: Setup just
-      uses: extractions/setup-just@v2
+    - name: Setup mise with locked project tools
+      uses: jdx/mise-action@v3
       with:
-        just-version: 1.46.0
+        version: '2026.2.19'
+        install_args: --locked just
 
     - name: Cache Rust build artifacts
       uses: Swatinem/rust-cache@v2

@@ -16,4 +16,4 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup ruby
-        run: just run make ruby
+        run: mise exec -- just run make ruby

@@ -16,4 +16,4 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup go
-        run: just run make go
+        run: mise exec -- just run make go

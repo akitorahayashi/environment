@@ -24,7 +24,7 @@ help:
 # Environment Setup
 # ==============================================================================
 
-# Initialize project: install dependencies, configure hooks
+# Initialize project: install dependencies
 setup:
     @echo "🪄 Installing tools with mise..."
     @mise trust
@@ -33,9 +33,6 @@ setup:
     brew install shellcheck shfmt
     @echo "🐍 Installing ansible-lint dependencies with uv..."
     @uv sync
-    @echo "🪝 Configuring git hooks..."
-    chmod +x .githooks/pre-commit
-    git config core.hooksPath .githooks
 
 # ==============================================================================
 # Lint & Format
@@ -76,7 +73,16 @@ test:
 # Generate code coverage report
 coverage:
     rm -rf target/tarpaulin coverage
-    env -u RUSTC_WRAPPER -u SCCACHE_IGNORE_SERVER_IO_ERROR -u SCCACHE_ERROR_LOG mise exec -- cargo tarpaulin --engine llvm --out Xml --output-dir coverage --all-features --fail-under 40
+    mise exec -- cargo tarpaulin \
+        --engine llvm \
+        --target-dir target/tarpaulin \
+        --packages mev \
+        --exclude-files 'reference/*' \
+        --out Stdout \
+        --out Html \
+        --output-dir coverage \
+        --all-features \
+        --fail-under 40
 
 # ==============================================================================
 # Build Tasks

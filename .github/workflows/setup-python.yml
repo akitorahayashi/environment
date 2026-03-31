@@ -16,10 +16,10 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Run python-platform setup
-        run: just run make python-platform 
+        run: mise exec -- just run make python-platform
 
       - name: Run uv setup
-        run: just run make uv 
+        run: mise exec -- just run make uv
 
       - name: Run python-tools setup
-        run: just run make python-tools 
+        run: mise exec -- just run make python-tools

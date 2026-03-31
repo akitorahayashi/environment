@@ -16,10 +16,10 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Run nodejs-platform setup
-        run: just run make nodejs-platform 
+        run: mise exec -- just run make nodejs-platform
 
       - name: Run nodejs-tools setup
-        run: just run make nodejs-tools 
+        run: mise exec -- just run make nodejs-tools
 
       - name: Setup Node.js LLM Tools
-        run: just run make coder 
+        run: mise exec -- just run make coder

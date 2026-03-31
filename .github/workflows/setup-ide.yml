@@ -16,13 +16,13 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup VSCode configuration
-        run: just run make vscode 
+        run: mise exec -- just run make vscode
 
       - name: Setup Antigravity configuration
-        run: just run make antigravity 
+        run: mise exec -- just run make antigravity
 
       - name: Setup Cursor configuration
-        run: just run make cursor 
+        run: mise exec -- just run make cursor
 
       - name: Setup Xcode configuration
-        run: just run make xcode 
+        run: mise exec -- just run make xcode

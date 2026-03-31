@@ -16,4 +16,4 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Setup rust
-        run: just run make rust
+        run: mise exec -- just run make rust

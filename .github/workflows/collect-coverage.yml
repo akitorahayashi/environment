@@ -22,22 +22,9 @@ jobs:
       - name: Setup base environment
         uses: ./.github/actions/setup-base
 
-      - name: Ensure mise is available
-        shell: bash
-        run: |
-          set -euo pipefail
-          if command -v mise >/dev/null 2>&1; then
-            exit 0
-          fi
-          brew install mise
-
-      - name: Trust mise config
-        run: mise trust --yes mise.toml
-
       - name: Install cargo-tarpaulin
         run: mise install --locked cargo:cargo-tarpaulin
 
       - name: Generate coverage
         continue-on-error: true
-        run: just coverage
-
+        run: mise exec -- just coverage

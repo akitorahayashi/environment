@@ -22,7 +22,7 @@ jobs:
       - name: Run Homebrew formulae setup for common
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
-        run: just run make brew-formulae
+        run: mise exec -- just run make brew-formulae
 
       - name: Cleanup GitHub authentication header
         if: always()

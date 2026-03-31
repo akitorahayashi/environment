@@ -6,25 +6,44 @@ on:
       - "v*"
 
 jobs:
-  build:
-    permissions:
-      contents: read
-    uses: ./.github/workflows/build.yml
-
-  publish-release:
-    needs: build
+  prepare-release:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release-artifacts
-          merge-multiple: true
+    outputs:
+      release_id: ${{ steps.prepare.outputs.release_id }}
 
-      - name: Publish release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+    steps:
+      - id: prepare
+        uses: akitorahayashi/gh-release@v1
         with:
-          files: release-artifacts/*
-          generate_release_notes: true
+          mode: prepare
+          token: ${{ github.token }}
+          tag: ${{ github.ref_name }}
+          create: true
+          generate_notes: true
+
+  build-and-upload:
+    needs:
+      - prepare-release
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build.yml
+    with:
+      release_id: ${{ needs.prepare-release.outputs.release_id }}
+
+  publish-release:
+    needs:
+      - prepare-release
+      - build-and-upload
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: akitorahayashi/gh-release@v1
+        with:
+          mode: publish
+          token: ${{ github.token }}
+          release_id: ${{ needs.prepare-release.outputs.release_id }}
+          publish: true
