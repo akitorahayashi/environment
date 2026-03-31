@@ -49,4 +49,3 @@ mev list
 
 - [Docs](docs/README.md): Central index for usage guides, configuration references, and environment setup.
 - [Contributing](CONTRIBUTING.md): Development guidelines, coding standards, and testing procedures for contributors.
-- [Agents](AGENTS.md): Routing to workflow and docs for LLM agents.
