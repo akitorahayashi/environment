@@ -50,6 +50,7 @@ dev_alias_as() {
 	alias "${prefix}-d-p=${cmd_prefix} down-prod"
 
 	# Test variations
+	alias "${prefix}-cov=${cmd_prefix} coverage"
 	alias "${prefix}-t=${cmd_prefix} test"
 	alias "${prefix}-ut=${cmd_prefix} unit-test"
 	alias "${prefix}-uit=${cmd_prefix} ui-test"
