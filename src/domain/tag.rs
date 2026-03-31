@@ -19,7 +19,6 @@ pub const FULL_SETUP_TAGS: &[&str] = &[
     "shell",
     "system",
     "git",
-    "jj",
     "gh",
     "python-platform",
     "nodejs-platform",

@@ -36,7 +36,7 @@ mev make brew-cask --profile mmn
 Configuration deploys via:
 
 ```sh
-mev identity set          # Configure VCS identities interactively
+mev identity set          # Configure Git identities interactively
 mev identity show         # Show current configuration
 mev id show               # Shorthand
 mev config deploy         # Deploy all role configs to ~/.config/mev/roles/
@@ -44,7 +44,7 @@ mev cf dp                 # Shorthand
 mev config deploy rust    # Deploy only rust role config
 ```
 
-VCS identity switches via:
+Git identity switches via:
 
 ```sh
 mev switch personal       # Switch to personal identity

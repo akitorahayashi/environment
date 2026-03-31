@@ -3,8 +3,8 @@
 use std::path::{Path, PathBuf};
 
 use crate::domain::error::AppError;
+use crate::domain::identity::{Identity, SwitchIdentity};
 use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
-use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
 
 pub struct IdentityFileStore {
     identity_path: PathBuf,
@@ -69,7 +69,7 @@ impl IdentityStore for IdentityFileStore {
         Ok(())
     }
 
-    fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<VcsIdentity>, AppError> {
+    fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<Identity>, AppError> {
         let state = self.load()?;
         match identity {
             SwitchIdentity::Personal => Ok(Some(state.personal)),

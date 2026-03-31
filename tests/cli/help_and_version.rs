@@ -214,7 +214,7 @@ fn identity_show_help() {
         .args(["identity", "show", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Display current VCS identity"));
+        .stdout(predicate::str::contains("Display current Git identity"));
 }
 
 #[test]
@@ -225,7 +225,7 @@ fn identity_set_help() {
         .args(["identity", "set", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Set VCS identity"));
+        .stdout(predicate::str::contains("Set Git identity"));
 }
 
 #[test]

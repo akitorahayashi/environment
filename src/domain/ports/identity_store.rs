@@ -3,9 +3,9 @@
 use std::path::Path;
 
 use crate::domain::error::AppError;
-use crate::domain::vcs_identity::{SwitchIdentity, VcsIdentity};
+use crate::domain::identity::{Identity, SwitchIdentity};
 
-/// Persists and retrieves VCS identity configuration.
+/// Persists and retrieves Git identity configuration.
 pub trait IdentityStore {
     /// Check if identity configuration file exists.
     fn exists(&self) -> bool;
@@ -16,8 +16,8 @@ pub trait IdentityStore {
     /// Save the full identity configuration.
     fn save(&self, state: &IdentityState) -> Result<(), AppError>;
 
-    /// Get the VCS identity for the given switch target.
-    fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<VcsIdentity>, AppError>;
+    /// Get the identity for the given switch target.
+    fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<Identity>, AppError>;
 
     /// Get the identity configuration file path.
     fn identity_path(&self) -> &Path;
@@ -26,6 +26,6 @@ pub trait IdentityStore {
 /// Top-level identity model stored on disk.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct IdentityState {
-    pub personal: VcsIdentity,
-    pub work: VcsIdentity,
+    pub personal: Identity,
+    pub work: Identity,
 }

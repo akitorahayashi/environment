@@ -40,11 +40,11 @@ enum Commands {
     #[command(visible_alias = "cf", subcommand)]
     Config(config::ConfigCommand),
 
-    /// Manage VCS identity configuration.
+    /// Manage Git identity configuration.
     #[command(visible_alias = "id", subcommand)]
     Identity(identity::IdentityCommand),
 
-    /// Switch VCS identity between personal and work.
+    /// Switch Git identity between personal and work.
     #[command(visible_alias = "sw")]
     Switch(switch::SwitchArgs),
 

@@ -11,7 +11,7 @@ pub enum AppError {
     /// Invalid profile identifier.
     InvalidProfile(String),
 
-    /// Invalid VCS identity identifier.
+    /// Invalid identity identifier.
     InvalidIdentity(String),
 
     /// Invalid or unknown tag.

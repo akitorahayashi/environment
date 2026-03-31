@@ -9,7 +9,7 @@
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
     - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
-    - { role: vcs, tags: ["git", "jj"] }
+    - { role: git, tags: ["git"] }
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell", "sh"] }
     - { role: ssh, tags: ["ssh"] }

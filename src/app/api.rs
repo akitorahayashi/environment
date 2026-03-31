@@ -9,9 +9,9 @@ use crate::adapters::version_source::install_script::InstallScriptVersionSource;
 use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
+use crate::domain::identity::SwitchIdentity;
 use crate::domain::ports::version_source::VersionSource;
 use crate::domain::profile::Profile;
-use crate::domain::vcs_identity::SwitchIdentity;
 
 // =============================================================================
 // Create
@@ -57,13 +57,13 @@ pub fn config_deploy(role: Option<String>, overwrite: bool) -> Result<(), AppErr
 // Identity
 // =============================================================================
 
-/// Show current VCS identity configuration.
+/// Show current Git identity configuration.
 pub fn identity_show() -> Result<(), AppError> {
     let ctx = identity_context()?;
     commands::identity::show(&ctx)
 }
 
-/// Interactively set VCS identity configuration.
+/// Interactively set Git identity configuration.
 pub fn identity_set() -> Result<(), AppError> {
     let ctx = identity_context()?;
     commands::identity::set(&ctx)
@@ -73,7 +73,7 @@ pub fn identity_set() -> Result<(), AppError> {
 // Switch
 // =============================================================================
 
-/// Switch the global VCS identity between personal and work.
+/// Switch the global Git identity between personal and work.
 pub fn switch(identity: SwitchIdentity) -> Result<(), AppError> {
     let ctx = identity_context()?;
     commands::switch::execute(&ctx, identity)

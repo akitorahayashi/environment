@@ -1,18 +1,24 @@
-//! VCS identity model and switch identity resolution.
+//! Git identity model and switch identity resolution.
 //!
-//! `VcsIdentity` is a mev-specific concept: it represents the name/email pair
-//! stored per identity (personal / work) and applied to Git and Jujutsu.
+//! `Identity` is a mev-specific concept: it represents the name/email pair
+//! stored per identity (personal / work) and applied to Git.
 
 use std::fmt;
 
-/// Name and email pair applied to global VCS configuration.
+/// Name and email pair applied to global Git configuration.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct VcsIdentity {
+pub struct Identity {
     pub name: String,
     pub email: String,
 }
 
-/// A resolved, valid VCS identity target for switching.
+impl Identity {
+    pub fn is_configured(&self) -> bool {
+        !self.name.is_empty() && !self.email.is_empty()
+    }
+}
+
+/// A resolved, valid identity target for switching.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SwitchIdentity {
     Personal,

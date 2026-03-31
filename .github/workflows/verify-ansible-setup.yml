@@ -72,7 +72,7 @@ jobs:
               - 'src/assets/ansible/roles/editor/**'
               - '.github/workflows/setup-ide.yml'
             setup_system:
-              - 'src/assets/ansible/roles/vcs/**'
+              - 'src/assets/ansible/roles/git/**'
               - 'src/assets/ansible/roles/gh/**'
               - 'src/assets/ansible/roles/shell/**'
               - 'src/assets/ansible/roles/ssh/**'

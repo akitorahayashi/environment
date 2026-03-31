@@ -1,0 +1,4 @@
+---
+- name: "Setup Git version control"
+  ansible.builtin.include_tasks: git.yml
+  when: "'git' in ansible_run_tags"

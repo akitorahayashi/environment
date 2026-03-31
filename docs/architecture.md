@@ -3,7 +3,7 @@
 ## Canonical Model
 
 - Profile: A hardware configuration target (e.g., Macbook, MacMini, Global) mapped to an Ansible execution context.
-- Identity: Personal or work VCS configuration elements (name, email) applied to Git and Jujutsu.
+- Identity: Personal or work Git configuration elements (name, email) applied to Git.
 - Tag: An individual provisioning task or group of tasks resolved into an execution plan.
 - Backup Target: A defined system state or application configuration (e.g., macOS defaults, VSCode extensions) preserved by the tool.
 
@@ -36,7 +36,7 @@ src/
 │   ├── ports/              # Trait interfaces
 │   ├── profile.rs          # Profile identifiers and mapping
 │   ├── tag.rs              # Tag resolution from catalogs
-│   ├── vcs_identity.rs     # VCS identity configuration model
+│   ├── identity.rs         # Git identity configuration model
 │   ├── backup_target.rs    # Backup target resolution and metadata
 │   └── execution_plan.rs   # Deterministic ansible plan construction
 ├── adapters/
@@ -44,14 +44,14 @@ src/
 │   ├── identity_store/     # Identity persistence and path resolution
 │   ├── macos_defaults/     # macOS defaults adapter
 │   ├── version_source/     # Update execution source
-│   ├── git/, jj/, vscode/  # External tool adapters
+│   ├── git/, vscode/       # External tool adapters
 │   └── fs/                 # Filesystem adapter
 ├── assets/
 │   └── ansible/            # Source-of-truth ansible assets embedded into binary
 └── testing/                # In-process test doubles
 
 crates/
-└── mev-internal/          # Internal command implementations (vcs)
+└── mev-internal/          # Internal command implementations (git, gh)
 
 tests/
 ├── harness/                # Shared fixtures (TestContext)

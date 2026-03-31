@@ -4,7 +4,7 @@ use clap::Args;
 
 use crate::app::api;
 use crate::domain::error::AppError;
-use crate::domain::vcs_identity;
+use crate::domain::identity;
 
 #[derive(Args)]
 pub struct SwitchArgs {
@@ -13,7 +13,7 @@ pub struct SwitchArgs {
 }
 
 pub fn run(args: SwitchArgs) -> Result<(), AppError> {
-    let identity = vcs_identity::resolve_switch_identity(&args.identity).ok_or_else(|| {
+    let identity = identity::resolve_switch_identity(&args.identity).ok_or_else(|| {
         AppError::InvalidIdentity(format!(
             "invalid identity '{}'. Valid: personal (p), work (w)",
             args.identity

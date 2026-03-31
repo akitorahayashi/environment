@@ -1,13 +1,13 @@
-//! `identity` command orchestration — show and set VCS identities.
+//! `identity` command orchestration — show and set Git identities.
 
 use std::io::Write;
 
 use crate::app::DependencyContainer;
 use crate::domain::error::AppError;
+use crate::domain::identity::Identity;
 use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
-use crate::domain::vcs_identity::VcsIdentity;
 
-/// Show current VCS identity configuration.
+/// Show current Git identity configuration.
 pub fn show(ctx: &DependencyContainer) -> Result<(), AppError> {
     if !ctx.identity_store.exists() {
         eprintln!("No identity configuration found.");
@@ -28,9 +28,9 @@ pub fn show(ctx: &DependencyContainer) -> Result<(), AppError> {
     Ok(())
 }
 
-/// Set VCS identity configuration interactively.
+/// Set Git identity configuration interactively.
 pub fn set(ctx: &DependencyContainer) -> Result<(), AppError> {
-    println!("Configure mev VCS identities");
+    println!("Configure mev Git identities");
     println!();
 
     let existing =
@@ -56,8 +56,8 @@ pub fn set(ctx: &DependencyContainer) -> Result<(), AppError> {
     let work_email = prompt("  Email", w_email_default)?;
 
     let state = IdentityState {
-        personal: VcsIdentity { name: personal_name, email: personal_email },
-        work: VcsIdentity { name: work_name, email: work_email },
+        personal: Identity { name: personal_name, email: personal_email },
+        work: Identity { name: work_name, email: work_email },
     };
 
     ctx.identity_store.save(&state)?;

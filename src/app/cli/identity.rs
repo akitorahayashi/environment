@@ -7,10 +7,10 @@ use crate::domain::error::AppError;
 
 #[derive(Subcommand)]
 pub enum IdentityCommand {
-    /// Display current VCS identity configuration.
+    /// Display current Git identity configuration.
     Show,
 
-    /// Set VCS identity configuration interactively.
+    /// Set Git identity configuration interactively.
     Set,
 }
 

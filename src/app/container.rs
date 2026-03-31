@@ -13,7 +13,6 @@ use crate::adapters::fs::std_fs::StdFs;
 use crate::adapters::git::cli::GitCli;
 use crate::adapters::identity_store::local_json::IdentityFileStore;
 use crate::adapters::identity_store::paths;
-use crate::adapters::jj::cli::JjCli;
 use crate::adapters::macos_defaults::cli::MacosDefaultsCli;
 use crate::adapters::version_source::install_script::InstallScriptVersionSource;
 use crate::adapters::vscode::cli::VscodeCli;
@@ -28,7 +27,6 @@ pub struct DependencyContainer {
     pub identity_store: IdentityFileStore,
     pub version_source: InstallScriptVersionSource,
     pub git: GitCli,
-    pub jj: JjCli,
     pub fs: StdFs,
     pub macos_defaults: MacosDefaultsCli,
     pub vscode: VscodeCli,
@@ -46,7 +44,6 @@ impl DependencyContainer {
             identity_store: IdentityFileStore::new(paths::default_identity_path()?),
             version_source: InstallScriptVersionSource,
             git: GitCli::default(),
-            jj: JjCli::default(),
             fs: StdFs,
             macos_defaults: MacosDefaultsCli,
             vscode: VscodeCli,
@@ -64,7 +61,6 @@ impl DependencyContainer {
             identity_store: IdentityFileStore::new(paths::default_identity_path()?),
             version_source: InstallScriptVersionSource,
             git: GitCli::default(),
-            jj: JjCli::default(),
             fs: StdFs,
             macos_defaults: MacosDefaultsCli,
             vscode: VscodeCli,
