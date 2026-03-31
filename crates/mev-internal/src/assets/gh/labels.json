@@ -30,22 +30,27 @@
     "color": "453ced"
   },
   {
-    "name": "status/review-requested",
+    "name": "S-review-requested",
     "description": "Code review requested",
     "color": "b55501"
   },
   {
-    "name": "status/require-plan",
+    "name": "S-required-planning",
     "description": "Implementation plan required",
     "color": "006b75"
   },
   {
-    "name": "status/check-required",
+    "name": "S-implementation-ready",
+    "description": "Ready for implementation",
+    "color": "4e0b78"
+  },
+  {
+    "name": "S-required-checks",
     "description": "Check required",
     "color": "f7379a"
   },
   {
-    "name": "status/checked",
+    "name": "S-checked",
     "description": "Checked",
     "color": "0052cc"
   }

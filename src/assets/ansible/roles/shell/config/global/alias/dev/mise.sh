@@ -10,3 +10,5 @@ alias ms-ls-r='mise ls-remote'
 
 alias ms-i='mise install'
 alias ms-i-l='mise install --locked'
+
+alias ms-lk='mise lock'

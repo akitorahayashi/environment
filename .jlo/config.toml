@@ -12,7 +12,7 @@ jules_worker_branch = "jules"
 wait_minutes_default = 30
 
 [layers.implementer]
-max_tasks_per_run = 10
+max_tasks_per_run = 15
 
 [layers.merger]
 requirement_file_limit = 15
