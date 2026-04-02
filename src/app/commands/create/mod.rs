@@ -22,7 +22,7 @@ pub fn execute(
         FULL_SETUP_TAGS.iter().filter(|t| !all_catalog_tags.contains(**t)).collect();
     if !invalid.is_empty() {
         let names: Vec<String> = invalid.iter().map(|t| (**t).to_string()).collect();
-        return Err(AppError::InvalidTag(format!("invalid tags in setup: {}", names.join(", "))));
+        return Err(AppError::InvalidTag(names.join(", ")));
     }
 
     let plan = ExecutionPlan::full_setup(profile, verbose);

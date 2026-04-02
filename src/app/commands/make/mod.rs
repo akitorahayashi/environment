@@ -22,7 +22,7 @@ pub fn execute(
     for t in &tags_to_run {
         if ctx.ansible.role_for_tag(t).is_none() {
             return Err(AppError::InvalidTag(format!(
-                "unknown tag '{t}'. Use 'mev list' to see available tags."
+                "'{t}'. Use 'mev list' to see available tags."
             )));
         }
     }
