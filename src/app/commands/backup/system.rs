@@ -203,3 +203,120 @@ fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
     lines.push(entry);
     lines
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serial_test::serial;
+
+    #[test]
+    fn test_value_to_string() {
+        assert_eq!(value_to_string(&serde_yaml::Value::Bool(true)), "true");
+        assert_eq!(value_to_string(&serde_yaml::Value::Number(serde_yaml::Number::from(42))), "42");
+        assert_eq!(value_to_string(&serde_yaml::Value::String("hello".to_string())), "hello");
+        assert_eq!(value_to_string(&serde_yaml::Value::Null), "");
+    }
+
+    #[test]
+    fn test_is_truthy() {
+        assert_eq!(is_truthy("1"), Some(true));
+        assert_eq!(is_truthy("true"), Some(true));
+        assert_eq!(is_truthy("yes"), Some(true));
+        assert_eq!(is_truthy("0"), Some(false));
+        assert_eq!(is_truthy("false"), Some(false));
+        assert_eq!(is_truthy("no"), Some(false));
+        assert_eq!(is_truthy("other"), None);
+    }
+
+    #[test]
+    fn test_format_bool() {
+        assert_eq!(format_bool("1", &serde_yaml::Value::Bool(false)), "true");
+        assert_eq!(format_bool("invalid", &serde_yaml::Value::Bool(true)), "true");
+        assert_eq!(format_bool("invalid", &serde_yaml::Value::String("true".to_string())), "true");
+        assert_eq!(format_bool("invalid", &serde_yaml::Value::Null), "false");
+    }
+
+    #[test]
+    fn test_format_numeric() {
+        assert_eq!(format_numeric("42", &serde_yaml::Value::Null, false), "42");
+        assert_eq!(
+            format_numeric("", &serde_yaml::Value::Number(serde_yaml::Number::from(42)), false),
+            "42"
+        );
+        assert_eq!(format_numeric("42.5", &serde_yaml::Value::Null, true), "42.5");
+        assert_eq!(format_numeric("42.5", &serde_yaml::Value::Null, false), "42"); // float to int fallback
+        assert_eq!(
+            format_numeric("invalid", &serde_yaml::Value::String("invalid".to_string()), false),
+            "invalid"
+        );
+    }
+
+    #[test]
+    #[serial]
+    fn test_format_string() {
+        #[allow(unused_unsafe)]
+        unsafe {
+            std::env::set_var("HOME", "/mock/home");
+        }
+        assert_eq!(format_string("hello", "key", &serde_yaml::Value::Null), "\"hello\"");
+        assert_eq!(
+            format_string("", "key", &serde_yaml::Value::String("default".to_string())),
+            "\"default\""
+        );
+
+        let path = "/mock/home/file.txt";
+        assert_eq!(format_string(path, "location", &serde_yaml::Value::Null), "\"$HOME/file.txt\"");
+    }
+
+    #[test]
+    fn test_build_entry() {
+        let def = SettingDefinition {
+            key: "TestKey".to_string(),
+            domain: "TestDomain".to_string(),
+            type_name: "string".to_string(),
+            default: serde_yaml::Value::Null,
+            comment: Some("Test comment\nnewline".to_string()),
+        };
+        let lines = build_entry(&def, "\"value\"");
+        assert_eq!(lines.len(), 2);
+        assert_eq!(lines[0], "# Test comment newline");
+        assert_eq!(
+            lines[1],
+            "- { key: \"TestKey\", domain: \"TestDomain\", type: \"string\", value: \"value\" }"
+        );
+    }
+
+    #[test]
+    fn test_format_value() {
+        let bool_def = SettingDefinition {
+            key: "bool_key".to_string(),
+            domain: "TestDomain".to_string(),
+            type_name: "bool".to_string(),
+            default: serde_yaml::Value::Bool(false),
+            comment: None,
+        };
+        assert_eq!(format_value(&bool_def, "1"), "true");
+
+        let int_def = SettingDefinition {
+            key: "int_key".to_string(),
+            domain: "TestDomain".to_string(),
+            type_name: "int".to_string(),
+            default: serde_yaml::Value::Null,
+            comment: None,
+        };
+        assert_eq!(format_value(&int_def, "42"), "42");
+
+        let default_def = SettingDefinition {
+            key: "other_key".to_string(),
+            domain: "TestDomain".to_string(),
+            type_name: "dict".to_string(),
+            default: serde_yaml::Value::String("default".to_string()),
+            comment: None,
+        };
+        assert_eq!(format_value(&default_def, ""), "\"default\"");
+        assert_eq!(
+            format_value(&default_def, "{\"key\":\"value\"}"),
+            "\"{\\\"key\\\":\\\"value\\\"}\""
+        );
+    }
+}
