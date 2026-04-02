@@ -85,10 +85,13 @@ impl GhAdapter {
 mod tests {
     use std::fs;
 
+    use serial_test::serial;
+
     use super::*;
     use crate::testing::env_mock;
 
     #[test]
+    #[serial]
     fn list_label_names_parses_output() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
@@ -107,6 +110,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn create_label_executes_correct_command() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");
@@ -140,6 +144,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn delete_label_executes_correct_command() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let args_file = temp_dir.path().join("args.txt");

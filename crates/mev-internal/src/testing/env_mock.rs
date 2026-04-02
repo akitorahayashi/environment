@@ -53,6 +53,7 @@ impl PathGuard {
         paths.insert(0, bin_dir.to_path_buf());
         let new_path = env::join_paths(paths).expect("Failed to construct new PATH");
         // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+        #[allow(unused_unsafe)]
         unsafe {
             env::set_var("PATH", new_path);
         }
@@ -64,11 +65,13 @@ impl Drop for PathGuard {
     fn drop(&mut self) {
         if let Some(original) = &self.original_path {
             // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+            #[allow(unused_unsafe)]
             unsafe {
                 env::set_var("PATH", original);
             }
         } else {
             // SAFETY: In tests, we ensure thread safety by using the `serial_test` crate.
+            #[allow(unused_unsafe)]
             unsafe {
                 env::remove_var("PATH");
             }

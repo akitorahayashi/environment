@@ -97,10 +97,13 @@ impl GitAdapter {
 mod tests {
     use std::fs;
 
+    use serial_test::serial;
+
     use super::*;
     use crate::testing::env_mock;
 
     #[test]
+    #[serial]
     fn current_origin_url_parses_output() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
@@ -122,6 +125,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn remove_submodule_config_section_handles_success() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let bin_path = env_mock::create_mock_bin(
@@ -142,6 +146,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn remove_submodule_config_section_handles_no_such_section()
     -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
@@ -180,6 +185,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn delete_submodule_worktree_executes_correct_commands()
     -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
