@@ -1,22 +1,22 @@
 #!/bin/bash
 # shellcheck disable=SC2139
 # Define development aliases for commands
-# Usage: dev_alias_as <base_command> <prefix> [run_prefix]
+# Usage: dev_alias_as <target_command> <prefix> [run_prefix]
 dev_alias_as() {
-	local base_command="$1"
+	local target_command="$1"
 	local prefix="$2"
 	local run_prefix="${3:-}" # Make run_prefix optional, default to empty
 
 	# Basic command alias
-	alias "${prefix}=${base_command}"
+	alias "${prefix}=${target_command}"
 
-	# Helper function to build command with optional run_prefix
-	local cmd_prefix="${base_command}"
+	# Construct command with optional run_prefix
+	local cmd_prefix="${target_command}"
 	if [ -n "$run_prefix" ]; then
-		cmd_prefix="${base_command} ${run_prefix}"
+		cmd_prefix="${target_command} ${run_prefix}"
 	fi
 
-	# Common development commands
+	# Standard development commands
 	alias "${prefix}-h=${cmd_prefix} help"
 	alias "${prefix}-s=${cmd_prefix} setup"
 	alias "${prefix}-op=${cmd_prefix} open"

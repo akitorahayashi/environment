@@ -5,9 +5,9 @@ description: Design CLI surfaces with SVO model (subcommand + object + args). Pr
 
 # SVO CLI Design
 
-## Core Objective
+## Primary Objective
 
-Prioritize SVO structure. Use positional arguments for core required inputs. Employ mandatory options selectively when explicit key-value definitions improve clarity or reduce ambiguity.
+Prioritize SVO structure. Use positional arguments for primary required inputs. Employ mandatory options selectively when explicit key-value definitions improve clarity or reduce ambiguity.
 
 ## Decision Workflow
 
