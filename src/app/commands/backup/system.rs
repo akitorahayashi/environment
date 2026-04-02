@@ -56,7 +56,7 @@ pub fn execute(
             Some(v) => v,
             None => value_to_string(&def.default).into_owned(),
         };
-        let formatted = format_value(def, &raw_value);
+        let formatted = format_value(def, &raw_value)?;
         lines.extend(build_entry(def, &formatted));
     }
 
@@ -102,11 +102,11 @@ fn value_to_string(v: &serde_yaml::Value) -> Cow<'_, str> {
     }
 }
 
-fn format_value(def: &SettingDefinition, raw_value: &str) -> String {
+fn format_value(def: &SettingDefinition, raw_value: &str) -> Result<String, AppError> {
     match def.type_name.to_lowercase().as_str() {
-        "bool" => format_bool(raw_value, &def.default),
-        "int" => format_numeric(raw_value, &def.default, false),
-        "float" => format_numeric(raw_value, &def.default, true),
+        "bool" => Ok(format_bool(raw_value, &def.default)),
+        "int" => Ok(format_numeric(raw_value, &def.default, false)),
+        "float" => Ok(format_numeric(raw_value, &def.default, true)),
         "string" => format_string(raw_value, &def.key, &def.default),
         _ => {
             let value = if raw_value.is_empty() {
@@ -114,7 +114,9 @@ fn format_value(def: &SettingDefinition, raw_value: &str) -> String {
             } else {
                 Cow::Borrowed(raw_value)
             };
-            serde_json::to_string(&value).unwrap_or_else(|_| value.into_owned())
+            serde_json::to_string(&value).map_err(|e| {
+                AppError::Backup(format!("failed to serialize value for key '{}': {e}", def.key))
+            })
         }
     }
 }
@@ -157,7 +159,11 @@ fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) 
     }
 }
 
-fn format_string(raw_value: &str, key: &str, default: &serde_yaml::Value) -> String {
+fn format_string(
+    raw_value: &str,
+    key: &str,
+    default: &serde_yaml::Value,
+) -> Result<String, AppError> {
     let mut value = if raw_value.is_empty() {
         match default {
             serde_yaml::Value::String(s) => Cow::Borrowed(s.as_str()),
@@ -174,7 +180,9 @@ fn format_string(raw_value: &str, key: &str, default: &serde_yaml::Value) -> Str
         value = Cow::Owned(value.replacen(&home, "$HOME", 1));
     }
 
-    serde_json::to_string(&value).unwrap_or_else(|_| value.into_owned())
+    serde_json::to_string(&value).map_err(|e| {
+        AppError::Backup(format!("failed to serialize string value for key '{key}': {e}"))
+    })
 }
 
 fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
