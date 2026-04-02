@@ -45,6 +45,14 @@ impl BackupTarget {
     pub fn subpath(self) -> &'static str {
         "global"
     }
+
+    /// Input aliases for this backup target (excluding the canonical name).
+    pub fn aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::System => &[],
+            Self::Vscode => &["vscode-extensions"],
+        }
+    }
 }
 
 impl fmt::Display for BackupTarget {
@@ -56,16 +64,9 @@ impl fmt::Display for BackupTarget {
 /// All available backup targets.
 const ALL_TARGETS: &[BackupTarget] = &[BackupTarget::System, BackupTarget::Vscode];
 
-/// Input aliases mapping user-supplied strings to `BackupTarget` variants.
-const BACKUP_TARGET_ALIASES: &[(&str, BackupTarget)] = &[
-    ("system", BackupTarget::System),
-    ("vscode", BackupTarget::Vscode),
-    ("vscode-extensions", BackupTarget::Vscode),
-];
-
 /// Resolve a backup target identifier or alias to a `BackupTarget`.
 pub fn resolve_backup_target(input: &str) -> Option<BackupTarget> {
-    BACKUP_TARGET_ALIASES.iter().find(|&&(alias, _)| alias == input).map(|&(_, target)| target)
+    BackupTarget::all().iter().find(|t| input == t.name() || t.aliases().contains(&input)).copied()
 }
 
 /// Validate that the input maps to a `BackupTarget`.

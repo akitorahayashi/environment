@@ -27,10 +27,23 @@ pub enum SwitchIdentity {
 
 impl SwitchIdentity {
     /// Canonical string representation used for storage lookups and display.
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             Self::Personal => "personal",
             Self::Work => "work",
+        }
+    }
+
+    /// All available switch identities.
+    pub fn all() -> &'static [Self] {
+        &[Self::Personal, Self::Work]
+    }
+
+    /// Input aliases for this identity (excluding the canonical name).
+    pub fn aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Personal => &["p"],
+            Self::Work => &["w"],
         }
     }
 }
@@ -41,23 +54,13 @@ impl fmt::Display for SwitchIdentity {
     }
 }
 
-/// Input aliases mapping user-supplied strings to `SwitchIdentity` variants.
-const SWITCH_IDENTITY_ALIASES: &[(&str, SwitchIdentity)] = &[
-    ("p", SwitchIdentity::Personal),
-    ("personal", SwitchIdentity::Personal),
-    ("w", SwitchIdentity::Work),
-    ("work", SwitchIdentity::Work),
-];
-
 /// Resolve a switch identity input (alias or canonical) to a `SwitchIdentity`.
 pub fn resolve_switch_identity(input: &str) -> Option<SwitchIdentity> {
     let lower = input.to_lowercase();
-    for (alias, identity) in SWITCH_IDENTITY_ALIASES {
-        if lower == *alias {
-            return Some(*identity);
-        }
-    }
-    None
+    SwitchIdentity::all()
+        .iter()
+        .find(|i| lower == i.as_str() || i.aliases().contains(&lower.as_ref()))
+        .copied()
 }
 
 #[cfg(test)]

@@ -14,7 +14,7 @@ pub enum Profile {
 
 impl Profile {
     /// Canonical string representation passed to Ansible.
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             Self::Macbook => "macbook",
             Self::MacMini => "mac-mini",
@@ -22,12 +22,12 @@ impl Profile {
         }
     }
 
-    fn is_hardware_profile(&self) -> bool {
+    fn is_hardware_profile(self) -> bool {
         matches!(self, Self::Macbook | Self::MacMini)
     }
 
     /// Input aliases for this profile (excluding the canonical name).
-    pub fn aliases(&self) -> &'static [&'static str] {
+    pub fn aliases(self) -> &'static [&'static str] {
         match self {
             Self::Macbook => &["mbk"],
             Self::MacMini => &["mmn"],
@@ -47,24 +47,9 @@ pub fn all_profiles() -> &'static [Profile] {
     &[Profile::Global, Profile::Macbook, Profile::MacMini]
 }
 
-/// Input aliases mapping user-supplied strings to `Profile` variants.
-const PROFILE_ALIASES: &[(&str, Profile)] = &[
-    ("macbook", Profile::Macbook),
-    ("mbk", Profile::Macbook),
-    ("mac-mini", Profile::MacMini),
-    ("mmn", Profile::MacMini),
-    ("global", Profile::Global),
-    ("glb", Profile::Global),
-];
-
 /// Resolve a profile identifier or alias to a `Profile`.
 pub fn resolve_profile(input: &str) -> Option<Profile> {
-    for &(alias, profile) in PROFILE_ALIASES {
-        if input == alias {
-            return Some(profile);
-        }
-    }
-    None
+    all_profiles().iter().find(|p| input == p.as_str() || p.aliases().contains(&input)).copied()
 }
 
 /// Validate that the input maps to a hardware-specific profile (required for `create`).
@@ -76,6 +61,7 @@ pub fn validate_hardware_profile(input: &str) -> Result<Profile, AppError> {
             "'{input}' is not a hardware profile. Valid: {}",
             all_profiles()
                 .iter()
+                .copied()
                 .filter(|p| p.is_hardware_profile())
                 .map(Profile::as_str)
                 .collect::<Vec<_>>()
