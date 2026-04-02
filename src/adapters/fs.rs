@@ -1,4 +1,4 @@
-//! Standard filesystem adapter — thin wrapper around `std::fs`.
+//! Filesystem adapter.
 
 use std::path::{Path, PathBuf};
 

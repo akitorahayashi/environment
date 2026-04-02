@@ -1,4 +1,4 @@
-//! Git configuration adapter — sets global git identity via `git config --global`.
+//! Git configuration adapter.
 
 use std::path::{Path, PathBuf};
 use std::process::Command;

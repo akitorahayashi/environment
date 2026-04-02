@@ -1,4 +1,4 @@
-//! VSCode adapter — lists extensions via the `code` CLI.
+//! VSCode adapter.
 
 use crate::domain::error::AppError;
 use crate::domain::ports::vscode::VscodePort;

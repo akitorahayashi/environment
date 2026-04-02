@@ -1,4 +1,4 @@
-//! macOS defaults adapter — reads preferences via the `defaults` command.
+//! macOS defaults adapter.
 
 use std::process::Command;
 

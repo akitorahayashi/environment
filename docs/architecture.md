@@ -41,11 +41,12 @@ src/
 │   └── execution_plan.rs   # Deterministic ansible plan construction
 ├── adapters/
 │   ├── ansible/            # Playbook execution, locator, runtime asset materialization
-│   ├── identity_store/     # Identity persistence and path resolution
-│   ├── macos_defaults/     # macOS defaults adapter
-│   ├── version_source/     # Update execution source
-│   ├── git/, vscode/       # External tool adapters
-│   └── fs/                 # Filesystem adapter
+│   ├── fs.rs               # Filesystem adapter
+│   ├── git.rs              # Git configuration adapter
+│   ├── identity_store.rs   # Identity persistence and path resolution
+│   ├── macos_defaults.rs   # macOS defaults adapter
+│   ├── version_source.rs   # Update execution source
+│   └── vscode.rs           # External tool adapter
 ├── assets/
 │   └── ansible/            # Source-of-truth ansible assets embedded into binary
 └── testing/                # In-process test doubles
@@ -67,6 +68,10 @@ tests/
 ### Directory Naming
 - Ambiguous names such as `core/`, `utils/`, `helpers/` are forbidden
 - Every file belongs to a clear, specific category
+
+### Adapter Module Topology
+- `src/adapters/ansible/` owns multiple components and preserves internal module separation
+- Other adapters live as single files directly under `src/adapters/` (`fs.rs`, `git.rs`, `identity_store.rs`, `macos_defaults.rs`, `version_source.rs`, `vscode.rs`)
 
 ## Design Rules
 

@@ -1,4 +1,4 @@
-//! Version source based on the repository install script.
+//! Version source adapter.
 
 use std::io::Write;
 use std::process::Command;
@@ -7,7 +7,7 @@ use std::process::Stdio;
 use crate::domain::error::AppError;
 use crate::domain::ports::version_source::VersionSource;
 
-const EMBEDDED_INSTALL_SCRIPT: &str = include_str!("../../../install.sh");
+const EMBEDDED_INSTALL_SCRIPT: &str = include_str!("../../install.sh");
 
 pub struct InstallScriptVersionSource;
 

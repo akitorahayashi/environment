@@ -30,5 +30,6 @@ roles = [
   { name = "qa", enabled = true, tags = ["testing"], event_file_limit = 3, requirement_file_limit = 3 },
   { name = "cov", enabled = true, tags = ["testing"], event_file_limit = 3, requirement_file_limit = 3 },
   { name = "rustacean", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "annotator", enabled = true, tags = [], event_file_limit = 3, requirement_file_limit = 3 },
 ]
 

@@ -5,7 +5,7 @@
 //! consistent execution logic.
 
 use crate::adapters::ansible::locator;
-use crate::adapters::version_source::install_script::InstallScriptVersionSource;
+use crate::adapters::version_source::InstallScriptVersionSource;
 use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
