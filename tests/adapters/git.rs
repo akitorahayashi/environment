@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use mev::domain::ports::git::GitPort;
 
 #[cfg(windows)]
-fn write_fake_git(dir: &Path) -> PathBuf {
+fn write_fake_git(dir: &Path) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let script_name = "git.bat";
     let path = dir.join(script_name);
 
@@ -36,13 +36,13 @@ exit /b 0
 "#,
         config_path = fake_config.display()
     );
-    fs::write(&path, bat_content).unwrap();
+    fs::write(&path, bat_content)?;
 
-    path
+    Ok(path)
 }
 
 #[cfg(unix)]
-fn write_fake_git(dir: &Path) -> PathBuf {
+fn write_fake_git(dir: &Path) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let script_name = "git";
     let path = dir.join(script_name);
 
@@ -71,30 +71,31 @@ exit 0
 "#,
         config_path = fake_config.display()
     );
-    fs::write(&path, sh_content).unwrap();
-    let mut perms = fs::metadata(&path).unwrap().permissions();
+    fs::write(&path, sh_content)?;
+    let mut perms = fs::metadata(&path)?.permissions();
     perms.set_mode(0o755);
-    fs::set_permissions(&path, perms).unwrap();
+    fs::set_permissions(&path, perms)?;
 
-    path
+    Ok(path)
 }
 
 #[test]
-fn git_cli_reports_available() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let fake_git = write_fake_git(temp_dir.path());
+fn git_cli_reports_available() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = tempfile::tempdir()?;
+    let fake_git = write_fake_git(temp_dir.path())?;
     let git = mev::adapters::git::cli::GitCli { home_dir: None, bin_path: Some(fake_git) };
     assert!(git.is_available());
+    Ok(())
 }
 
 #[test]
-fn git_cli_get_identity_returns_strings() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let fake_git = write_fake_git(temp_dir.path());
+fn git_cli_get_identity_returns_strings() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = tempfile::tempdir()?;
+    let fake_git = write_fake_git(temp_dir.path())?;
 
     // Write fake config
     let fake_config = temp_dir.path().join(".fake_git_config");
-    fs::write(&fake_config, "user.name=Test User\nuser.email=test@example.com\n").unwrap();
+    fs::write(&fake_config, "user.name=Test User\nuser.email=test@example.com\n")?;
 
     let git = mev::adapters::git::cli::GitCli {
         home_dir: Some(temp_dir.path().to_path_buf()),
@@ -103,15 +104,16 @@ fn git_cli_get_identity_returns_strings() {
 
     let result = git.get_identity();
     assert!(result.is_ok());
-    let (name, email) = result.unwrap();
+    let (name, email) = result?;
     assert_eq!(name, "Test User");
     assert_eq!(email, "test@example.com");
+    Ok(())
 }
 
 #[test]
-fn git_cli_set_identity_updates_config() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let fake_git = write_fake_git(temp_dir.path());
+fn git_cli_set_identity_updates_config() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = tempfile::tempdir()?;
+    let fake_git = write_fake_git(temp_dir.path())?;
 
     let git = mev::adapters::git::cli::GitCli {
         home_dir: Some(temp_dir.path().to_path_buf()),
@@ -123,7 +125,8 @@ fn git_cli_set_identity_updates_config() {
 
     let get_result = git.get_identity();
     assert!(get_result.is_ok());
-    let (name, email) = get_result.unwrap();
+    let (name, email) = get_result?;
     assert_eq!(name, "New User");
     assert_eq!(email, "new@example.com");
+    Ok(())
 }
