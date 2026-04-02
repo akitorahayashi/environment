@@ -10,7 +10,7 @@ runs:
         python-version: '3.12'
 
     - name: Setup mise with locked project tools
-      uses: jdx/mise-action@v3
+      uses: jdx/mise-action@v4
       with:
         version: '2026.2.19'
         install_args: --locked just
