@@ -4,6 +4,7 @@ use std::fs;
 use std::process::Command;
 
 use crate::adapters::process;
+use crate::domain::DomainError;
 
 #[derive(Default)]
 pub struct GitAdapter {
@@ -12,10 +13,7 @@ pub struct GitAdapter {
 }
 
 impl GitAdapter {
-    pub fn delete_submodule_worktree(
-        &self,
-        submodule_path: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), DomainError> {
         process::run_status(
             self.git_command(["submodule", "deinit", "-f", submodule_path]),
             &format!("git submodule deinit -f {submodule_path}"),
@@ -29,10 +27,7 @@ impl GitAdapter {
         Ok(())
     }
 
-    pub fn remove_submodule_module_dir(
-        &self,
-        submodule_path: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), DomainError> {
         let base_dir = match &self.current_dir {
             Some(dir) => dir.clone(),
             None => std::env::current_dir()?,
@@ -44,10 +39,7 @@ impl GitAdapter {
         Ok(())
     }
 
-    pub fn remove_submodule_config_section(
-        &self,
-        submodule_path: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn remove_submodule_config_section(&self, submodule_path: &str) -> Result<(), DomainError> {
         let output = process::run_output(
             self.git_command([
                 "config",
@@ -64,7 +56,7 @@ impl GitAdapter {
         }
     }
 
-    pub fn current_origin_url(&self) -> Result<String, Box<dyn std::error::Error>> {
+    pub fn current_origin_url(&self) -> Result<String, DomainError> {
         let output = process::run_output(
             self.git_command(["remote", "get-url", "origin"]),
             "git remote get-url origin",

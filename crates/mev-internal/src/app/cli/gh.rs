@@ -1,5 +1,6 @@
 //! GitHub CLI adapter.
 
+use crate::domain::DomainError;
 use clap::Subcommand;
 
 #[derive(Subcommand)]
@@ -9,7 +10,7 @@ pub enum GhCommand {
     Labels(GhLabelsCommand),
 }
 
-pub fn run(cmd: GhCommand) -> Result<(), Box<dyn std::error::Error>> {
+pub fn run(cmd: GhCommand) -> Result<(), DomainError> {
     match cmd {
         GhCommand::Labels(cmd) => run_labels(cmd),
     }
@@ -24,7 +25,7 @@ pub enum GhLabelsCommand {
     Deploy(crate::app::commands::gh::labels_deploy::LabelsDeployArgs),
 }
 
-fn run_labels(cmd: GhLabelsCommand) -> Result<(), Box<dyn std::error::Error>> {
+fn run_labels(cmd: GhLabelsCommand) -> Result<(), DomainError> {
     match cmd {
         GhLabelsCommand::Reset(args) => crate::app::commands::gh::labels_reset::run(args),
         GhLabelsCommand::Deploy(args) => crate::app::commands::gh::labels_deploy::run(args),

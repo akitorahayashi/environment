@@ -3,6 +3,7 @@
 use clap::Args;
 
 use crate::adapters::git;
+use crate::domain::DomainError;
 use crate::domain::submodule_path;
 
 #[derive(Args)]
@@ -11,7 +12,7 @@ pub struct DeleteSubmoduleArgs {
     pub submodule_path: String,
 }
 
-pub fn run(args: DeleteSubmoduleArgs) -> Result<(), Box<dyn std::error::Error>> {
+pub fn run(args: DeleteSubmoduleArgs) -> Result<(), DomainError> {
     submodule_path::validate_submodule_path(&args.submodule_path)?;
 
     println!("Deleting submodule {}...", args.submodule_path);

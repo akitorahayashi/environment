@@ -2,7 +2,9 @@
 
 use std::path::{Component, Path};
 
-pub fn validate_submodule_path(path: &str) -> Result<(), Box<dyn std::error::Error>> {
+use crate::domain::DomainError;
+
+pub fn validate_submodule_path(path: &str) -> Result<(), DomainError> {
     let path = Path::new(path);
 
     let is_valid = !path.as_os_str().is_empty()
@@ -13,11 +15,10 @@ pub fn validate_submodule_path(path: &str) -> Result<(), Box<dyn std::error::Err
         return Ok(());
     }
 
-    Err(format!(
-        "invalid submodule path '{0}': must be a relative path without traversal",
+    Err(DomainError::InvalidSubmodulePath(format!(
+        "'{0}': must be a relative path without traversal",
         path.display()
-    )
-    .into())
+    )))
 }
 
 #[cfg(test)]
