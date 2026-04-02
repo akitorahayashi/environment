@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::domain::error::AppError;
-use crate::domain::identity::{Identity, SwitchIdentity};
+use crate::domain::identity::{Identity, IdentityScope};
 use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
 
 pub struct IdentityFileStore {
@@ -52,11 +52,11 @@ impl IdentityStore for IdentityFileStore {
         Ok(())
     }
 
-    fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<Identity>, AppError> {
+    fn get_identity(&self, identity: IdentityScope) -> Result<Option<Identity>, AppError> {
         let state = self.load()?;
         match identity {
-            SwitchIdentity::Personal => Ok(Some(state.personal)),
-            SwitchIdentity::Work => Ok(Some(state.work)),
+            IdentityScope::Personal => Ok(Some(state.personal)),
+            IdentityScope::Work => Ok(Some(state.work)),
         }
     }
 
@@ -68,7 +68,7 @@ impl IdentityStore for IdentityFileStore {
 #[cfg(test)]
 mod tests {
     use super::IdentityFileStore;
-    use crate::domain::identity::{Identity, SwitchIdentity};
+    use crate::domain::identity::{Identity, IdentityScope};
     use crate::domain::ports::identity_store::{IdentityState, IdentityStore};
     use std::path::PathBuf;
     use tempfile::tempdir;
@@ -164,10 +164,10 @@ mod tests {
         let state = create_dummy_state();
         store.save(&state)?;
 
-        let personal = store.get_identity(SwitchIdentity::Personal)?.ok_or("missing personal")?;
+        let personal = store.get_identity(IdentityScope::Personal)?.ok_or("missing personal")?;
         assert_eq!(personal.name, "Personal Name");
 
-        let work = store.get_identity(SwitchIdentity::Work)?.ok_or("missing work")?;
+        let work = store.get_identity(IdentityScope::Work)?.ok_or("missing work")?;
         assert_eq!(work.name, "Work Name");
 
         Ok(())

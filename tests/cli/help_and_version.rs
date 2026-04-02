@@ -78,14 +78,14 @@ fn create_help_shows_flags() {
 }
 
 #[test]
-fn backup_help_shows_target_argument() {
+fn backup_help_shows_component_argument() {
     let ctx = TestContext::new();
 
     ctx.cli()
         .args(["backup", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("target"));
+        .stdout(predicate::str::contains("component"));
 }
 
 #[test]
@@ -99,46 +99,46 @@ fn backup_alias_bk_is_accepted() {
         .args(["bk", "--list"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Available backup targets"));
+        .stdout(predicate::str::contains("Available backup components"));
 }
 
 #[test]
-fn backup_list_shows_targets() {
+fn backup_list_shows_components() {
     let ctx = TestContext::new();
 
     ctx.cli().args(["backup", "--list"]).assert().success().stdout(
         predicate::str::contains("system")
             .and(predicate::str::contains("vscode"))
-            .and(predicate::str::contains("Available backup targets")),
+            .and(predicate::str::contains("Available backup components")),
     );
 }
 
 #[test]
-fn backup_short_list_flag_shows_targets() {
+fn backup_short_list_flag_shows_components() {
     let ctx = TestContext::new();
 
     ctx.cli()
         .args(["backup", "-l"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Available backup targets"));
+        .stdout(predicate::str::contains("Available backup components"));
 
     ctx.cli()
         .args(["backup", "--ls"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Available backup targets"));
+        .stdout(predicate::str::contains("Available backup components"));
 }
 
 #[test]
-fn backup_unknown_target_fails() {
+fn backup_unknown_component_fails() {
     let ctx = TestContext::new();
 
     ctx.cli()
         .args(["backup", "nonexistent"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("is not a valid target"));
+        .stderr(predicate::str::contains("is not a valid component"));
 }
 
 #[test]

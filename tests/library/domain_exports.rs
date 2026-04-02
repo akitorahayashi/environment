@@ -8,7 +8,7 @@ fn domain_tag_resolution_is_public() {
 
 #[test]
 fn identity_resolves_identities() {
-    use mev::domain::identity::SwitchIdentity;
-    let identity = mev::domain::identity::resolve_switch_identity("p");
-    assert_eq!(identity, Some(SwitchIdentity::Personal));
+    use mev::domain::identity::IdentityScope;
+    let identity = mev::domain::identity::resolve_identity_scope("p");
+    assert_eq!(identity, Some(IdentityScope::Personal));
 }

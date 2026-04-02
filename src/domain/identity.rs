@@ -1,4 +1,4 @@
-//! Git identity model and switch identity resolution.
+//! Git identity model and identity scope resolution.
 //!
 //! `Identity` is a mev-specific concept: it represents the name/email pair
 //! stored per identity (personal / work) and applied to Git.
@@ -20,12 +20,12 @@ impl Identity {
 
 /// A resolved, valid identity target for switching.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SwitchIdentity {
+pub enum IdentityScope {
     Personal,
     Work,
 }
 
-impl SwitchIdentity {
+impl IdentityScope {
     /// Canonical string representation used for storage lookups and display.
     pub fn as_str(self) -> &'static str {
         match self {
@@ -48,18 +48,18 @@ impl SwitchIdentity {
     }
 }
 
-impl fmt::Display for SwitchIdentity {
+impl fmt::Display for IdentityScope {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-/// Resolve a switch identity input (alias or canonical) to a `SwitchIdentity`.
-pub fn resolve_switch_identity(input: &str) -> Option<SwitchIdentity> {
+/// Resolve a identity scope input (alias or canonical) to a `IdentityScope`.
+pub fn resolve_identity_scope(input: &str) -> Option<IdentityScope> {
     let lower = input.to_lowercase();
-    SwitchIdentity::all()
+    IdentityScope::all()
         .iter()
-        .find(|i| lower == i.as_str() || i.aliases().contains(&lower.as_ref()))
+        .find(|identity| lower == identity.as_str() || identity.aliases().contains(&lower.as_str()))
         .copied()
 }
 
@@ -68,17 +68,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn resolves_switch_identities() {
-        assert_eq!(resolve_switch_identity("p"), Some(SwitchIdentity::Personal));
-        assert_eq!(resolve_switch_identity("personal"), Some(SwitchIdentity::Personal));
-        assert_eq!(resolve_switch_identity("w"), Some(SwitchIdentity::Work));
-        assert_eq!(resolve_switch_identity("work"), Some(SwitchIdentity::Work));
-        assert_eq!(resolve_switch_identity("unknown"), None);
+    fn resolves_identity_scopes() {
+        assert_eq!(resolve_identity_scope("p"), Some(IdentityScope::Personal));
+        assert_eq!(resolve_identity_scope("personal"), Some(IdentityScope::Personal));
+        assert_eq!(resolve_identity_scope("w"), Some(IdentityScope::Work));
+        assert_eq!(resolve_identity_scope("work"), Some(IdentityScope::Work));
+        assert_eq!(resolve_identity_scope("unknown"), None);
     }
 
     #[test]
-    fn switch_identity_as_str_roundtrips() {
-        assert_eq!(SwitchIdentity::Personal.as_str(), "personal");
-        assert_eq!(SwitchIdentity::Work.as_str(), "work");
+    fn identity_scope_as_str_roundtrips() {
+        assert_eq!(IdentityScope::Personal.as_str(), "personal");
+        assert_eq!(IdentityScope::Work.as_str(), "work");
     }
 }

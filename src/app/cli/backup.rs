@@ -12,10 +12,10 @@ use crate::domain::error::AppError;
         .args(["list", "target"]),
 ))]
 pub struct BackupArgs {
-    #[arg(short = 'l', long = "list", aliases = ["ls"], action = clap::ArgAction::SetTrue, help = "List available backup targets")]
+    #[arg(short = 'l', long = "list", aliases = ["ls"], action = clap::ArgAction::SetTrue, help = "List available backup components")]
     pub list: bool,
 
-    /// Backup target (system, vscode).
+    /// Backup component (system, vscode).
     pub target: Option<String>,
 }
 

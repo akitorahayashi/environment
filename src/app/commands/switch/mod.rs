@@ -2,12 +2,12 @@
 
 use crate::app::DependencyContainer;
 use crate::domain::error::AppError;
-use crate::domain::identity::SwitchIdentity;
+use crate::domain::identity::IdentityScope;
 use crate::domain::ports::git::GitPort;
 use crate::domain::ports::identity_store::IdentityStore;
 
 /// Execute the `switch` command: change global Git identity.
-pub fn execute(ctx: &DependencyContainer, identity: SwitchIdentity) -> Result<(), AppError> {
+pub fn execute(ctx: &DependencyContainer, identity: IdentityScope) -> Result<(), AppError> {
     if !ctx.identity_store.exists() {
         eprintln!("No identity configuration found.");
         eprintln!("Run 'mev identity set' first to configure identities.");

@@ -5,7 +5,7 @@
 - Profile: A hardware configuration target (e.g., Macbook, MacMini, Global) mapped to an Ansible execution context.
 - Identity: Personal or work Git configuration elements (name, email) applied to Git.
 - Tag: An individual provisioning task or group of tasks resolved into an execution plan.
-- Backup Target: A defined system state or application configuration (e.g., macOS defaults, VSCode extensions) preserved by the tool.
+- Backup Component: A defined system state or application configuration (e.g., macOS defaults, VSCode extensions) preserved by the tool.
 
 ## Layers
 
@@ -37,7 +37,7 @@ src/
 │   ├── profile.rs          # Profile identifiers and mapping
 │   ├── tag.rs              # Tag resolution from catalogs
 │   ├── identity.rs         # Git identity configuration model
-│   ├── backup_target.rs    # Backup target resolution and metadata
+│   ├── backup_component.rs # Backup component resolution and metadata
 │   └── execution_plan.rs   # Deterministic ansible plan construction
 ├── adapters/
 │   ├── ansible/            # Playbook execution, locator, runtime asset materialization

@@ -9,7 +9,7 @@ use crate::adapters::version_source::install_script::InstallScriptVersionSource;
 use crate::app::DependencyContainer;
 use crate::app::commands;
 use crate::domain::error::AppError;
-use crate::domain::identity::SwitchIdentity;
+use crate::domain::identity::IdentityScope;
 use crate::domain::ports::version_source::VersionSource;
 use crate::domain::profile::Profile;
 
@@ -74,7 +74,7 @@ pub fn identity_set() -> Result<(), AppError> {
 // =============================================================================
 
 /// Switch the global Git identity between personal and work.
-pub fn switch(identity: SwitchIdentity) -> Result<(), AppError> {
+pub fn switch(identity: IdentityScope) -> Result<(), AppError> {
     let ctx = identity_context()?;
     commands::switch::execute(&ctx, identity)
 }
@@ -99,15 +99,15 @@ pub(crate) fn update_with_source(source: &dyn VersionSource) -> Result<(), AppEr
 // Backup
 // =============================================================================
 
-/// Backup a system setting or configuration target.
-pub fn backup(target: &str) -> Result<(), AppError> {
+/// Backup a system setting or configuration component.
+pub fn backup(component: &str) -> Result<(), AppError> {
     let ctx = ansible_context()?;
-    commands::backup::execute(&ctx, target)
+    commands::backup::execute(&ctx, component)
 }
 
-/// List available backup targets.
+/// List available backup components.
 pub fn backup_list() {
-    commands::backup::list_targets();
+    commands::backup::list_components();
 }
 
 fn ansible_context() -> Result<DependencyContainer, AppError> {

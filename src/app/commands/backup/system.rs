@@ -258,14 +258,23 @@ mod tests {
         unsafe {
             std::env::set_var("HOME", "/mock/home");
         }
-        assert_eq!(format_string("hello", "key", &serde_yaml::Value::Null), "\"hello\"");
         assert_eq!(
-            format_string("", "key", &serde_yaml::Value::String("default".to_string())),
+            format_string("hello", "key", &serde_yaml::Value::Null)
+                .expect("string formatting should succeed"),
+            "\"hello\""
+        );
+        assert_eq!(
+            format_string("", "key", &serde_yaml::Value::String("default".to_string()))
+                .expect("default string formatting should succeed"),
             "\"default\""
         );
 
         let path = "/mock/home/file.txt";
-        assert_eq!(format_string(path, "location", &serde_yaml::Value::Null), "\"$HOME/file.txt\"");
+        assert_eq!(
+            format_string(path, "location", &serde_yaml::Value::Null)
+                .expect("location string formatting should succeed"),
+            "\"$HOME/file.txt\""
+        );
     }
 
     #[test]
@@ -295,7 +304,7 @@ mod tests {
             default: serde_yaml::Value::Bool(false),
             comment: None,
         };
-        assert_eq!(format_value(&bool_def, "1"), "true");
+        assert_eq!(format_value(&bool_def, "1").expect("bool formatting should succeed"), "true");
 
         let int_def = SettingDefinition {
             key: "int_key".to_string(),
@@ -304,7 +313,7 @@ mod tests {
             default: serde_yaml::Value::Null,
             comment: None,
         };
-        assert_eq!(format_value(&int_def, "42"), "42");
+        assert_eq!(format_value(&int_def, "42").expect("int formatting should succeed"), "42");
 
         let default_def = SettingDefinition {
             key: "other_key".to_string(),
@@ -313,9 +322,13 @@ mod tests {
             default: serde_yaml::Value::String("default".to_string()),
             comment: None,
         };
-        assert_eq!(format_value(&default_def, ""), "\"default\"");
         assert_eq!(
-            format_value(&default_def, "{\"key\":\"value\"}"),
+            format_value(&default_def, "").expect("default fallback formatting should succeed"),
+            "\"default\""
+        );
+        assert_eq!(
+            format_value(&default_def, "{\"key\":\"value\"}")
+                .expect("json string formatting should succeed"),
             "\"{\\\"key\\\":\\\"value\\\"}\""
         );
     }

@@ -19,6 +19,6 @@ fn switch_rejects_invalid_profile() {
     let ctx = TestContext::new();
 
     ctx.cli().args(["switch", "badprofile"]).assert().failure().stderr(predicate::str::contains(
-        "Error: invalid identity: invalid identity 'badprofile'. Valid: personal (p), work (w)",
+        "Error: invalid identity scope: invalid identity scope 'badprofile'. Valid: personal (p), work (w)",
     ));
 }

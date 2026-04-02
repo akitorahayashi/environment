@@ -3,7 +3,7 @@
 use std::path::Path;
 
 use crate::domain::error::AppError;
-use crate::domain::identity::{Identity, SwitchIdentity};
+use crate::domain::identity::{Identity, IdentityScope};
 
 /// Persists and retrieves Git identity configuration.
 pub trait IdentityStore {
@@ -17,7 +17,7 @@ pub trait IdentityStore {
     fn save(&self, state: &IdentityState) -> Result<(), AppError>;
 
     /// Get the identity for the given switch target.
-    fn get_identity(&self, identity: SwitchIdentity) -> Result<Option<Identity>, AppError>;
+    fn get_identity(&self, identity: IdentityScope) -> Result<Option<Identity>, AppError>;
 
     /// Get the identity configuration file path.
     fn identity_path(&self) -> &Path;
