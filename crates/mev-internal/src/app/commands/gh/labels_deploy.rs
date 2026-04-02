@@ -35,3 +35,71 @@ pub fn run(args: LabelsDeployArgs) -> Result<(), Box<dyn std::error::Error>> {
     println!("Deployed bundled labels to {}.", repo.as_gh_repo_arg());
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::app::commands::gh;
+    use crate::testing::env_mock;
+    use serial_test::serial;
+    use std::fs;
+
+    #[test]
+    #[serial]
+    fn deploys_labels_successfully_without_replacements() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let test_env = gh::setup_gh_labels_command_test_environment()?;
+        env_mock::create_mock_bin(
+            "gh",
+            test_env.temp_dir(),
+            &format!(
+                r#"#!/bin/sh
+                echo "$@" >> "{}"
+                if [ "$1" = "label" ] && [ "$2" = "list" ]; then
+                    echo ""
+                else
+                    exit 0
+                fi
+            "#,
+                test_env.gh_args_path.display()
+            ),
+        );
+
+        run(LabelsDeployArgs { repo: None })?;
+
+        let gh_cmds = fs::read_to_string(&test_env.gh_args_path)?;
+        assert!(gh_cmds.contains("label create bugs"));
+        assert!(!gh_cmds.contains("label delete"));
+
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn deploys_labels_with_replacements() -> Result<(), Box<dyn std::error::Error>> {
+        let test_env = gh::setup_gh_labels_command_test_environment()?;
+        env_mock::create_mock_bin(
+            "gh",
+            test_env.temp_dir(),
+            &format!(
+                r#"#!/bin/sh
+                echo "$@" >> "{}"
+                if [ "$1" = "label" ] && [ "$2" = "list" ]; then
+                    echo "bugs"
+                else
+                    exit 0
+                fi
+            "#,
+                test_env.gh_args_path.display()
+            ),
+        );
+
+        run(LabelsDeployArgs { repo: Some("owner/repo".to_string()) })?;
+
+        let gh_cmds = fs::read_to_string(&test_env.gh_args_path)?;
+        assert!(gh_cmds.contains("label delete bugs"));
+        assert!(gh_cmds.contains("label create bugs"));
+
+        Ok(())
+    }
+}
