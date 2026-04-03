@@ -4,6 +4,33 @@ name: Jules Innovators
 on:
   workflow_dispatch:
     inputs:
+
+      role:
+        description: 'Innovator role to run'
+        type: choice
+        options:
+          - all-enabled
+
+          - partitioner
+
+          - unifier
+
+          - formulator
+
+          - seeder
+
+          - warden
+
+          - composer
+
+          - multiplier
+
+          - mapper
+
+          - verifier
+
+        default: all-enabled
+
       wait_minutes:
         description: 'Minutes to wait for Jules async processing'
         type: number
@@ -14,6 +41,10 @@ on:
         default: false
   workflow_call:
     inputs:
+      role:
+        description: 'Innovator role to run'
+        type: string
+        default: 'all-enabled'
       wait_minutes:
         description: 'Minutes to wait for Jules async processing'
         type: number
@@ -36,11 +67,12 @@ env:
   JLO_RUN_FLAGS: ${{ ((github.event_name == 'workflow_call' && inputs.mock == true) || github.event.inputs.mock == 'true') && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
+  INNOVATOR_TARGET_ROLE: ${{ (github.event_name == 'workflow_call' && inputs.role) || github.event.inputs.role || 'all-enabled' }}
 
 
 jobs:
   # ============================================================
-  # Phase 0: Bootstrap runtime repository on worker branch
+  # Bootstrap runtime repository on worker branch
   # ============================================================
 
   bootstrap:
@@ -84,7 +116,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
@@ -136,7 +168,7 @@ jobs:
 
 
   # ============================================================
-  # Phase 1: Resolve innovators matrix
+  # Resolve innovators matrix
   # ============================================================
 
   resolve-innovators-matrix:
@@ -145,6 +177,7 @@ jobs:
       !cancelled() &&
 
       needs.bootstrap.result == 'success'
+
 
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -170,20 +203,33 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve innovators targets
         id: resolve
+
+        env:
+          STATIC_TARGET: ${{ env.INNOVATOR_TARGET_ROLE != 'all-enabled' && env.INNOVATOR_TARGET_ROLE || '' }}
+
         run: |
           set -euo pipefail
-          if [ "${MOCK_MODE}" = "true" ]; then
+          static_target="${STATIC_TARGET:-}"
+          if [ -n "${static_target}" ]; then
+            json=$(printf '{"layer":"%s","count":1,"skipped_count":0,"matrix":[{"target":"%s"}]}' "innovators" "${static_target}")
+            {
+              echo "json=${json}"
+              echo "count=1"
+              echo "skipped_count=0"
+              echo "layer=innovators"
+            } >> "${GITHUB_OUTPUT}"
+          elif [ "${MOCK_MODE}" = "true" ]; then
             jlo workflow resolve matrix --layer innovators --mock
           else
             jlo workflow resolve matrix --layer innovators
           fi
   # ============================================================
-  # Phase 2: Run innovators (matrix)
+  # Run innovators (matrix)
   # ============================================================
 
   
@@ -199,9 +245,13 @@ jobs:
 
 
 
+    
       needs.bootstrap.result == 'success' &&
+    
 
+    
       needs.resolve-innovators-matrix.result == 'success' &&
+    
 
       fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 &&
       fromJSON(needs.resolve-innovators-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
@@ -238,7 +288,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run innovator (${{ matrix.target }})
@@ -255,8 +305,11 @@ jobs:
     if: |
       !cancelled() &&
       always() &&
+
       needs.resolve-innovators-matrix.result == 'success' &&
       needs.resolve-innovators-matrix.result == 'success'
+
+
     runs-on: ubuntu-latest
     timeout-minutes: 70
     outputs:
@@ -279,7 +332,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Report Run innovator status
@@ -305,7 +358,7 @@ jobs:
           label: 'Jules async processing for innovators'
 
   # ============================================================
-  # Phase 3: Publish innovators proposals
+  # Publish innovators proposals
   # ============================================================
 
   publish-innovator-issues:
@@ -334,7 +387,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish innovator issues
@@ -355,7 +408,7 @@ jobs:
 
 
   # ============================================================
-  # Phase 4: Cleanup mock artifacts
+  # Cleanup mock artifacts
   # ============================================================
 
 
@@ -403,7 +456,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run

@@ -11,8 +11,6 @@ jobs:
   build-darwin-aarch64:
     name: Build mev darwin-aarch64
     runs-on: macos-14
-    permissions:
-      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

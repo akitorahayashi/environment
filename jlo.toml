@@ -1,0 +1,114 @@
+jlo_version = "26.0.0"
+
+[workflow]
+runner_mode = "remote"
+bot_name = "aria"
+bot_email = "aria67323@gmail.com"
+jules_api_worker_max_parallel = 15
+
+[run]
+jlo_target_branch = "main"
+jules_worker_branch = "jules"
+wait_minutes_default = 30
+
+[layers.implementer]
+max_tasks_per_run = 15
+
+[layers.merger]
+requirement_file_limit = 15
+
+[layers.doctors]
+
+[layers.doctors.scribes]
+roles = [
+  { name = "steward" },
+]
+
+[layers.innovators]
+
+[layers.innovators.architects]
+roles = [
+  { name = "partitioner", enabled = false, proposal_file_limit = 3 },
+  { name = "unifier", enabled = false, proposal_file_limit = 3 },
+]
+
+[layers.innovators.designers]
+roles = [
+  { name = "formulator", enabled = false, proposal_file_limit = 3 },
+  { name = "seeder", enabled = false, proposal_file_limit = 3 },
+]
+
+[layers.innovators.guards]
+roles = [
+  { name = "warden", enabled = false, proposal_file_limit = 3 },
+]
+
+[layers.innovators.linguists]
+roles = [
+  { name = "composer", enabled = false, proposal_file_limit = 3 },
+]
+
+[layers.innovators.operators]
+roles = [
+  { name = "multiplier", enabled = true, proposal_file_limit = 3 },
+  { name = "mapper", enabled = false, proposal_file_limit = 3 },
+]
+
+[layers.innovators.testers]
+roles = [
+  { name = "verifier", enabled = false, proposal_file_limit = 3 },
+]
+
+[layers.observers]
+
+[layers.observers.architects]
+roles = [
+  { name = "modeler", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "factorer", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "topologist", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+]
+
+[layers.observers.coders]
+roles = [
+  { name = "gopher", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "pythonista", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "rustacean", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "swifter", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "typescripter", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+]
+
+[layers.observers.designers]
+roles = [
+  { name = "commander", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "interactor", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+]
+
+[layers.observers.linguists]
+roles = [
+  { name = "taxonomist", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "localizer", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "prompter", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+]
+
+[layers.observers.operators]
+roles = [
+  { name = "automator", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "instrumenter", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+]
+
+[layers.observers.scribes]
+roles = [
+  { name = "proofreader", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "annotator", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "codifier", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "librarian", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "tactician", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+]
+
+[layers.observers.testers]
+roles = [
+  { name = "auditor", enabled = true, tags = ["std_checks"], event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "tracer", enabled = true, tags = ["std_checks"], event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "simulator", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
+]
+

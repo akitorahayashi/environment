@@ -1,75 +1,14 @@
 # This file is auto-generated. Do not edit manually.
-
-# Jules Specialists — Single Observer Specialist Lane
+# Jules Planner
 #
-# Runs a single observer (selected via workflow_dispatch), skips merger,
-# dispatches ready requirements directly to implementer, and sends
-# remaining requirements through planner before implementer execution.
+# Runs planner directly from open issues labeled S-required-planning and
+# publishes generated plans to implementer issues.
 
-name: Jules Specialists
+name: Jules Planner
 
 on:
   workflow_dispatch:
     inputs:
-      observer:
-        description: 'Observer role to run'
-        type: choice
-        options:
-
-          - modeler
-
-          - factorer
-
-          - topologist
-
-          - gopher
-
-          - pythonista
-
-          - rustacean
-
-          - swifter
-
-          - typescripter
-
-          - commander
-
-          - interactor
-
-          - taxonomist
-
-          - localizer
-
-          - prompter
-
-          - automator
-
-          - instrumenter
-
-          - proofreader
-
-          - annotator
-
-          - codifier
-
-          - librarian
-
-          - tactician
-
-          - auditor
-
-          - tracer
-
-          - simulator
-
-      wait_minutes:
-        description: 'Minutes to wait between layers (Jules async processing time)'
-        type: number
-        default: 30
-      skip_dispatcher:
-        description: 'Skip dispatcher and planner (send observer requirements directly to implementer)'
-        type: boolean
-        default: false
       mock:
         description: 'Run in mock mode (creates branches/PRs without Jules API)'
         type: boolean
@@ -82,14 +21,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  WAIT_MINUTES: ${{ github.event.inputs.wait_minutes || 30 }}
   MOCK_MODE: ${{ github.event.inputs.mock == 'true' }}
   JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
   JLO_RUN_FLAGS: ${{ github.event.inputs.mock == 'true' && '--mock' || '' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
-  OBSERVER_ROLE: ${{ github.event.inputs.observer }}
-
 
 
 
@@ -191,218 +127,14 @@ jobs:
 
 
   # ============================================================
-  # Run the selected observer and wait
+  # Publish mock planning request issues (mock mode)
   # ============================================================
-
-  
-  
-  
-  
-  run-observer:
-    needs: ["bootstrap"]
-    
-    if: |
-      !cancelled() &&
-
-
-    
-      needs.bootstrap.result == 'success'
-    
-
-    
-    runs-on: ubuntu-latest
-    timeout-minutes: 100
-    outputs:
-      json: ${{ steps.report.outputs.json }}
-    env:
-      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
-      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_PAT }}
-
-
-      - name: Configure Git
-        run: |
-          set -euo pipefail
-          git config user.name "aria"
-          git config user.email "aria67323@gmail.com"
-
-      - name: Install jlo
-        uses: asterismhq/setup-jlo@v1
-        with:
-          token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '26.0.0'
-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-      - name: Run observer
-        id: run
-        if: ${{ needs.bootstrap.result == 'success' }}
-        continue-on-error: true
-        uses: akitorahayashi/retry@v1
-        with:
-          command: >-
-            jlo run --json observers ${{ env.JLO_RUN_FLAGS }} --role "${OBSERVER_ROLE}" --task emit_requirements
-          max_attempts: '8'
-          retry_delay_schedule_seconds: '1,2,4,8,16,32,64'
-      - name: Report Run observer status
-        id: report
-        if: ${{ always() }}
-        env:
-          REQUESTED_FLAG: ${{ true }}
-          REQUEST_RESULT: ${{ steps.run.outcome }}
-          RUN_JSON: ${{ steps.run.outputs.final_stdout || '{}' }}
-        run: |
-          set -euo pipefail
-          jlo workflow resolve run-status \
-            --requested "${REQUESTED_FLAG}" \
-            --result "${REQUEST_RESULT}" \
-            --run-json "${RUN_JSON}"
-
-      - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
-        if: ${{ always() && steps.report.outcome == 'success' }}
-        uses: akitorahayashi/wait@v1
-        with:
-          enabled: ${{ fromJSON(steps.report.outputs.json || '{}').requested == true }}
-          minutes: ${{ env.WAIT_MINUTES }}
-          seconds: ${{ env.MOCK_MODE == 'true' && '15' || '' }}
-          label: 'Jules async processing for observers'
-
-  # ============================================================
-  # Resolve specialists plan
-  # ============================================================
-  resolve-specialists-plan:
-    needs: [run-observer]
-    if: |
-      needs.run-observer.result == 'success'
+  publish-mock-issues:
+    name: Publish mock planning request issues
+    if: ${{ github.event.inputs.mock == 'true' }}
+    needs: [bootstrap]
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    outputs:
-      json: ${{ steps.check.outputs.json }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_PAT }}
-
-      - name: Install jlo
-        uses: asterismhq/setup-jlo@v1
-        with:
-          token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '26.0.0'
-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-
-      - name: Resolve specialists plan
-        id: check
-        env:
-          SKIP_DISPATCHER: ${{ github.event.inputs.skip_dispatcher || 'false' }}
-        run: |
-          set -euo pipefail
-          jlo workflow resolve specialists-plan --skip-dispatcher "$SKIP_DISPATCHER"
-
-  # ============================================================
-  # Run dispatcher and wait
-  # ============================================================
-
-  
-  
-  
-  
-  run-dispatcher:
-    needs: ["run-observer", "resolve-specialists-plan"]
-    
-    if: |
-      !cancelled() &&
-
-
-    
-      needs.run-observer.result == 'success' &&
-    
-
-    
-      needs.resolve-specialists-plan.result == 'success'
-    
-
-    
-    runs-on: ubuntu-latest
-    timeout-minutes: 100
-    outputs:
-      json: ${{ steps.report.outputs.json }}
-    env:
-      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
-      GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          ref: 'jules'
-          fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_PAT }}
-
-
-      - name: Configure Git
-        run: |
-          set -euo pipefail
-          git config user.name "aria"
-          git config user.email "aria67323@gmail.com"
-
-      - name: Install jlo
-        uses: asterismhq/setup-jlo@v1
-        with:
-          token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '26.0.0'
-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
-      - name: Run dispatcher
-        id: run
-        if: ${{ fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_dispatcher == true }}
-        continue-on-error: true
-        uses: akitorahayashi/retry@v1
-        with:
-          command: >-
-            jlo run --json dispatcher ${{ env.JLO_RUN_FLAGS }}
-          max_attempts: '8'
-          retry_delay_schedule_seconds: '1,2,4,8,16,32,64'
-      - name: Report Run dispatcher status
-        id: report
-        if: ${{ always() }}
-        env:
-          REQUESTED_FLAG: ${{ fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_dispatcher == true }}
-          REQUEST_RESULT: ${{ steps.run.outcome }}
-          RUN_JSON: ${{ steps.run.outputs.final_stdout || '{}' }}
-        run: |
-          set -euo pipefail
-          jlo workflow resolve run-status \
-            --requested "${REQUESTED_FLAG}" \
-            --result "${REQUEST_RESULT}" \
-            --run-json "${RUN_JSON}"
-
-      - name: Wait ${{ env.WAIT_MINUTES }} minutes for Jules async processing
-        if: ${{ always() && steps.report.outcome == 'success' }}
-        uses: akitorahayashi/wait@v1
-        with:
-          enabled: ${{ fromJSON(steps.report.outputs.json || '{}').requested == true }}
-          minutes: ${{ env.WAIT_MINUTES }}
-          seconds: ${{ env.MOCK_MODE == 'true' && '15' || '' }}
-          label: 'Jules async processing for dispatcher'
-
-  # ============================================================
-  # Publish ready requirements lane to implementer issues
-  # ============================================================
-
-  publish-implementer-requirements:
-    needs: ["run-dispatcher", "resolve-specialists-plan"]
-    if: |
-      !cancelled() &&
-
-      needs.run-dispatcher.result == 'success' &&
-
-      needs.resolve-specialists-plan.result == 'success'
-
-
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
     env:
       GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
     steps:
@@ -412,13 +144,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.JLO_BOT_PAT }}
 
-
-      - name: Configure Git
-        run: |
-          set -euo pipefail
-          git config user.name "aria"
-          git config user.email "aria67323@gmail.com"
-
       - name: Install jlo
         uses: asterismhq/setup-jlo@v1
         with:
@@ -426,69 +151,21 @@ jobs:
           version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
-      - name: Publish implementer issues (requirements)
-        id: publish
+      - name: Publish mock planning request issues
+        run: jlo workflow publish mock-planning-request-issues
 
-        if: ${{ fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_publish_requirements == true }}
-
-        run: |
-          set -euo pipefail
-          jlo workflow publish implementer-issues requirements
-
-      - name: Validate structure
-        run: jlo workflow validate
-
-      - name: Create sync PR
-        id: sync_pr
-        run: |
-          set -euo pipefail
-          if [ -z "$(git status --porcelain .jules)" ]; then
-            echo "No implementer issue publication changes detected."
-            exit 0
-          fi
-          jlo workflow create-sync-pr \
-            --preset "publish-implementer-requirements"
-
-      - name: Wait for implementer issue publication sync PR merge
-        id: wait_for_sync_pr
-        if: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').applied == true }}
-        env:
-          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
-          PR_NUMBER: ${{ fromJSON(steps.sync_pr.outputs.json || '{}').pr_number }}
-        uses: akitorahayashi/retry@v1
-        with:
-          command: >-
-            jlo workflow gh inspect-pr-merge "$PR_NUMBER"
-          max_attempts: '8'
-          retry_on: error
-          retry_on_exit_codes: '11'
-          # Sync PR merge state has an initial GitHub visibility lag after publication. The first retry waits 3s; later retries use 1,2,4,8,16,32s.
-          retry_delay_schedule_seconds: '10,1,2,4,8,16,32'
-
-      - name: Roll back published issues on sync failure
-        if: ${{ always() && steps.publish.outcome == 'success' && fromJSON(steps.publish.outputs.json || '{}').published_count > 0 && (steps.sync_pr.outcome == 'failure' || (fromJSON(steps.sync_pr.outputs.json || '{}').applied == true && steps.wait_for_sync_pr.outcome == 'failure')) }}
-        env:
-          GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
-          PUBLISHED_JSON: ${{ steps.publish.outputs.json || '{}' }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          echo "Rolling back published implementer issues because worker-branch sync was not completed."
-          jq -r '.published[]?.issue_number' <<<"${PUBLISHED_JSON}" | while read -r issue_number; do
-            if [ -n "${issue_number}" ]; then
-              gh issue close "${issue_number}" --repo "${REPO}"
-            fi
-          done
   # ============================================================
-  # Resolve planner matrix
+  # Resolve planner matrix from issue contract
   # ============================================================
 
   resolve-planner-matrix:
-    needs: ["run-dispatcher"]
+    needs: ["bootstrap", "publish-mock-issues"]
     if: |
       !cancelled() &&
 
-      needs.run-dispatcher.result == 'success'
+      (needs.bootstrap.result == 'success' || needs.bootstrap.result == 'skipped') &&
+
+      (needs.publish-mock-issues.result == 'success' || needs.publish-mock-issues.result == 'skipped')
 
 
     runs-on: ubuntu-latest
@@ -533,9 +210,9 @@ jobs:
               echo "layer=planner"
             } >> "${GITHUB_OUTPUT}"
           elif [ "${MOCK_MODE}" = "true" ]; then
-            jlo workflow resolve matrix --layer planner --mock
+            jlo workflow resolve matrix --layer planner --mock --planner-source issues
           else
-            jlo workflow resolve matrix --layer planner
+            jlo workflow resolve matrix --layer planner --planner-source issues
           fi
   # ============================================================
   # Run planner matrix
@@ -547,7 +224,7 @@ jobs:
   
   
   request-planner-run:
-    needs: ["run-dispatcher", "resolve-planner-matrix", "resolve-specialists-plan"]
+    needs: ["bootstrap", "resolve-planner-matrix"]
     
     if: |
       !cancelled() &&
@@ -555,18 +232,14 @@ jobs:
 
 
     
-      needs.run-dispatcher.result == 'success' &&
+      needs.bootstrap.result == 'success' &&
     
 
     
       needs.resolve-planner-matrix.result == 'success' &&
     
 
-    
-      needs.resolve-specialists-plan.result == 'success' &&
-    
-
-      fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_planner == true &&
+      fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 &&
       fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -609,17 +282,17 @@ jobs:
         uses: akitorahayashi/retry@v1
         with:
           command: >-
-            jlo run --json planner --requirement "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }}
+            jlo run --json planner --issue "${{ matrix.target }}" ${{ env.JLO_RUN_FLAGS }}
           max_attempts: '8'
           retry_delay_schedule_seconds: '1,2,4,8,16,32,64'
 
   report-planner-status:
-    needs: ["run-dispatcher", "resolve-planner-matrix", "resolve-specialists-plan", "request-planner-run"]
+    needs: ["bootstrap", "resolve-planner-matrix", "request-planner-run"]
     if: |
       !cancelled() &&
       always() &&
 
-      needs.resolve-specialists-plan.result == 'success' &&
+      needs.resolve-planner-matrix.result == 'success' &&
       needs.resolve-planner-matrix.result == 'success'
 
 
@@ -651,7 +324,7 @@ jobs:
       - name: Report Run planner status
         id: report
         env:
-          REQUESTED_FLAG: ${{ fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_planner == true }}
+          REQUESTED_FLAG: ${{ fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 }}
           TARGET_COUNT: ${{ fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}
           REQUEST_RESULT: ${{ needs.request-planner-run.result }}
         run: |
@@ -675,13 +348,11 @@ jobs:
   # ============================================================
 
   publish-implementer-plans:
-    needs: ["report-planner-status", "resolve-specialists-plan"]
+    needs: ["report-planner-status"]
     if: |
       !cancelled() &&
 
-      needs.report-planner-status.result == 'success' &&
-
-      needs.resolve-specialists-plan.result == 'success'
+      needs.report-planner-status.result == 'success'
 
 
     runs-on: ubuntu-latest
@@ -712,7 +383,7 @@ jobs:
       - name: Publish implementer issues (plans)
         id: publish
 
-        if: ${{ fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_publish_plans == true }}
+        if: ${{ fromJSON(needs.report-planner-status.outputs.json || '{}').requested == true }}
 
         run: |
           set -euo pipefail
@@ -763,15 +434,13 @@ jobs:
             fi
           done
   # ============================================================
-  # Resolve implementer matrix
+  # Resolve and run implementer in mock mode
   # ============================================================
 
   resolve-implementer-matrix:
-    needs: ["publish-implementer-requirements", "publish-implementer-plans"]
+    needs: ["publish-implementer-plans"]
     if: |
       !cancelled() &&
-
-      needs.publish-implementer-requirements.result == 'success' &&
 
       needs.publish-implementer-plans.result == 'success'
 
@@ -822,9 +491,6 @@ jobs:
           else
             jlo workflow resolve matrix --layer implementer
           fi
-  # ============================================================
-  # Run implementer matrix
-  # ============================================================
 
   
   
@@ -832,7 +498,7 @@ jobs:
   
   
   request-implementer-run:
-    needs: ["resolve-implementer-matrix", "resolve-specialists-plan"]
+    needs: ["resolve-implementer-matrix"]
     
     if: |
       !cancelled() &&
@@ -843,11 +509,7 @@ jobs:
       needs.resolve-implementer-matrix.result == 'success' &&
     
 
-    
-      needs.resolve-specialists-plan.result == 'success' &&
-    
-
-      fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_implementer == true &&
+      github.event.inputs.mock == 'true' && fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 &&
       fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -895,12 +557,12 @@ jobs:
           retry_delay_schedule_seconds: '1,2,4,8,16,32,64'
 
   report-implementer-status:
-    needs: ["resolve-implementer-matrix", "resolve-specialists-plan", "request-implementer-run"]
+    needs: ["resolve-implementer-matrix", "request-implementer-run"]
     if: |
       !cancelled() &&
       always() &&
 
-      needs.resolve-specialists-plan.result == 'success' &&
+      needs.resolve-implementer-matrix.result == 'success' &&
       needs.resolve-implementer-matrix.result == 'success'
 
 
@@ -932,7 +594,7 @@ jobs:
       - name: Report Run implementer status
         id: report
         env:
-          REQUESTED_FLAG: ${{ fromJSON(needs.resolve-specialists-plan.outputs.json || '{}').run_implementer == true }}
+          REQUESTED_FLAG: ${{ github.event.inputs.mock == 'true' && fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 }}
           TARGET_COUNT: ${{ fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count }}
           REQUEST_RESULT: ${{ needs.request-implementer-run.result }}
         run: |
@@ -948,7 +610,7 @@ jobs:
 
 
   cleanup-mock-artifacts:
-    needs: ["run-observer", "run-dispatcher", "report-planner-status", "report-implementer-status"]
+    needs: ["report-planner-status", "report-implementer-status"]
     if: |
       !cancelled() &&
       always() &&
@@ -1010,6 +672,4 @@ jobs:
           fi
           jlo workflow create-sync-pr \
             --preset "mock-cleanup-${JULES_MOCK_TAG}"
-
-
 

@@ -6,7 +6,7 @@ on:
     branches:
       - 'jules-implementer-*'
       - 'jules-integrator-*'
-      - 'jules-scribe-*'
+      - 'jules-doctors-*'
 
 permissions: {}
 
@@ -43,7 +43,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Discover PR number
@@ -64,25 +64,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.JLO_BOT_PAT }}
           PR_NUMBER: ${{ steps.discover.outputs.pr_number }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          case "${GITHUB_REF_NAME}" in
-            jules-implementer-*)
-              jlo workflow gh sync-pr-category-label "$PR_NUMBER"
-              ;;
-            jules-integrator-*)
-              gh label create "integration" --color "000000" --description "Integration PR merging multiple implementer branches" --repo "$REPO" --force
-              gh pr edit "$PR_NUMBER" --add-label "integration" --repo "$REPO"
-              ;;
-            jules-scribe-*)
-              jlo workflow gh sync-pr-category-label "$PR_NUMBER"
-              ;;
-            *)
-              echo "::error::Unknown PR metadata branch '${GITHUB_REF_NAME}'."
-              exit 1
-              ;;
-          esac
+        run: jlo workflow gh sync-pr-category-label "$PR_NUMBER"
 
       - name: Validate linked GitHub token
         env:
@@ -97,6 +79,4 @@ jobs:
       - name: Post summary request comment
         env:
           GH_TOKEN: ${{ secrets.JULES_LINKED_GH_PAT }}
-        run: |
-          set -euo pipefail
-          jlo workflow gh post-pr-summary-request ${{ steps.discover.outputs.pr_number }}
+        run: jlo workflow gh post-pr-summary-request ${{ steps.discover.outputs.pr_number }}

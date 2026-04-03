@@ -1,22 +1,21 @@
 # This file is auto-generated. Do not edit manually.
-# Jules Stewards
+# Jules Organization
 #
 # Calls reusable worker workflows in a serialized chain for repository-level
-# stewardship flow.
+# organization flow.
 
-name: Jules Stewards
+name: Jules Organization
 
 on:
   workflow_dispatch:
     inputs:
-      stewards_entry_point:
+      organization_entry_point:
         description: 'Start from workflow'
         type: choice
         options:
-          - scribe
           - optimizers
           - innovators
-        default: scribe
+        default: 'optimizers'
       wait_minutes:
         description: 'Minutes to wait between layers (Jules async processing time)'
         type: number
@@ -33,7 +32,7 @@ permissions: {}
 # Using the same concurrency group in both caller and callee causes
 # GitHub Actions deadlock/cancellation for the reusable jobs.
 concurrency:
-  group: 'jules-stewards'
+  group: 'jules-organization'
   cancel-in-progress: false
 
 env:
@@ -42,9 +41,9 @@ env:
 
 jobs:
   # ============================================================
-  # Phase 0: Resolve stewards chain plan
+  # Resolve organization chain plan
   # ============================================================
-  resolve-stewards-plan:
+  resolve-organization-plan:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -60,42 +59,27 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
-      - name: Resolve stewards plan
+      - name: Resolve organization plan
         id: check
         env:
-          ENTRY_POINT: ${{ github.event.inputs.stewards_entry_point || 'scribe' }}
+          ENTRY_POINT: ${{ github.event.inputs.organization_entry_point || 'optimizers' }}
         run: |
           set -euo pipefail
-          jlo workflow resolve stewards-plan --entry-point "$ENTRY_POINT"
+          jlo workflow resolve organization-plan --entry-point "$ENTRY_POINT"
 
 
   # ============================================================
-  # Phase 1: Run scribe workflow
-  # ============================================================
-  run-scribe:
-    needs: [resolve-stewards-plan]
-    if: |
-      !cancelled() &&
-      needs.resolve-stewards-plan.result == 'success' &&
-      fromJSON(needs.resolve-stewards-plan.outputs.json || '{}').run_scribe == true
-    uses: ./.github/workflows/jules-scribe.yml
-    secrets: inherit
-    with:
-      mock: ${{ github.event.inputs.mock == 'true' }}
-
-  # ============================================================
-  # Phase 2: Run optimizers workflow
+  # Run optimizers workflow
   # ============================================================
   run-optimizers:
-    needs: [resolve-stewards-plan, run-scribe]
+    needs: [resolve-organization-plan]
     if: |
       !cancelled() &&
-      needs.resolve-stewards-plan.result == 'success' &&
-      fromJSON(needs.resolve-stewards-plan.outputs.json || '{}').run_optimizers == true &&
-      (needs.run-scribe.result == 'success' || needs.run-scribe.result == 'skipped')
+      needs.resolve-organization-plan.result == 'success' &&
+      fromJSON(needs.resolve-organization-plan.outputs.json || '{}').run_optimizers == true
     uses: ./.github/workflows/jules-optimizers.yml
     secrets: inherit
     with:
@@ -104,14 +88,14 @@ jobs:
       mock: ${{ github.event.inputs.mock == 'true' }}
 
   # ============================================================
-  # Phase 3: Run innovators workflow
+  # Run innovators workflow
   # ============================================================
   run-innovators:
-    needs: [resolve-stewards-plan, run-optimizers]
+    needs: [resolve-organization-plan, run-optimizers]
     if: |
       !cancelled() &&
-      needs.resolve-stewards-plan.result == 'success' &&
-      fromJSON(needs.resolve-stewards-plan.outputs.json || '{}').run_innovators == true &&
+      needs.resolve-organization-plan.result == 'success' &&
+      fromJSON(needs.resolve-organization-plan.outputs.json || '{}').run_innovators == true &&
       (needs.run-optimizers.result == 'success' || needs.run-optimizers.result == 'skipped')
     uses: ./.github/workflows/jules-innovators.yml
     secrets: inherit

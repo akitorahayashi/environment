@@ -30,7 +30,7 @@ env:
 
 jobs:
   # ============================================================
-  # Phase 0: Bootstrap runtime repository on worker branch
+  # Bootstrap runtime repository on worker branch
   # ============================================================
 
   bootstrap:
@@ -74,7 +74,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
@@ -126,7 +126,7 @@ jobs:
 
 
   # ============================================================
-  # Phase 1: Resolve implementer matrix
+  # Resolve implementer matrix
   # ============================================================
 
   resolve-implementer-matrix:
@@ -135,6 +135,7 @@ jobs:
       !cancelled() &&
 
       needs.bootstrap.result == 'success'
+
 
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -160,20 +161,30 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve implementer targets
         id: resolve
+
         run: |
           set -euo pipefail
-          if [ "${MOCK_MODE}" = "true" ]; then
+          static_target="${STATIC_TARGET:-}"
+          if [ -n "${static_target}" ]; then
+            json=$(printf '{"layer":"%s","count":1,"skipped_count":0,"matrix":[{"target":"%s"}]}' "implementer" "${static_target}")
+            {
+              echo "json=${json}"
+              echo "count=1"
+              echo "skipped_count=0"
+              echo "layer=implementer"
+            } >> "${GITHUB_OUTPUT}"
+          elif [ "${MOCK_MODE}" = "true" ]; then
             jlo workflow resolve matrix --layer implementer --mock
           else
             jlo workflow resolve matrix --layer implementer
           fi
   # ============================================================
-  # Phase 2: Run implementer matrix
+  # Run implementer matrix
   # ============================================================
 
   
@@ -189,9 +200,13 @@ jobs:
 
 
 
+    
       needs.bootstrap.result == 'success' &&
+    
 
+    
       needs.resolve-implementer-matrix.result == 'success' &&
+    
 
       fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0 &&
       fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
@@ -228,7 +243,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run implementer (${{ matrix.target }})
@@ -245,8 +260,11 @@ jobs:
     if: |
       !cancelled() &&
       always() &&
+
       needs.resolve-implementer-matrix.result == 'success' &&
       needs.resolve-implementer-matrix.result == 'success'
+
+
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -269,7 +287,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Report Run implementer status
@@ -286,7 +304,7 @@ jobs:
             --target-count "${TARGET_COUNT}"
 
   # ============================================================
-  # Phase 3: Cleanup mock artifacts
+  # Cleanup mock artifacts
   # ============================================================
 
 
@@ -334,7 +352,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run

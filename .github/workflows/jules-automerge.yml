@@ -9,7 +9,6 @@ on:
       - 'jules-dispatcher-*'
       - 'jules-planner-*'
       - 'jules-innovators-*'
-      - 'jules-reporter-*'
       - 'jules-worker-sync-*'
 
 permissions: {}
@@ -48,7 +47,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Discover open PR for pushed branch
@@ -91,10 +90,6 @@ jobs:
             jules-innovators-*)
               mode="layer"
               layer="innovators"
-              ;;
-            jules-reporter-*)
-              mode="layer"
-              layer="reporter"
               ;;
             jules-worker-sync-*)
               mode="structure"

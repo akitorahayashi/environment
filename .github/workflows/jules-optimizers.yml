@@ -16,6 +16,10 @@ on:
           - publish-plans
           - implementer
         default: observers
+      single_layer:
+        description: 'Run only the specified entry point layer'
+        type: boolean
+        default: false
       wait_minutes:
         description: 'Minutes to wait between layers (Jules async processing time)'
         type: number
@@ -25,11 +29,11 @@ on:
         description: 'Observer tag filter'
         type: choice
         options:
-          - all
+          - all-enabled
 
-          - testing
+          - std_checks
 
-        default: all
+        default: all-enabled
 
       mock:
         description: 'Run in mock mode (creates branches/PRs without Jules API)'
@@ -41,6 +45,10 @@ on:
         description: 'Start from phase'
         type: string
         default: observers
+      single_layer:
+        description: 'Run only the specified entry point layer'
+        type: boolean
+        default: false
       wait_minutes:
         description: 'Minutes to wait between layers (Jules async processing time)'
         type: number
@@ -61,7 +69,7 @@ env:
   MOCK_MODE: ${{ github.event_name == 'workflow_call' && inputs.mock == true || github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true' }}
   JULES_MOCK_TAG: ${{ format('mock_run_{0}', github.run_id) }}
   JLO_RUN_FLAGS: ${{ ((github.event_name == 'workflow_call' && inputs.mock == true) || (github.event_name == 'workflow_dispatch' && github.event.inputs.mock == 'true')) && '--mock' || '' }}
-  OBSERVER_TAG_FILTER: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.tag || 'all') || 'all' }}
+  OBSERVER_TAG_FILTER: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.tag || 'all-enabled') || 'all-enabled' }}
   JLO_TARGET_BRANCH: 'main'
   JULES_WORKER_BRANCH: 'jules'
 
@@ -70,7 +78,7 @@ env:
 
 jobs:
   # ============================================================
-  # Phase 0: Bootstrap runtime repository on worker branch
+  # Bootstrap runtime repository on worker branch
   # ============================================================
 
 
@@ -115,7 +123,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Sync worker branch
@@ -167,7 +175,7 @@ jobs:
 
 
   # ============================================================
-  # Phase 1: Resolve run plan
+  # Resolve run plan
   # ============================================================
   resolve-optimizers-plan:
     needs: [bootstrap]
@@ -189,7 +197,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve optimizers plan
@@ -197,13 +205,14 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name == 'workflow_call' && 'workflow_dispatch' || github.event_name }}
           ENTRY_POINT: ${{ github.event_name == 'workflow_call' && (inputs.entry_point || 'observers') || github.event_name == 'workflow_dispatch' && (github.event.inputs.entry_point || 'observers') || '' }}
+          SINGLE_LAYER: ${{ github.event_name == 'workflow_call' && inputs.single_layer == true || github.event_name == 'workflow_dispatch' && github.event.inputs.single_layer == 'true' }}
         run: |
           set -euo pipefail
-          jlo workflow resolve optimizers-plan "$EVENT_NAME" --entry-point "$ENTRY_POINT"
+          jlo workflow resolve optimizers-plan "$EVENT_NAME" --entry-point "$ENTRY_POINT" --single-layer "$SINGLE_LAYER"
 
 
   # ============================================================
-  # Phase 2: Resolve and run observers (matrix)
+  # Resolve and run observers (matrix)
   # ============================================================
 
   resolve-observers-matrix:
@@ -211,7 +220,10 @@ jobs:
     if: |
       !cancelled() &&
 
-      needs.resolve-optimizers-plan.result == 'success'
+      needs.resolve-optimizers-plan.result == 'success' &&
+
+
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_observers == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -237,14 +249,24 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve observers targets
         id: resolve
+
         run: |
           set -euo pipefail
-          if [ "${MOCK_MODE}" = "true" ]; then
+          static_target="${STATIC_TARGET:-}"
+          if [ -n "${static_target}" ]; then
+            json=$(printf '{"layer":"%s","count":1,"skipped_count":0,"matrix":[{"target":"%s"}]}' "observers" "${static_target}")
+            {
+              echo "json=${json}"
+              echo "count=1"
+              echo "skipped_count=0"
+              echo "layer=observers"
+            } >> "${GITHUB_OUTPUT}"
+          elif [ "${MOCK_MODE}" = "true" ]; then
             jlo workflow resolve matrix --layer observers --mock --tag "${OBSERVER_TAG_FILTER}"
           else
             jlo workflow resolve matrix --layer observers --tag "${OBSERVER_TAG_FILTER}"
@@ -263,9 +285,13 @@ jobs:
 
 
 
+    
       needs.resolve-optimizers-plan.result == 'success' &&
+    
 
+    
       needs.resolve-observers-matrix.result == 'success' &&
+    
 
       fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_observers == true &&
       fromJSON(needs.resolve-observers-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
@@ -302,7 +328,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run observers (${{ matrix.target }})
@@ -319,8 +345,14 @@ jobs:
     if: |
       !cancelled() &&
       always() &&
+
       needs.resolve-optimizers-plan.result == 'success' &&
       needs.resolve-observers-matrix.result == 'success'
+
+
+      &&
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_observers == true
+
     runs-on: ubuntu-latest
     timeout-minutes: 70
     outputs:
@@ -343,7 +375,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Report Run observers status
@@ -369,7 +401,7 @@ jobs:
           label: 'Jules async processing for observers'
 
   # ============================================================
-  # Phase 3: Run merger and wait
+  # Run merger and wait
   # ============================================================
 
   
@@ -383,10 +415,17 @@ jobs:
       !cancelled() &&
 
 
-      needs.resolve-optimizers-plan.result == 'success' &&
+    
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
+    
 
-      needs.report-observers-status.result == 'success'
+    
+      (needs.report-observers-status.result == 'success' || needs.report-observers-status.result == 'skipped') &&
+    
 
+    
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_merger == true
+    
     runs-on: ubuntu-latest
     timeout-minutes: 100
     outputs:
@@ -412,7 +451,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
       - name: Run merger
         id: run
@@ -448,7 +487,7 @@ jobs:
           label: 'Jules async processing for merger'
 
   # ============================================================
-  # Phase 4: Run dispatcher and wait
+  # Run dispatcher and wait
   # ============================================================
 
   
@@ -462,10 +501,17 @@ jobs:
       !cancelled() &&
 
 
-      needs.resolve-optimizers-plan.result == 'success' &&
+    
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
+    
 
-      needs.run-merger.result == 'success'
+    
+      (needs.run-merger.result == 'success' || needs.run-merger.result == 'skipped') &&
+    
 
+    
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_dispatcher == true
+    
     runs-on: ubuntu-latest
     timeout-minutes: 100
     outputs:
@@ -491,7 +537,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
       - name: Run dispatcher
         id: run
@@ -527,7 +573,7 @@ jobs:
           label: 'Jules async processing for dispatcher'
 
   # ============================================================
-  # Phase 5: Publish requirements lane to implementer issues
+  # Publish requirements lane to implementer issues
   # ============================================================
 
   publish-implementer-requirements:
@@ -535,9 +581,12 @@ jobs:
     if: |
       !cancelled() &&
 
-      needs.resolve-optimizers-plan.result == 'success' &&
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
 
-      needs.run-dispatcher.result == 'success'
+      (needs.run-dispatcher.result == 'success' || needs.run-dispatcher.result == 'skipped') &&
+
+
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_publish_requirements == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -561,7 +610,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish implementer issues (requirements)
@@ -618,15 +667,20 @@ jobs:
             fi
           done
   # ============================================================
-  # Phase 6: Resolve and run planner (matrix)
+  # Resolve and run planner (matrix)
   # ============================================================
 
   resolve-planner-matrix:
-    needs: ["run-dispatcher"]
+    needs: ["resolve-optimizers-plan", "run-dispatcher"]
     if: |
       !cancelled() &&
 
-      needs.run-dispatcher.result == 'success'
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
+
+      (needs.run-dispatcher.result == 'success' || needs.run-dispatcher.result == 'skipped') &&
+
+
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_planner == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -652,14 +706,24 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve planner targets
         id: resolve
+
         run: |
           set -euo pipefail
-          if [ "${MOCK_MODE}" = "true" ]; then
+          static_target="${STATIC_TARGET:-}"
+          if [ -n "${static_target}" ]; then
+            json=$(printf '{"layer":"%s","count":1,"skipped_count":0,"matrix":[{"target":"%s"}]}' "planner" "${static_target}")
+            {
+              echo "json=${json}"
+              echo "count=1"
+              echo "skipped_count=0"
+              echo "layer=planner"
+            } >> "${GITHUB_OUTPUT}"
+          elif [ "${MOCK_MODE}" = "true" ]; then
             jlo workflow resolve matrix --layer planner --mock
           else
             jlo workflow resolve matrix --layer planner
@@ -678,9 +742,13 @@ jobs:
 
 
 
+    
       needs.resolve-optimizers-plan.result == 'success' &&
+    
 
+    
       needs.resolve-planner-matrix.result == 'success' &&
+    
 
       fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_planner == true &&
       fromJSON(needs.resolve-planner-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
@@ -717,7 +785,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run planner (${{ matrix.target }})
@@ -734,8 +802,14 @@ jobs:
     if: |
       !cancelled() &&
       always() &&
+
       needs.resolve-optimizers-plan.result == 'success' &&
       needs.resolve-planner-matrix.result == 'success'
+
+
+      &&
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_planner == true
+
     runs-on: ubuntu-latest
     timeout-minutes: 70
     outputs:
@@ -758,7 +832,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Report Run planner status
@@ -784,7 +858,7 @@ jobs:
           label: 'Jules async processing for planner'
 
   # ============================================================
-  # Phase 7: Publish plans lane to implementer issues
+  # Publish plans lane to implementer issues
   # ============================================================
 
   publish-implementer-plans:
@@ -792,9 +866,12 @@ jobs:
     if: |
       !cancelled() &&
 
-      needs.resolve-optimizers-plan.result == 'success' &&
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
 
-      needs.report-planner-status.result == 'success'
+      (needs.report-planner-status.result == 'success' || needs.report-planner-status.result == 'skipped') &&
+
+
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_publish_plans == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -818,7 +895,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Publish implementer issues (plans)
@@ -875,17 +952,22 @@ jobs:
             fi
           done
   # ============================================================
-  # Phase 8: Resolve and run implementer (matrix)
+  # Resolve and run implementer (matrix)
   # ============================================================
 
   resolve-implementer-matrix:
-    needs: ["publish-implementer-requirements", "publish-implementer-plans"]
+    needs: ["resolve-optimizers-plan", "publish-implementer-requirements", "publish-implementer-plans"]
     if: |
       !cancelled() &&
 
-      needs.publish-implementer-requirements.result == 'success' &&
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
 
-      needs.publish-implementer-plans.result == 'success'
+      (needs.publish-implementer-requirements.result == 'success' || needs.publish-implementer-requirements.result == 'skipped') &&
+
+      (needs.publish-implementer-plans.result == 'success' || needs.publish-implementer-plans.result == 'skipped') &&
+
+
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_implementer == true
 
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -911,14 +993,24 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Resolve implementer targets
         id: resolve
+
         run: |
           set -euo pipefail
-          if [ "${MOCK_MODE}" = "true" ]; then
+          static_target="${STATIC_TARGET:-}"
+          if [ -n "${static_target}" ]; then
+            json=$(printf '{"layer":"%s","count":1,"skipped_count":0,"matrix":[{"target":"%s"}]}' "implementer" "${static_target}")
+            {
+              echo "json=${json}"
+              echo "count=1"
+              echo "skipped_count=0"
+              echo "layer=implementer"
+            } >> "${GITHUB_OUTPUT}"
+          elif [ "${MOCK_MODE}" = "true" ]; then
             jlo workflow resolve matrix --layer implementer --mock
           else
             jlo workflow resolve matrix --layer implementer
@@ -937,9 +1029,13 @@ jobs:
 
 
 
-      needs.resolve-optimizers-plan.result == 'success' &&
+    
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
+    
 
-      needs.resolve-implementer-matrix.result == 'success' &&
+    
+      (needs.resolve-implementer-matrix.result == 'success' || needs.resolve-implementer-matrix.result == 'skipped') &&
+    
 
       fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_implementer == true &&
       fromJSON(needs.resolve-implementer-matrix.outputs.json || '{"count":0,"skipped_count":0,"matrix":[]}').count > 0
@@ -976,7 +1072,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Run implementer (${{ matrix.target }})
@@ -993,8 +1089,14 @@ jobs:
     if: |
       !cancelled() &&
       always() &&
-      needs.resolve-optimizers-plan.result == 'success' &&
-      needs.resolve-implementer-matrix.result == 'success'
+
+      (needs.resolve-optimizers-plan.result == 'success' || needs.resolve-optimizers-plan.result == 'skipped') &&
+      (needs.resolve-implementer-matrix.result == 'success' || needs.resolve-implementer-matrix.result == 'skipped')
+
+
+      &&
+      fromJSON(needs.resolve-optimizers-plan.outputs.json || '{}').run_implementer == true
+
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -1017,7 +1119,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Report Run implementer status
@@ -1034,7 +1136,7 @@ jobs:
             --target-count "${TARGET_COUNT}"
 
   # ============================================================
-  # Phase 9: Cleanup mock artifacts
+  # Cleanup mock artifacts
   # ============================================================
 
 
@@ -1082,7 +1184,7 @@ jobs:
         uses: asterismhq/setup-jlo@v1
         with:
           token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '25.0.1'
+          version: '26.0.0'
           submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
 
       - name: Cleanup mock artifacts for this run
