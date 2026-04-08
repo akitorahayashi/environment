@@ -8,7 +8,7 @@ use crate::domain::error::AppError;
 #[derive(Subcommand)]
 pub enum ConfigCommand {
     /// Deploy role configs to ~/.config/mev/roles/.
-    #[command(alias = "dp")]
+    #[command(visible_alias = "dp")]
     Deploy {
         /// Role name to deploy config for. If omitted, deploys all roles.
         role: Option<String>,
