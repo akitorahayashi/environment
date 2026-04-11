@@ -499,4 +499,19 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_load_catalog_reads_full_setup_tags() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let playbook_path = dir.path().join("playbook.yml");
+        fs::write(
+            &playbook_path,
+            "- name: setup\n  vars:\n    full_setup_tags:\n      - vscode\n      - zed\n",
+        )?;
+
+        let catalog = load_catalog(playbook_path.as_path())?;
+        assert_eq!(catalog.full_setup_tags, vec!["vscode".to_string(), "zed".to_string()]);
+
+        Ok(())
+    }
 }

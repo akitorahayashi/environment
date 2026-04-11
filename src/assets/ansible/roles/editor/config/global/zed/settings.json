@@ -1,0 +1,11 @@
+{
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "One Dark"
+  },
+  "base_keymap": "VSCode",
+  "format_on_save": "on",
+  "tab_size": 2,
+  "show_whitespaces": "all"
+}

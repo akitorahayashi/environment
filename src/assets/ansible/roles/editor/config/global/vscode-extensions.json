@@ -1,15 +1,7 @@
 {
   "extensions": [
-    "analytic-signal.preview-tiff",
-    "github.copilot",
     "github.copilot-chat",
-    "ms-python.debugpy",
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "ms-python.vscode-python-envs",
-    "mushan.vscode-paste-image",
     "nefrob.vscode-just-syntax",
-    "tkoresearch.applescript-support",
     "tomoki1207.pdf"
   ]
 }

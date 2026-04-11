@@ -26,7 +26,7 @@
       - rust-tools
       - go-tools
       - vscode
-      - cursor
+      - zed
       - coder
       - mlx
       - xcode
@@ -41,6 +41,6 @@
     - { role: gh, tags: ["gh"] }
     - { role: shell, tags: ["shell", "sh"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: editor, tags: ["vscode", "co", "cursor", "cur", "antigravity", "agy", "xcode", "xc"] }
+    - { role: editor, tags: ["vscode", "co", "antigravity", "agy", "zed", "zd", "xcode", "xc"] }
     - { role: system, tags: ["system", "sys"] }
     - { role: llm, tags: ["ollama", "ol", "ollama-models", "ol-m", "mlx", "mlx-models"] }
