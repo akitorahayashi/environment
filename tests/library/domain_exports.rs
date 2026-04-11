@@ -1,8 +1,12 @@
 //! Verify public API surfaces remain accessible.
 
+use std::collections::HashMap;
+
 #[test]
 fn domain_tag_resolution_is_public() {
-    let tags = mev::domain::tag::resolve_tags("rust");
+    let mut groups = HashMap::new();
+    groups.insert("rust".to_string(), vec!["rust-platform".to_string(), "rust-tools".to_string()]);
+    let tags = mev::domain::tag::resolve_tags("rust", &groups);
     assert_eq!(tags, vec!["rust-platform", "rust-tools"]);
 }
 

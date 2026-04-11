@@ -1,8 +1,10 @@
-//! Repository target resolution.
+//! Repository resolution.
 
 use crate::domain::DomainError;
 use crate::domain::repository_ref::RepositoryRef;
 
+/// Determine the repository to operate on based on explicit input or ambient environment.
+/// Fails with `DomainError::MissingRepository` if no explicit repo is provided and no origin remote is configured.
 pub fn resolve_repo_ref(
     explicit_repo: Option<&str>,
     origin_url: Option<&str>,

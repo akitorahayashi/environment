@@ -26,6 +26,18 @@ pub trait IdentityStore {
 /// Top-level identity model stored on disk.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct IdentityState {
-    pub personal: Identity,
-    pub work: Identity,
+    #[serde(default, deserialize_with = "deserialize_identity_option")]
+    pub personal: Option<Identity>,
+    #[serde(default, deserialize_with = "deserialize_identity_option")]
+    pub work: Option<Identity>,
+}
+
+fn deserialize_identity_option<'de, D>(deserializer: D) -> Result<Option<Identity>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use crate::domain::identity::RawIdentity;
+    use serde::Deserialize;
+    let raw: Option<RawIdentity> = Option::deserialize(deserializer)?;
+    Ok(raw.and_then(|r| Identity::try_from(r).ok()))
 }

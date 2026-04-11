@@ -2,6 +2,34 @@
 - name: Setup macOS development environment
   hosts: localhost
   connection: local
+  vars:
+    tag_groups:
+      rust: ["rust-platform", "rust-tools"]
+      python: ["python-platform", "python-tools"]
+      nodejs: ["nodejs-platform", "nodejs-tools"]
+      go: ["go-platform", "go-tools"]
+    full_setup_tags:
+      - brew-formulae
+      - ollama
+      - shell
+      - system
+      - git
+      - gh
+      - python-platform
+      - nodejs-platform
+      - ruby
+      - rust-platform
+      - go-platform
+      - python-tools
+      - uv
+      - nodejs-tools
+      - rust-tools
+      - go-tools
+      - vscode
+      - cursor
+      - coder
+      - mlx
+      - xcode
   roles:
     - { role: brew, tags: ["brew-formulae", "brew-f", "brew-cask", "brew-c"] }
     - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t", "uv"] }

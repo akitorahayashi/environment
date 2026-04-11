@@ -104,7 +104,7 @@ mod tests {
             r#"#!/bin/sh
             echo "git@github.com:owner/repo.git"
             "#,
-        );
+        )?;
 
         let adapter = GitAdapter {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
@@ -126,7 +126,7 @@ mod tests {
             r#"#!/bin/sh
             exit 0
             "#,
-        );
+        )?;
 
         let adapter = GitAdapter {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
@@ -149,7 +149,7 @@ mod tests {
             echo "No such section" >&2
             exit 1
             "#,
-        );
+        )?;
 
         let adapter = GitAdapter {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
@@ -191,7 +191,7 @@ mod tests {
                 "#,
                 args_file.display()
             ),
-        );
+        )?;
 
         let adapter = GitAdapter {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),

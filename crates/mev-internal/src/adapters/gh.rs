@@ -90,7 +90,7 @@ mod tests {
             r#"#!/bin/sh
             echo "bug\nfeature\nhelp wanted"
             "#,
-        );
+        )?;
 
         let repo = RepositoryRef::from_repo_arg("owner/repo")?;
         let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
@@ -113,7 +113,7 @@ mod tests {
                 "#,
                 args_file.display()
             ),
-        );
+        )?;
 
         let repo = RepositoryRef::from_repo_arg("owner/repo")?;
         let label = LabelSpec {
@@ -147,7 +147,7 @@ mod tests {
                 "#,
                 args_file.display()
             ),
-        );
+        )?;
 
         let repo = RepositoryRef::from_repo_arg("owner/repo")?;
         let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };

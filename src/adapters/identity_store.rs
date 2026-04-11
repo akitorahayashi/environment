@@ -75,8 +75,8 @@ impl IdentityStore for IdentityFileStore {
     fn get_identity(&self, identity: IdentityScope) -> Result<Option<Identity>, AppError> {
         let state = self.load()?;
         match identity {
-            IdentityScope::Personal => Ok(Some(state.personal)),
-            IdentityScope::Work => Ok(Some(state.work)),
+            IdentityScope::Personal => Ok(state.personal),
+            IdentityScope::Work => Ok(state.work),
         }
     }
 
@@ -95,11 +95,8 @@ mod tests {
 
     fn create_dummy_state() -> IdentityState {
         IdentityState {
-            personal: Identity {
-                name: "Personal Name".to_string(),
-                email: "personal@example.com".to_string(),
-            },
-            work: Identity { name: "Work Name".to_string(), email: "work@example.com".to_string() },
+            personal: Identity::new("Personal Name", "personal@example.com"),
+            work: Identity::new("Work Name", "work@example.com"),
         }
     }
 
@@ -144,7 +141,7 @@ mod tests {
 
         let store = IdentityFileStore::new(path);
         let loaded = store.load()?;
-        assert_eq!(loaded.personal.email, "personal@example.com");
+        assert_eq!(loaded.personal.unwrap().email(), "personal@example.com");
         Ok(())
     }
 
@@ -161,7 +158,7 @@ mod tests {
 
         let content = std::fs::read_to_string(&path)?;
         let loaded: IdentityState = serde_json::from_str(&content)?;
-        assert_eq!(loaded.work.name, "Work Name");
+        assert_eq!(loaded.work.unwrap().name(), "Work Name");
         Ok(())
     }
 
@@ -185,10 +182,10 @@ mod tests {
         store.save(&state)?;
 
         let personal = store.get_identity(IdentityScope::Personal)?.ok_or("missing personal")?;
-        assert_eq!(personal.name, "Personal Name");
+        assert_eq!(personal.name(), "Personal Name");
 
         let work = store.get_identity(IdentityScope::Work)?.ok_or("missing work")?;
-        assert_eq!(work.name, "Work Name");
+        assert_eq!(work.name(), "Work Name");
 
         Ok(())
     }

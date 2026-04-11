@@ -101,57 +101,58 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parses_owner_name_repo_arg() {
-        let repo = RepositoryRef::from_repo_arg("owner/repo").expect("repo arg should parse");
+    fn parses_owner_name_repo_arg() -> Result<(), Box<dyn std::error::Error>> {
+        let repo = RepositoryRef::from_repo_arg("owner/repo")?;
         assert_eq!(repo.as_gh_repo_arg(), "owner/repo");
+        Ok(())
     }
 
     #[test]
-    fn parses_host_owner_name_repo_arg() {
-        let repo = RepositoryRef::from_repo_arg("github.example.com/owner/repo")
-            .expect("repo arg should parse");
+    fn parses_host_owner_name_repo_arg() -> Result<(), Box<dyn std::error::Error>> {
+        let repo = RepositoryRef::from_repo_arg("github.example.com/owner/repo")?;
         assert_eq!(repo.as_gh_repo_arg(), "github.example.com/owner/repo");
+        Ok(())
     }
 
     #[test]
-    fn parses_https_remote_url() {
-        let repo = RepositoryRef::from_remote_url("https://github.com/owner/repo.git")
-            .expect("https remote should parse");
+    fn parses_https_remote_url() -> Result<(), Box<dyn std::error::Error>> {
+        let repo = RepositoryRef::from_remote_url("https://github.com/owner/repo.git")?;
         assert_eq!(repo.as_gh_repo_arg(), "github.com/owner/repo");
+        Ok(())
     }
 
     #[test]
-    fn parses_ssh_remote_url() {
-        let repo = RepositoryRef::from_remote_url("git@github.com:owner/repo.git")
-            .expect("ssh remote should parse");
+    fn parses_ssh_remote_url() -> Result<(), Box<dyn std::error::Error>> {
+        let repo = RepositoryRef::from_remote_url("git@github.com:owner/repo.git")?;
         assert_eq!(repo.as_gh_repo_arg(), "github.com/owner/repo");
+        Ok(())
     }
 
     #[test]
-    fn from_remote_url_parses_scp_like_ssh() {
-        let repo = RepositoryRef::from_remote_url("git@github.com:owner/repo.git")
-            .expect("scp-like ssh remote should parse");
+    fn from_remote_url_parses_scp_like_ssh() -> Result<(), Box<dyn std::error::Error>> {
+        let repo = RepositoryRef::from_remote_url("git@github.com:owner/repo.git")?;
         assert_eq!(repo.host.as_deref(), Some("github.com"));
         assert_eq!(repo.owner, "owner");
         assert_eq!(repo.name, "repo");
+        Ok(())
     }
 
     #[test]
-    fn from_remote_url_parses_standard_ssh() {
-        let repo = RepositoryRef::from_remote_url("ssh://git@github.com/owner/repo.git")
-            .expect("standard ssh remote should parse");
+    fn from_remote_url_parses_standard_ssh() -> Result<(), Box<dyn std::error::Error>> {
+        let repo = RepositoryRef::from_remote_url("ssh://git@github.com/owner/repo.git")?;
         assert_eq!(repo.host.as_deref(), Some("github.com"));
         assert_eq!(repo.owner, "owner");
         assert_eq!(repo.name, "repo");
+        Ok(())
     }
 
     #[test]
-    fn from_remote_url_parses_http() {
-        let repo = RepositoryRef::from_remote_url("http://github.com/owner/repo.git")
-            .expect("http remote should parse");
+    fn from_remote_url_parses_http() -> Result<(), Box<dyn std::error::Error>> {
+        let repo = RepositoryRef::from_remote_url("http://github.com/owner/repo.git")?;
         assert_eq!(repo.host.as_deref(), Some("github.com"));
         assert_eq!(repo.owner, "owner");
         assert_eq!(repo.name, "repo");
+        Ok(())
     }
 
     #[test]

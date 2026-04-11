@@ -4,6 +4,9 @@ use std::path::{Component, Path};
 
 use crate::domain::DomainError;
 
+/// Verify a string is a safe, relative path suitable for a submodule location.
+/// Fails with `DomainError::InvalidSubmodulePath` if the path is empty, absolute,
+/// or contains any non-normal component (for example `.` or `..`).
 pub fn validate_submodule_path(path: &str) -> Result<(), DomainError> {
     let path = Path::new(path);
 

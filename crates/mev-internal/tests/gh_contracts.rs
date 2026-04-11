@@ -12,40 +12,44 @@ fn create_gh_mock_script(log_path: &std::path::Path) -> String {
 
 #[test]
 #[serial(env_path)]
-fn test_gh_labels_deploy() {
-    let temp_dir = tempfile::tempdir().unwrap();
+fn test_gh_labels_deploy() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = tempfile::tempdir()?;
     let gh_log = temp_dir.path().join("gh_log.txt");
 
     let mock_script = create_gh_mock_script(&gh_log);
 
-    let mock_bin_dir = create_mock_bin("gh", &temp_dir, &mock_script);
-    let _path_guard = PathGuard::new(&mock_bin_dir);
+    let mock_bin_dir = create_mock_bin("gh", &temp_dir, &mock_script)?;
+    let _path_guard = PathGuard::new(&mock_bin_dir)?;
 
     let args = labels_deploy::LabelsDeployArgs { repo: Some("owner/repo".to_string()) };
 
-    labels_deploy::run(args).expect("deploy should succeed");
+    labels_deploy::run(args)?;
 
-    let log_content = fs::read_to_string(gh_log).unwrap();
+    let log_content = fs::read_to_string(gh_log)?;
     assert!(log_content.contains("label list"));
     assert!(log_content.contains("label delete bugs"));
     assert!(log_content.contains("label create bugs"));
+
+    Ok(())
 }
 
 #[test]
 #[serial(env_path)]
-fn test_gh_labels_reset() {
-    let temp_dir = tempfile::tempdir().unwrap();
+fn test_gh_labels_reset() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = tempfile::tempdir()?;
     let gh_log = temp_dir.path().join("gh_log.txt");
 
     let mock_script = create_gh_mock_script(&gh_log);
 
-    let mock_bin_dir = create_mock_bin("gh", &temp_dir, &mock_script);
-    let _path_guard = PathGuard::new(&mock_bin_dir);
+    let mock_bin_dir = create_mock_bin("gh", &temp_dir, &mock_script)?;
+    let _path_guard = PathGuard::new(&mock_bin_dir)?;
 
     let args = labels_reset::LabelsResetArgs { repo: Some("owner/repo".to_string()) };
 
-    labels_reset::run(args).expect("reset should succeed");
+    labels_reset::run(args)?;
 
-    let log_content = fs::read_to_string(gh_log).unwrap();
+    let log_content = fs::read_to_string(gh_log)?;
     assert!(log_content.contains("label delete bugs"));
+
+    Ok(())
 }

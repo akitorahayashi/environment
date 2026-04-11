@@ -16,7 +16,7 @@ pub fn execute(
     overwrite: bool,
     verbose: bool,
 ) -> Result<(), AppError> {
-    let tags_to_run = tag::resolve_tags(tag_input);
+    let tags_to_run = tag::resolve_tags(tag_input, ctx.ansible.tag_groups());
 
     // Validate tags exist in catalog
     for t in &tags_to_run {

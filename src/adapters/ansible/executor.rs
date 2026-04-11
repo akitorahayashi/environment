@@ -66,6 +66,8 @@ pub struct AnsibleAdapter {
     roles_dir: PathBuf,
     tags_by_role: HashMap<String, Vec<String>>,
     tag_to_role: HashMap<String, String>,
+    tag_groups: HashMap<String, Vec<String>>,
+    full_setup_tags: Vec<String>,
 }
 
 impl AnsibleAdapter {
@@ -77,7 +79,8 @@ impl AnsibleAdapter {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
-        let (tags_by_role, tag_to_role) = load_catalog(&playbook_path)?;
+        let TagCatalog { tags_by_role, tag_to_role, tag_groups, full_setup_tags } =
+            load_catalog(&playbook_path)?;
 
         Ok(Self {
             ansible_dir: ansible_dir.to_path_buf(),
@@ -85,6 +88,8 @@ impl AnsibleAdapter {
             roles_dir,
             tags_by_role,
             tag_to_role,
+            tag_groups,
+            full_setup_tags,
         })
     }
 
@@ -96,6 +101,8 @@ impl AnsibleAdapter {
             roles_dir: PathBuf::new(),
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
+            tag_groups: HashMap::new(),
+            full_setup_tags: Vec::new(),
         }
     }
 
@@ -224,6 +231,14 @@ impl AnsiblePort for AnsibleAdapter {
         tags
     }
 
+    fn tag_groups(&self) -> &HashMap<String, Vec<String>> {
+        &self.tag_groups
+    }
+
+    fn full_setup_tags(&self) -> &[String] {
+        &self.full_setup_tags
+    }
+
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
         &self.tags_by_role
     }
@@ -246,55 +261,76 @@ impl AnsiblePort for AnsibleAdapter {
     }
 }
 
-/// Tag catalog: role→tags mapping and tag→role mapping.
-type Catalog = (HashMap<String, Vec<String>>, HashMap<String, String>);
+/// Tag catalog: role→tags, tag→role, tag_groups, and full_setup_tags.
+#[derive(Default)]
+struct TagCatalog {
+    tags_by_role: HashMap<String, Vec<String>>,
+    tag_to_role: HashMap<String, String>,
+    tag_groups: HashMap<String, Vec<String>>,
+    full_setup_tags: Vec<String>,
+}
 
-/// Load tag-to-role mappings from a playbook.yml file.
-fn load_catalog(playbook_path: &PathBuf) -> Result<Catalog, Box<dyn std::error::Error>> {
+/// Load tag mappings from a playbook.yml file.
+fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::Error>> {
     let content = std::fs::read_to_string(playbook_path)?;
     let docs: Vec<serde_yaml::Value> = serde_yaml::from_str(&content)?;
 
-    let role_key = serde_yaml::Value::String("role".to_string());
-    let tags_key = serde_yaml::Value::String("tags".to_string());
-
-    let mut tags_by_role: HashMap<String, Vec<String>> = HashMap::new();
-    let mut tag_to_role = HashMap::new();
+    let mut catalog = TagCatalog::default();
 
     for doc in &docs {
+        if let Some(vars) = doc.get("vars") {
+            if let Some(tg) = vars.get("tag_groups").and_then(|v| v.as_mapping()) {
+                for (k, v) in tg {
+                    if let (Some(group_name), Some(seq)) = (k.as_str(), v.as_sequence()) {
+                        let group_tags: Vec<String> =
+                            seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
+                        catalog
+                            .tag_groups
+                            .entry(group_name.to_string())
+                            .or_default()
+                            .extend(group_tags);
+                    }
+                }
+            }
+            if let Some(fst) = vars.get("full_setup_tags").and_then(|v| v.as_sequence()) {
+                catalog
+                    .full_setup_tags
+                    .extend(fst.iter().filter_map(|t| t.as_str().map(|s| s.to_string())));
+            }
+        }
+
         if let Some(roles) = doc.get("roles").and_then(|r| r.as_sequence()) {
             for role_entry in roles {
-                if let Some(mapping) = role_entry.as_mapping() {
-                    let role_name =
-                        mapping.get(&role_key).and_then(|v| v.as_str()).map(|s| s.to_string());
+                let role_name =
+                    role_entry.get("role").and_then(|v| v.as_str()).map(|s| s.to_string());
 
-                    let tags: Vec<String> = match mapping.get(&tags_key) {
-                        Some(serde_yaml::Value::Sequence(seq)) => {
-                            seq.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect()
-                        }
-                        Some(serde_yaml::Value::String(s)) => vec![s.to_string()],
-                        _ => Vec::new(),
-                    };
-
-                    if let Some(name) = role_name {
-                        for tag in &tags {
-                            if let Some(existing) = tag_to_role.get(tag)
-                                && existing != &name
-                            {
-                                return Err(format!(
-                                    "duplicate tag '{tag}': owned by both '{existing}' and '{name}'"
-                                )
-                                .into());
-                            }
-                            tag_to_role.insert(tag.to_string(), name.to_string());
-                        }
-                        tags_by_role.entry(name).or_default().extend(tags);
+                let tags: Vec<String> = match role_entry.get("tags") {
+                    Some(serde_yaml::Value::Sequence(seq)) => {
+                        seq.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect()
                     }
+                    Some(serde_yaml::Value::String(s)) => vec![s.to_string()],
+                    _ => Vec::new(),
+                };
+
+                if let Some(name) = role_name {
+                    for tag in &tags {
+                        if let Some(existing) = catalog.tag_to_role.get(tag)
+                            && existing != &name
+                        {
+                            return Err(format!(
+                                "duplicate tag '{tag}': owned by both '{existing}' and '{name}'"
+                            )
+                            .into());
+                        }
+                        catalog.tag_to_role.insert(tag.to_string(), name.to_string());
+                    }
+                    catalog.tags_by_role.entry(name).or_default().extend(tags);
                 }
             }
         }
     }
 
-    Ok((tags_by_role, tag_to_role))
+    Ok(catalog)
 }
 #[cfg(test)]
 mod tests {
@@ -400,6 +436,8 @@ mod tests {
             roles_dir,
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
+            tag_groups: HashMap::new(),
+            full_setup_tags: Vec::new(),
         };
 
         let cmd_result = adapter.build_command_with_env(
@@ -435,9 +473,30 @@ mod tests {
             roles_dir: PathBuf::new(),
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
+            tag_groups: HashMap::new(),
+            full_setup_tags: Vec::new(),
         };
 
         let result = adapter.build_command("profile", &[], false);
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
+    }
+
+    #[test]
+    fn test_load_catalog_merges_tag_groups_across_plays() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let dir = tempdir()?;
+        let playbook_path = dir.path().join("playbook.yml");
+        fs::write(
+            &playbook_path,
+            "- name: first\n  vars:\n    tag_groups:\n      rust: [\"rust-platform\"]\n- name: second\n  vars:\n    tag_groups:\n      rust: [\"rust-tools\"]\n",
+        )?;
+
+        let catalog = load_catalog(playbook_path.as_path())?;
+        assert_eq!(
+            catalog.tag_groups.get("rust"),
+            Some(&vec!["rust-platform".to_string(), "rust-tools".to_string()])
+        );
+
+        Ok(())
     }
 }

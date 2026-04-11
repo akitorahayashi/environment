@@ -16,17 +16,18 @@ pub struct BackupArgs {
     pub list: bool,
 
     /// Backup component (system, vscode).
-    pub target: Option<String>,
+    #[arg(name = "target", value_name = "COMPONENT")]
+    pub component: Option<String>,
 }
 
 pub fn run(args: BackupArgs) -> Result<(), AppError> {
     if args.list {
         api::backup_list();
         Ok(())
-    } else if let Some(target) = args.target {
-        api::backup(target.as_str())
+    } else if let Some(component) = args.component {
+        api::backup(component.as_str())
     } else {
         // Controlled by ArgGroup(required=true)
-        unreachable!("clap ensures either list or target is present")
+        unreachable!("clap ensures either list or component is present")
     }
 }

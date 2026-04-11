@@ -5,16 +5,51 @@
 
 use std::fmt;
 
-/// Name and email pair applied to global Git configuration.
+/// Raw serialization model for Identity.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct Identity {
+pub struct RawIdentity {
     pub name: String,
     pub email: String,
 }
 
+/// Name and email pair applied to global Git configuration.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(try_from = "RawIdentity", into = "RawIdentity")]
+pub struct Identity {
+    name: String,
+    email: String,
+}
+
 impl Identity {
-    pub fn is_configured(&self) -> bool {
-        !self.name.is_empty() && !self.email.is_empty()
+    /// Creates a new identity, ensuring fields are not empty.
+    pub fn new(name: impl Into<String>, email: impl Into<String>) -> Option<Self> {
+        let name = name.into().trim().to_string();
+        let email = email.into().trim().to_string();
+        if name.is_empty() || email.is_empty() { None } else { Some(Self { name, email }) }
+    }
+
+    /// Gets the name of the identity.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Gets the email of the identity.
+    pub fn email(&self) -> &str {
+        &self.email
+    }
+}
+
+impl std::convert::TryFrom<RawIdentity> for Identity {
+    type Error = &'static str;
+
+    fn try_from(raw: RawIdentity) -> Result<Self, Self::Error> {
+        Self::new(raw.name, raw.email).ok_or("empty fields")
+    }
+}
+
+impl From<Identity> for RawIdentity {
+    fn from(id: Identity) -> Self {
+        Self { name: id.name, email: id.email }
     }
 }
 
@@ -54,7 +89,8 @@ impl fmt::Display for IdentityScope {
     }
 }
 
-/// Resolve a identity scope input (alias or canonical) to a `IdentityScope`.
+/// Look up a switch target corresponding to the user's input.
+/// Returns `None` if the input does not match any known canonical name or alias.
 pub fn resolve_identity_scope(input: &str) -> Option<IdentityScope> {
     let lower = input.to_lowercase();
     IdentityScope::all()
@@ -66,6 +102,20 @@ pub fn resolve_identity_scope(input: &str) -> Option<IdentityScope> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn identity_validation() {
+        // Valid inputs
+        let id = Identity::new(" Jane Doe ", " jane@example.com ").unwrap();
+        assert_eq!(id.name(), "Jane Doe");
+        assert_eq!(id.email(), "jane@example.com");
+
+        // Empty or whitespace inputs
+        assert!(Identity::new("", "jane@example.com").is_none());
+        assert!(Identity::new("  ", "jane@example.com").is_none());
+        assert!(Identity::new("Jane Doe", "").is_none());
+        assert!(Identity::new("Jane Doe", "  ").is_none());
+    }
 
     #[test]
     fn resolves_identity_scopes() {

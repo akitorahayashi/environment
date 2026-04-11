@@ -137,7 +137,9 @@ impl FsPort for FakeFsPort {
             self.dirs.borrow().iter().filter(|p| p.starts_with(from)).cloned().collect();
         for p in to_rename_dirs {
             self.dirs.borrow_mut().remove(&p);
-            let rel = p.strip_prefix(from).unwrap();
+            let rel = p.strip_prefix(from).map_err(|e| {
+                AppError::Io(std::io::Error::new(std::io::ErrorKind::InvalidInput, e))
+            })?;
             self.dirs.borrow_mut().insert(to.join(rel));
         }
 
@@ -151,7 +153,9 @@ impl FsPort for FakeFsPort {
 
         for (p, content) in to_rename_files {
             self.files.borrow_mut().remove(&p);
-            let rel = p.strip_prefix(from).unwrap();
+            let rel = p.strip_prefix(from).map_err(|e| {
+                AppError::Io(std::io::Error::new(std::io::ErrorKind::InvalidInput, e))
+            })?;
             let new_path = to.join(rel);
             self.files.borrow_mut().insert(new_path.clone(), content);
             if let Some(parent) = new_path.parent() {

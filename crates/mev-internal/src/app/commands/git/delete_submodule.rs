@@ -47,10 +47,10 @@ mod tests {
             "#,
                 git_args.display()
             ),
-        );
+        )?;
 
-        let _guard = env_mock::PathGuard::new(&bin_path);
-        let _dir_guard = env_mock::DirGuard::new(temp_dir.path());
+        let _guard = env_mock::PathGuard::new(&bin_path)?;
+        let _dir_guard = env_mock::DirGuard::new(temp_dir.path())?;
 
         let modules_path = temp_dir.path().join(".git").join("modules").join("vendor/some-dep");
         fs::create_dir_all(&modules_path)?;

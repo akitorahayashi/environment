@@ -22,8 +22,16 @@ pub fn show(ctx: &DependencyContainer) -> Result<(), AppError> {
     println!();
     println!("{:<12} {:<20} Email", "Profile", "Name");
     println!("{:-<12} {:-<20} {:-<30}", "", "", "");
-    println!("{:<12} {:<20} {}", "personal", state.personal.name, state.personal.email);
-    println!("{:<12} {:<20} {}", "work", state.work.name, state.work.email);
+    if let Some(personal) = state.personal {
+        println!("{:<12} {:<20} {}", "personal", personal.name(), personal.email());
+    } else {
+        println!("{:<12} {:<20}", "personal", "Not configured");
+    }
+    if let Some(work) = state.work {
+        println!("{:<12} {:<20} {}", "work", work.name(), work.email());
+    } else {
+        println!("{:<12} {:<20}", "work", "Not configured");
+    }
 
     Ok(())
 }
@@ -37,27 +45,34 @@ pub fn set(ctx: &DependencyContainer) -> Result<(), AppError> {
         if ctx.identity_store.exists() { Some(ctx.identity_store.load()?) } else { None };
 
     let (p_name_default, p_email_default, w_name_default, w_email_default) = match &existing {
-        Some(state) => (
-            state.personal.name.as_str(),
-            state.personal.email.as_str(),
-            state.work.name.as_str(),
-            state.work.email.as_str(),
-        ),
-        None => ("", "", "", ""),
+        Some(state) => {
+            let (pn, pe) = state
+                .personal
+                .as_ref()
+                .map(|id| (id.name().to_string(), id.email().to_string()))
+                .unwrap_or_default();
+            let (wn, we) = state
+                .work
+                .as_ref()
+                .map(|id| (id.name().to_string(), id.email().to_string()))
+                .unwrap_or_default();
+            (pn, pe, wn, we)
+        }
+        None => (String::new(), String::new(), String::new(), String::new()),
     };
 
     println!("Personal identity:");
-    let personal_name = prompt("  Name", p_name_default)?;
-    let personal_email = prompt("  Email", p_email_default)?;
+    let personal_name = prompt("  Name", &p_name_default)?;
+    let personal_email = prompt("  Email", &p_email_default)?;
     println!();
 
     println!("Work identity:");
-    let work_name = prompt("  Name", w_name_default)?;
-    let work_email = prompt("  Email", w_email_default)?;
+    let work_name = prompt("  Name", &w_name_default)?;
+    let work_email = prompt("  Email", &w_email_default)?;
 
     let state = IdentityState {
-        personal: Identity { name: personal_name, email: personal_email },
-        work: Identity { name: work_name, email: work_email },
+        personal: Identity::new(personal_name, personal_email),
+        work: Identity::new(work_name, work_email),
     };
 
     ctx.identity_store.save(&state)?;

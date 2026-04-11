@@ -15,6 +15,12 @@ pub trait AnsiblePort {
     /// Get all available tags.
     fn all_tags(&self) -> Vec<String>;
 
+    /// Get the tag groups defined in the playbook.
+    fn tag_groups(&self) -> &HashMap<String, Vec<String>>;
+
+    /// Get the full setup tags defined in the playbook.
+    fn full_setup_tags(&self) -> &[String];
+
     /// Get mapping of role names to their associated tags.
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>>;
 

@@ -34,13 +34,13 @@ pub fn deploy_for_tags(
             continue;
         }
 
-        let target = local_config_root.join(role);
-        if fs.exists(&target) && !overwrite {
+        let dest_dir = local_config_root.join(role);
+        if fs.exists(&dest_dir) && !overwrite {
             continue;
         }
 
-        if fs.exists(&target) {
-            fs.remove_dir_all(&target).map_err(|e| {
+        if fs.exists(&dest_dir) {
+            fs.remove_dir_all(&dest_dir).map_err(|e| {
                 AppError::Config(format!("failed to remove existing config for {role}: {e}"))
             })?;
         }
@@ -49,8 +49,8 @@ pub fn deploy_for_tags(
             continue;
         };
 
-        if let Err(e) = copy_dir_recursive(&source, &target, fs) {
-            let _ = fs.remove_dir_all(&target);
+        if let Err(e) = copy_dir_recursive(&source, &dest_dir, fs) {
+            let _ = fs.remove_dir_all(&dest_dir);
             return Err(e);
         }
         println!("  Deployed config for {role}");

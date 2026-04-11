@@ -30,12 +30,12 @@ pub(crate) fn setup_gh_labels_command_test_environment()
     let gh_args_path = temp_dir.path().join("gh_args.txt");
 
     let bin_path =
-        env_mock::create_mock_bin("git", &temp_dir, &git_origin_capture_script(&git_args_path));
+        env_mock::create_mock_bin("git", &temp_dir, &git_origin_capture_script(&git_args_path))?;
 
     Ok(GhLabelsCommandTestEnvironment {
         temp_dir,
         gh_args_path,
-        _path_guard: env_mock::PathGuard::new(&bin_path),
+        _path_guard: env_mock::PathGuard::new(&bin_path)?,
     })
 }
 

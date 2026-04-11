@@ -63,7 +63,8 @@ const BACKUP_COMPONENT_ALIASES: &[(&str, BackupComponent)] = &[
     ("vscode-extensions", BackupComponent::Vscode),
 ];
 
-/// Resolve a backup component identifier or alias to a `BackupComponent`.
+/// Look up a backup component corresponding to the user's input.
+/// Returns `None` if the input does not map to a known canonical name or alias.
 pub fn resolve_backup_component(input: &str) -> Option<BackupComponent> {
     let lower = input.to_lowercase();
     for &(alias, component) in BACKUP_COMPONENT_ALIASES {
@@ -74,7 +75,8 @@ pub fn resolve_backup_component(input: &str) -> Option<BackupComponent> {
     None
 }
 
-/// Validate that the input maps to a `BackupComponent`.
+/// Verify the user's input maps to a known component, producing an actionable error if unrecognized.
+/// Fails with `AppError::InvalidBackupComponent` if the string cannot be resolved.
 pub fn validate_backup_component(input: &str) -> Result<BackupComponent, AppError> {
     resolve_backup_component(input).ok_or_else(|| {
         let valid: Vec<_> = BackupComponent::all().iter().map(|t| t.name()).collect();

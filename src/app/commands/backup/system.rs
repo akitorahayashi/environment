@@ -145,17 +145,17 @@ fn format_bool(raw_value: &str, default: &serde_yaml::Value) -> String {
 }
 
 fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) -> String {
-    let target = if raw_value.trim().is_empty() {
+    let value_str = if raw_value.trim().is_empty() {
         value_to_string(default).into_owned()
     } else {
         raw_value.trim().to_string()
     };
     if as_float {
-        target.parse::<f64>().map(|f| f.to_string()).unwrap_or(target)
-    } else if let Ok(i) = target.parse::<i64>() {
+        value_str.parse::<f64>().map(|f| f.to_string()).unwrap_or(value_str)
+    } else if let Ok(i) = value_str.parse::<i64>() {
         i.to_string()
     } else {
-        target.parse::<f64>().map(|f| (f as i64).to_string()).unwrap_or(target)
+        value_str.parse::<f64>().map(|f| (f as i64).to_string()).unwrap_or(value_str)
     }
 }
 
