@@ -468,11 +468,14 @@ dependencies = [
 name = "mev-internal"
 version = "0.1.0"
 dependencies = [
+ "assert_cmd",
  "clap",
  "dirs",
  "glob",
+ "predicates",
  "serde",
  "serde_json",
+ "serial_test",
  "tempfile",
  "thiserror 1.0.69",
  "which",
