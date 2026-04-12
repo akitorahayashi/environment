@@ -50,13 +50,14 @@ pub fn execute(
     }
 
     let mut lines = vec!["---".to_string()];
+    let home_dir = ctx.home_dir.to_string_lossy();
 
     for def in &definitions {
         let raw_value = match ctx.macos_defaults.read_key(&def.domain, &def.key)? {
             Some(v) => v,
             None => value_to_string(&def.default).into_owned(),
         };
-        let formatted = format_value(def, &raw_value)?;
+        let formatted = format_value(def, &raw_value, &home_dir)?;
         lines.extend(build_entry(def, &formatted));
     }
 
@@ -102,12 +103,16 @@ fn value_to_string(v: &serde_yaml::Value) -> Cow<'_, str> {
     }
 }
 
-fn format_value(def: &SettingDefinition, raw_value: &str) -> Result<String, AppError> {
+fn format_value(
+    def: &SettingDefinition,
+    raw_value: &str,
+    home_dir: &str,
+) -> Result<String, AppError> {
     match def.type_name.to_lowercase().as_str() {
         "bool" => Ok(format_bool(raw_value, &def.default)),
         "int" => Ok(format_numeric(raw_value, &def.default, false)),
         "float" => Ok(format_numeric(raw_value, &def.default, true)),
-        "string" => format_string(raw_value, &def.key, &def.default),
+        "string" => format_string(raw_value, &def.key, &def.default, home_dir),
         _ => {
             let value = if raw_value.is_empty() {
                 value_to_string(&def.default)
@@ -163,6 +168,7 @@ fn format_string(
     raw_value: &str,
     key: &str,
     default: &serde_yaml::Value,
+    home_dir: &str,
 ) -> Result<String, AppError> {
     let mut value = if raw_value.is_empty() {
         match default {
@@ -173,11 +179,11 @@ fn format_string(
         Cow::Borrowed(raw_value)
     };
 
-    if key == "location"
-        && let Ok(home) = std::env::var("HOME")
-        && value.starts_with(&home)
-    {
-        value = Cow::Owned(value.replacen(&home, "$HOME", 1));
+    if key == "location" && !home_dir.is_empty() && value.starts_with(home_dir) {
+        let suffix = &value[home_dir.len()..];
+        if suffix.is_empty() || suffix.starts_with('/') {
+            value = Cow::Owned(format!("$HOME{suffix}"));
+        }
     }
 
     serde_json::to_string(&value).map_err(|e| {
@@ -207,7 +213,6 @@ fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serial_test::serial;
 
     #[test]
     fn test_value_to_string() {
@@ -252,28 +257,35 @@ mod tests {
     }
 
     #[test]
-    #[serial]
     fn test_format_string() {
-        #[allow(unused_unsafe)]
-        unsafe {
-            std::env::set_var("HOME", "/mock/home");
-        }
         assert_eq!(
-            format_string("hello", "key", &serde_yaml::Value::Null)
+            format_string("hello", "key", &serde_yaml::Value::Null, "/mock/home")
                 .expect("string formatting should succeed"),
             "\"hello\""
         );
         assert_eq!(
-            format_string("", "key", &serde_yaml::Value::String("default".to_string()))
-                .expect("default string formatting should succeed"),
+            format_string(
+                "",
+                "key",
+                &serde_yaml::Value::String("default".to_string()),
+                "/mock/home"
+            )
+            .expect("default string formatting should succeed"),
             "\"default\""
         );
 
         let path = "/mock/home/file.txt";
         assert_eq!(
-            format_string(path, "location", &serde_yaml::Value::Null)
+            format_string(path, "location", &serde_yaml::Value::Null, "/mock/home")
                 .expect("location string formatting should succeed"),
             "\"$HOME/file.txt\""
+        );
+
+        let path = "/mock/home_backup/file.txt";
+        assert_eq!(
+            format_string(path, "location", &serde_yaml::Value::Null, "/mock/home")
+                .expect("location string formatting should succeed"),
+            "\"/mock/home_backup/file.txt\""
         );
     }
 
@@ -304,7 +316,10 @@ mod tests {
             default: serde_yaml::Value::Bool(false),
             comment: None,
         };
-        assert_eq!(format_value(&bool_def, "1").expect("bool formatting should succeed"), "true");
+        assert_eq!(
+            format_value(&bool_def, "1", "/mock/home").expect("bool formatting should succeed"),
+            "true"
+        );
 
         let int_def = SettingDefinition {
             key: "int_key".to_string(),
@@ -313,7 +328,10 @@ mod tests {
             default: serde_yaml::Value::Null,
             comment: None,
         };
-        assert_eq!(format_value(&int_def, "42").expect("int formatting should succeed"), "42");
+        assert_eq!(
+            format_value(&int_def, "42", "/mock/home").expect("int formatting should succeed"),
+            "42"
+        );
 
         let default_def = SettingDefinition {
             key: "other_key".to_string(),
@@ -323,11 +341,12 @@ mod tests {
             comment: None,
         };
         assert_eq!(
-            format_value(&default_def, "").expect("default fallback formatting should succeed"),
+            format_value(&default_def, "", "/mock/home")
+                .expect("default fallback formatting should succeed"),
             "\"default\""
         );
         assert_eq!(
-            format_value(&default_def, "{\"key\":\"value\"}")
+            format_value(&default_def, "{\"key\":\"value\"}", "/mock/home")
                 .expect("json string formatting should succeed"),
             "\"{\\\"key\\\":\\\"value\\\"}\""
         );

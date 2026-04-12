@@ -19,7 +19,8 @@ fn test_gh_labels_deploy() -> Result<(), Box<dyn std::error::Error>> {
     let mock_script = create_gh_mock_script(&gh_log);
 
     let mock_bin_dir = create_mock_bin("gh", &temp_dir, &mock_script)?;
-    let _path_guard = PathGuard::new(&mock_bin_dir)?;
+    #[allow(unused_unsafe)]
+    let _path_guard = unsafe { PathGuard::new(&mock_bin_dir)? };
 
     let args = labels_deploy::LabelsDeployArgs { repo: Some("owner/repo".to_string()) };
 
@@ -42,7 +43,8 @@ fn test_gh_labels_reset() -> Result<(), Box<dyn std::error::Error>> {
     let mock_script = create_gh_mock_script(&gh_log);
 
     let mock_bin_dir = create_mock_bin("gh", &temp_dir, &mock_script)?;
-    let _path_guard = PathGuard::new(&mock_bin_dir)?;
+    #[allow(unused_unsafe)]
+    let _path_guard = unsafe { PathGuard::new(&mock_bin_dir)? };
 
     let args = labels_reset::LabelsResetArgs { repo: Some("owner/repo".to_string()) };
 

@@ -49,8 +49,10 @@ mod tests {
             ),
         )?;
 
-        let _guard = env_mock::PathGuard::new(&bin_path)?;
-        let _dir_guard = env_mock::DirGuard::new(temp_dir.path())?;
+        #[allow(unused_unsafe)]
+        let _guard = unsafe { env_mock::PathGuard::new(&bin_path)? };
+        #[allow(unused_unsafe)]
+        let _dir_guard = unsafe { env_mock::DirGuard::new(temp_dir.path())? };
 
         let modules_path = temp_dir.path().join(".git").join("modules").join("vendor/some-dep");
         fs::create_dir_all(&modules_path)?;
@@ -66,6 +68,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn fails_on_invalid_submodule_path() -> Result<(), Box<dyn std::error::Error>> {
         let err =
             run(DeleteSubmoduleArgs { submodule_path: "/absolute/path".to_string() }).unwrap_err();

@@ -15,14 +15,20 @@ pub struct DirGuard {
 impl DirGuard {
     pub fn new(target_dir: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let original_dir = env::current_dir()?;
-        env::set_current_dir(target_dir)?;
+        #[allow(unused_unsafe)]
+        unsafe {
+            env::set_current_dir(target_dir)?;
+        }
         Ok(Self { original_dir })
     }
 }
 
 impl Drop for DirGuard {
     fn drop(&mut self) {
-        let _ = env::set_current_dir(&self.original_dir);
+        #[allow(unused_unsafe)]
+        unsafe {
+            let _ = env::set_current_dir(&self.original_dir);
+        }
     }
 }
 
