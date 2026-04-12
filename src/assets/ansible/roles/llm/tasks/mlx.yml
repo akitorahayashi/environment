@@ -7,7 +7,7 @@
 - name: "Load global models configuration"
   ansible.builtin.include_vars:
     file: "{{ local_config_root }}/llm/global/models.yml"
-    name: llm_common_models_mlx
+    name: llm_global_models_mlx
   when: "'mlx-models' in ansible_run_tags"
 
 - name: "Load profile models configuration"
@@ -19,7 +19,7 @@
 
 - name: "Set MLX models to download"
   ansible.builtin.set_fact:
-    llm_mlx_models_to_download: "{{ (llm_common_models_mlx.mlx | default([])) + (llm_profile_models_mlx.mlx | default([])) }}"
+    llm_mlx_models_to_download: "{{ (llm_global_models_mlx.mlx | default([])) + (llm_profile_models_mlx.mlx | default([])) }}"
   when: "'mlx-models' in ansible_run_tags"
 
 - name: "Download MLX models via huggingface-cli"

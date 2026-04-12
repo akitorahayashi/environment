@@ -28,11 +28,11 @@ impl GitAdapter {
     }
 
     pub fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), DomainError> {
-        let base_dir = match &self.current_dir {
+        let current_dir = match &self.current_dir {
             Some(dir) => dir.clone(),
             None => std::env::current_dir()?,
         };
-        let modules_path = base_dir.join(".git").join("modules").join(submodule_path);
+        let modules_path = current_dir.join(".git").join("modules").join(submodule_path);
         if modules_path.exists() {
             fs::remove_dir_all(&modules_path)?;
         }

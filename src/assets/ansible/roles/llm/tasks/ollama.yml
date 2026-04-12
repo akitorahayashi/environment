@@ -14,7 +14,7 @@
 - name: "Load global models configuration"
   ansible.builtin.include_vars:
     file: "{{ local_config_root }}/llm/global/models.yml"
-    name: llm_common_models
+    name: llm_global_models
   when: "'ollama-models' in ansible_run_tags"
 
 - name: "Load profile models configuration"
@@ -26,7 +26,7 @@
 
 - name: "Set Ollama models to sync"
   ansible.builtin.set_fact:
-    llm_ollama_models_to_sync: "{{ (llm_common_models.ollama | default([])) + (llm_profile_models.ollama | default([])) }}"
+    llm_ollama_models_to_sync: "{{ (llm_global_models.ollama | default([])) + (llm_profile_models.ollama | default([])) }}"
   when: "'ollama-models' in ansible_run_tags"
 
 - name: "Check if Ollama server is running on port 11434"
