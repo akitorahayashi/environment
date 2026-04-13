@@ -14,13 +14,13 @@
 tools:
   - name: jlo
     url: git@github.com:asterismhq/jlo
-    tag: v23.1.0
+    tag: v27.0.1
   - name: kpv
     url: https://github.com/akitorahayashi/kpv
     tag: v0.6.0
   - name: mx
     url: https://github.com/akitorahayashi/mx
-    tag: v3.0.0
+    tag: v3.1.0
   - name: pure
     url: https://github.com/akitorahayashi/pure
     tag: v0.6.0

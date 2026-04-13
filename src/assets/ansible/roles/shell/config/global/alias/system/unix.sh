@@ -30,3 +30,8 @@ alias u="cd .."
 alias uu="cd ../.."
 alias uuu="cd ../../.."
 alias rt='cd "${SHELL_START_DIR}"'
+
+alias bt="bat"
+alias ez="eza"
+alias ze="eza"
+alias za="eza"

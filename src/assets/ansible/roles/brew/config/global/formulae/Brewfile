@@ -13,11 +13,16 @@ brew "redis"
 brew "poppler"
 brew "pandoc"
 
+## Modern Unix
+brew "ripgrep"
+brew "bat"
+brew "eza"
+brew "fd"
+
 ## CLI Tools
 brew "yq"
 brew "shellcheck"
 brew "shfmt"
-brew "ripgrep"
 brew "mise"
 
 ## Media
