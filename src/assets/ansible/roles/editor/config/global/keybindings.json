@@ -22,12 +22,22 @@
     "when": "terminalFocus"
   },
   {
-    "key": "ctrl+cmd+n",
+    "key": "ctrl+`",
     "command": "workbench.action.terminal.new",
     "when": "terminalFocus"
   },
   {
-    "key": "ctrl+cmd+s",
+    "key": "alt+cmd+\\",
+    "command": "workbench.action.terminal.split",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "alt+cmd+[IntlYen]",
+    "command": "workbench.action.terminal.split",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "cmd+[IntlYen]",
     "command": "workbench.action.terminal.split",
     "when": "terminalFocus"
   }

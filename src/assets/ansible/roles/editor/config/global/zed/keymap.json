@@ -30,8 +30,11 @@
         "terminal::SendText",
         "\n"
       ],
-      "ctrl-cmd-n": "workspace::NewTerminal",
-      "ctrl-cmd-s": "pane::SplitRight",
+      "ctrl-`": "workspace::NewTerminal",
+      "alt-cmd-\\": "pane::SplitRight",
+      "alt-cmd-¥": "pane::SplitRight",
+      "cmd-¥": "pane::SplitRight",
+      "cmd-\\": "pane::SplitRight",
       "cmd-i": "agent::ToggleFocus"
     }
   }
