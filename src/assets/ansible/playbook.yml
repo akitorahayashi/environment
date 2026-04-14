@@ -28,6 +28,7 @@
       - vscode
       - zed
       - coder
+      - ghostty
       - mlx
       - xcode
   roles:
@@ -39,6 +40,7 @@
     - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
     - { role: git, tags: ["git"] }
     - { role: gh, tags: ["gh"] }
+    - { role: ghostty, tags: ["ghostty", "gst"] }
     - { role: shell, tags: ["shell", "sh"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: editor, tags: ["vscode", "co", "antigravity", "agy", "zed", "zd", "xcode", "xc"] }
