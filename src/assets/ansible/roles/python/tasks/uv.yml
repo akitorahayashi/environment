@@ -1,4 +1,9 @@
 ---
+- name: "Install uv"
+  community.general.homebrew:
+    name: uv
+    state: present
+
 - name: "Ensure .config/uv directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/uv"

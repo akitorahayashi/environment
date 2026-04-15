@@ -76,7 +76,7 @@ coverage:
     mise exec -- cargo tarpaulin \
         --engine llvm \
         --target-dir target/tarpaulin \
-        --exclude-files 'reference/*' \
+        --exclude-files 'references/*' \
         --out Stdout \
         --out Html \
         --output-dir coverage \
@@ -123,7 +123,7 @@ clean:
 _find_shell_files:
     @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
-    grep -v "^./reference/" | \
+    grep -v "^./references/" | \
     grep -v "\.uv-cache" | \
     grep -v "\.venv" | \
     grep -v "\.jlo"

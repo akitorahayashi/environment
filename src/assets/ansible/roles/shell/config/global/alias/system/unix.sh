@@ -33,6 +33,26 @@ alias rt='cd "${SHELL_START_DIR}"'
 
 alias bt="bat"
 alias e="eza --group-directories-first"
-alias e-t="eza --tree --level=2 --group-directories-first"
-alias ez-t="eza --tree --level=2 --group-directories-first"
+eza-tree() {
+	if [[ $# -ne 1 ]]; then
+		echo "Usage: e-t <level>"
+		return 1
+	fi
+
+	if [[ ! "$1" =~ ^[1-9][0-9]*$ ]]; then
+		echo "Tree level must be a positive integer."
+		return 1
+	fi
+
+	eza --tree --level="$1" --group-directories-first
+}
+
+e-t() {
+	eza-tree "$@"
+}
+
+ez-t() {
+	eza-tree "$@"
+}
+
 alias ls="eza"

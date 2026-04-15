@@ -1,0 +1,56 @@
+name: Setup Neovim
+
+on:
+  workflow_call:
+
+jobs:
+  setup-nvim:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
+
+      - name: Setup Neovim configuration
+        run: mise exec -- just run make nvim
+
+      - name: Verify Neovim symlinks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -L "${HOME}/.vimrc"
+          test -L "${HOME}/.config/nvim"
+
+      - name: Verify Neovim headless startup
+        shell: bash
+        run: |
+          set -euo pipefail
+          nvim --headless '+qall'
+
+      - name: Verify Neovim options
+        shell: bash
+        run: |
+          set -euo pipefail
+          nvim --headless \
+            '+lua assert(vim.o.clipboard == "unnamedplus")' \
+            '+lua assert(vim.o.signcolumn == "yes")' \
+            '+qall'
+
+      - name: Sync Neovim plugins
+        shell: bash
+        run: |
+          set -euo pipefail
+          nvim --headless '+Lazy! sync' '+qall'
+
+      - name: Verify Neovim plugins
+        shell: bash
+        run: |
+          set -euo pipefail
+          nvim --headless \
+            '+lua assert(vim.fn.exists(":Lazy") == 2)' \
+            '+lua assert(vim.fn.exists(":Neotree") == 2)' \
+            '+qall'

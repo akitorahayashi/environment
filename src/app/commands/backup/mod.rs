@@ -40,10 +40,7 @@ pub fn execute(ctx: &DependencyContainer, component_input: &str) -> Result<(), A
             let output_file = local_config_dir.join("system.yml");
             system::execute(ctx, &definitions_dir, &output_file)
         }
-        BackupComponent::Vscode => {
-            let output_file = local_config_dir.join("vscode-extensions.json");
-            vscode::execute(ctx, &output_file)
-        }
+        BackupComponent::Vscode => vscode::execute(ctx, &local_config_dir),
     }?;
 
     println!();

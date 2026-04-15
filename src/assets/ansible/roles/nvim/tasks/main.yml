@@ -1,0 +1,25 @@
+---
+- name: "Install Neovim"
+  community.general.homebrew:
+    name: neovim
+    state: present
+
+- name: "Create XDG config directory"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink .vimrc"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nvim/global/.vimrc"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.vimrc"
+    state: link
+    force: true
+
+- name: "Symlink Neovim config directory"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nvim/global"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/nvim"
+    state: link
+    force: true

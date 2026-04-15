@@ -32,6 +32,13 @@
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
+- name: "Rehash rbenv shims"
+  ansible.builtin.command:
+    cmd: "rbenv rehash"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+
 - name: "Install bundler gem (version 2.5.22)"
   ansible.builtin.command:
     cmd: "gem install bundler -v 2.5.22 --no-document"

@@ -33,6 +33,10 @@ fn backup_system_success() -> Result<(), Box<dyn std::error::Error>> {
 fn backup_vscode_success() -> Result<(), Box<dyn std::error::Error>> {
     let ctx = TestContext::new();
 
+    let vscode_settings_dir = ctx.work_dir().join("Library/Application Support/Code/User");
+    std::fs::create_dir_all(&vscode_settings_dir)?;
+    std::fs::write(vscode_settings_dir.join("settings.json"), "{}\n")?;
+
     ctx.create_mock_command("code", "#!/bin/sh\necho \"ms-python.python\"\nexit 0\n");
 
     ctx.cli()
@@ -45,6 +49,9 @@ fn backup_vscode_success() -> Result<(), Box<dyn std::error::Error>> {
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file)?;
     assert!(content.contains("ms-python.python"));
+
+    let settings_output = ctx.work_dir().join(".config/mev/roles/editor/global/settings.json");
+    assert!(settings_output.exists());
     Ok(())
 }
 

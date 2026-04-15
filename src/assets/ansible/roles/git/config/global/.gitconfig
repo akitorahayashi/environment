@@ -23,6 +23,7 @@
     df = diff
     cpd = !git diff | pbcopy
     ts = status
+    ts-s = status --stat
     
     sh = stash
     sh-p = stash pop

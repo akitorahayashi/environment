@@ -34,6 +34,7 @@ jobs:
       setup_ruby: ${{ steps.filter.outputs.setup_ruby }}
       setup_rust: ${{ steps.filter.outputs.setup_rust }}
       setup_go: ${{ steps.filter.outputs.setup_go }}
+      setup_nvim: ${{ steps.filter.outputs.setup_nvim }}
       setup_ide: ${{ steps.filter.outputs.setup_ide }}
       setup_system: ${{ steps.filter.outputs.setup_system }}
       setup_brew_formulae: ${{ steps.filter.outputs.setup_brew_formulae }}
@@ -68,6 +69,9 @@ jobs:
             setup_go:
               - 'src/assets/ansible/roles/go/**'
               - '.github/workflows/setup-go.yml'
+            setup_nvim:
+              - 'src/assets/ansible/roles/nvim/**'
+              - '.github/workflows/setup-nvim.yml'
             setup_ide:
               - 'src/assets/ansible/roles/editor/**'
               - '.github/workflows/setup-ide.yml'
@@ -106,6 +110,11 @@ jobs:
     needs: changes
     if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_go == 'true'
     uses: ./.github/workflows/setup-go.yml
+
+  setup-nvim:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_nvim == 'true'
+    uses: ./.github/workflows/setup-nvim.yml
 
   setup-ide:
     needs: changes

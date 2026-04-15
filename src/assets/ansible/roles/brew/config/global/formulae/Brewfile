@@ -28,6 +28,7 @@ brew "yq"
 brew "shellcheck"
 brew "shfmt"
 brew "mise"
+brew "tokei"
 
 ## Media
 brew "ffmpeg"

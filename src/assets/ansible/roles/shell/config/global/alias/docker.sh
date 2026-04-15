@@ -10,7 +10,9 @@ alias d-st="docker stop"
 alias d-rm="docker rm"
 
 # docker compose
+alias dc="docker compose"
 alias dc-r="docker compose run"
+alias dc-rs="docker compose restart"
 alias dc-f="docker compose -f"
 alias dc-e="docker compose exec"
 alias dc-u="docker compose up -d"

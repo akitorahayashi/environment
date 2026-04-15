@@ -29,7 +29,7 @@ impl BackupComponent {
     pub fn description(self) -> &'static str {
         match self {
             Self::System => "Backup macOS system defaults",
-            Self::Vscode => "Backup VSCode extensions list",
+            Self::Vscode => "Backup VSCode extensions list and settings",
         }
     }
 

@@ -57,7 +57,7 @@ Backup initiates via:
 
 ```sh
 mev backup system         # Backup macOS system defaults
-mev backup vscode         # Backup VSCode extensions list
+mev backup vscode         # Backup VSCode extensions list and settings.json
 mev backup --list         # List available backup components
 mev backup -l             # Short flag
 mev bk system             # Shorthand

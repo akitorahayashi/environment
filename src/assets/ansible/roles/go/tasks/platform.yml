@@ -30,3 +30,11 @@
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
     GOENV_ROOT: "{{ ansible_facts['env']['HOME'] }}/.goenv"
+
+- name: "Rehash goenv shims"
+  ansible.builtin.command:
+    cmd: "goenv rehash"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    GOENV_ROOT: "{{ ansible_facts['env']['HOME'] }}/.goenv"

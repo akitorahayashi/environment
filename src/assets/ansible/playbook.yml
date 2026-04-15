@@ -27,6 +27,7 @@
       - go-tools
       - vscode
       - zed
+      - nvim
       - coder
       - ghostty
       - mlx
@@ -41,6 +42,7 @@
     - { role: git, tags: ["git"] }
     - { role: gh, tags: ["gh"] }
     - { role: ghostty, tags: ["ghostty", "gst"] }
+    - { role: nvim, tags: ["nvim", "nv"] }
     - { role: shell, tags: ["shell", "sh"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: editor, tags: ["vscode", "co", "antigravity", "agy", "zed", "zd", "xcode", "xc"] }
