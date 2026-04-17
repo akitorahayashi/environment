@@ -9,7 +9,7 @@ return {
 			changedelete = { text = "~" },
 			untracked = { text = "┆" },
 		},
-		current_line_blame = true,
-		word_diff = true,
+		current_line_blame = false,
+		word_diff = false,
 	},
 }

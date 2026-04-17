@@ -1,4 +1,4 @@
-jlo_version = "26.0.0"
+astm_version = "27.1.0"
 
 [workflow]
 runner_mode = "remote"
@@ -7,8 +7,8 @@ bot_email = "aria67323@gmail.com"
 jules_api_worker_max_parallel = 15
 
 [run]
-jlo_target_branch = "main"
-jules_worker_branch = "jules"
+target_branch = "main"
+worker_branch = "jules"
 wait_minutes_default = 30
 
 [layers.implementer]
@@ -64,7 +64,7 @@ roles = [
 [layers.observers.architects]
 roles = [
   { name = "modeler", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
-  { name = "factorer", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "factorer", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "topologist", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
 ]
 
@@ -72,7 +72,7 @@ roles = [
 roles = [
   { name = "gopher", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "pythonista", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
-  { name = "rustacean", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "rustacean", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "swifter", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "typescripter", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
 ]
@@ -99,7 +99,7 @@ roles = [
 [layers.observers.scribes]
 roles = [
   { name = "proofreader", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
-  { name = "annotator", enabled = true, event_file_limit = 3, requirement_file_limit = 3 },
+  { name = "annotator", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "codifier", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "librarian", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },
   { name = "tactician", enabled = false, event_file_limit = 3, requirement_file_limit = 3 },

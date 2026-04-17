@@ -12,9 +12,9 @@
 #   os: linux, darwin
 #   arch: x86_64, aarch64
 tools:
-  - name: jlo
-    url: git@github.com:asterismhq/jlo
-    tag: v27.0.1
+  - name: astm
+    url: git@github.com:asterismhq/asterism
+    tag: v27.0.2
   - name: kpv
     url: https://github.com/akitorahayashi/kpv
     tag: v0.6.0

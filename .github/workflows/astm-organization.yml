@@ -1,10 +1,10 @@
 # This file is auto-generated. Do not edit manually.
-# Jules Organization
+# Asterism Organization
 #
 # Calls reusable worker workflows in a serialized chain for repository-level
 # organization flow.
 
-name: Jules Organization
+name: Asterism Organization
 
 on:
   workflow_dispatch:
@@ -17,27 +17,27 @@ on:
           - innovators
         default: 'optimizers'
       wait_minutes:
-        description: 'Minutes to wait between layers (Jules async processing time)'
+        description: 'Minutes to wait between layers (Asterism async processing time)'
         type: number
         default: 30
       mock:
-        description: 'Run in mock mode (creates branches/PRs without Jules API)'
+        description: 'Run in mock mode (creates branches/PRs without Asterism API)'
         type: boolean
         default: false
 
 permissions: {}
 
 # The caller workflow keeps its own lock identity.
-# Reused worker workflows keep the shared `jules-worker` lock.
+# Reused worker workflows keep the shared `astm-worker` lock.
 # Using the same concurrency group in both caller and callee causes
 # GitHub Actions deadlock/cancellation for the reusable jobs.
 concurrency:
-  group: 'jules-organization'
+  group: 'astm-organization'
   cancel-in-progress: false
 
 env:
-  JLO_TARGET_BRANCH: 'main'
-  JULES_WORKER_BRANCH: 'jules'
+  ASTM_TARGET_BRANCH: 'main'
+  ASTM_WORKER_BRANCH: 'jules'
 
 jobs:
   # ============================================================
@@ -53,14 +53,14 @@ jobs:
         with:
           ref: 'main'
           fetch-depth: 0
-          token: ${{ secrets.JLO_BOT_PAT }}
+          token: ${{ secrets.ASTM_BOT_PAT }}
 
-      - name: Install jlo
-        uses: asterismhq/setup-jlo@v1
+      - name: Install astm
+        uses: asterismhq/setup-astm@v2
         with:
-          token: ${{ secrets.JLO_INSTALL_PAT }}
-          version: '26.0.0'
-          submodule_token: ${{ secrets.JLO_SUBMODULE_PAT }}
+          token: ${{ secrets.ASTM_INSTALL_PAT }}
+          version: '27.1.0'
+          submodule_token: ${{ secrets.ASTM_SUBMODULE_PAT }}
 
       - name: Resolve organization plan
         id: check
@@ -68,7 +68,7 @@ jobs:
           ENTRY_POINT: ${{ github.event.inputs.organization_entry_point || 'optimizers' }}
         run: |
           set -euo pipefail
-          jlo workflow resolve organization-plan --entry-point "$ENTRY_POINT"
+          astm workflow resolve organization-plan --entry-point "$ENTRY_POINT"
 
 
   # ============================================================
@@ -80,7 +80,7 @@ jobs:
       !cancelled() &&
       needs.resolve-organization-plan.result == 'success' &&
       fromJSON(needs.resolve-organization-plan.outputs.json || '{}').run_optimizers == true
-    uses: ./.github/workflows/jules-optimizers.yml
+    uses: ./.github/workflows/astm-optimizers.yml
     secrets: inherit
     with:
       entry_point: observers
@@ -97,7 +97,7 @@ jobs:
       needs.resolve-organization-plan.result == 'success' &&
       fromJSON(needs.resolve-organization-plan.outputs.json || '{}').run_innovators == true &&
       (needs.run-optimizers.result == 'success' || needs.run-optimizers.result == 'skipped')
-    uses: ./.github/workflows/jules-innovators.yml
+    uses: ./.github/workflows/astm-innovators.yml
     secrets: inherit
     with:
       wait_minutes: ${{ fromJSON(github.event.inputs.wait_minutes || '30') }}

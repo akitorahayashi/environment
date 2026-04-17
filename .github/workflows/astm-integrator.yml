@@ -1,0 +1,42 @@
+# This file is auto-generated. Do not edit manually.
+name: Asterism Integrator
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: 'astm-worker'
+  cancel-in-progress: false
+
+env:
+  ASTM_TARGET_BRANCH: 'main'
+  ASTM_WORKER_BRANCH: 'jules'
+
+jobs:
+  run-integrator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: 'main'
+          fetch-depth: 0
+          token: ${{ secrets.ASTM_BOT_PAT }}
+
+      - name: Install astm
+        uses: asterismhq/setup-astm@v2
+        with:
+          token: ${{ secrets.ASTM_INSTALL_PAT }}
+          version: '27.1.0'
+          submodule_token: ${{ secrets.ASTM_SUBMODULE_PAT }}
+
+      - name: Run integrator
+        uses: akitorahayashi/retry@v1
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+        with:
+          command: >-
+            astm run integrator
+          max_attempts: '7'
+          retry_delay_schedule_seconds: '1,2,4,8,16,32'
