@@ -31,3 +31,4 @@ tab-inherit-working-directory = true
 split-inherit-working-directory = true
 
 keybind = cmd+shift+r=reload_config
+keybind = cmd+enter=ignore
