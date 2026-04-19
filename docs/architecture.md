@@ -2,57 +2,92 @@
 
 ## Canonical Model
 
-- Profile: A hardware configuration target (e.g., Macbook, MacMini, Global) mapped to an Ansible execution context.
+- Profile: A hardware configuration target (e.g., Macbook, MacMini, Global) mapped to a provisioning execution context.
 - Identity: Personal or work Git configuration elements (name, email) applied to Git.
 - Tag: An individual provisioning task or group of tasks resolved into an execution plan.
 - Backup Component: A defined system state or application configuration (e.g., macOS defaults, VSCode extensions) preserved by the tool.
 
-## Layers
+## Ownership Boundaries
 
-| Layer | Path | Responsibility |
+| Boundary | Path | Responsibility |
 |---|---|---|
-| Application | `src/app/` | CLI boundary, command orchestration, dependency wiring |
-| Domain | `src/domain/` | Pure rules, command invariants, execution planning, interfaces |
-| Ports | `src/domain/ports/` | Interface boundaries required by domain/application |
-| Adapters | `src/adapters/` | Process execution, file I/O, catalog loading, runtime asset materialization |
-| Internal dep | `crates/mev-internal/` | Internal command domain implementations reused by mev |
-| Source assets | `src/assets/` | Source-of-truth Ansible playbooks and roles |
+| Interface adapter | `src/cli/` | clap parsing, command dispatch, process exit shaping |
+| Application orchestration | `src/app/` | Use-case flow coordination and dependency composition |
+| Provisioning owner | `src/provisioning/` | Tag catalog, plan construction, playbook execution, role config deployment policy, provisioning assets resolution |
+| Identity owner | `src/identity/` | Identity model, identity persistence contract, Git identity contract and integrations |
+| Backup owner | `src/backup/` | Backup component resolution, system defaults backup, VSCode backup, backup integrations |
+| Update owner | `src/update/` | Version source contract and install script integration |
+| Shared kernel | `src/host_fs/` | Reusable host filesystem contract and std implementation |
+| Shared kernel | `src/error.rs` | Typed application error model |
+| Static source content | `src/assets/` | Source-of-truth Ansible playbooks and roles |
+| Test support | `src/test_support/` | Crate-wide in-process test doubles |
+| Internal dep | `crates/mev-internal/` | Internal command implementations reused by `mev` |
 | Release assets | `GitHub Releases` | `mev-darwin-aarch64` binary distribution |
 
 ## Package Structure
 
 ```text
 src/
-├── main.rs               # Binary entry point
-├── lib.rs                 # Library root
+├── main.rs                # Binary entry point
+├── lib.rs                 # Library root and public entrypoints
+├── error.rs               # Shared typed errors
+├── cli/                   # CLI boundary
+│   ├── mod.rs             # clap parser and top-level dispatch
+│   ├── create.rs
+│   ├── make.rs
+│   ├── list.rs
+│   ├── config.rs
+│   ├── identity.rs
+│   ├── switch.rs
+│   ├── update.rs
+│   ├── backup.rs
+│   └── internal.rs
 ├── app/
-│   ├── cli/               # clap argument contracts (1 file per command)
-│   │   └── mod.rs         # Single owner of clap parser and command dispatch
-│   ├── commands/           # Orchestration units per command domain
-│   ├── container.rs        # Dependency wiring (ports → adapters)
-│   └── api.rs              # Stable library entrypoints
-├── domain/
-│   ├── error.rs            # Typed domain errors
-│   ├── ports/              # Trait interfaces
-│   ├── profile.rs          # Profile identifiers and mapping
-│   ├── tag.rs              # Tag resolution from catalogs
-│   ├── identity.rs         # Git identity configuration model
-│   ├── backup_component.rs # Backup component resolution and metadata
-│   └── execution_plan.rs   # Deterministic ansible plan construction
-├── adapters/
-│   ├── ansible/            # Playbook execution, locator, runtime asset materialization
-│   ├── fs.rs               # Filesystem adapter
-│   ├── git.rs              # Git configuration adapter
-│   ├── identity_store.rs   # Identity persistence and path resolution
-│   ├── macos_defaults.rs   # macOS defaults adapter
-│   ├── version_source.rs   # Update execution source
-│   └── vscode.rs           # External tool adapter
+│   ├── context.rs          # Composition root for use-case contexts
+│   ├── provisioning/       # Provisioning use-case orchestration
+│   ├── identity/           # Identity use-case orchestration
+│   ├── backup/             # Backup use-case orchestration
+│   ├── update/             # Update use-case orchestration
+│   └── internal/           # Internal command orchestration
+├── provisioning/
+│   ├── profile.rs
+│   ├── tag_selection.rs
+│   ├── execution_plan.rs
+│   ├── catalog.rs
+│   ├── runner.rs
+│   ├── role_configs.rs
+│   ├── ansible_runtime.rs
+│   └── assets/
+│       ├── locator.rs
+│       └── embedded.rs
+├── identity/
+│   ├── identity.rs
+│   ├── store.rs
+│   ├── git_config.rs
+│   ├── file_store.rs
+│   └── git_cli.rs
+├── backup/
+│   ├── component.rs
+│   ├── system.rs
+│   ├── vscode.rs
+│   ├── macos_defaults_port.rs
+│   ├── macos_defaults_cli.rs
+│   ├── vscode_port.rs
+│   └── vscode_cli.rs
+├── update/
+│   ├── version_source.rs
+│   └── install_script.rs
+├── host_fs/
+│   ├── fs.rs
+│   └── std_fs.rs
 ├── assets/
 │   └── ansible/            # Source-of-truth ansible assets embedded into binary
-└── testing/                # In-process test doubles
+└── test_support/
+	├── provisioning.rs
+	└── host_fs.rs
 
 crates/
-└── mev-internal/          # Internal command implementations (git, gh)
+└── mev-internal/           # Internal command implementations (git, gh)
 
 tests/
 ├── harness/                # Shared fixtures (TestContext)
@@ -63,15 +98,20 @@ tests/
 └── security.rs + security/ # Input validation contracts
 ```
 
-## Architecture Principles
+## Application Structure
 
-### Directory Naming
-- Ambiguous names such as `core/`, `utils/`, `helpers/` are forbidden
-- Every file belongs to a clear, specific category
+- `src/cli/` is the only CLI parsing and dispatch boundary.
+- `src/app/` orchestrates use cases grouped by family (`provisioning`, `identity`, `backup`, `update`, `internal`).
+- `src/app/context.rs` is the composition root for runtime dependencies.
+- Public library entrypoints are exposed from `src/lib.rs` and delegate into app orchestration.
 
-### Adapter Module Topology
-- `src/adapters/ansible/` owns multiple components and preserves internal module separation
-- Other adapters live as single files directly under `src/adapters/` (`fs.rs`, `git.rs`, `identity_store.rs`, `macos_defaults.rs`, `version_source.rs`, `vscode.rs`)
+## Provisioning Contract Model
+
+- `ProvisioningCatalog` owns read-only tag/group/role catalog access.
+- `ProvisioningRunner` owns playbook execution.
+- `RoleConfigLocator` owns role config directory discovery.
+- `AnsibleRuntime` is the concrete implementation of these provisioning contracts.
+- Provisioning asset lookup and embedded materialization are owned under `src/provisioning/assets/`.
 
 ## Design Rules
 

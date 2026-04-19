@@ -25,12 +25,12 @@ Ansible:
 Rust:
 - Types: `PascalCase`
 - Functions and Variables: `snake_case`
-- Modules: `snake_case`, organized by layer (`app/`, `domain/`, `adapters/`)
+- Modules: `snake_case`, organized by ownership boundary (`cli/`, `app/`, `provisioning/`, `identity/`, `backup/`, `update/`, `host_fs/`, `test_support/`)
 - Constants: `UPPER_SNAKE_CASE`
 
 ### Testing Strategies
 
-Domain logic tests reside as self-contained unit tests within their respective `src/domain/` modules inside a `#[cfg(test)]` block. Redundant logic coverage in external `tests/library/` integration tests is avoided.
+Owner logic tests reside as self-contained unit tests within their respective owner modules inside a `#[cfg(test)]` block. Redundant logic coverage in external `tests/library/` integration tests is avoided.
 
 ## Procedural Verification
 

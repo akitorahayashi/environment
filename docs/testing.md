@@ -2,19 +2,19 @@
 
 ## Structure
 
-Testing is organized into distinct layers aligned with the architecture:
+Testing is organized by ownership boundary and externally observable behavior:
 
-| Layer | Location | Purpose |
+| Boundary | Location | Purpose |
 |---|---|---|
-| Unit tests | `src/domain/**/*.rs` | Domain logic verification within `#[cfg(test)]` blocks |
+| Owner unit tests | `src/provisioning/**/*.rs`, `src/identity/**/*.rs`, `src/backup/**/*.rs`, `src/update/**/*.rs` | Owner-local behavior verification within `#[cfg(test)]` blocks |
 | Integration tests | `tests/library/` | Library API contracts and multi-component interaction |
 | Runtime tests | `tests/runtime.rs` | End-to-end CLI execution scenarios |
 | Security tests | `tests/security/` | Input validation and security boundary enforcement |
-| Test doubles | `src/testing/` | In-process mocks and builders for test isolation |
+| Test support | `src/test_support/` | Crate-wide in-process test doubles reused across owners |
 
 ## Principles
 
-Domain logic tests reside as self-contained unit tests within their respective `src/domain/` modules inside a `#[cfg(test)]` block. Redundant logic coverage in external `tests/library/` integration tests is avoided.
+Owner logic tests reside as self-contained unit tests inside each owner module using `#[cfg(test)]`. Redundant logic coverage in external `tests/library/` integration tests is avoided.
 
 Tests assert externally observable behavior at the owning boundary, never duplicated knowledge of internal implementation or generated structure.
 
@@ -39,14 +39,14 @@ cargo test --test security    # Security tests
 Run tests in a specific module:
 
 ```bash
-cargo test domain::tag        # Domain unit tests for tag module
+cargo test provisioning::tag_selection
 ```
 
 ## Test Doubles
 
-The `src/testing/` module provides in-process test doubles:
+The `src/test_support/` boundary provides crate-wide in-process test doubles:
 
-- `ansible`: Mock Ansible executor and locator implementations
-- `fs`: Filesystem operation mocks
+- `provisioning`: fake implementation for provisioning contracts (`ProvisioningCatalog`, `ProvisioningRunner`, `RoleConfigLocator`)
+- `host_fs`: filesystem operation fake
 
 These doubles enable testing without external dependencies or side effects.

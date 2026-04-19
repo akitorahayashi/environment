@@ -1,6 +1,8 @@
-pub mod api;
-pub mod cli;
-pub mod commands;
-mod container;
+pub mod backup;
+pub mod context;
+pub mod identity;
+pub mod internal;
+pub mod provisioning;
+pub mod update;
 
-pub use container::DependencyContainer;
+pub use context::AppContext;

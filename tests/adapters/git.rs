@@ -5,7 +5,7 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
-use mev::domain::ports::git::GitPort;
+use mev::identity::git_config::GitPort;
 
 #[cfg(windows)]
 fn write_fake_git(dir: &Path) -> Result<PathBuf, Box<dyn std::error::Error>> {
@@ -83,7 +83,7 @@ exit 0
 fn git_cli_reports_available() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = tempfile::tempdir()?;
     let fake_git = write_fake_git(temp_dir.path())?;
-    let git = mev::adapters::git::GitCli { home_dir: None, bin_path: Some(fake_git) };
+    let git = mev::identity::git_cli::GitCli { home_dir: None, bin_path: Some(fake_git) };
     assert!(git.is_available());
     Ok(())
 }
@@ -97,7 +97,7 @@ fn git_cli_get_identity_returns_strings() -> Result<(), Box<dyn std::error::Erro
     let fake_config = temp_dir.path().join(".fake_git_config");
     fs::write(&fake_config, "user.name=Test User\nuser.email=test@example.com\n")?;
 
-    let git = mev::adapters::git::GitCli {
+    let git = mev::identity::git_cli::GitCli {
         home_dir: Some(temp_dir.path().to_path_buf()),
         bin_path: Some(fake_git),
     };
@@ -115,7 +115,7 @@ fn git_cli_set_identity_updates_config() -> Result<(), Box<dyn std::error::Error
     let temp_dir = tempfile::tempdir()?;
     let fake_git = write_fake_git(temp_dir.path())?;
 
-    let git = mev::adapters::git::GitCli {
+    let git = mev::identity::git_cli::GitCli {
         home_dir: Some(temp_dir.path().to_path_buf()),
         bin_path: Some(fake_git),
     };

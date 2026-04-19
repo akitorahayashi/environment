@@ -6,27 +6,29 @@ Rust CLI for macOS dev environment setup using bundled Ansible playbooks.
 Installable as a standalone Rust binary via `install.sh`.
 ## Architecture
 
-| Layer | Path | Responsibility |
+| Boundary | Path | Responsibility |
 |---|---|---|
-| Application | src/app/ | CLI boundary, command orchestration, dependency wiring |
-| Domain | src/domain/ | Pure rules, command invariants, execution planning, interfaces |
-| Ports | src/domain/ports/ | Interface boundaries (traits) required by domain/application |
-| Adapters | src/adapters/ | Process execution, file I/O, catalog loading, package asset resolution |
+| CLI adapter | src/cli/ | clap parsing and command dispatch |
+| Application orchestration | src/app/ | use-case flow orchestration and context composition |
+| Provisioning owner | src/provisioning/ | provisioning model, contracts, ansible runtime, asset resolution |
+| Identity owner | src/identity/ | identity model, storage contract, git config contract, integrations |
+| Backup owner | src/backup/ | backup component model and backup integrations |
+| Update owner | src/update/ | update contract and install script integration |
+| Shared kernel | src/host_fs/ | reusable filesystem contract and std implementation |
+| Shared kernel | src/error.rs | crate-wide typed errors |
 | Assets | src/assets/ | Source-of-truth embedded static resources |
-| Testing | src/testing/ | In-process test doubles and builders |
+| Test support | src/test_support/ | In-process test doubles reused across owners |
 | Internal dep | crates/mev-internal/ | Internal command domain implementations reused by mev |
 
 ## App structure
 
-- `cli/` contains clap input contracts only.
-- `commands/` contains orchestration units per command domain.
-- `context.rs` wires ports to adapters without command logic duplication.
-- `api.rs` exposes stable library entrypoints used by `main.rs`.
+- `context.rs` wires owner contracts to concrete integrations.
+- `provisioning/`, `identity/`, `backup/`, `update/`, and `internal/` contain use-case orchestration families.
 
-## Domain structure
+## Owner structure
 
-- `error.rs` contains domain-level typed errors.
-- `ports/` defines explicit interfaces consumed by application and domain.
+- Each owner module contains its own contracts and concrete implementations.
+- Provisioning contracts are split by ownership (`catalog`, `runner`, `role_configs`) instead of a single mixed interface.
 
 ## Docs
 
