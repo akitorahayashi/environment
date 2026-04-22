@@ -1,30 +1,26 @@
 ---
-- name: "Install pyenv"
+- name: "Install uv"
   community.general.homebrew:
-    name: pyenv
+    name: uv
     state: present
 
-- name: "Install specified Python version with pyenv"
-  ansible.builtin.command:
-    cmd: "pyenv install {{ python_version }} --skip-existing"
-  args:
-    creates: "{{ ansible_facts['env']['HOME'] }}/.pyenv/versions/{{ python_version }}"
-  changed_when: false
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+- name: "Ensure .config/uv directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/uv"
+    state: directory
+    mode: "0755"
 
-- name: "Get current global Python version"
-  ansible.builtin.command:
-    cmd: "pyenv global"
-  register: python_current_py_global
-  changed_when: false
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+- name: "Symlink uv.toml"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/python/global/uv.toml"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/uv/uv.toml"
+    state: link
+    force: true
 
-- name: "Set global Python version"
+- name: "Install uv-managed Python version"
   ansible.builtin.command:
-    cmd: "pyenv global {{ python_version }}"
-  register: python_py_global_set
-  changed_when: "python_current_py_global.stdout != python_version"
+    cmd: "uv python install {{ python_version }} --default --no-progress"
+  register: python_uv_install
+  changed_when: "'Installed Python' in python_uv_install.stderr"
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"

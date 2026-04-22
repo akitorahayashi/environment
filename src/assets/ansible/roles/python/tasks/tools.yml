@@ -9,6 +9,30 @@
     file: "{{ local_config_root }}/python/global/pipx-tools.yml"
     name: pipx_tools_config
 
+- name: "Install uv-managed Python versions for pipx tools"
+  ansible.builtin.command:
+    cmd: "uv python install {{ item }} --no-progress"
+  loop: >-
+    {{ ([python_version] + (pipx_tools_config.tools
+       | selectattr('python_version', 'defined')
+       | map(attribute='python_version')
+       | list)) | unique }}
+  register: python_pipx_python_install
+  changed_when: "'Installed Python' in python_pipx_python_install.stderr"
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Find uv-managed Python interpreters for pipx tools"
+  ansible.builtin.command:
+    cmd: "uv python find --managed-python --no-project {{ item.python_version | default(python_version) }}"
+  loop: "{{ pipx_tools_config.tools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: python_pipx_interpreters
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+
 # 1. Check currently installed versions
 # check_mode: false is important to ensure this check command runs even in dry-run mode
 - name: "Check installed versions of pipx tools"
@@ -27,7 +51,7 @@
     # Construct pipx install command with spec
     cmd: >
       pipx install --force
-      --python {{ ansible_facts['env']['HOME'] }}/.pyenv/versions/{{ item.python_version | default(python_version) }}/bin/python
+      --python {{ python_pipx_interpreters.results[idx].stdout }}
       {% if item.git is defined %}
       git+{{ item.git }}{% if item.tag is defined %}@{{ item.tag }}{% endif %}
       {% else %}

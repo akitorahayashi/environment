@@ -10,12 +10,12 @@
 
 - name: "Setup Python platform"
   ansible.builtin.include_tasks: platform.yml
-  when: "'python-platform' in ansible_run_tags or 'py-p' in ansible_run_tags"
+  when: >
+    'python-platform' in ansible_run_tags or
+    'py-p' in ansible_run_tags or
+    'python-tools' in ansible_run_tags or
+    'py-t' in ansible_run_tags
 
 - name: "Install Python tools"
   ansible.builtin.include_tasks: tools.yml
   when: "'python-tools' in ansible_run_tags or 'py-t' in ansible_run_tags"
-
-- name: "Setup uv configuration"
-  ansible.builtin.include_tasks: uv.yml
-  when: "'uv' in ansible_run_tags"

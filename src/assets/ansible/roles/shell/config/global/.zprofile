@@ -34,13 +34,6 @@ if command -v rbenv 1>/dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
-# pyenv initialization
-if command -v pyenv 1>/dev/null 2>&1; then
-  export PYENV_ROOT="$HOME/.pyenv"
-  export PATH="$PYENV_ROOT/bin:$PATH"
-  eval "$(pyenv init --path)"
-fi
-
 # goenv initialization
 if command -v goenv 1>/dev/null 2>&1; then
   export GOENV_ROOT="$HOME/.goenv"

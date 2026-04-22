@@ -29,3 +29,15 @@ py-cln() {
 	rm -rf .ruff_cache
 	echo "✅ Cleanup completed"
 }
+
+# venv
+act() {
+	if [[ $# -eq 1 ]]; then
+		# shellcheck disable=SC1090,SC1091
+		source "./$1/bin/activate"
+	else
+		# shellcheck disable=SC1091
+		source "./.venv/bin/activate"
+	fi
+}
+alias dct='deactivate'

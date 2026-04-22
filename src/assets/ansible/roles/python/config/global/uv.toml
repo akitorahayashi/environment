@@ -4,6 +4,9 @@ link-mode = "clone"
 # Allow pre-releases only when necessary or explicitly requested.
 prerelease = "if-necessary-or-explicit"
 
+# Use uv-managed Python installations instead of system interpreters.
+python-preference = "only-managed"
+
 # Always resolve to the highest compatible version of packages.
 resolution = "highest"
 

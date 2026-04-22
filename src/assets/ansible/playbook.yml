@@ -21,7 +21,6 @@
       - rust-platform
       - go-platform
       - python-tools
-      - uv
       - nodejs-tools
       - rust-tools
       - go-tools
@@ -34,7 +33,7 @@
       - xcode
   roles:
     - { role: brew, tags: ["brew-formulae", "brew-f", "brew-cask", "brew-c"] }
-    - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t", "uv"] }
+    - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t"] }
     - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr"] }
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
