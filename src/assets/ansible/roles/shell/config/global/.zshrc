@@ -7,6 +7,10 @@ if command -v fnm >/dev/null 2>&1; then
 	eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"
 fi
 
+if command -v frum >/dev/null 2>&1; then
+	eval "$(frum init)"
+fi
+
 export SHELL_START_DIR="$(pwd)"
 
 

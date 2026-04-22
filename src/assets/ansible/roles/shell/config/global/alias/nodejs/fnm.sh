@@ -1,5 +1,6 @@
 #!/bin/bash
 # FNM aliases
+alias fn="fnm"
 alias fn-i='fnm install'
 alias fn-ui='fnm uninstall'
 alias fn-ls='fnm list'

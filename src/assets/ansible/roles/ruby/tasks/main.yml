@@ -8,40 +8,50 @@
   ansible.builtin.set_fact:
     ruby_version: "{{ ruby_version_file.content | b64decode | trim }}"
 
-- name: "Install openssl and rbenv"
+- name: "Install Ruby platform packages"
   community.general.homebrew:
     name: "{{ item }}"
     state: present
   loop:
-    - openssl
-    - rbenv
+    - openssl@3
+    - frum
 
-- name: "Install specified Ruby version with rbenv"
+- name: "Find Homebrew prefix"
   ansible.builtin.command:
-    cmd: "rbenv install {{ ruby_version }} --skip-existing"
-  args:
-    creates: "{{ ansible_facts['env']['HOME'] }}/.rbenv/versions/{{ ruby_version }}"
+    cmd: "brew --prefix"
+  register: ruby_homebrew_prefix
+  changed_when: false
+
+- name: "Set Homebrew binary path"
+  ansible.builtin.set_fact:
+    ruby_homebrew_bin_path: "{{ ruby_homebrew_prefix.stdout }}/bin"
+
+- name: "Find OpenSSL prefix"
+  ansible.builtin.command:
+    cmd: "brew --prefix openssl@3"
+  register: ruby_openssl_prefix
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ ruby_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Install specified Ruby version with frum"
+  ansible.builtin.command:
+    cmd: "frum install {{ ruby_version }} --with-openssl-dir={{ ruby_openssl_prefix.stdout }}"
+  args:
+    creates: "{{ ansible_facts['env']['HOME'] }}/.frum/versions/{{ ruby_version }}/bin/ruby"
+  environment:
+    PATH: "{{ ruby_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Set global Ruby version"
   ansible.builtin.command:
-    cmd: "rbenv global {{ ruby_version }}"
+    cmd: "frum global {{ ruby_version }}"
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
-
-- name: "Rehash rbenv shims"
-  ansible.builtin.command:
-    cmd: "rbenv rehash"
-  changed_when: false
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ ruby_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Install bundler gem (version 2.5.22)"
   ansible.builtin.command:
     cmd: "gem install bundler -v 2.5.22 --no-document"
   changed_when: false
   environment:
-    PATH: "{{ ansible_facts['env']['HOME'] }}/.rbenv/shims:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ ansible_facts['env']['HOME'] }}/.frum/aliases/default/bin:{{ ruby_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
