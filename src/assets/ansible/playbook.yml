@@ -32,7 +32,7 @@
       - mlx
       - xcode
   roles:
-    - { role: brew, tags: ["brew-formulae", "brew-f", "brew-cask", "brew-c"] }
+    - { role: brew, tags: ["brew-formulae", "br-f", "brew-cask", "br-c"] }
     - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t"] }
     - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr"] }
     - { role: ruby, tags: ["ruby", "rb"] }

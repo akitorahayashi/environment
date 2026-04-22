@@ -64,7 +64,7 @@ pub fn execute(
 
     println!();
     println!("Optional steps (skipped for stability/speed):");
-    println!("  GUI Applications:  mev make brew-cask --profile {}", plan.profile);
+    println!("  GUI Applications:  mev make br-c --profile {}", plan.profile);
     println!("  Ollama Models:     mev make ollama-models");
     println!("  MLX Models:        mev make mlx-models");
 

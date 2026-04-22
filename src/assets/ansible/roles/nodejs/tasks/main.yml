@@ -1,7 +1,7 @@
 ---
 - name: "Set Node.js version variable from file"
   ansible.builtin.slurp:
-    src: "{{ local_config_root }}/nodejs/global/.nvmrc"
+    src: "{{ local_config_root }}/nodejs/global/.node-version"
   register: nodejs_version_file
 
 - name: "Set Node.js version fact"
@@ -10,7 +10,13 @@
 
 - name: "Setup Node.js platform"
   ansible.builtin.include_tasks: platform.yml
-  when: "'nodejs-platform' in ansible_run_tags or 'nd-p' in ansible_run_tags"
+  when: >
+    'nodejs-platform' in ansible_run_tags or
+    'nd-p' in ansible_run_tags or
+    'nodejs-tools' in ansible_run_tags or
+    'nd-t' in ansible_run_tags or
+    'coder' in ansible_run_tags or
+    'cdr' in ansible_run_tags
 
 - name: "Install Node.js tools and packages"
   ansible.builtin.include_tasks: tools.yml

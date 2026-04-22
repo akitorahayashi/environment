@@ -3,6 +3,10 @@ alias me="mev"
 # Source dev.zsh first to make dev_alias_as function available
 source ~/.mev/alias/dev/dev.sh
 
+if command -v fnm >/dev/null 2>&1; then
+	eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"
+fi
+
 export SHELL_START_DIR="$(pwd)"
 
 

@@ -46,13 +46,6 @@ fi
 # Path setting for ollama models
 export OLLAMA_MODELS="$HOME/.ollama/models"
 
-# nvm initialization
-export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-if command -v brew >/dev/null 2>&1; then
-  NVM_INIT="$(brew --prefix nvm)/nvm.sh"
-  [ -s "$NVM_INIT" ] && . "$NVM_INIT"
-fi
-
 # pnpm initialization
 export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in

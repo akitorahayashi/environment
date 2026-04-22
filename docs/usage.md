@@ -23,8 +23,8 @@ mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
 
 # Profile required for brew tasks
-mev make brew-formulae --profile mbk
-mev make brew-cask --profile mmn
+mev make br-f --profile mbk
+mev make br-c --profile mmn
 
 # Tag groups expand automatically:
 #   rust → rust-platform, rust-tools

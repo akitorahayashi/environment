@@ -7,7 +7,7 @@ use crate::provisioning::profile;
 
 #[derive(Args)]
 pub struct MakeArgs {
-    /// Ansible tag to run (e.g., rust, python-tools, shell, brew-cask).
+    /// Ansible tag to run (e.g., rust, python-tools, shell, br-c).
     pub tag: String,
 
     /// Profile to use (global, macbook/mbk, mac-mini/mmn).

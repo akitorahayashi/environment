@@ -28,6 +28,8 @@
     sh = stash
     sh-p = stash pop
     sh-d = stash drop
+    sh-ls = stash list
+    sh-cl = stash clear
     rs = reset
     rs-s = reset --soft
     rs-h = reset --hard

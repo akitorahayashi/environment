@@ -257,5 +257,5 @@ fn list_shows_expected_sections() {
         .stdout(predicate::str::contains("Available Tags"))
         .stdout(predicate::str::contains("Tag Groups (expanded automatically):"))
         .stdout(predicate::str::contains("Profiles:"))
-        .stdout(predicate::str::contains("brew-formulae"));
+        .stdout(predicate::str::contains("br-f"));
 }

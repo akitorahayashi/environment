@@ -1,7 +1,15 @@
 ---
+- name: "Find npm for configured Node.js version"
+  ansible.builtin.command:
+    cmd: "fnm exec --using={{ nodejs_version }} -- which npm"
+  register: nodejs_npm_path
+  changed_when: false
+  environment:
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
 - name: "Set Node.js bin path"
   ansible.builtin.set_fact:
-    nodejs_bin_path: "{{ ansible_facts['env']['HOME'] }}/.nvm/versions/node/v{{ nodejs_version }}/bin"
+    nodejs_bin_path: "{{ nodejs_npm_path.stdout | dirname }}"
 
 - name: "Install LLM CLI tools via npm"
   community.general.npm:
@@ -67,12 +75,12 @@
     mode: "0644"
 
 - name: "Check if Gemini CLI is available"
-  ansible.builtin.command: which gemini
+  ansible.builtin.command: "fnm exec --using={{ nodejs_version }} -- which gemini"
   register: nodejs_gemini_cli_check
   failed_when: false
   changed_when: false
   environment:
-    PATH: "{{ nodejs_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Warning if Gemini CLI not available"
   ansible.builtin.debug:

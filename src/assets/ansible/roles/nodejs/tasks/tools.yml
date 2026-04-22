@@ -16,11 +16,10 @@
          | dict2items | map(attribute='key') | list }}
 
 - name: "Install global Node.js packages"
-  ansible.builtin.shell:
-    cmd: "source $(brew --prefix nvm)/nvm.sh && nvm use default && pnpm install -g {{ item }}@latest"
+  ansible.builtin.command:
+    cmd: "fnm exec --using={{ nodejs_version }} -- pnpm install -g {{ item }}@latest"
   loop: "{{ nodejs_packages_to_install }}"
   changed_when: false
   environment:
-    NVM_DIR: "{{ ansible_facts['env']['HOME'] }}/.nvm"
     PNPM_HOME: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"
-    PATH: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['HOME'] }}/Library/pnpm:{{ ansible_facts['env']['PATH'] }}"
