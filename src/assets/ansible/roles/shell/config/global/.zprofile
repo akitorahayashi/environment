@@ -29,6 +29,11 @@ if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 fi
 
+# rbenv initialization
+if command -v rbenv 1>/dev/null 2>&1; then
+  eval "$(rbenv init -)"
+fi
+
 # goenv initialization
 if command -v goenv 1>/dev/null 2>&1; then
   export GOENV_ROOT="$HOME/.goenv"
