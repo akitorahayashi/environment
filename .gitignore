@@ -6,9 +6,6 @@
 
 # Editor-specific files
 # Aider specific ignores
-.aider.tags.cache.v4/*
-.aider.chat.history.md
-.aider.input.history
 *.swp
 *.swo
 *~
@@ -42,8 +39,7 @@ __pycache__/
 *.pyd
 
 .claude/settings.local.json
-reference/*
-dist/mev/.ansible/*
+references/*
 
 # Rust build artifacts
 target/

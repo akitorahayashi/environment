@@ -5,21 +5,19 @@ on:
     branches: [ "main" ]
     paths-ignore:
       - '**.md'
-      - '.mock-*'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
       - '**.md'
-      - '.mock-*'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  lint:
-    name: Lint
-    uses: ./.github/workflows/run-linters.yml
+  static-checks:
+    name: Static Checks
+    uses: ./.github/workflows/run-static-checks.yml
 
   test:
     name: Test
