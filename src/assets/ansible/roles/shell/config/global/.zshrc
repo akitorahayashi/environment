@@ -23,6 +23,3 @@ if command -v brew >/dev/null 2>&1; then
   [ -r "${BREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && source "${BREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
   [ -r "${BREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] && source "${BREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
-
-# Added by Antigravity
-export PATH="/Users/akitorahayashi/.antigravity/antigravity/bin:$PATH"
