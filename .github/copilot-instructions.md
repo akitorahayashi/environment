@@ -1,1 +1,1 @@
-/Users/akb/.config/menv/roles/nodejs/common/coder/AGENTS.md
+/Users/akb/.config/mev/roles/nodejs/global/coder/AGENTS.md

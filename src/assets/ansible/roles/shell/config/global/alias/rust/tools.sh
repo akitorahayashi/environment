@@ -1,3 +1,3 @@
 #!/bin/bash
-alias pr="pure"
+alias pr="prf"
 alias kv="kpv"

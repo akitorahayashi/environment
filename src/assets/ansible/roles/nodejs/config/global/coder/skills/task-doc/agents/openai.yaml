@@ -1,0 +1,5 @@
+---
+interface:
+  display_name: "Task Doc Writer"
+  short_description: "Organize requirements and tasks into task documents"
+  default_prompt: "Use $task-doc to organize this into a task document."

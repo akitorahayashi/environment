@@ -133,6 +133,10 @@
   ansible.builtin.set_fact:
     nodejs_coder_skills: "{{ nodejs_coder_skills_find.files | map(attribute='path') | map('basename') | list }}"
 
+- name: "Set agent skills source root"
+  ansible.builtin.set_fact:
+    nodejs_coder_skills_source_root: "{{ [local_config_root, 'nodejs/global/coder/skills'] | path_join }}"
+
 - name: "Ensure agent skills directories exist"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.{{ item }}/skills"
@@ -140,9 +144,71 @@
     mode: "0755"
   loop: "{{ nodejs_coder_skills_targets.tools }}"
 
+- name: "Find deployed agent skill links"
+  ansible.builtin.find:
+    paths: "{{ ansible_facts['env']['HOME'] }}/.{{ item }}/skills"
+    file_type: link
+    depth: 1
+  register: nodejs_coder_deployed_skill_links
+  loop: "{{ nodejs_coder_skills_targets.tools }}"
+
+- name: "Remove stale managed agent skill links"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ nodejs_coder_deployed_skill_links.results | map(attribute='files') | flatten }}"
+  when:
+    - (item.lnk_target | default('')).startswith(nodejs_coder_skills_source_root ~ '/')
+    - item.path | basename not in nodejs_coder_skills
+
+- name: "Inspect deployed agent skill paths"
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/.{{ item.1 }}/skills/{{ item.0 }}"
+  register: nodejs_coder_deployed_skill_stats
+  loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools) | list }}"
+
+- name: "Reject agent skill file conflicts"
+  ansible.builtin.fail:
+    msg: "Managed agent skill path {{ item.stat.path }} already exists as a file. Remove or rename it before deploying managed skills."
+  loop: "{{ nodejs_coder_deployed_skill_stats.results }}"
+  when:
+    - item.stat.exists
+    - not item.stat.islnk
+    - not item.stat.isdir
+
+- name: "Inspect agent skill directory conflicts"
+  ansible.builtin.find:
+    paths: "{{ item.stat.path }}"
+    recurse: false
+    hidden: true
+    file_type: any
+  register: nodejs_coder_skill_directory_entries
+  loop: "{{ nodejs_coder_deployed_skill_stats.results }}"
+  when:
+    - item.stat.exists
+    - not item.stat.islnk
+    - item.stat.isdir
+
+- name: "Reject non-empty agent skill directory conflicts"
+  ansible.builtin.fail:
+    msg: "Managed agent skill path {{ item.item.stat.path }} already exists as a non-empty directory. Remove or rename it before deploying managed skills."
+  loop: "{{ nodejs_coder_skill_directory_entries.results }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.matched | default(0) | int > 0
+
+- name: "Remove empty agent skill directory conflicts"
+  ansible.builtin.file:
+    path: "{{ item.item.stat.path }}"
+    state: absent
+  loop: "{{ nodejs_coder_skill_directory_entries.results }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.matched | default(0) | int == 0
+
 - name: "Deploy global agent skills to all CLIs"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/global/coder/skills/{{ item.0 }}"
+    src: "{{ nodejs_coder_skills_source_root }}/{{ item.0 }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/.{{ item.1 }}/skills/{{ item.0 }}"
     state: link
     force: true
