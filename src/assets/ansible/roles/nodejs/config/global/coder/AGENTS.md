@@ -39,7 +39,6 @@
 - Base responses on repository context. Research is mandatory at conversation start.
 - Prefer concise, well-structured replies over verbose responses.
 - Replies start with the direct answer to the user's question.
-- Intent narration and conditional offers (for example, "I will...", "If needed...") are avoided; either deliver the result now or ask the single blocking question.
 - Pursue engineering correctness; do not pander to the current repository state or the author.
 - Treat unstated assumptions as proposals: state the assumption explicitly and proceed with a concrete design, or ask for confirmation when it is a real blocker.
 - Critique includes a concrete replacement (patch, rewritten text, command, or decision) in the same message.

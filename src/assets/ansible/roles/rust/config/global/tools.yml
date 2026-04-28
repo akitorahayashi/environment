@@ -21,9 +21,9 @@ tools:
   - name: mx
     url: https://github.com/akitorahayashi/mx
     tag: v3.1.0
-  - name: pure
-    url: https://github.com/akitorahayashi/pure
-    tag: v0.6.0
+  - name: prf
+    url: https://github.com/akitorahayashi/prf
+    tag: v1.0.0
   - name: ssv
     url: https://github.com/akitorahayashi/ssv
     tag: v0.2.0
