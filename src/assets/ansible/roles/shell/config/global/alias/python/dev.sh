@@ -1,4 +1,7 @@
 #!/bin/bash
+
+alias py="python"
+
 # pytest
 alias pts="pytest"
 
@@ -18,14 +21,6 @@ ws() {
 		--word_timestamps True \
 		--temperature 0
 }
-
-# black
-alias bl="black ."
-alias bl-chk="black --check ."
-
-# ruff
-alias rf="ruff check . --fix"
-alias rf-chk="ruff check ."
 
 # python project cleanup
 py-cln() {
