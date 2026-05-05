@@ -15,5 +15,7 @@ cask "slack"
 # Note Taking & Documentation
 cask "obsidian"
 
+cask "iina"
+
 # Database Management
 # cask "pgadmin4"
