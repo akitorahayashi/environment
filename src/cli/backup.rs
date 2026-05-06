@@ -14,7 +14,7 @@ pub struct BackupArgs {
     #[arg(short = 'l', long = "list", aliases = ["ls"], action = clap::ArgAction::SetTrue, help = "List available backup components")]
     pub list: bool,
 
-    /// Backup component (system, vscode).
+    /// Backup component (system, vscode, antigravity).
     #[arg(name = "target", value_name = "COMPONENT")]
     pub component: Option<String>,
 }

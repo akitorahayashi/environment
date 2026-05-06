@@ -27,6 +27,9 @@ pub trait FsPort {
     /// Copy a file from one location to another.
     fn copy(&self, from: &Path, to: &Path) -> Result<u64, AppError>;
 
+    /// Resolve a path to its canonical filesystem location.
+    fn canonicalize(&self, path: &Path) -> Result<PathBuf, AppError>;
+
     /// Rename a file or directory.
     fn rename(&self, from: &Path, to: &Path) -> Result<(), AppError>;
 
