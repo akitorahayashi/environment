@@ -12,7 +12,7 @@
 
 - name: "Symlink Antigravity shared config files"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/editor/global/{{ item }}"
+    src: "{{ local_config_root }}/editor/global/antigravity/{{ item }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Antigravity/User/{{ item }}"
     state: link
     force: true
@@ -22,7 +22,7 @@
 
 - name: "Read Antigravity extensions list"
   ansible.builtin.slurp:
-    src: "{{ local_config_root }}/editor/global/antigravity-extensions.json"
+    src: "{{ local_config_root }}/editor/global/antigravity/extensions.json"
   register: editor_antigravity_extensions_content
 
 - name: "Parse Antigravity extensions JSON"

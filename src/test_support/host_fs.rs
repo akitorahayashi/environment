@@ -130,6 +130,15 @@ impl FsPort for FakeFsPort {
         Ok(content.len() as u64)
     }
 
+    fn canonicalize(&self, path: &Path) -> Result<PathBuf, AppError> {
+        self.events.borrow_mut().push(format!("canonicalize: {}", path.display()));
+        if self.files.borrow().contains_key(path) || self.dirs.borrow().contains(path) {
+            Ok(path.to_path_buf())
+        } else {
+            Err(AppError::Io(std::io::Error::new(std::io::ErrorKind::NotFound, "path not found")))
+        }
+    }
+
     fn rename(&self, from: &Path, to: &Path) -> Result<(), AppError> {
         self.events.borrow_mut().push(format!("rename: {} -> {}", from.display(), to.display()));
 

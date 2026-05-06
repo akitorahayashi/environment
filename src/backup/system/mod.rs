@@ -2,15 +2,61 @@
 
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use serde::Deserialize;
 
 use crate::app::AppContext;
-use crate::backup::macos_defaults_port::MacosDefaultsPort;
 use crate::error::AppError;
 use crate::host_fs::fs::FsPort;
 
 const DEFAULT_DOMAIN: &str = "NSGlobalDomain";
+
+/// Keys that must be read with `defaults read -g <key>` instead of
+/// `defaults read <domain> <key>` because macOS registers them
+/// under the global domain regardless of the preference pane domain.
+const SPECIAL_GLOBAL_KEYS: &[&str] = &[
+    "com.apple.keyboard.fnState",
+    "com.apple.trackpad.scaling",
+    "com.apple.sound.beep.feedback",
+    "com.apple.sound.beep.sound",
+];
+
+pub struct MacosDefaultsCli;
+
+trait MacosDefaultsPort {
+    fn read_key(&self, domain: &str, key: &str) -> Result<Option<String>, AppError>;
+}
+
+impl MacosDefaultsPort for MacosDefaultsCli {
+    fn read_key(&self, domain: &str, key: &str) -> Result<Option<String>, AppError> {
+        let output = if SPECIAL_GLOBAL_KEYS.contains(&key) {
+            Command::new("defaults").args(["read", "-g", key]).output()
+        } else {
+            Command::new("defaults").args(["read", domain, key]).output()
+        };
+
+        match output {
+            Ok(o) if o.status.success() => {
+                Ok(Some(String::from_utf8_lossy(&o.stdout).trim().to_string()))
+            }
+            Ok(o) => {
+                let stderr = String::from_utf8_lossy(&o.stderr);
+                if stderr.contains("does not exist") {
+                    Ok(None)
+                } else {
+                    Err(AppError::Backup(format!(
+                        "defaults read failed for domain='{domain}', key='{key}': {}",
+                        stderr.trim()
+                    )))
+                }
+            }
+            Err(e) => Err(AppError::Backup(format!(
+                "failed to execute defaults for domain='{domain}', key='{key}': {e}"
+            ))),
+        }
+    }
+}
 
 #[derive(Debug, Deserialize)]
 struct SettingDefinition {
@@ -249,7 +295,7 @@ mod tests {
             "42"
         );
         assert_eq!(format_numeric("42.5", &serde_yaml::Value::Null, true), "42.5");
-        assert_eq!(format_numeric("42.5", &serde_yaml::Value::Null, false), "42"); // float to int fallback
+        assert_eq!(format_numeric("42.5", &serde_yaml::Value::Null, false), "42");
         assert_eq!(
             format_numeric("invalid", &serde_yaml::Value::String("invalid".to_string()), false),
             "invalid"

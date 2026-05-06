@@ -39,6 +39,10 @@ impl FsPort for StdFs {
         std::fs::copy(from, to).map_err(AppError::Io)
     }
 
+    fn canonicalize(&self, path: &Path) -> Result<PathBuf, AppError> {
+        std::fs::canonicalize(path).map_err(AppError::Io)
+    }
+
     fn rename(&self, from: &Path, to: &Path) -> Result<(), AppError> {
         std::fs::rename(from, to).map_err(AppError::Io)
     }
