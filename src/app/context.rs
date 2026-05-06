@@ -4,9 +4,8 @@ use std::path::PathBuf;
 
 use tempfile::TempDir;
 
-use crate::backup::antigravity_cli::AntigravityCli;
-use crate::backup::macos_defaults_cli::MacosDefaultsCli;
-use crate::backup::vscode_cli::VscodeCli;
+use crate::backup::code_editors::CodeEditorCli;
+use crate::backup::system::MacosDefaultsCli;
 use crate::host_fs::std_fs::StdFs;
 use crate::identity::file_store::IdentityFileStore;
 use crate::identity::git_cli::GitCli;
@@ -26,8 +25,7 @@ pub struct AppContext {
     pub git: GitCli,
     pub host_fs: StdFs,
     pub macos_defaults: MacosDefaultsCli,
-    pub vscode: VscodeCli,
-    pub antigravity: AntigravityCli,
+    pub code_editor_extensions: CodeEditorCli,
 }
 
 impl AppContext {
@@ -48,8 +46,7 @@ impl AppContext {
             git: GitCli::default(),
             host_fs: StdFs,
             macos_defaults: MacosDefaultsCli,
-            vscode: VscodeCli,
-            antigravity: AntigravityCli,
+            code_editor_extensions: CodeEditorCli,
             provisioning_asset_root,
             _provisioning_asset_root_temp_dir: provisioning_asset_root_temp_dir,
             home_dir,
@@ -72,8 +69,7 @@ impl AppContext {
             git: GitCli::default(),
             host_fs: StdFs,
             macos_defaults: MacosDefaultsCli,
-            vscode: VscodeCli,
-            antigravity: AntigravityCli,
+            code_editor_extensions: CodeEditorCli,
             provisioning_asset_root: PathBuf::new(),
             _provisioning_asset_root_temp_dir: None,
             home_dir,

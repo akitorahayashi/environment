@@ -1,11 +1,3 @@
-pub mod antigravity;
-pub mod antigravity_cli;
-pub mod antigravity_port;
+pub mod code_editors;
 pub mod component;
-pub mod file_identity;
-pub mod macos_defaults_cli;
-pub mod macos_defaults_port;
 pub mod system;
-pub mod vscode;
-pub mod vscode_cli;
-pub mod vscode_port;
