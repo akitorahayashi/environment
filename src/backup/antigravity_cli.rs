@@ -37,12 +37,8 @@ impl AntigravityPort for AntigravityCli {
 
 fn detect_command() -> Result<String, AppError> {
     for candidate in CANDIDATE_COMMANDS {
-        if std::path::Path::new(candidate).is_absolute() && std::path::Path::new(candidate).exists()
-        {
-            return Ok(candidate.to_string());
-        }
-        if which::which(candidate).is_ok() {
-            return Ok(candidate.to_string());
+        if let Ok(path) = which::which(candidate) {
+            return Ok(path.to_string_lossy().into_owned());
         }
     }
     Err(AppError::Backup("Antigravity command not found in PATH or default locations".to_string()))

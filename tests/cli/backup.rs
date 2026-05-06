@@ -36,6 +36,7 @@ fn backup_vscode_success() -> Result<(), Box<dyn std::error::Error>> {
     let vscode_settings_dir = ctx.work_dir().join("Library/Application Support/Code/User");
     std::fs::create_dir_all(&vscode_settings_dir)?;
     std::fs::write(vscode_settings_dir.join("settings.json"), "{}\n")?;
+    std::fs::write(vscode_settings_dir.join("keybindings.json"), "[]\n")?;
 
     ctx.create_mock_command("code", "#!/bin/sh\necho \"ms-python.python\"\nexit 0\n");
 
@@ -53,6 +54,9 @@ fn backup_vscode_success() -> Result<(), Box<dyn std::error::Error>> {
     let settings_output =
         ctx.work_dir().join(".config/mev/roles/editor/global/vscode/settings.json");
     assert!(settings_output.exists());
+    let keybindings_output =
+        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/keybindings.json");
+    assert!(keybindings_output.exists());
     Ok(())
 }
 
@@ -63,12 +67,16 @@ fn backup_vscode_keeps_managed_settings_symlink_unchanged() -> Result<(), Box<dy
 
     let managed_settings =
         ctx.work_dir().join(".config/mev/roles/editor/global/vscode/settings.json");
+    let managed_keybindings =
+        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/keybindings.json");
     std::fs::create_dir_all(managed_settings.parent().unwrap())?;
     std::fs::write(&managed_settings, "{\"workbench.colorTheme\":\"Default Light+\"}\n")?;
+    std::fs::write(&managed_keybindings, "[]\n")?;
 
     let vscode_settings_dir = ctx.work_dir().join("Library/Application Support/Code/User");
     std::fs::create_dir_all(&vscode_settings_dir)?;
     std::os::unix::fs::symlink(&managed_settings, vscode_settings_dir.join("settings.json"))?;
+    std::os::unix::fs::symlink(&managed_keybindings, vscode_settings_dir.join("keybindings.json"))?;
 
     ctx.create_mock_command("code", "#!/bin/sh\necho \"ms-python.python\"\nexit 0\n");
 
@@ -77,10 +85,13 @@ fn backup_vscode_keeps_managed_settings_symlink_unchanged() -> Result<(), Box<dy
         .args(["backup", "co"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("VS Code settings already managed"));
+        .stdout(predicate::str::contains("VS Code settings already managed"))
+        .stdout(predicate::str::contains("VS Code keybindings already managed"));
 
     let content = std::fs::read_to_string(managed_settings)?;
     assert!(content.contains("Default Light+"));
+    let keybindings_content = std::fs::read_to_string(managed_keybindings)?;
+    assert_eq!(keybindings_content, "[]\n");
     Ok(())
 }
 
@@ -92,6 +103,7 @@ fn backup_antigravity_success_via_agy_alias() -> Result<(), Box<dyn std::error::
         ctx.work_dir().join("Library/Application Support/Antigravity/User");
     std::fs::create_dir_all(&antigravity_settings_dir)?;
     std::fs::write(antigravity_settings_dir.join("settings.json"), "{}\n")?;
+    std::fs::write(antigravity_settings_dir.join("keybindings.json"), "[]\n")?;
 
     ctx.create_mock_command(
         "antigravity",
@@ -109,6 +121,9 @@ fn backup_antigravity_success_via_agy_alias() -> Result<(), Box<dyn std::error::
     let settings_output =
         ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/settings.json");
     assert!(settings_output.exists());
+    let keybindings_output =
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/keybindings.json");
+    assert!(keybindings_output.exists());
     Ok(())
 }
 
@@ -119,13 +134,20 @@ fn backup_antigravity_keeps_managed_settings_symlink_unchanged()
 
     let managed_settings =
         ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/settings.json");
+    let managed_keybindings =
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/keybindings.json");
     std::fs::create_dir_all(managed_settings.parent().unwrap())?;
     std::fs::write(&managed_settings, "{\"workbench.colorTheme\":\"Default Light+\"}\n")?;
+    std::fs::write(&managed_keybindings, "[]\n")?;
 
     let antigravity_settings_dir =
         ctx.work_dir().join("Library/Application Support/Antigravity/User");
     std::fs::create_dir_all(&antigravity_settings_dir)?;
     std::os::unix::fs::symlink(&managed_settings, antigravity_settings_dir.join("settings.json"))?;
+    std::os::unix::fs::symlink(
+        &managed_keybindings,
+        antigravity_settings_dir.join("keybindings.json"),
+    )?;
 
     ctx.create_mock_command(
         "antigravity",
@@ -137,10 +159,13 @@ fn backup_antigravity_keeps_managed_settings_symlink_unchanged()
         .args(["backup", "agy"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Antigravity settings already managed"));
+        .stdout(predicate::str::contains("Antigravity settings already managed"))
+        .stdout(predicate::str::contains("Antigravity keybindings already managed"));
 
     let content = std::fs::read_to_string(managed_settings)?;
     assert!(content.contains("Default Light+"));
+    let keybindings_content = std::fs::read_to_string(managed_keybindings)?;
+    assert_eq!(keybindings_content, "[]\n");
     Ok(())
 }
 
