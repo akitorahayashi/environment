@@ -1,3 +1,6 @@
+pub mod antigravity;
+pub mod antigravity_cli;
+pub mod antigravity_port;
 pub mod component;
 pub mod macos_defaults_cli;
 pub mod macos_defaults_port;

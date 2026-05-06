@@ -45,13 +45,102 @@ fn backup_vscode_success() -> Result<(), Box<dyn std::error::Error>> {
         .assert()
         .success();
 
-    let output_file = ctx.work_dir().join(".config/mev/roles/editor/global/vscode-extensions.json");
+    let output_file = ctx.work_dir().join(".config/mev/roles/editor/global/vscode/extensions.json");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file)?;
     assert!(content.contains("ms-python.python"));
 
-    let settings_output = ctx.work_dir().join(".config/mev/roles/editor/global/settings.json");
+    let settings_output =
+        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/settings.json");
     assert!(settings_output.exists());
+    Ok(())
+}
+
+#[test]
+fn backup_vscode_keeps_managed_settings_symlink_unchanged() -> Result<(), Box<dyn std::error::Error>>
+{
+    let ctx = TestContext::new();
+
+    let managed_settings =
+        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/settings.json");
+    std::fs::create_dir_all(managed_settings.parent().unwrap())?;
+    std::fs::write(&managed_settings, "{\"workbench.colorTheme\":\"Default Light+\"}\n")?;
+
+    let vscode_settings_dir = ctx.work_dir().join("Library/Application Support/Code/User");
+    std::fs::create_dir_all(&vscode_settings_dir)?;
+    std::os::unix::fs::symlink(&managed_settings, vscode_settings_dir.join("settings.json"))?;
+
+    ctx.create_mock_command("code", "#!/bin/sh\necho \"ms-python.python\"\nexit 0\n");
+
+    ctx.cli()
+        .env("PATH", ctx.path_with_mock_commands())
+        .args(["backup", "co"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("VS Code settings already managed"));
+
+    let content = std::fs::read_to_string(managed_settings)?;
+    assert!(content.contains("Default Light+"));
+    Ok(())
+}
+
+#[test]
+fn backup_antigravity_success_via_agy_alias() -> Result<(), Box<dyn std::error::Error>> {
+    let ctx = TestContext::new();
+
+    let antigravity_settings_dir =
+        ctx.work_dir().join("Library/Application Support/Antigravity/User");
+    std::fs::create_dir_all(&antigravity_settings_dir)?;
+    std::fs::write(antigravity_settings_dir.join("settings.json"), "{}\n")?;
+
+    ctx.create_mock_command(
+        "antigravity",
+        "#!/bin/sh\necho \"mushan.vscode-paste-image\"\nexit 0\n",
+    );
+
+    ctx.cli().env("PATH", ctx.path_with_mock_commands()).args(["backup", "agy"]).assert().success();
+
+    let output_file =
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/extensions.json");
+    assert!(output_file.exists());
+    let content = std::fs::read_to_string(output_file)?;
+    assert!(content.contains("mushan.vscode-paste-image"));
+
+    let settings_output =
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/settings.json");
+    assert!(settings_output.exists());
+    Ok(())
+}
+
+#[test]
+fn backup_antigravity_keeps_managed_settings_symlink_unchanged()
+-> Result<(), Box<dyn std::error::Error>> {
+    let ctx = TestContext::new();
+
+    let managed_settings =
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/settings.json");
+    std::fs::create_dir_all(managed_settings.parent().unwrap())?;
+    std::fs::write(&managed_settings, "{\"workbench.colorTheme\":\"Default Light+\"}\n")?;
+
+    let antigravity_settings_dir =
+        ctx.work_dir().join("Library/Application Support/Antigravity/User");
+    std::fs::create_dir_all(&antigravity_settings_dir)?;
+    std::os::unix::fs::symlink(&managed_settings, antigravity_settings_dir.join("settings.json"))?;
+
+    ctx.create_mock_command(
+        "antigravity",
+        "#!/bin/sh\necho \"mushan.vscode-paste-image\"\nexit 0\n",
+    );
+
+    ctx.cli()
+        .env("PATH", ctx.path_with_mock_commands())
+        .args(["backup", "agy"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Antigravity settings already managed"));
+
+    let content = std::fs::read_to_string(managed_settings)?;
+    assert!(content.contains("Default Light+"));
     Ok(())
 }
 

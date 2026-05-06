@@ -39,6 +39,7 @@ pub fn execute(ctx: &AppContext, component_input: &str) -> Result<(), AppError> 
             backup::system::execute(ctx, &definitions_dir, &output_file)
         }
         BackupComponent::Vscode => backup::vscode::execute(ctx, &local_config_dir),
+        BackupComponent::Antigravity => backup::antigravity::execute(ctx, &local_config_dir),
     }?;
 
     println!();

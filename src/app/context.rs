@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use tempfile::TempDir;
 
+use crate::backup::antigravity_cli::AntigravityCli;
 use crate::backup::macos_defaults_cli::MacosDefaultsCli;
 use crate::backup::vscode_cli::VscodeCli;
 use crate::host_fs::std_fs::StdFs;
@@ -26,6 +27,7 @@ pub struct AppContext {
     pub host_fs: StdFs,
     pub macos_defaults: MacosDefaultsCli,
     pub vscode: VscodeCli,
+    pub antigravity: AntigravityCli,
 }
 
 impl AppContext {
@@ -47,6 +49,7 @@ impl AppContext {
             host_fs: StdFs,
             macos_defaults: MacosDefaultsCli,
             vscode: VscodeCli,
+            antigravity: AntigravityCli,
             provisioning_asset_root,
             _provisioning_asset_root_temp_dir: provisioning_asset_root_temp_dir,
             home_dir,
@@ -70,6 +73,7 @@ impl AppContext {
             host_fs: StdFs,
             macos_defaults: MacosDefaultsCli,
             vscode: VscodeCli,
+            antigravity: AntigravityCli,
             provisioning_asset_root: PathBuf::new(),
             _provisioning_asset_root_temp_dir: None,
             home_dir,
