@@ -37,7 +37,11 @@ dev_alias_as() {
 	alias "${prefix}-rb=${cmd_prefix} rebuild"
 	alias "${prefix}-rb-p=${cmd_prefix} rebuild-prod"
 
-	alias "${prefix}-r=${cmd_prefix} run"
+	if [ -n "$run_prefix" ]; then
+		alias "${prefix}-r=${cmd_prefix}"
+	else
+		alias "${prefix}-r=${cmd_prefix} run"
+	fi
 	alias "${prefix}-r-d=${cmd_prefix} run-debug"
 	alias "${prefix}-r-r=${cmd_prefix} run-release"
 	alias "${prefix}-r-p=${cmd_prefix} run-prod"

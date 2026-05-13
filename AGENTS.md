@@ -4,6 +4,7 @@
 
 Rust CLI for macOS dev environment setup using bundled Ansible playbooks.
 Installable as a standalone Rust binary via `install.sh`.
+
 ## Architecture
 
 | Boundary | Path | Responsibility |
@@ -22,12 +23,12 @@ Installable as a standalone Rust binary via `install.sh`.
 
 ## App structure
 
-- `context.rs` wires owner contracts to concrete integrations.
-- `provisioning/`, `identity/`, `backup/`, `update/`, and `internal/` contain use-case orchestration families.
+- `src/app/context.rs` wires owner contracts to concrete integrations.
+- `src/app/provisioning/`, `src/app/identity/`, `src/app/backup/`, `src/app/update/`, and `src/app/internal/` contain use-case orchestration families.
 
 ## Owner structure
 
-- Each owner module contains its own contracts and concrete implementations.
+- Each owner module (e.g., `src/provisioning/`, `src/identity/`) contains its own contracts and concrete implementations.
 - Provisioning contracts are split by ownership (`catalog`, `runner`, `role_configs`) instead of a single mixed interface.
 
 ## Docs
@@ -40,5 +41,5 @@ The CLI commands are detailed in [Docs Usage](docs/usage.md).
 
 ## Python Surface
 
-Python ownership is limited to development tooling (`ansible-lint`) managed by `pyproject.toml`.
+Python ownership is limited to development tooling (`ansible` and `ansible-lint`) managed by `pyproject.toml`.
 Runtime command ownership belongs to the Rust implementation.
