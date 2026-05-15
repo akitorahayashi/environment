@@ -32,9 +32,7 @@
 - name: "Install Antigravity extensions"
   ansible.builtin.command: "agy --install-extension {{ item }} --force"
   loop: "{{ editor_antigravity_extensions }}"
-  ignore_errors: true
-  register: editor_antigravity_install_result
-  changed_when: "'successfully installed' in editor_antigravity_install_result.stdout"
+  changed_when: true
 
 - name: "Ensure Antigravity agent skills parent directory exists"
   ansible.builtin.file:

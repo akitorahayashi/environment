@@ -125,5 +125,6 @@ _find_shell_files:
     grep -v "\.git" | \
     grep -v "^./references/" | \
     grep -v "\.uv-cache" | \
+    grep -v "\.tmp" | \
     grep -v "\.venv" | \
     grep -v "\.jlo"

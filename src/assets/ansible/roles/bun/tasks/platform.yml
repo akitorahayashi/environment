@@ -1,7 +1,17 @@
 ---
+- name: "Find Homebrew prefix"
+  ansible.builtin.command:
+    cmd: "brew --prefix"
+  register: bun_homebrew_prefix
+  changed_when: false
+
+- name: "Set Homebrew binary path"
+  ansible.builtin.set_fact:
+    bun_homebrew_bin_path: "{{ bun_homebrew_prefix.stdout }}/bin"
+
 - name: "Install Bun"
   community.general.homebrew:
-    name: oven-sh/bun/bun
+    name: bun
     state: present
 
 - name: "Verify Bun version"
@@ -10,7 +20,7 @@
   register: bun_version_check
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ bun_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Verify Bun revision"
   ansible.builtin.command:
@@ -18,4 +28,4 @@
   register: bun_revision_check
   changed_when: false
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ bun_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
