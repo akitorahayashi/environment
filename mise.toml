@@ -2,4 +2,3 @@ min_version = "2026.2.19"
 
 [tools]
 just = "1.46.0"
-"github:xd009642/tarpaulin" = "0.35.2"
