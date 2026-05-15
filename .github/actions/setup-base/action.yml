@@ -15,6 +15,10 @@ runs:
         version: '2026.2.19'
         install_args: --locked just
 
+    - name: Set up Rust toolchain
+      shell: bash
+      run: rustup toolchain install 1.90.0 --profile default --component clippy --component rustfmt
+
     - name: Cache Rust build artifacts
       uses: Swatinem/rust-cache@v2
 
