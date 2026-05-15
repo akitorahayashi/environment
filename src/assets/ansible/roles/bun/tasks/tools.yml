@@ -1,0 +1,18 @@
+---
+- name: "Load Bun packages configuration"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/bun/global/global-packages.json"
+  register: bun_packages_file_raw
+
+- name: "Parse Bun packages configuration"
+  ansible.builtin.set_fact:
+    bun_packages_content: "{{ bun_packages_file_raw.content | b64decode | from_json }}"
+
+- name: "Install Bun global packages"
+  ansible.builtin.command:
+    cmd: >-
+      bun install --global {{ item.key }}@{{ item.value | default('latest') }}
+  loop: "{{ bun_packages_content.dependencies | default({}) | dict2items }}"
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"

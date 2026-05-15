@@ -31,6 +31,7 @@ jobs:
       common: ${{ steps.filter.outputs.common }}
       setup_python: ${{ steps.filter.outputs.setup_python }}
       setup_nodejs: ${{ steps.filter.outputs.setup_nodejs }}
+      setup_bun: ${{ steps.filter.outputs.setup_bun }}
       setup_ruby: ${{ steps.filter.outputs.setup_ruby }}
       setup_rust: ${{ steps.filter.outputs.setup_rust }}
       setup_go: ${{ steps.filter.outputs.setup_go }}
@@ -60,6 +61,9 @@ jobs:
             setup_nodejs:
               - 'src/assets/ansible/roles/nodejs/**'
               - '.github/workflows/setup-nodejs.yml'
+            setup_bun:
+              - 'src/assets/ansible/roles/bun/**'
+              - '.github/workflows/setup-bun.yml'
             setup_ruby:
               - 'src/assets/ansible/roles/ruby/**'
               - '.github/workflows/setup-ruby.yml'
@@ -95,6 +99,11 @@ jobs:
     needs: changes
     if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_nodejs == 'true'
     uses: ./.github/workflows/setup-nodejs.yml
+
+  setup-bun:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_bun == 'true'
+    uses: ./.github/workflows/setup-bun.yml
 
   setup-ruby:
     needs: changes

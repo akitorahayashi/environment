@@ -18,6 +18,11 @@ mev ls                    # Shorthand
 
 mev make rust             # Run rust-platform + rust-tools
 mev make go               # Run go-platform + go-tools
+mev make bun              # Run bun-platform + bun-tools
+mev make bun-platform     # Run bun-platform only
+mev make b-p              # Shorthand
+mev make bun-tools        # Run bun-tools only
+mev make b-t              # Shorthand
 mev make python-tools     # Run python-tools
 mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
@@ -31,6 +36,7 @@ mev make br-c --profile mmn
 #   go → go-platform, go-tools
 #   python → python-platform, python-tools
 #   nodejs → nodejs-platform, nodejs-tools
+#   bun → bun-platform, bun-tools
 ```
 
 Configuration deploys via:
@@ -42,6 +48,7 @@ mev id show               # Shorthand
 mev config deploy         # Deploy all role configs to ~/.config/mev/roles/
 mev cf dp                 # Shorthand
 mev config deploy rust    # Deploy only rust role config
+mev config deploy bun     # Deploy only bun role config
 ```
 
 Git identity switches via:

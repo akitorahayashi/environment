@@ -1,0 +1,21 @@
+---
+- name: "Install Bun"
+  community.general.homebrew:
+    name: oven-sh/bun/bun
+    state: present
+
+- name: "Verify Bun version"
+  ansible.builtin.command:
+    cmd: "bun --version"
+  register: bun_version_check
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Verify Bun revision"
+  ansible.builtin.command:
+    cmd: "bun --revision"
+  register: bun_revision_check
+  changed_when: false
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
