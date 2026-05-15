@@ -12,6 +12,11 @@
 | `pyproject.toml` | Development Python dependency groups (`ansible-lint`) |
 | `justfile` | Development task automation |
 
+## Ansible Role Configs
+
+Role-specific provisioning data lives under `src/assets/ansible/roles/<role>/config/global/`.
+The Bun role uses `src/assets/ansible/roles/bun/config/global/global-packages.json` to declare Bun global packages.
+
 ## Release
 
 `v*` tag push: `.github/workflows/release.yml` delegates to `.github/workflows/build.yml`, and the build job attaches `mev-darwin-aarch64` plus its SHA256 file directly to GitHub Releases

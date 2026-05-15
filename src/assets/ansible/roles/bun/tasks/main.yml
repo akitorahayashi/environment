@@ -1,0 +1,10 @@
+---
+- name: "Install Bun platform"
+  ansible.builtin.include_tasks: platform.yml
+  when:
+    - "'bun-platform' in ansible_run_tags or 'b-p' in ansible_run_tags or 'bun-tools' in ansible_run_tags or 'b-t' in ansible_run_tags"
+
+- name: "Install Bun tools"
+  ansible.builtin.include_tasks: tools.yml
+  when:
+    - "'bun-tools' in ansible_run_tags or 'b-t' in ansible_run_tags"

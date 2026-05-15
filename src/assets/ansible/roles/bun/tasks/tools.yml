@@ -1,0 +1,41 @@
+---
+- name: "Load Bun packages configuration"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/bun/global/global-packages.json"
+  register: bun_packages_file_raw
+
+- name: "Parse Bun packages configuration"
+  ansible.builtin.set_fact:
+    bun_packages_content: "{{ bun_packages_file_raw.content | b64decode | from_json }}"
+
+- name: "Read installed Bun global package manifests"
+  ansible.builtin.slurp:
+    src: "{{ ansible_facts['env']['HOME'] }}/.bun/install/global/node_modules/{{ item.key }}/package.json"
+  loop: "{{ bun_packages_content.dependencies | default({}) | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: bun_global_package_manifests
+  changed_when: false
+  failed_when: false
+
+- name: "Install Bun global packages"
+  ansible.builtin.command:
+    cmd: >-
+      bun install --global {{ item.key }}@{{ item.value | default('latest') }}
+  loop: "{{ bun_packages_content.dependencies | default({}) | dict2items }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.key }}"
+  changed_when: true
+  environment:
+    PATH: "{{ bun_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+  when: >-
+    (item.value | default('latest')) == 'latest' or
+    bun_global_package_manifests.results[idx].failed | default(false) or
+    (
+      (
+        bun_global_package_manifests.results[idx].content
+        | b64decode
+        | from_json
+      ).version != item.value
+    )

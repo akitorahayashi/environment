@@ -23,7 +23,7 @@ jobs:
         uses: ./.github/actions/setup-base
 
       - name: Install cargo-tarpaulin
-        run: mise install --locked cargo:cargo-tarpaulin
+        run: cargo install --locked cargo-tarpaulin --version 0.35.2
 
       - name: Generate coverage
         continue-on-error: true

@@ -1,0 +1,32 @@
+name: Setup Bun
+
+on:
+  workflow_call:
+
+jobs:
+  setup-bun:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup base environment
+        uses: ./.github/actions/setup-base
+
+      - name: Run bun-platform setup
+        run: mise exec -- just run make bun-platform
+
+      - name: Verify Bun after bun-platform setup
+        run: |
+          bun --version
+          bun --revision
+
+      - name: Run bun-tools setup
+        run: mise exec -- just run make bun-tools
+
+      - name: Verify Bun after bun-tools setup
+        run: |
+          bun --version
+          bun --revision
