@@ -30,7 +30,7 @@
     editor_antigravity_extensions: "{{ (editor_antigravity_extensions_content.content | b64decode | from_json).extensions }}"
 
 - name: "Install Antigravity extensions"
-  ansible.builtin.command: "antigravity --install-extension {{ item }} --force"
+  ansible.builtin.command: "agy --install-extension {{ item }} --force"
   loop: "{{ editor_antigravity_extensions }}"
   ignore_errors: true
   register: editor_antigravity_install_result
