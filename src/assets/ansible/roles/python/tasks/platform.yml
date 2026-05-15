@@ -1,4 +1,14 @@
 ---
+- name: "Find Homebrew prefix"
+  ansible.builtin.command:
+    cmd: "brew --prefix"
+  register: python_homebrew_prefix
+  changed_when: false
+
+- name: "Set Homebrew binary path"
+  ansible.builtin.set_fact:
+    python_homebrew_bin_path: "{{ python_homebrew_prefix.stdout }}/bin"
+
 - name: "Install uv"
   community.general.homebrew:
     name: uv
@@ -23,4 +33,4 @@
   register: python_uv_install
   changed_when: "'Installed Python' in python_uv_install.stderr"
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ python_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
