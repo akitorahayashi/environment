@@ -1,6 +1,13 @@
-[[tools."cargo:cargo-tarpaulin"]]
+[[tools."github:xd009642/tarpaulin"]]
 version = "0.35.2"
-backend = "cargo:cargo-tarpaulin"
+backend = "github:xd009642/tarpaulin"
+"platforms.linux-arm64" = { checksum = "sha256:0369aa055a0c86f9cd87da02a08fab035bf1a1e1691d768054a917f02529095e", url = "https://github.com/xd009642/tarpaulin/releases/download/0.35.2/cargo-tarpaulin-aarch64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/xd009642/tarpaulin/releases/assets/358371533"}
+"platforms.linux-arm64-musl" = { checksum = "sha256:eb034abac2928e9c75254eee0580477c1ece3ad3944a8f74fb0acdb9b3ac84b6", url = "https://github.com/xd009642/tarpaulin/releases/download/0.35.2/cargo-tarpaulin-aarch64-unknown-linux-musl.tar.gz", url_api = "https://api.github.com/repos/xd009642/tarpaulin/releases/assets/358373041"}
+"platforms.linux-x64" = { checksum = "sha256:c092e94333c4822df013d55c050f909771a21b097a4d5b6f1dbfb3bf70979885", url = "https://github.com/xd009642/tarpaulin/releases/download/0.35.2/cargo-tarpaulin-x86_64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/xd009642/tarpaulin/releases/assets/358372596"}
+"platforms.linux-x64-musl" = { checksum = "sha256:7364496b9fee593263a23738068003e847c2a468d36fbe99af99c279f14f70dd", url = "https://github.com/xd009642/tarpaulin/releases/download/0.35.2/cargo-tarpaulin-x86_64-unknown-linux-musl.tar.gz", url_api = "https://api.github.com/repos/xd009642/tarpaulin/releases/assets/358371589"}
+"platforms.macos-arm64" = { checksum = "sha256:1190d4e09e816a5d9d735eacbfd81c2324ce671856320a2f8b28a948105b814a", url = "https://github.com/xd009642/tarpaulin/releases/download/0.35.2/cargo-tarpaulin-aarch64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/xd009642/tarpaulin/releases/assets/358372155"}
+"platforms.macos-x64" = { checksum = "sha256:ad6bfd50d8c17c163e3ee7d74b8a7e6c3b07efd4a23beeebdd552a13129880ab", url = "https://github.com/xd009642/tarpaulin/releases/download/0.35.2/cargo-tarpaulin-x86_64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/xd009642/tarpaulin/releases/assets/358372430"}
+"platforms.windows-x64" = { checksum = "sha256:052b5e017f17d91da470c8a70d61fd6025cb2f462ab7e5cab6ba76a2a637cd5a", url = "https://github.com/xd009642/tarpaulin/releases/download/0.35.2/cargo-tarpaulin-x86_64-pc-windows-msvc.zip", url_api = "https://api.github.com/repos/xd009642/tarpaulin/releases/assets/358372117"}
 
 [[tools.just]]
 version = "1.46.0"
