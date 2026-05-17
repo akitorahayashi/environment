@@ -16,6 +16,24 @@ on:
       - '.github/workflows/verify-ansible-setup.yml'
       - '.github/actions/setup-base/**'
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Setup target to run (all or a specific setup workflow)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - python
+          - nodejs
+          - bun
+          - ruby
+          - rust
+          - go
+          - nvim
+          - ide
+          - system
+          - brew-formulae
 
 permissions:
   contents: read
@@ -28,7 +46,7 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      common: ${{ steps.filter.outputs.common }}
+      all_setups: ${{ steps.filter.outputs.all_setups }}
       setup_python: ${{ steps.filter.outputs.setup_python }}
       setup_nodejs: ${{ steps.filter.outputs.setup_nodejs }}
       setup_bun: ${{ steps.filter.outputs.setup_bun }}
@@ -50,10 +68,9 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            common:
+            all_setups:
               - 'src/assets/ansible/playbook.yml'
               - 'src/assets/ansible/ansible.cfg'
-              - '.github/workflows/verify-ansible-setup.yml'
               - '.github/actions/setup-base/**'
             setup_python:
               - 'src/assets/ansible/roles/python/**'
@@ -92,50 +109,80 @@ jobs:
 
   setup-python:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_python == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'python')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_python == 'true'
     uses: ./.github/workflows/setup-python.yml
 
   setup-nodejs:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_nodejs == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'nodejs')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_nodejs == 'true'
     uses: ./.github/workflows/setup-nodejs.yml
 
   setup-bun:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_bun == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'bun')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_bun == 'true'
     uses: ./.github/workflows/setup-bun.yml
 
   setup-ruby:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_ruby == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'ruby')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_ruby == 'true'
     uses: ./.github/workflows/setup-ruby.yml
 
   setup-rust:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_rust == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'rust')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_rust == 'true'
     uses: ./.github/workflows/setup-rust.yml
 
   setup-go:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_go == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'go')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_go == 'true'
     uses: ./.github/workflows/setup-go.yml
 
   setup-nvim:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_nvim == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'nvim')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_nvim == 'true'
     uses: ./.github/workflows/setup-nvim.yml
 
   setup-ide:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_ide == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'ide')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_ide == 'true'
     uses: ./.github/workflows/setup-ide.yml
 
   setup-system:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_system == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'system')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_system == 'true'
     uses: ./.github/workflows/setup-system.yml
 
   setup-brew-formulae:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.common == 'true' || needs.changes.outputs.setup_brew_formulae == 'true'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'brew-formulae')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_brew_formulae == 'true'
     uses: ./.github/workflows/setup-brew-formulae.yml
