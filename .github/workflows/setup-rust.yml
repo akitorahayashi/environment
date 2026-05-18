@@ -10,8 +10,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Setup base environment
-        uses: ./.github/actions/setup-base
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build
+
+      - name: Setup Ansible environment
+        uses: ./.github/actions/setup-ansible
 
       - name: Setup rust
         run: mise exec -- just run make rust

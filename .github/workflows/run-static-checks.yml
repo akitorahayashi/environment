@@ -13,13 +13,19 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup base environment
-        uses: ./.github/actions/setup-base
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+          cache-dependency-glob: uv.lock
 
       - name: Install lint dependencies
         run: uv sync --frozen

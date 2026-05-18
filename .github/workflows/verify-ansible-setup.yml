@@ -7,14 +7,16 @@ on:
       - 'src/assets/ansible/**'
       - '.github/workflows/setup-*.yml'
       - '.github/workflows/verify-ansible-setup.yml'
-      - '.github/actions/setup-base/**'
+      - '.github/actions/setup-build/**'
+      - '.github/actions/setup-ansible/**'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'src/assets/ansible/**'
       - '.github/workflows/setup-*.yml'
       - '.github/workflows/verify-ansible-setup.yml'
-      - '.github/actions/setup-base/**'
+      - '.github/actions/setup-build/**'
+      - '.github/actions/setup-ansible/**'
   workflow_dispatch:
     inputs:
       target:
@@ -68,7 +70,8 @@ jobs:
             all_setups:
               - 'src/assets/ansible/playbook.yml'
               - 'src/assets/ansible/ansible.cfg'
-              - '.github/actions/setup-base/**'
+              - '.github/actions/setup-build/**'
+              - '.github/actions/setup-ansible/**'
             setup_python:
               - 'src/assets/ansible/roles/python/**'
               - '.github/workflows/setup-python.yml'
