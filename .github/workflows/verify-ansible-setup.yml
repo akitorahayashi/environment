@@ -35,9 +35,6 @@ on:
           - system
           - brew-formulae
 
-permissions:
-  contents: read
-
 jobs:
   changes:
     name: Detect setup-related changes
@@ -109,6 +106,8 @@ jobs:
 
   setup-python:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'python')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -117,6 +116,8 @@ jobs:
 
   setup-nodejs:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'nodejs')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -125,6 +126,8 @@ jobs:
 
   setup-bun:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'bun')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -133,6 +136,8 @@ jobs:
 
   setup-ruby:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'ruby')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -141,6 +146,8 @@ jobs:
 
   setup-rust:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'rust')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -149,6 +156,8 @@ jobs:
 
   setup-go:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'go')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -157,6 +166,8 @@ jobs:
 
   setup-nvim:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'nvim')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -165,6 +176,8 @@ jobs:
 
   setup-ide:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'ide')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -173,6 +186,8 @@ jobs:
 
   setup-system:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'system')) ||
       needs.changes.outputs.all_setups == 'true' ||
@@ -181,6 +196,8 @@ jobs:
 
   setup-brew-formulae:
     needs: changes
+    permissions:
+      contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'brew-formulae')) ||
       needs.changes.outputs.all_setups == 'true' ||

@@ -11,20 +11,23 @@ on:
       - '**.md'
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   static-checks:
     name: Static Checks
+    permissions:
+      contents: read
     uses: ./.github/workflows/run-static-checks.yml
 
   test:
     name: Test
+    permissions:
+      contents: read
     uses: ./.github/workflows/run-tests.yml
 
   coverage:
     name: Coverage
+    permissions:
+      contents: read
     uses: ./.github/workflows/collect-coverage.yml
 
   build:
