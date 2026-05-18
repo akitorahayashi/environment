@@ -3,9 +3,6 @@ name: Run Static Checks
 on:
   workflow_call:
 
-permissions:
-  contents: read
-
 jobs:
   run-static-checks:
     name: Run Static Checks
@@ -16,13 +13,19 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup base environment
-        uses: ./.github/actions/setup-base
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
+          cache-dependency-glob: uv.lock
 
       - name: Install lint dependencies
         run: uv sync --frozen

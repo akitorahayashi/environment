@@ -69,7 +69,7 @@ mod tests {
         run(LabelsDeployArgs { repo: None })?;
 
         let gh_cmds = fs::read_to_string(&test_env.gh_args_path)?;
-        assert!(gh_cmds.contains("label create bugs"));
+        assert!(gh_cmds.contains("label create C-bugs"));
         assert!(!gh_cmds.contains("label delete"));
 
         Ok(())
@@ -86,7 +86,7 @@ mod tests {
                 r#"#!/bin/sh
                 echo "$@" >> "{}"
                 if [ "$1" = "label" ] && [ "$2" = "list" ]; then
-                    echo "bugs"
+                    echo "C-bugs"
                 else
                     exit 0
                 fi
@@ -98,8 +98,8 @@ mod tests {
         run(LabelsDeployArgs { repo: Some("owner/repo".to_string()) })?;
 
         let gh_cmds = fs::read_to_string(&test_env.gh_args_path)?;
-        assert!(gh_cmds.contains("label delete bugs"));
-        assert!(gh_cmds.contains("label create bugs"));
+        assert!(gh_cmds.contains("label delete C-bugs"));
+        assert!(gh_cmds.contains("label create C-bugs"));
 
         Ok(())
     }

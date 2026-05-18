@@ -3,9 +3,6 @@ name: Run Tests
 on:
   workflow_call:
 
-permissions:
-  contents: read
-
 jobs:
   test:
     name: Run Rust tests
@@ -16,8 +13,8 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup base environment
-        uses: ./.github/actions/setup-base
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build
 
       - name: Run tests
         run: mise exec -- just test
