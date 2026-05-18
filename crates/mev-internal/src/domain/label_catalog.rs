@@ -24,10 +24,11 @@ mod tests {
     fn bundled_label_specs_are_valid() {
         let specs = load_bundled_labels().expect("bundled labels should parse");
         let names = specs.iter().map(|spec| spec.name.as_str()).collect::<Vec<_>>();
-        assert!(names.contains(&"bugs"));
-        assert!(names.contains(&"feats"));
-        assert!(names.contains(&"refacts"));
-        assert!(names.contains(&"tests"));
-        assert!(names.contains(&"docs"));
+        assert!(names.contains(&"C-bugs"));
+        assert!(names.contains(&"C-feats"));
+        assert!(names.contains(&"C-refacts"));
+        assert!(names.contains(&"C-tests"));
+        assert!(names.contains(&"C-docs"));
+        assert!(names.contains(&"C-ci"));
     }
 }

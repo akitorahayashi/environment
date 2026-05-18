@@ -1,28 +1,33 @@
 [
   {
-    "name": "bugs",
+    "name": "C-bugs",
     "description": "Something isn't working",
     "color": "d73a4a"
   },
   {
-    "name": "feats",
+    "name": "C-feats",
     "description": "A new feature or functional specification change",
     "color": "d93f0b"
   },
   {
-    "name": "refacts",
+    "name": "C-refacts",
     "description": "Internal code optimization or architectural improvement without specification changes",
     "color": "0e8a16"
   },
   {
-    "name": "tests",
+    "name": "C-tests",
     "description": "Adding missing tests or correcting existing tests",
     "color": "5319e7"
   },
   {
-    "name": "docs",
+    "name": "C-docs",
     "description": "Documentation only changes",
     "color": "0075ca"
+  },
+  {
+    "name": "C-ci",
+    "description": "Continuous integration changes",
+    "color": "1d76db"
   },
   {
     "name": "jules",

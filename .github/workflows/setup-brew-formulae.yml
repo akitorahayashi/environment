@@ -6,14 +6,15 @@ on:
 jobs:
   setup-brew-formulae:
     runs-on: macos-15
-    permissions:
-      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Setup base environment
-        uses: ./.github/actions/setup-base
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build
+
+      - name: Setup Ansible environment
+        uses: ./.github/actions/setup-ansible
 
       - name: Setup GitHub authentication for Homebrew
         run: |
