@@ -25,34 +25,23 @@
     state: link
     force: true
 
-- name: "Resolve pnpm global config path"
-  ansible.builtin.command:
-    cmd: "pnpm config get globalconfig"
-  register: nodejs_pnpm_globalconfig_path_result
-  changed_when: false
-  environment:
-    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
-
-- name: "Set pnpm global config path"
+- name: "Set pnpm global YAML config path"
   ansible.builtin.set_fact:
-    nodejs_pnpm_globalconfig_path: "{{ nodejs_pnpm_globalconfig_path_result.stdout | trim }}"
+    nodejs_pnpm_global_config_path: >-
+      {{ ([ansible_facts['env']['XDG_CONFIG_HOME'], 'pnpm', 'config.yaml'] | path_join)
+         if (ansible_facts['env']['XDG_CONFIG_HOME'] | default('') | length > 0)
+         else ([ansible_facts['env']['HOME'], 'Library', 'Preferences', 'pnpm', 'config.yaml'] | path_join) }}
 
-- name: "Validate pnpm global config path"
-  ansible.builtin.assert:
-    that:
-      - nodejs_pnpm_globalconfig_path | length > 0
-    fail_msg: "pnpm globalconfig path is empty. Ensure pnpm is installed and available in PATH."
-
-- name: "Ensure pnpm global config directory exists"
+- name: "Ensure pnpm global YAML config directory exists"
   ansible.builtin.file:
-    path: "{{ nodejs_pnpm_globalconfig_path | dirname }}"
+    path: "{{ nodejs_pnpm_global_config_path | dirname }}"
     state: directory
     mode: "0755"
 
-- name: "Symlink pnpm global config"
+- name: "Symlink pnpm global YAML config"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/global/pnpm/config.yaml"
-    dest: "{{ nodejs_pnpm_globalconfig_path }}"
+    dest: "{{ nodejs_pnpm_global_config_path }}"
     state: link
     force: true
 

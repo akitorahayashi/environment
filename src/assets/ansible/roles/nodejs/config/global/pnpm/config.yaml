@@ -1,3 +1,4 @@
+---
 # Reject packages published within the last day (minutes).
 minimumReleaseAge: 1440
 # Enforce minimumReleaseAge without fallback.
