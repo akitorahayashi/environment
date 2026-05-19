@@ -18,6 +18,44 @@
   ansible.builtin.set_fact:
     nodejs_homebrew_bin_path: "{{ nodejs_homebrew_prefix.stdout }}/bin"
 
+- name: "Symlink npm global config"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/global/.npmrc"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.npmrc"
+    state: link
+    force: true
+
+- name: "Resolve pnpm global config path"
+  ansible.builtin.command:
+    cmd: "pnpm config get globalconfig"
+  register: nodejs_pnpm_globalconfig_path_result
+  changed_when: false
+  environment:
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Set pnpm global config path"
+  ansible.builtin.set_fact:
+    nodejs_pnpm_globalconfig_path: "{{ nodejs_pnpm_globalconfig_path_result.stdout | trim }}"
+
+- name: "Validate pnpm global config path"
+  ansible.builtin.assert:
+    that:
+      - nodejs_pnpm_globalconfig_path | length > 0
+    fail_msg: "pnpm globalconfig path is empty. Ensure pnpm is installed and available in PATH."
+
+- name: "Ensure pnpm global config directory exists"
+  ansible.builtin.file:
+    path: "{{ nodejs_pnpm_globalconfig_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink pnpm global config"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/global/pnpm/config.yaml"
+    dest: "{{ nodejs_pnpm_globalconfig_path }}"
+    state: link
+    force: true
+
 - name: "Install specified Node.js version with fnm"
   ansible.builtin.command:
     cmd: "fnm install {{ nodejs_version }} --progress=never"
