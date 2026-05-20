@@ -22,7 +22,7 @@ jobs:
       - name: Setup Antigravity configuration
         run: mise exec -- just run make antigravity
 
-      - name: Setup Cursor configuration
+      - name: Setup Zed configuration
         run: mise exec -- just run make zed
 
       - name: Setup Xcode configuration
