@@ -25,9 +25,19 @@
     "color": "0075ca"
   },
   {
+    "name": "C-tooling",
+    "description": "Changes to development tools, hooks, or workspace configurations",
+    "color": "7c2fa0"
+  },
+  {
     "name": "C-ci",
     "description": "Continuous integration changes",
     "color": "1d76db"
+  },
+  {
+    "name": "C-security",
+    "description": "Security-related changes or vulnerability fixes",
+    "color": "9a596e"
   },
   {
     "name": "jules",
