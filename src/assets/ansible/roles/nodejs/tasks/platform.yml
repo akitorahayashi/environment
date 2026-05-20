@@ -1,4 +1,12 @@
 ---
+- name: "Reject non-macOS hosts"
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['system'] == 'Darwin'
+    fail_msg: >-
+      nodejs role supports macOS only. Current platform is
+      {{ ansible_facts['system'] }}.
+
 - name: "Install fnm, jq, and pnpm"
   community.general.homebrew:
     name: "{{ item }}"
@@ -18,10 +26,14 @@
   ansible.builtin.set_fact:
     nodejs_homebrew_bin_path: "{{ nodejs_homebrew_prefix.stdout }}/bin"
 
+- name: "Set npm global config path"
+  ansible.builtin.set_fact:
+    nodejs_npm_global_config_path: "{{ [ansible_facts['env']['HOME'], '.npmrc'] | path_join }}"
+
 - name: "Symlink npm global config"
   ansible.builtin.file:
     src: "{{ local_config_root }}/nodejs/global/.npmrc"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.npmrc"
+    dest: "{{ nodejs_npm_global_config_path }}"
     state: link
     force: true
 
