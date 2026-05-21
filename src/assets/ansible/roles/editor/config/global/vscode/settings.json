@@ -31,5 +31,8 @@
   "window.commandCenter": true,
   "chat.agent.maxRequests": 500,
   "python.languageServer": "Default",
-  "application.shellEnvironmentResolutionTimeout": 10
+  "application.shellEnvironmentResolutionTimeout": 10,
+  "workbench.browser.openLocalhostLinks": false,
+  "workbench.externalBrowser": "chrome",
+  "extensions.autoUpdate": false
 }
