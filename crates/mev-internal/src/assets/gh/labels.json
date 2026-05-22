@@ -68,5 +68,15 @@
     "name": "S-checked",
     "description": "Checked",
     "color": "0052cc"
+  },
+  {
+    "name": "P-high",
+    "description": "Immediate action required",
+    "color": "b60205"
+  },
+  {
+    "name": "P-low",
+    "description": "Investment for the future",
+    "color": "725d81"
   }
 ]
