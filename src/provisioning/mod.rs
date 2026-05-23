@@ -3,7 +3,7 @@ pub mod assets;
 pub mod catalog;
 pub mod execution_order;
 pub mod execution_plan;
+pub mod playbook_execution;
 pub mod profile;
 pub mod role_configs;
-pub mod runner;
 pub mod tag_selection;

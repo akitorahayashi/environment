@@ -52,9 +52,14 @@ impl ExecutionPlan {
 }
 
 impl LayeredExecutionPlan {
+    /// Construct a layered execution plan.
+    pub fn new(profile: Profile, layers: Vec<Vec<ExecutionUnit>>, verbose: bool) -> Self {
+        Self { profile, layers, verbose }
+    }
+
     /// Construct a plan for a full environment creation.
     pub fn full_setup(profile: Profile, layers: Vec<Vec<ExecutionUnit>>, verbose: bool) -> Self {
-        Self { profile, layers, verbose }
+        Self::new(profile, layers, verbose)
     }
 
     pub fn layer_count(&self) -> usize {

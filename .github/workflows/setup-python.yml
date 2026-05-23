@@ -6,6 +6,12 @@ on:
 jobs:
   setup-python:
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        tag:
+          - python-platform
+          - python-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -16,8 +22,5 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run python-platform setup
-        run: mise exec -- just run make python-platform
-
-      - name: Run python-tools setup
-        run: mise exec -- just run make python-tools
+      - name: Run ${{ matrix.tag }} setup
+        run: mise exec -- just run make ${{ matrix.tag }}

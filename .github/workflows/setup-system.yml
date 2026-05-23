@@ -6,6 +6,15 @@ on:
 jobs:
   setup-system:
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        tag:
+          - git
+          - gh
+          - shell
+          - ssh
+          - system
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -16,24 +25,13 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup Git configuration
-        run: mise exec -- just run make git
+      - name: Run ${{ matrix.tag }} setup
+        run: mise exec -- just run make ${{ matrix.tag }}
 
-      - name: Setup GitHub CLI configuration
-        run: mise exec -- just run make gh
-
-      - name: Setup shell configuration
-        run: mise exec -- just run make shell
-        
       - name: Test shell aliases functionality
+        if: matrix.tag == 'shell'
         shell: zsh {0}
         run: |
           set -euo pipefail
           source ~/.zshrc
           mk --version
-
-      - name: Setup SSH configuration
-        run: mise exec -- just run make ssh
-
-      - name: Apply macOS system defaults
-        run: mise exec -- just run make system

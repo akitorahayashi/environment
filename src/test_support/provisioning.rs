@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use crate::error::AppError;
+use crate::provisioning::ansible_runtime::ProvisioningRunner;
 use crate::provisioning::catalog::ProvisioningCatalog;
 use crate::provisioning::role_configs::RoleConfigLocator;
-use crate::provisioning::runner::ProvisioningRunner;
 
 pub struct FakeProvisioningPort {
     pub roles_with_config: Vec<String>,

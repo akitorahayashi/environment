@@ -23,10 +23,12 @@ echo "localhost                  : ok=10   changed=5    unreachable=0    failed=
     ctx.cli()
         .env("HOME", ctx.work_dir())
         .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
-        .args(["make", "rust", "rust-platform", "rust-tools", "shell", "--verbose"])
+        .args(["make", "rust-platform", "rust-tools", "shell", "--verbose"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Running units: rust, shell"))
-        .stdout(predicate::str::contains("rust => rust-platform,rust-tools"))
-        .stdout(predicate::str::contains("shell => shell"));
+        .stdout(predicate::str::contains("Layer 1/2:"))
+        .stdout(predicate::str::contains("Layer 2/2:"))
+        .stdout(predicate::str::contains("Running: rust-platform, shell"))
+        .stdout(predicate::str::contains("Running: rust-tools"))
+        .stdout(predicate::str::contains("✓ Completed successfully!"));
 }

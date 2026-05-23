@@ -8,14 +8,19 @@
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::{Command, Output, Stdio};
 
 use crate::error::AppError;
 use crate::provisioning::catalog::ProvisioningCatalog;
 use crate::provisioning::execution_order;
 use crate::provisioning::execution_plan::ExecutionUnit;
 use crate::provisioning::role_configs::RoleConfigLocator;
-use crate::provisioning::runner::ProvisioningRunner;
+
+/// Playbook execution contract for provisioning flows.
+pub trait ProvisioningRunner {
+    /// Run the provisioning playbook for a profile with a tag set.
+    fn run_playbook(&self, profile: &str, tags: &[String], verbose: bool) -> Result<(), AppError>;
+}
 
 const ANSIBLE_PLAYBOOK_BIN_ENV: &str = "ANSIBLE_PLAYBOOK_BIN";
 const PIPX_HOME_ENV: &str = "PIPX_HOME";
@@ -187,29 +192,57 @@ impl AnsibleRuntime {
 
         Ok(cmd)
     }
+
+    pub(crate) fn run_playbook_captured(
+        &self,
+        profile: &str,
+        tags: &[String],
+        verbose: bool,
+    ) -> Result<Output, AppError> {
+        let mut cmd = self.build_command(profile, tags, verbose)?;
+        cmd.stdout(Stdio::piped());
+        cmd.stderr(Stdio::piped());
+
+        cmd.output().map_err(command_spawn_error)
+    }
+
+    fn run_playbook_inherited(
+        &self,
+        profile: &str,
+        tags: &[String],
+        verbose: bool,
+    ) -> Result<(), AppError> {
+        let mut cmd = self.build_command(profile, tags, verbose)?;
+        cmd.stdout(Stdio::inherit());
+        cmd.stderr(Stdio::inherit());
+
+        let status = cmd.status().map_err(command_spawn_error)?;
+
+        if status.success() {
+            return Ok(());
+        }
+
+        Err(command_exit_error(status.code()))
+    }
 }
 
 impl ProvisioningRunner for AnsibleRuntime {
     fn run_playbook(&self, profile: &str, tags: &[String], verbose: bool) -> Result<(), AppError> {
-        let mut cmd = self.build_command(profile, tags, verbose)?;
+        self.run_playbook_inherited(profile, tags, verbose)
+    }
+}
 
-        cmd.stdout(Stdio::inherit());
-        cmd.stderr(Stdio::inherit());
+fn command_spawn_error(error: std::io::Error) -> AppError {
+    AppError::AnsibleExecution {
+        message: format!("failed to run ansible-playbook: {error}"),
+        exit_code: None,
+    }
+}
 
-        let status = cmd.status().map_err(|e| AppError::AnsibleExecution {
-            message: format!("failed to run ansible-playbook: {e}"),
-            exit_code: None,
-        })?;
-
-        if !status.success() {
-            let code = status.code();
-            return Err(AppError::AnsibleExecution {
-                message: format!("ansible-playbook exited with code {}", code.unwrap_or(-1)),
-                exit_code: code,
-            });
-        }
-
-        Ok(())
+fn command_exit_error(exit_code: Option<i32>) -> AppError {
+    AppError::AnsibleExecution {
+        message: format!("ansible-playbook exited with code {}", exit_code.unwrap_or(-1)),
+        exit_code,
     }
 }
 

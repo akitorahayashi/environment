@@ -6,6 +6,14 @@ on:
 jobs:
   setup-ide:
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        tag:
+          - vscode
+          - antigravity
+          - zed
+          - xcode
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -16,14 +24,5 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup VSCode configuration
-        run: mise exec -- just run make vscode
-
-      - name: Setup Antigravity configuration
-        run: mise exec -- just run make antigravity
-
-      - name: Setup Zed configuration
-        run: mise exec -- just run make zed
-
-      - name: Setup Xcode configuration
-        run: mise exec -- just run make xcode
+      - name: Run ${{ matrix.tag }} setup
+        run: mise exec -- just run make ${{ matrix.tag }}

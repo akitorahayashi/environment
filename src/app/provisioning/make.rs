@@ -6,10 +6,10 @@ use crate::app::AppContext;
 use crate::error::AppError;
 use crate::provisioning::catalog::ProvisioningCatalog;
 use crate::provisioning::execution_order;
-use crate::provisioning::execution_plan::ExecutionPlan;
+use crate::provisioning::execution_plan::LayeredExecutionPlan;
+use crate::provisioning::playbook_execution;
 use crate::provisioning::profile::Profile;
 use crate::provisioning::role_configs;
-use crate::provisioning::runner::ProvisioningRunner;
 use crate::provisioning::tag_selection;
 
 /// Execute the `make` command: deploy configs and run specified tags.
@@ -26,9 +26,8 @@ pub fn execute(
         ctx.provisioning.tag_groups(),
         &atomic_tags,
     )?;
-    let ordered_units =
-        execution_order::order_units(normalized, ctx.provisioning.order_constraints())?;
-    let plan = ExecutionPlan::make(profile, ordered_units, verbose);
+    let layers = execution_order::layer_units(normalized, ctx.provisioning.order_constraints())?;
+    let plan = LayeredExecutionPlan::new(profile, layers, verbose);
 
     // Deploy configs for roles about to be executed
     role_configs::deploy_for_tags(
@@ -40,20 +39,21 @@ pub fn execute(
         overwrite,
     )?;
 
-    println!("Running units: {}", plan.unit_names().join(", "));
-    if plan.profile != Profile::Global {
-        println!("Profile: {}", plan.profile);
-    }
-    if plan.verbose {
-        for unit in &plan.units {
-            println!("{} => {}", unit.name, unit.ansible_tags.join(","));
-        }
-    }
+    println!();
+    println!("mev: Running selected provisioning plan");
+    println!(
+        "This will run {} tasks across {} layers.",
+        plan.running_units().len(),
+        plan.layer_count()
+    );
     println!();
 
-    for unit in &plan.units {
-        ctx.provisioning.run_playbook(plan.profile.as_str(), &unit.ansible_tags, plan.verbose)?;
-    }
+    playbook_execution::run_layered_playbook(
+        &ctx.provisioning,
+        plan.profile.as_str(),
+        &plan.layers,
+        plan.verbose,
+    )?;
 
     println!();
     println!("✓ Completed successfully!");
