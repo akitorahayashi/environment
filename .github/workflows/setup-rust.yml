@@ -16,5 +16,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup rust
-        run: mise exec -- just run make rust
+      - name: Run rust-platform setup
+        run: mise exec -- just run make rust-platform
+
+      - name: Run rust-tools setup
+        run: mise exec -- just run make rust-tools

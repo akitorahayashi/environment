@@ -32,10 +32,15 @@ pub fn create(profile: Profile, overwrite: bool, verbose: bool) -> Result<(), Ap
     app::provisioning::create::execute(&ctx, profile, overwrite, verbose)
 }
 
-/// Run a single provisioning task by tag within a profile.
-pub fn make(profile: Profile, tag: &str, overwrite: bool, verbose: bool) -> Result<(), AppError> {
+/// Run provisioning tasks by tags within a profile.
+pub fn make(
+    profile: Profile,
+    tags: Vec<String>,
+    overwrite: bool,
+    verbose: bool,
+) -> Result<(), AppError> {
     let ctx = provisioning_context()?;
-    app::provisioning::make::execute(&ctx, profile, tag, overwrite, verbose)
+    app::provisioning::make::execute(&ctx, profile, tags, overwrite, verbose)
 }
 
 /// Print the available tags, tag groups, and profiles.

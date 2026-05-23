@@ -22,5 +22,5 @@ jobs:
       - name: Run nodejs-tools setup
         run: mise exec -- just run make nodejs-tools
 
-      - name: Setup Node.js LLM Tools
+      - name: Run coder setup
         run: mise exec -- just run make coder

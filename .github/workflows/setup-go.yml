@@ -16,5 +16,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup go
-        run: mise exec -- just run make go
+      - name: Run go-platform setup
+        run: mise exec -- just run make go-platform
+
+      - name: Run go-tools setup
+        run: mise exec -- just run make go-tools

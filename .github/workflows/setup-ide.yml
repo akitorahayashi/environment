@@ -16,14 +16,14 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup VSCode configuration
+      - name: Run vscode setup
         run: mise exec -- just run make vscode
 
-      - name: Setup Antigravity configuration
+      - name: Run antigravity setup
         run: mise exec -- just run make antigravity
 
-      - name: Setup Zed configuration
+      - name: Run zed setup
         run: mise exec -- just run make zed
 
-      - name: Setup Xcode configuration
+      - name: Run xcode setup
         run: mise exec -- just run make xcode

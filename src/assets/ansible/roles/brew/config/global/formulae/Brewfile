@@ -20,6 +20,8 @@ brew "eza"
 brew "fzf"
 brew "fd"
 brew "zoxide"
+brew "dust"
+brew "xh"
 
 ## Zsh
 brew "zsh-autosuggestions"
@@ -34,5 +36,3 @@ brew "tokei"
 
 ## Media
 brew "ffmpeg"
-brew "tesseract"
-brew "tesseract-lang"

@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use crate::error::AppError;
+use crate::provisioning::ansible_runtime::ProvisioningRunner;
 use crate::provisioning::catalog::ProvisioningCatalog;
 use crate::provisioning::role_configs::RoleConfigLocator;
-use crate::provisioning::runner::ProvisioningRunner;
 
 pub struct FakeProvisioningPort {
     pub roles_with_config: Vec<String>,
@@ -14,6 +14,7 @@ pub struct FakeProvisioningPort {
     pub all_tags: Vec<String>,
     pub tags_by_role: HashMap<String, Vec<String>>,
     pub tag_groups: HashMap<String, Vec<String>>,
+    pub order_constraints: HashMap<String, Vec<String>>,
     pub full_setup_tags: Vec<String>,
     pub events: RefCell<Vec<String>>,
 }
@@ -27,6 +28,7 @@ impl FakeProvisioningPort {
             all_tags: Vec::new(),
             tags_by_role: HashMap::new(),
             tag_groups: HashMap::new(),
+            order_constraints: HashMap::new(),
             full_setup_tags: Vec::new(),
             events: RefCell::new(Vec::new()),
         }
@@ -47,6 +49,10 @@ impl ProvisioningCatalog for FakeProvisioningPort {
 
     fn tag_groups(&self) -> &HashMap<String, Vec<String>> {
         &self.tag_groups
+    }
+
+    fn order_constraints(&self) -> &HashMap<String, Vec<String>> {
+        &self.order_constraints
     }
 
     fn full_setup_tags(&self) -> &[String] {
