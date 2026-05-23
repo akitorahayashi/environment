@@ -32,3 +32,29 @@ echo "localhost                  : ok=10   changed=5    unreachable=0    failed=
         .stdout(predicate::str::contains("Running: rust-tools"))
         .stdout(predicate::str::contains("✓ Completed successfully!"));
 }
+
+#[test]
+fn make_prints_ansible_output_on_failure() {
+    let ctx = TestContext::new();
+
+    let ansible_mock = r#"#!/bin/bash
+echo "PLAY [nodejs-tools] *******************************************************"
+echo "fatal: [localhost]: FAILED! => {\"msg\": \"boom\"}" >&2
+echo "mock stdout line"
+exit 2
+"#;
+
+    ctx.create_mock_command("ansible-playbook", ansible_mock);
+    let ansible_path = ctx.work_dir().join("ansible-playbook");
+
+    ctx.cli()
+        .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
+        .args(["make", "nodejs-tools"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("--- nodejs-tools stdout ---"))
+        .stderr(predicate::str::contains("mock stdout line"))
+        .stderr(predicate::str::contains("--- nodejs-tools stderr ---"))
+        .stderr(predicate::str::contains("fatal: [localhost]: FAILED!"))
+        .stderr(predicate::str::contains("ansible-playbook failed with exit code 2"));
+}

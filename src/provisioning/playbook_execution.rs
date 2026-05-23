@@ -26,7 +26,10 @@ pub(crate) fn run_layered_playbook(
                 let unit_name = unit.name.clone();
                 let unit_tags = unit.ansible_tags.clone();
                 handles.push(scope.spawn(move || {
-                    (unit_name, run_playbook_summarized(runtime, profile, &unit_tags, verbose))
+                    (
+                        unit_name.clone(),
+                        run_playbook_summarized(runtime, profile, &unit_name, &unit_tags, verbose),
+                    )
                 }));
             }
 
@@ -51,6 +54,7 @@ pub(crate) fn run_layered_playbook(
 pub(crate) fn run_playbook_summarized(
     runtime: &AnsibleRuntime,
     profile: &str,
+    label: &str,
     tags: &[String],
     verbose: bool,
 ) -> Result<(), AppError> {
@@ -62,6 +66,7 @@ pub(crate) fn run_playbook_summarized(
 
     let exit_code = output.status.code();
     let summary = capture_failure_summary(&output.stdout, &output.stderr);
+    emit_captured_output(label, &output.stdout, &output.stderr);
 
     Err(AppError::AnsibleExecution {
         message: match summary {
@@ -76,6 +81,21 @@ pub(crate) fn run_playbook_summarized(
         },
         exit_code,
     })
+}
+
+fn emit_captured_output(label: &str, stdout: &[u8], stderr: &[u8]) {
+    let stdout = String::from_utf8_lossy(stdout);
+    let stderr = String::from_utf8_lossy(stderr);
+
+    if !stdout.trim().is_empty() {
+        eprintln!("--- {label} stdout ---");
+        eprintln!("{}", stdout.trim_end());
+    }
+
+    if !stderr.trim().is_empty() {
+        eprintln!("--- {label} stderr ---");
+        eprintln!("{}", stderr.trim_end());
+    }
 }
 
 fn capture_failure_summary(stdout: &[u8], stderr: &[u8]) -> Option<String> {
