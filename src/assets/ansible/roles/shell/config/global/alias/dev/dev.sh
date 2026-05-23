@@ -45,6 +45,7 @@ dev_alias_as() {
 	alias "${prefix}-r-d=${cmd_prefix} run-debug"
 	alias "${prefix}-r-r=${cmd_prefix} run-release"
 	alias "${prefix}-r-p=${cmd_prefix} run-prod"
+	alias "${prefix}-e=${cmd_prefix} exec"
 
 	alias "${prefix}-rp=${cmd_prefix} resolve-packages"
 
