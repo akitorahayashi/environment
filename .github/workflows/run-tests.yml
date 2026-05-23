@@ -6,7 +6,7 @@ on:
 jobs:
   test:
     name: Run Rust tests
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

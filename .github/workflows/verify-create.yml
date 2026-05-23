@@ -1,0 +1,36 @@
+name: Verify Create Command
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-create:
+    name: Verify ${{ matrix.target }}
+    runs-on: macos-15
+    strategy:
+      matrix:
+        target: [mbk, mmn]
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build
+
+      - name: Setup Ansible
+        uses: ./.github/actions/setup-ansible
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Verify mev create ${{ matrix.target }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./target/release/mev create ${{ matrix.target }} --verbose

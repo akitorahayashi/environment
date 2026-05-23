@@ -6,7 +6,7 @@ on:
 jobs:
   coverage:
     name: Run test coverage
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       RUST_BACKTRACE: 1
       RUST_TEST_THREADS: 1

@@ -6,7 +6,7 @@ on:
 jobs:
   run-static-checks:
     name: Run Static Checks
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
