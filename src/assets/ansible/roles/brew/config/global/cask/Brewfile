@@ -8,14 +8,6 @@ cask "docker"
 
 # Web Browsers & Communication
 cask "google-chrome"
-# cask "chatgpt-atlas"
 cask "slack"
-# cask "zoom"
-
-# Note Taking & Documentation
-cask "obsidian"
 
 cask "iina"
-
-# Database Management
-# cask "pgadmin4"

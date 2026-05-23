@@ -29,6 +29,9 @@ jobs:
       - name: Build release binary
         run: cargo build --release --locked
 
+      - name: Pre-install shared Homebrew dependencies
+        run: brew install ca-certificates
+
       - name: Verify mev create ${{ matrix.target }}
         shell: bash
         run: |

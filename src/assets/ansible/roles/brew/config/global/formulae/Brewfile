@@ -3,9 +3,6 @@ brew "xcodes"
 brew "xcbeautify"
 brew "mint"
 
-## PostgreSQL
-brew "postgresql"
-
 ## Databases
 brew "redis"
 
