@@ -6,12 +6,6 @@ on:
 jobs:
   setup-go:
     runs-on: macos-15
-    strategy:
-      fail-fast: false
-      matrix:
-        tag:
-          - go-platform
-          - go-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -22,5 +16,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run ${{ matrix.tag }} setup
-        run: mise exec -- just run make ${{ matrix.tag }}
+      - name: Run go-platform setup
+        run: mise exec -- just run make go-platform
+
+      - name: Run go-tools setup
+        run: mise exec -- just run make go-tools

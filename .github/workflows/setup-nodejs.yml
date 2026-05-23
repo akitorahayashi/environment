@@ -6,13 +6,6 @@ on:
 jobs:
   setup-nodejs:
     runs-on: macos-15
-    strategy:
-      fail-fast: false
-      matrix:
-        tag:
-          - nodejs-platform
-          - nodejs-tools
-          - coder
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -23,5 +16,11 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run ${{ matrix.tag }} setup
-        run: mise exec -- just run make ${{ matrix.tag }}
+      - name: Run nodejs-platform setup
+        run: mise exec -- just run make nodejs-platform
+
+      - name: Run nodejs-tools setup
+        run: mise exec -- just run make nodejs-tools
+
+      - name: Run coder setup
+        run: mise exec -- just run make coder

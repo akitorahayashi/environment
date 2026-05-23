@@ -6,12 +6,6 @@ on:
 jobs:
   setup-bun:
     runs-on: macos-15
-    strategy:
-      fail-fast: false
-      matrix:
-        tag:
-          - bun-platform
-          - bun-tools
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -22,13 +16,16 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run ${{ matrix.tag }} setup
-        run: mise exec -- just run make ${{ matrix.tag }}
+      - name: Run bun-platform setup
+        run: mise exec -- just run make bun-platform
 
       - name: Verify Bun after bun-platform setup
         run: |
           bun --version
           bun --revision
+
+      - name: Run bun-tools setup
+        run: mise exec -- just run make bun-tools
 
       - name: Verify Bun after bun-tools setup
         run: |
