@@ -8,6 +8,9 @@ pub trait ProvisioningCatalog {
     /// Get all configured tag groups.
     fn tag_groups(&self) -> &HashMap<String, Vec<String>>;
 
+    /// Get ordering constraints keyed by tag.
+    fn order_constraints(&self) -> &HashMap<String, Vec<String>>;
+
     /// Get full setup tags for the create flow.
     fn full_setup_tags(&self) -> &[String];
 

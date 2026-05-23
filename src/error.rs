@@ -17,6 +17,9 @@ pub enum AppError {
     /// Invalid or unknown tag.
     InvalidTag(String),
 
+    /// Invalid execution order.
+    InvalidExecutionOrder(String),
+
     /// Configuration error.
     Config(String),
 
@@ -46,6 +49,7 @@ impl fmt::Display for AppError {
             Self::InvalidProfile(p) => write!(f, "invalid profile: {p}"),
             Self::InvalidIdentityScope(i) => write!(f, "invalid identity scope: {i}"),
             Self::InvalidTag(t) => write!(f, "invalid tag: {t}"),
+            Self::InvalidExecutionOrder(o) => write!(f, "invalid execution order: {o}"),
             Self::InvalidBackupComponent(t) => write!(f, "invalid backup component: {t}"),
             Self::Config(msg) => write!(f, "configuration error: {msg}"),
             Self::Update(msg) => write!(f, "update failed: {msg}"),

@@ -49,6 +49,11 @@
     PATH: "{{ go_command_path }}"
     GOENV_ROOT: "{{ go_environment_root }}"
 
+- name: "Remove stale goenv rehash lock"
+  ansible.builtin.file:
+    path: "{{ go_environment_root }}/shims/.goenv-shim"
+    state: absent
+
 - name: "Rehash goenv shims"
   ansible.builtin.command:
     cmd: "goenv rehash"

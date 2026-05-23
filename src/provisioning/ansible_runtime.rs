@@ -5,13 +5,15 @@
 //! a separate `build_command` method to enable unit testing without triggering
 //! side effects such as long-running playbook executions.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 use crate::error::AppError;
 use crate::provisioning::catalog::ProvisioningCatalog;
+use crate::provisioning::execution_order;
+use crate::provisioning::execution_plan::ExecutionUnit;
 use crate::provisioning::role_configs::RoleConfigLocator;
 use crate::provisioning::runner::ProvisioningRunner;
 
@@ -69,6 +71,7 @@ pub struct AnsibleRuntime {
     tags_by_role: HashMap<String, Vec<String>>,
     tag_to_role: HashMap<String, String>,
     tag_groups: HashMap<String, Vec<String>>,
+    order_constraints: HashMap<String, Vec<String>>,
     full_setup_tags: Vec<String>,
 }
 
@@ -81,8 +84,13 @@ impl AnsibleRuntime {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
-        let TagCatalog { tags_by_role, tag_to_role, tag_groups, full_setup_tags } =
-            load_catalog(&playbook_path)?;
+        let TagCatalog {
+            tags_by_role,
+            tag_to_role,
+            tag_groups,
+            order_constraints,
+            full_setup_tags,
+        } = load_catalog(&playbook_path)?;
 
         Ok(Self {
             ansible_dir: ansible_dir.to_path_buf(),
@@ -91,6 +99,7 @@ impl AnsibleRuntime {
             tags_by_role,
             tag_to_role,
             tag_groups,
+            order_constraints,
             full_setup_tags,
         })
     }
@@ -104,6 +113,7 @@ impl AnsibleRuntime {
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
             tag_groups: HashMap::new(),
+            order_constraints: HashMap::new(),
             full_setup_tags: Vec::new(),
         }
     }
@@ -250,6 +260,10 @@ impl ProvisioningCatalog for AnsibleRuntime {
         &self.tag_groups
     }
 
+    fn order_constraints(&self) -> &HashMap<String, Vec<String>> {
+        &self.order_constraints
+    }
+
     fn full_setup_tags(&self) -> &[String] {
         &self.full_setup_tags
     }
@@ -267,12 +281,13 @@ impl ProvisioningCatalog for AnsibleRuntime {
     }
 }
 
-/// Tag catalog: role→tags, tag→role, tag_groups, and full_setup_tags.
+/// Tag catalog: role→tags, tag→role, tag_groups, order_constraints, and full_setup_tags.
 #[derive(Default)]
 struct TagCatalog {
     tags_by_role: HashMap<String, Vec<String>>,
     tag_to_role: HashMap<String, String>,
     tag_groups: HashMap<String, Vec<String>>,
+    order_constraints: HashMap<String, Vec<String>>,
     full_setup_tags: Vec<String>,
 }
 
@@ -295,6 +310,29 @@ fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::
                             .entry(group_name.to_string())
                             .or_default()
                             .extend(group_tags);
+                    }
+                }
+            }
+            if let Some(order) = vars.get("execution_order").and_then(|v| v.as_mapping()) {
+                for (k, v) in order {
+                    let Some(target) = k.as_str() else {
+                        continue;
+                    };
+                    if let Some(mapping) = v.as_mapping() {
+                        let after_key = serde_yaml::Value::String("after".to_string());
+                        if let Some(after) = mapping.get(&after_key)
+                            && let Some(seq) = after.as_sequence()
+                        {
+                            let constraints: Vec<String> = seq
+                                .iter()
+                                .filter_map(|t| t.as_str().map(|s| s.to_string()))
+                                .collect();
+                            catalog
+                                .order_constraints
+                                .entry(target.to_string())
+                                .or_default()
+                                .extend(constraints);
+                        }
                     }
                 }
             }
@@ -336,7 +374,54 @@ fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::
         }
     }
 
+    validate_catalog(&catalog)?;
+
     Ok(catalog)
+}
+
+fn validate_catalog(catalog: &TagCatalog) -> Result<(), Box<dyn std::error::Error>> {
+    let atomic_tags: HashSet<String> = catalog.tag_to_role.keys().cloned().collect();
+
+    for composite_name in catalog.tag_groups.keys() {
+        if atomic_tags.contains(composite_name) {
+            return Err(format!(
+                "composite tag '{composite_name}' conflicts with an atomic tag of the same name"
+            )
+            .into());
+        }
+    }
+
+    for (composite_name, members) in &catalog.tag_groups {
+        for member in members {
+            if !atomic_tags.contains(member) {
+                return Err(format!(
+                    "composite tag '{composite_name}' references unknown atomic tag '{member}'"
+                )
+                .into());
+            }
+        }
+    }
+
+    for (target, prerequisites) in &catalog.order_constraints {
+        if !atomic_tags.contains(target) {
+            return Err(format!("order constraint references unknown atomic tag '{target}'").into());
+        }
+
+        for prerequisite in prerequisites {
+            if !atomic_tags.contains(prerequisite) {
+                return Err(format!(
+                    "order constraint for '{target}' references unknown atomic tag '{prerequisite}'"
+                )
+                .into());
+            }
+        }
+    }
+
+    let all_units: Vec<ExecutionUnit> =
+        atomic_tags.iter().cloned().map(ExecutionUnit::atomic).collect();
+    let _ = execution_order::order_units(all_units, &catalog.order_constraints)?;
+
+    Ok(())
 }
 #[cfg(test)]
 mod tests {
@@ -443,6 +528,7 @@ mod tests {
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
             tag_groups: HashMap::new(),
+            order_constraints: HashMap::new(),
             full_setup_tags: Vec::new(),
         };
 
@@ -480,6 +566,7 @@ mod tests {
             tags_by_role: HashMap::new(),
             tag_to_role: HashMap::new(),
             tag_groups: HashMap::new(),
+            order_constraints: HashMap::new(),
             full_setup_tags: Vec::new(),
         };
 
@@ -494,13 +581,35 @@ mod tests {
         let playbook_path = dir.path().join("playbook.yml");
         fs::write(
             &playbook_path,
-            "- name: first\n  vars:\n    tag_groups:\n      rust: [\"rust-platform\"]\n- name: second\n  vars:\n    tag_groups:\n      rust: [\"rust-tools\"]\n",
+            "- name: first\n  vars:\n    tag_groups:\n      rust: [\"rust-platform\"]\n  roles:\n    - { role: rust, tags: [\"rust-platform\"] }\n- name: second\n  vars:\n    tag_groups:\n      rust: [\"rust-tools\"]\n  roles:\n    - { role: rust, tags: [\"rust-tools\"] }\n",
         )?;
 
         let catalog = load_catalog(playbook_path.as_path())?;
         assert_eq!(
             catalog.tag_groups.get("rust"),
             Some(&vec!["rust-platform".to_string(), "rust-tools".to_string()])
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_load_catalog_reads_tag_groups_and_order() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let playbook_path = dir.path().join("playbook.yml");
+        fs::write(
+            &playbook_path,
+            "- name: setup\n  vars:\n    tag_groups:\n      rust: [\"rust-platform\", \"rust-tools\"]\n    execution_order:\n      rust-tools:\n        after:\n          - rust-platform\n  roles:\n    - { role: rust, tags: [\"rust-platform\", \"rust-tools\"] }\n",
+        )?;
+
+        let catalog = load_catalog(playbook_path.as_path())?;
+        assert_eq!(
+            catalog.tag_groups.get("rust"),
+            Some(&vec!["rust-platform".to_string(), "rust-tools".to_string()])
+        );
+        assert_eq!(
+            catalog.order_constraints.get("rust-tools"),
+            Some(&vec!["rust-platform".to_string()])
         );
 
         Ok(())

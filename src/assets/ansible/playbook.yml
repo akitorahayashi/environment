@@ -9,6 +9,22 @@
       nodejs: ["nodejs-platform", "nodejs-tools"]
       bun: ["bun-platform", "bun-tools"]
       go: ["go-platform", "go-tools"]
+    execution_order:
+      rust-tools:
+        after:
+          - rust-platform
+      python-tools:
+        after:
+          - python-platform
+      nodejs-tools:
+        after:
+          - nodejs-platform
+      bun-tools:
+        after:
+          - bun-platform
+      go-tools:
+        after:
+          - go-platform
     full_setup_tags:
       - brew-formulae
       - ollama
