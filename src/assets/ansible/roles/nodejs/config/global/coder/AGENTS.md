@@ -4,6 +4,8 @@
 
 - Feature additions and refactorings include the removal of old modules and deprecated features to eliminate technical debt, bugs, and complexity.
 - Class and file must not have ambiguous names or responsibilities such as base, common, core, utils, or helpers.
+- Within a scoped directory, file and symbol names must not repeat the directory context;
+  name them only by their specific responsibility.
 - Files and classes identify single, specific responsibilities; names that restate package or directory scope are avoided to prevent unrelated concerns.
 - Enumerable values are generated dynamically from authoritative sources (catalog, registry, schema) rather than hardcoded.
 - Silent fallbacks are prohibited; any fallback is explicit, opt-in, and surfaced as a failure or a clearly logged, reviewed decision.
@@ -51,4 +53,4 @@
 ## User-specific
 
 - `.mx/*.md` files are context-file storage. Read only upon explicit instruction.
-- The `references/` directory contains references to dependent implementations, and it is not permitted to add them to the dependencies as relative paths.
+- Relative path references to `references/` are prohibited (primarily because it's a clone for reference purposes). If you need the assets (JSON/images, etc.) within it, please copy them as appropriate.
