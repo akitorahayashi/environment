@@ -189,6 +189,7 @@ impl AnsibleRuntime {
         }
 
         cmd.env("ANSIBLE_CONFIG", &config_path);
+        cmd.env("HOMEBREW_LOCK_TIMEOUT", "600");
 
         Ok(cmd)
     }
@@ -587,6 +588,18 @@ mod tests {
         assert!(args.contains(&"tag1,tag2".to_string()));
         assert!(args.contains(&"-vvv".to_string()));
         assert!(args.contains(&"local_config_root=/local/config".to_string()));
+
+        let envs: Vec<(String, String)> = cmd
+            .get_envs()
+            .map(|(k, v)| {
+                (
+                    k.to_string_lossy().to_string(),
+                    v.map(|s| s.to_string_lossy().to_string()).unwrap_or_default(),
+                )
+            })
+            .collect();
+        assert!(envs.contains(&("HOMEBREW_LOCK_TIMEOUT".to_string(), "600".to_string())));
+
         Ok(())
     }
 

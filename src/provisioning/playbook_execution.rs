@@ -66,7 +66,10 @@ pub(crate) fn run_playbook_summarized(
 
     let exit_code = output.status.code();
     let summary = capture_failure_summary(&output.stdout, &output.stderr);
-    emit_captured_output(label, &output.stdout, &output.stderr);
+
+    if verbose {
+        emit_captured_output(label, &output.stdout, &output.stderr);
+    }
 
     Err(AppError::AnsibleExecution {
         message: match summary {
