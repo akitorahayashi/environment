@@ -20,6 +20,9 @@
     cmd: "fnm exec --using={{ nodejs_version }} -- pnpm install -g {{ item }}@latest"
   loop: "{{ nodejs_packages_to_install }}"
   changed_when: false
+  vars:
+    pnpm_home: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"
+    pnpm_bin: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm/bin"
   environment:
-    PNPM_HOME: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"
-    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['HOME'] }}/Library/pnpm:{{ ansible_facts['env']['PATH'] }}"
+    PNPM_HOME: "{{ pnpm_home }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ pnpm_bin }}:{{ pnpm_home }}:{{ ansible_facts['env']['PATH'] }}"
