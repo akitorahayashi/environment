@@ -41,3 +41,12 @@ alias gm-fl="gemini -m gemini-3-flash-preview"
 alias gm-lt="gemini -m gemini-2.5-flash-lite"
 alias gm-i="gemini -m gemini-2.5-flash-image-preview"
 alias gm-il="gemini -m gemini-2.5-flash-image-live-preview"
+
+ml-z() {
+	mlx_lm.server \
+		--model "${MLX_ZED_COMMIT_MODEL:-mlx-community/Qwen2.5-Coder-3B-Instruct-4bit}" \
+		--host 127.0.0.1 \
+		--port 8080 \
+		--max-tokens 128 \
+		--temp 0
+}
