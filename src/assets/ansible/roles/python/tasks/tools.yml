@@ -44,13 +44,41 @@
   failed_when: false
   check_mode: false
 
-# 2. Install or update tools
+# 2. Uninstall existing pipx tools when version is absent or outdated
+- name: "Uninstall outdated or missing pipx tools"
+  ansible.builtin.command:
+    cmd: "pipx uninstall {{ item.item.name }}"
+  loop: "{{ python_pipx_tools_version_check.results }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.item.name }}"
+  # Only uninstall when a reinstall is needed and the tool is currently installed (rc == 0)
+  when: >
+    item.rc == 0 and
+    (item.item.tag is defined and
+     item.item.tag | regex_replace('^v', '') not in item.stdout)
+  changed_when: true
+  failed_when: false
+
+# 3. Remove residual venv directory to allow a clean install
+- name: "Remove residual pipx venv directory"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/pipx/venvs/{{ item.item.name }}"
+    state: absent
+  loop: "{{ python_pipx_tools_version_check.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: >
+    item.rc != 0 or
+    (item.item.tag is defined and
+     item.item.tag | regex_replace('^v', '') not in item.stdout)
+
+# 4. Install or update tools
 # Only install if versions do not match or tool is not installed
 - name: "Install or update pipx tools"
   ansible.builtin.command:
-    # Construct pipx install command with spec
     cmd: >
-      pipx install --force
+      pipx install
       --python {{ python_pipx_interpreters.results[idx].stdout }}
       {% if item.git is defined %}
       git+{{ item.git }}{% if item.tag is defined %}@{{ item.tag }}{% endif %}
@@ -74,7 +102,7 @@
       item.tag | regex_replace('^v', '') not in python_pipx_tools_version_check.results[idx].stdout
     )
 
-# 3. Inject dependencies for pipx tools (e.g., playwright for dcv)
+# 5. Inject dependencies for pipx tools (e.g., playwright for dcv)
 - name: "Inject dependencies into pipx tools"
   ansible.builtin.command: "pipx inject {{ item.name }} {{ item.post_install_inject }}"
   loop: "{{ pipx_tools_config.tools }}"
@@ -85,7 +113,7 @@
   failed_when: false
   when: item.post_install_inject is defined
 
-# 4. Run post-install commands (e.g., playwright install chromium)
+# 6. Run post-install commands (e.g., playwright install chromium)
 - name: "Run post-install commands for pipx tools"
   ansible.builtin.command: "{{ item.post_install_exec }}"
   loop: "{{ pipx_tools_config.tools }}"
