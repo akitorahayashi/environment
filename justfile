@@ -42,6 +42,7 @@ setup:
 fix:
     cargo fmt
     mise exec -- just internal::fix
+    mise exec -- just zfix
     @files=$(mise exec -- just _find_shell_files); \
     if [ -n "$files" ]; then \
         shfmt -w -d $files; \
@@ -98,6 +99,14 @@ build-release:
 # Compile release binary for darwin-aarch64 distribution
 build-release-darwin-aarch64:
     cargo build --release --locked --target aarch64-apple-darwin
+
+# ==============================================================================
+# Workflow Validation
+# ==============================================================================
+
+# Apply safe zizmor auto-fixes to committed workflows
+zfix:
+    mise exec -- zizmor --fix=safe .github/workflows/*.yml
 
 # ==============================================================================
 # Execution
