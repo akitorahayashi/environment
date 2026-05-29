@@ -108,6 +108,14 @@ build-release-darwin-aarch64:
 zfix:
     mise exec -- zizmor --fix=safe .github/workflows/*.yml
 
+# Run actionlint against committed workflows
+alint:
+    mise exec -- actionlint .github/workflows/*.yml
+
+# Run zizmor against committed workflows
+zlint:
+    mise exec -- zizmor --offline --pedantic --strict-collection --min-severity high .
+
 # ==============================================================================
 # Execution
 # ==============================================================================
