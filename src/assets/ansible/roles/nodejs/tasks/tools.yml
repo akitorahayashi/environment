@@ -34,7 +34,7 @@
   loop: "{{ nodejs_pnpm_ls_result.results }}"
   loop_control:
     label: "{{ item.item }}"
-  when: item.rc == 0
+  when: item.rc == 0 and "No matching global packages found" not in item.stdout
   changed_when: true
   vars:
     pnpm_home: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"
