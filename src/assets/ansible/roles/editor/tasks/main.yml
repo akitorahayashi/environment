@@ -3,9 +3,9 @@
   ansible.builtin.include_tasks: vscode.yml
   when: "'vscode' in ansible_run_tags or 'co' in ansible_run_tags"
 
-- name: "Install and configure Google Antigravity"
-  ansible.builtin.include_tasks: antigravity.yml
-  when: "'antigravity' in ansible_run_tags or 'agy' in ansible_run_tags"
+- name: "Install and configure Google Antigravity IDE"
+  ansible.builtin.include_tasks: antigravity-ide.yml
+  when: "'antigravity-ide' in ansible_run_tags or 'agy-ide' in ansible_run_tags or 'antigravity' in ansible_run_tags or 'agy' in ansible_run_tags"
 
 - name: "Install and configure Zed"
   ansible.builtin.include_tasks: zed.yml

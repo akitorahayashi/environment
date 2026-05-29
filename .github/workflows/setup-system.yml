@@ -3,6 +3,9 @@ name: Setup System
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   setup-system:
     runs-on: macos-15
