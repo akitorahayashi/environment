@@ -37,7 +37,7 @@ jobs:
 
       - name: Upload release assets
         if: inputs.release_id != ''
-        uses: akitorahayashi/gh-release@aa696643869780261a02c3f5775f36b32b4faab5 # v1.0.4
+        uses: akitorahayashi/gh-release@aa696643869780261a02c3f5775f36b32b4faab5 # v1.0.3
         with:
           mode: upload
           token: ${{ github.token }}

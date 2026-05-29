@@ -31,10 +31,10 @@
 - name: "Uninstall existing global Node.js packages before reinstall"
   ansible.builtin.command:
     cmd: "fnm exec --using={{ nodejs_version }} -- pnpm rm -g {{ item.item }}"
-  loop: "{{ nodejs_pnpm_ls_result.results }}"
+  loop: "{{ nodejs_pnpm_ls_result.results | default([]) }}"
   loop_control:
     label: "{{ item.item }}"
-  when: item.rc == 0 and "No matching global packages found" not in item.stdout
+  when: item.rc == 0 and "No matching global packages found" not in (item.stdout + item.stderr)
   changed_when: true
   vars:
     pnpm_home: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"

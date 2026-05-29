@@ -48,7 +48,7 @@
 - name: "Uninstall outdated or missing pipx tools"
   ansible.builtin.command:
     cmd: "pipx uninstall {{ item.item.name }}"
-  loop: "{{ python_pipx_tools_version_check.results }}"
+  loop: "{{ python_pipx_tools_version_check.results | default([]) }}"
   loop_control:
     index_var: idx
     label: "{{ item.item.name }}"
@@ -56,7 +56,7 @@
   when: >
     item.rc == 0 and
     (item.item.tag is defined and
-     item.item.tag | regex_replace('^v', '') not in item.stdout)
+     item.item.tag | regex_replace('^v', '') not in (item.stdout + item.stderr))
   changed_when: true
   failed_when: false
 
@@ -65,13 +65,13 @@
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.local/pipx/venvs/{{ item.item.name }}"
     state: absent
-  loop: "{{ python_pipx_tools_version_check.results }}"
+  loop: "{{ python_pipx_tools_version_check.results | default([]) }}"
   loop_control:
     label: "{{ item.item.name }}"
   when: >
     item.rc != 0 or
     (item.item.tag is defined and
-     item.item.tag | regex_replace('^v', '') not in item.stdout)
+     item.item.tag | regex_replace('^v', '') not in (item.stdout + item.stderr))
 
 # 4. Install or update tools
 # Only install if versions do not match or tool is not installed
