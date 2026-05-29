@@ -18,6 +18,7 @@ dev_alias_as() {
 
 	# Standard development commands
 	alias "${prefix}-h=${cmd_prefix} help"
+	alias "${prefix}-i=${cmd_prefix} install"
 	alias "${prefix}-s=${cmd_prefix} setup"
 	alias "${prefix}-op=${cmd_prefix} open"
 
