@@ -3,6 +3,9 @@ name: Setup IDE
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   setup-ide:
     runs-on: macos-15

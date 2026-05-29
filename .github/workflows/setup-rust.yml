@@ -3,6 +3,9 @@ name: Setup Rust
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   setup-rust:
     runs-on: macos-15

@@ -3,6 +3,9 @@ name: Setup Ruby
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   setup-ruby:
     runs-on: macos-15
