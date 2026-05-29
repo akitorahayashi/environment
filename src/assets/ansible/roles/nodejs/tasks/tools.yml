@@ -22,7 +22,6 @@
   changed_when: false
   vars:
     pnpm_home: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"
-    pnpm_bin: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm/bin"
   environment:
     PNPM_HOME: "{{ pnpm_home }}"
-    PATH: "{{ nodejs_homebrew_bin_path }}:{{ pnpm_bin }}:{{ pnpm_home }}:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ nodejs_homebrew_bin_path }}:{{ pnpm_home }}:{{ ansible_facts['env']['PATH'] }}"
