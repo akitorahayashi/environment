@@ -1,8 +1,9 @@
 #!/bin/bash
 alias cld="claude"
 
-alias agy-r="agy --reuse-window"
-alias agy-n="agy --new-window"
+alias agy="agy-ide"
+alias agy-r="agy-ide --reuse-window"
+alias agy-n="agy-ide --new-window"
 
 # Link AGENTS.md or README.md to .claude/CLAUDE.md
 alias cld-ln=cld_ln

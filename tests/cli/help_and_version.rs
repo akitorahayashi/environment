@@ -109,7 +109,7 @@ fn backup_list_shows_components() {
     ctx.cli().args(["backup", "--list"]).assert().success().stdout(
         predicate::str::contains("system")
             .and(predicate::str::contains("vscode"))
-            .and(predicate::str::contains("antigravity"))
+            .and(predicate::str::contains("antigravity-ide"))
             .and(predicate::str::contains("Available backup components")),
     );
 }

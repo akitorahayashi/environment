@@ -3,6 +3,9 @@ name: Setup Brew Formulae
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   setup-brew-formulae:
     runs-on: macos-15

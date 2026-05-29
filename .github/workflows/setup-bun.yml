@@ -3,6 +3,9 @@ name: Setup Bun
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   setup-bun:
     runs-on: macos-15

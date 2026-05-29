@@ -96,71 +96,72 @@ fn backup_vscode_keeps_managed_settings_symlink_unchanged() -> Result<(), Box<dy
 }
 
 #[test]
-fn backup_antigravity_success_via_agy_alias() -> Result<(), Box<dyn std::error::Error>> {
+fn backup_antigravity_ide_success_via_canonical_name() -> Result<(), Box<dyn std::error::Error>> {
     let ctx = TestContext::new();
 
-    let antigravity_settings_dir =
-        ctx.work_dir().join("Library/Application Support/Antigravity/User");
-    std::fs::create_dir_all(&antigravity_settings_dir)?;
-    std::fs::write(antigravity_settings_dir.join("settings.json"), "{}\n")?;
-    std::fs::write(antigravity_settings_dir.join("keybindings.json"), "[]\n")?;
+    let antigravity_ide_settings_dir =
+        ctx.work_dir().join("Library/Application Support/Antigravity IDE/User");
+    std::fs::create_dir_all(&antigravity_ide_settings_dir)?;
+    std::fs::write(antigravity_ide_settings_dir.join("settings.json"), "{}\n")?;
+    std::fs::write(antigravity_ide_settings_dir.join("keybindings.json"), "[]\n")?;
 
-    ctx.create_mock_command(
-        "antigravity",
-        "#!/bin/sh\necho \"mushan.vscode-paste-image\"\nexit 0\n",
-    );
+    ctx.create_mock_command("agy-ide", "#!/bin/sh\necho \"mushan.vscode-paste-image\"\nexit 0\n");
 
-    ctx.cli().env("PATH", ctx.path_with_mock_commands()).args(["backup", "agy"]).assert().success();
+    ctx.cli()
+        .env("PATH", ctx.path_with_mock_commands())
+        .args(["backup", "antigravity-ide"])
+        .assert()
+        .success();
 
     let output_file =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/extensions.json");
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/extensions.json");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file)?;
     assert!(content.contains("mushan.vscode-paste-image"));
 
     let settings_output =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/settings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/settings.json");
     assert!(settings_output.exists());
     let keybindings_output =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/keybindings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/keybindings.json");
     assert!(keybindings_output.exists());
     Ok(())
 }
 
 #[test]
-fn backup_antigravity_keeps_managed_settings_symlink_unchanged()
+fn backup_antigravity_ide_keeps_managed_settings_symlink_unchanged()
 -> Result<(), Box<dyn std::error::Error>> {
     let ctx = TestContext::new();
 
     let managed_settings =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/settings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/settings.json");
     let managed_keybindings =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity/keybindings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/keybindings.json");
     std::fs::create_dir_all(managed_settings.parent().unwrap())?;
     std::fs::write(&managed_settings, "{\"workbench.colorTheme\":\"Default Light+\"}\n")?;
     std::fs::write(&managed_keybindings, "[]\n")?;
 
-    let antigravity_settings_dir =
-        ctx.work_dir().join("Library/Application Support/Antigravity/User");
-    std::fs::create_dir_all(&antigravity_settings_dir)?;
-    std::os::unix::fs::symlink(&managed_settings, antigravity_settings_dir.join("settings.json"))?;
+    let antigravity_ide_settings_dir =
+        ctx.work_dir().join("Library/Application Support/Antigravity IDE/User");
+    std::fs::create_dir_all(&antigravity_ide_settings_dir)?;
+    std::os::unix::fs::symlink(
+        &managed_settings,
+        antigravity_ide_settings_dir.join("settings.json"),
+    )?;
     std::os::unix::fs::symlink(
         &managed_keybindings,
-        antigravity_settings_dir.join("keybindings.json"),
+        antigravity_ide_settings_dir.join("keybindings.json"),
     )?;
 
-    ctx.create_mock_command(
-        "antigravity",
-        "#!/bin/sh\necho \"mushan.vscode-paste-image\"\nexit 0\n",
-    );
+    ctx.create_mock_command("agy-ide", "#!/bin/sh\necho \"mushan.vscode-paste-image\"\nexit 0\n");
 
     ctx.cli()
         .env("PATH", ctx.path_with_mock_commands())
-        .args(["backup", "agy"])
+        .args(["backup", "antigravity-ide"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Antigravity settings already managed"))
-        .stdout(predicate::str::contains("Antigravity keybindings already managed"));
+        .stdout(predicate::str::contains("Antigravity IDE settings already managed"))
+        .stdout(predicate::str::contains("Antigravity IDE keybindings already managed"));
 
     let content = std::fs::read_to_string(managed_settings)?;
     assert!(content.contains("Default Light+"));

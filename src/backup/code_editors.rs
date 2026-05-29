@@ -12,18 +12,21 @@ const VSCODE_COMMAND_CANDIDATES: &[&str] = &[
     "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code",
     "code-insiders",
 ];
-const ANTIGRAVITY_COMMAND_CANDIDATES: &[&str] =
-    &["antigravity", "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity"];
+const ANTIGRAVITY_IDE_COMMAND_CANDIDATES: &[&str] = &[
+    "agy-ide",
+    "antigravity-ide",
+    "/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide",
+];
 
 const VSCODE_SETTINGS_RELATIVE_PATH: &[&str] =
     &["Library", "Application Support", "Code", "User", "settings.json"];
 const VSCODE_KEYBINDINGS_RELATIVE_PATH: &[&str] =
     &["Library", "Application Support", "Code", "User", "keybindings.json"];
 
-const ANTIGRAVITY_SETTINGS_RELATIVE_PATH: &[&str] =
-    &["Library", "Application Support", "Antigravity", "User", "settings.json"];
-const ANTIGRAVITY_KEYBINDINGS_RELATIVE_PATH: &[&str] =
-    &["Library", "Application Support", "Antigravity", "User", "keybindings.json"];
+const ANTIGRAVITY_IDE_SETTINGS_RELATIVE_PATH: &[&str] =
+    &["Library", "Application Support", "Antigravity IDE", "User", "settings.json"];
+const ANTIGRAVITY_IDE_KEYBINDINGS_RELATIVE_PATH: &[&str] =
+    &["Library", "Application Support", "Antigravity IDE", "User", "keybindings.json"];
 
 struct EditorSpec {
     display_name: &'static str,
@@ -113,11 +116,11 @@ fn editor_spec(component: BackupComponent) -> Result<EditorSpec, AppError> {
             keybindings_relative_path: VSCODE_KEYBINDINGS_RELATIVE_PATH,
             filter_create_instance_logs: false,
         }),
-        BackupComponent::Antigravity => Ok(EditorSpec {
-            display_name: "Antigravity",
-            command_candidates: ANTIGRAVITY_COMMAND_CANDIDATES,
-            settings_relative_path: ANTIGRAVITY_SETTINGS_RELATIVE_PATH,
-            keybindings_relative_path: ANTIGRAVITY_KEYBINDINGS_RELATIVE_PATH,
+        BackupComponent::AntigravityIde => Ok(EditorSpec {
+            display_name: "Antigravity IDE",
+            command_candidates: ANTIGRAVITY_IDE_COMMAND_CANDIDATES,
+            settings_relative_path: ANTIGRAVITY_IDE_SETTINGS_RELATIVE_PATH,
+            keybindings_relative_path: ANTIGRAVITY_IDE_KEYBINDINGS_RELATIVE_PATH,
             filter_create_instance_logs: true,
         }),
         other => Err(AppError::Backup(format!(
@@ -208,13 +211,15 @@ mod tests {
     }
 
     #[test]
-    fn current_file_path_targets_antigravity_user_keybindings() {
-        let path =
-            current_file_path(Path::new("/Users/tester"), ANTIGRAVITY_KEYBINDINGS_RELATIVE_PATH);
+    fn current_file_path_targets_antigravity_ide_user_keybindings() {
+        let path = current_file_path(
+            Path::new("/Users/tester"),
+            ANTIGRAVITY_IDE_KEYBINDINGS_RELATIVE_PATH,
+        );
         assert_eq!(
             path,
             PathBuf::from(
-                "/Users/tester/Library/Application Support/Antigravity/User/keybindings.json"
+                "/Users/tester/Library/Application Support/Antigravity IDE/User/keybindings.json"
             )
         );
     }

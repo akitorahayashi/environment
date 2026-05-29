@@ -38,7 +38,7 @@ pub fn execute(ctx: &AppContext, component_input: &str) -> Result<(), AppError> 
             let output_file = local_config_dir.join("system.yml");
             backup::system::execute(ctx, &definitions_dir, &output_file)
         }
-        BackupComponent::Vscode | BackupComponent::Antigravity => {
+        BackupComponent::Vscode | BackupComponent::AntigravityIde => {
             backup::code_editors::execute(ctx, component, &local_config_dir)
         }
     }?;

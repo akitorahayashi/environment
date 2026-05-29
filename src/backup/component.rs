@@ -9,7 +9,7 @@ use crate::error::AppError;
 pub enum BackupComponent {
     System,
     Vscode,
-    Antigravity,
+    AntigravityIde,
 }
 
 impl BackupComponent {
@@ -23,7 +23,7 @@ impl BackupComponent {
         match self {
             Self::System => "system",
             Self::Vscode => "vscode",
-            Self::Antigravity => "antigravity",
+            Self::AntigravityIde => "antigravity-ide",
         }
     }
 
@@ -32,7 +32,7 @@ impl BackupComponent {
         match self {
             Self::System => "Backup macOS system defaults",
             Self::Vscode => "Backup VS Code extensions list and settings",
-            Self::Antigravity => "Backup Antigravity extensions list and settings",
+            Self::AntigravityIde => "Backup Antigravity IDE extensions list and settings",
         }
     }
 
@@ -41,7 +41,7 @@ impl BackupComponent {
         match self {
             Self::System => "system",
             Self::Vscode => "editor",
-            Self::Antigravity => "editor",
+            Self::AntigravityIde => "editor",
         }
     }
 
@@ -50,7 +50,7 @@ impl BackupComponent {
         match self {
             Self::System => "global",
             Self::Vscode => "global/vscode",
-            Self::Antigravity => "global/antigravity",
+            Self::AntigravityIde => "global/antigravity-ide",
         }
     }
 }
@@ -63,7 +63,7 @@ impl fmt::Display for BackupComponent {
 
 /// All available backup components.
 const ALL_COMPONENTS: &[BackupComponent] =
-    &[BackupComponent::System, BackupComponent::Vscode, BackupComponent::Antigravity];
+    &[BackupComponent::System, BackupComponent::Vscode, BackupComponent::AntigravityIde];
 
 /// Input aliases mapping user-supplied strings to `BackupComponent` variants.
 const BACKUP_COMPONENT_ALIASES: &[(&str, BackupComponent)] = &[
@@ -71,8 +71,10 @@ const BACKUP_COMPONENT_ALIASES: &[(&str, BackupComponent)] = &[
     ("vscode", BackupComponent::Vscode),
     ("vscode-extensions", BackupComponent::Vscode),
     ("co", BackupComponent::Vscode),
-    ("antigravity", BackupComponent::Antigravity),
-    ("agy", BackupComponent::Antigravity),
+    ("antigravity-ide", BackupComponent::AntigravityIde),
+    ("agy-ide", BackupComponent::AntigravityIde),
+    ("antigravity", BackupComponent::AntigravityIde),
+    ("agy", BackupComponent::AntigravityIde),
 ];
 
 /// Look up a backup component corresponding to the user's input.
@@ -125,12 +127,25 @@ mod tests {
 
     #[test]
     fn backup_component_resolves_antigravity() {
-        assert_eq!(resolve_backup_component("antigravity"), Some(BackupComponent::Antigravity));
+        assert_eq!(resolve_backup_component("antigravity"), Some(BackupComponent::AntigravityIde));
+    }
+
+    #[test]
+    fn backup_component_resolves_antigravity_ide() {
+        assert_eq!(
+            resolve_backup_component("antigravity-ide"),
+            Some(BackupComponent::AntigravityIde)
+        );
+    }
+
+    #[test]
+    fn backup_component_resolves_agy_ide() {
+        assert_eq!(resolve_backup_component("agy-ide"), Some(BackupComponent::AntigravityIde));
     }
 
     #[test]
     fn backup_component_resolves_antigravity_agy_alias() {
-        assert_eq!(resolve_backup_component("agy"), Some(BackupComponent::Antigravity));
+        assert_eq!(resolve_backup_component("agy"), Some(BackupComponent::AntigravityIde));
     }
 
     #[test]
@@ -145,7 +160,20 @@ mod tests {
 
     #[test]
     fn backup_component_resolves_antigravity_alias_case_insensitively() {
-        assert_eq!(resolve_backup_component("AGY"), Some(BackupComponent::Antigravity));
+        assert_eq!(resolve_backup_component("AGY"), Some(BackupComponent::AntigravityIde));
+    }
+
+    #[test]
+    fn backup_component_resolves_antigravity_ide_alias_case_insensitively() {
+        assert_eq!(
+            resolve_backup_component("ANTIGRAVITY-IDE"),
+            Some(BackupComponent::AntigravityIde)
+        );
+    }
+
+    #[test]
+    fn backup_component_resolves_agy_ide_alias_case_insensitively() {
+        assert_eq!(resolve_backup_component("AGY-IDE"), Some(BackupComponent::AntigravityIde));
     }
 
     #[test]
@@ -173,7 +201,7 @@ mod tests {
     fn backup_component_all_returns_expected_set() {
         assert_eq!(
             BackupComponent::all(),
-            &[BackupComponent::System, BackupComponent::Vscode, BackupComponent::Antigravity]
+            &[BackupComponent::System, BackupComponent::Vscode, BackupComponent::AntigravityIde]
         );
     }
 
@@ -181,6 +209,6 @@ mod tests {
     fn backup_component_subpath_targets_owner_config_directory() {
         assert_eq!(BackupComponent::System.subpath(), "global");
         assert_eq!(BackupComponent::Vscode.subpath(), "global/vscode");
-        assert_eq!(BackupComponent::Antigravity.subpath(), "global/antigravity");
+        assert_eq!(BackupComponent::AntigravityIde.subpath(), "global/antigravity-ide");
     }
 }

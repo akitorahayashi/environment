@@ -3,6 +3,9 @@ name: Setup Node.js and LLM Tools
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   setup-nodejs:
     runs-on: macos-15

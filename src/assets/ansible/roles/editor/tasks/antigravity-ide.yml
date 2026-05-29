@@ -1,0 +1,45 @@
+---
+- name: "Install Google Antigravity IDE"
+  community.general.homebrew_cask:
+    name: antigravity-ide
+    state: present
+
+- name: "Ensure Antigravity IDE User directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Antigravity IDE/User"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Antigravity IDE shared config files"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/editor/global/antigravity-ide/{{ item }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/Antigravity IDE/User/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - settings.json
+    - keybindings.json
+
+- name: "Read Antigravity IDE extensions list"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/editor/global/antigravity-ide/extensions.json"
+  register: editor_antigravity_ide_extensions_content
+
+- name: "Parse Antigravity IDE extensions JSON"
+  ansible.builtin.set_fact:
+    editor_antigravity_ide_extensions: "{{ (editor_antigravity_ide_extensions_content.content | b64decode | from_json).extensions }}"
+
+- name: "Install Antigravity IDE extensions"
+  ansible.builtin.command: "agy-ide --install-extension {{ item }} --force"
+  loop: "{{ editor_antigravity_ide_extensions }}"
+  changed_when: true
+
+- name: "Ensure Antigravity IDE agent skills parent directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity"
+    state: directory
+    mode: "0755"
+
+# Note: Agent skills deployment is handled by nodejs/coder role via skills-targets.yml
+# Skills are automatically deployed from ~/.config/mev/roles/nodejs/global/coder/skills/
+# to ~/.config/google/antigravity/skills/ when the 'coder' role runs
