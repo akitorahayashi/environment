@@ -1,11 +1,19 @@
 ---
-- name: "Install formulae packages from bundle file (profile-specific or global fallback)"
+- name: "Install global formulae packages"
   ansible.builtin.command:
-    cmd: "brew bundle --file={{ brewfile_path }}"
-  register: brew_bundle_result
-  changed_when: "'Installing' in brew_bundle_result.stdout"
-  vars:
-    brewfile_path: "{{ lookup('first_found', brewfile_candidates) }}"
-    brewfile_candidates:
-      - "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
-      - "{{ local_config_root }}/brew/global/Brewfile.formulae"
+    cmd: "brew bundle --file={{ local_config_root }}/brew/global/Brewfile.formulae"
+  register: brew_global_formulae_result
+  changed_when: "'Installing' in brew_global_formulae_result.stdout"
+  when: brew_install_global_formulae | default(true) | bool
+
+- name: "Check profile formulae bundle file"
+  ansible.builtin.stat:
+    path: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
+  register: brew_profile_formulae_bundle
+
+- name: "Install profile formulae packages"
+  ansible.builtin.command:
+    cmd: "brew bundle --file={{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
+  register: brew_profile_formulae_result
+  changed_when: "'Installing' in brew_profile_formulae_result.stdout"
+  when: brew_profile_formulae_bundle.stat.exists

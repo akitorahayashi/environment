@@ -1,0 +1,3 @@
+---
+brew_global_casks_enabled_by_profile:
+  macbook: false
