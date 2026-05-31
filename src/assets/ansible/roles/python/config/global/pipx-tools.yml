@@ -8,6 +8,7 @@
 #   - post_install: command to run after installation (optional, e.g., browser installation)
 tools:
   - name: mlx-hub
+  - name: mlx-lm
   - name: huggingface-hub
   - name: openai-whisper
   - name: dcv

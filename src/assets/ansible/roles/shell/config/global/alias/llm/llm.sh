@@ -1,10 +1,6 @@
 #!/bin/bash
 alias cld="claude"
 
-alias agy="agy-ide"
-alias agy-r="agy-ide --reuse-window"
-alias agy-n="agy-ide --new-window"
-
 # Link AGENTS.md or README.md to .claude/CLAUDE.md
 alias cld-ln=cld_ln
 cld_ln() {
@@ -33,6 +29,7 @@ alias cdx-e="codex exec"
 alias cdx-r="codex resume"
 
 alias cpt="copilot"
+alias cpt-ln='mkdir -p .github && ln -sf "${MEV_CODER_AGENTS_PATH:-$HOME/.config/mev/roles/nodejs/global/coder/AGENTS.md}" .github/copilot-instructions.md'
 
 # Basic gm alias
 alias gm="gemini"
@@ -41,3 +38,12 @@ alias gm-fl="gemini -m gemini-3-flash-preview"
 alias gm-lt="gemini -m gemini-2.5-flash-lite"
 alias gm-i="gemini -m gemini-2.5-flash-image-preview"
 alias gm-il="gemini -m gemini-2.5-flash-image-live-preview"
+
+ml-z() {
+	mlx_lm.server \
+		--model "${MLX_ZED_COMMIT_MODEL:-mlx-community/Qwen2.5-Coder-3B-Instruct-4bit}" \
+		--host 127.0.0.1 \
+		--port 8080 \
+		--max-tokens 128 \
+		--temp 0
+}
