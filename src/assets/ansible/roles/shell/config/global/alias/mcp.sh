@@ -5,3 +5,6 @@ alias vce-sp='docker stop voicevox-engine && docker rm voicevox-engine'
 alias vce-ls='curl http://localhost:50021/speakers | jq .'
 # VOICEVOX MCP Server alias
 alias vce-mcp='npx @t09tanaka/mcp-simple-voicevox'
+
+# serena aliases
+alias ux-sn-idx='uvx --from git+https://github.com/oraios/serena serena project index "$(pwd)"'
