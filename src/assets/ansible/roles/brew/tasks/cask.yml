@@ -1,11 +1,19 @@
 ---
-- name: "Install cask packages from Brewfile (profile-specific or global fallback)"
+- name: "Install global cask packages"
   ansible.builtin.command:
-    cmd: "brew bundle --file={{ brewfile_path }}"
-  register: brew_bundle_result
-  changed_when: "'Installing' in brew_bundle_result.stdout"
-  vars:
-    brewfile_path: "{{ lookup('first_found', brewfile_candidates) }}"
-    brewfile_candidates:
-      - "{{ local_config_root }}/brew/profiles/{{ profile }}/cask/Brewfile"
-      - "{{ local_config_root }}/brew/global/cask/Brewfile"
+    cmd: "brew bundle --file={{ local_config_root }}/brew/global/Brewfile.casks"
+  register: brew_global_cask_result
+  changed_when: "'Installing' in brew_global_cask_result.stdout"
+  when: brew_global_casks_enabled_by_profile[profile] | default(true) | bool
+
+- name: "Check profile cask bundle file"
+  ansible.builtin.stat:
+    path: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.casks"
+  register: brew_profile_cask_bundle
+
+- name: "Install profile cask packages"
+  ansible.builtin.command:
+    cmd: "brew bundle --file={{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.casks"
+  register: brew_profile_cask_result
+  changed_when: "'Installing' in brew_profile_cask_result.stdout"
+  when: brew_profile_cask_bundle.stat.exists

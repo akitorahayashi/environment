@@ -118,7 +118,7 @@ tests/
 ### Path Resolution
 - CLI passes `profile`, `config_dir_abs_path`, `repo_root_path`, `local_config_root` as Ansible extra vars
 - `local_config_root` points to `~/.config/mev/roles` for externalized configs
-- Roles handle fallback logic (profile-specific → global)
+- Roles compose global and profile-specific configs when both are present
 
 ### Profile Design
 - Global profile operates by default: most roles use `global` profile
