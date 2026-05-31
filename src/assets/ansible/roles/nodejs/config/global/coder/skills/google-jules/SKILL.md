@@ -25,7 +25,7 @@ Jules can generate plans, ask for feedback, expose an activity feed, produce cod
 - Workflow automation from issue trackers, chat, CI, or GitHub events
 - Repoless exploration, prototypes, scripts, examples, and generated files
 
-## Non-Fit
+## Non-Fits
 
 - A local machine operator that can directly inspect uncommitted local state
 - A live IDE pair-programmer, inline completion system, or model inference endpoint
