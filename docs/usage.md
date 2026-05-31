@@ -27,9 +27,11 @@ mev make python-tools     # Run python-tools
 mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
 
-# Profile required for brew tasks
-mev make br-f --profile mbk
-mev make br-c --profile mmn
+# Hardware profile behavior for brew tasks
+mev make br-f             # Run global formulae
+mev make br-c             # Run global casks
+mev make br-f -p mbk      # Run global formulae with the MacBook profile
+mev make br-c -p mmn      # Run global casks + Mac mini casks
 
 # Tag groups expand automatically:
 #   rust → rust-platform, rust-tools
