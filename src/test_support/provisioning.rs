@@ -15,6 +15,7 @@ pub struct FakeProvisioningPort {
     pub tags_by_role: HashMap<String, Vec<String>>,
     pub tag_groups: HashMap<String, Vec<String>>,
     pub full_setup_tags: Vec<String>,
+    pub cask_requirements: HashMap<String, Vec<String>>,
     pub events: RefCell<Vec<String>>,
 }
 
@@ -28,14 +29,24 @@ impl FakeProvisioningPort {
             tags_by_role: HashMap::new(),
             tag_groups: HashMap::new(),
             full_setup_tags: Vec::new(),
+            cask_requirements: HashMap::new(),
             events: RefCell::new(Vec::new()),
         }
     }
 }
 
 impl ProvisioningRunner for FakeProvisioningPort {
-    fn run_playbook(&self, profile: &str, tags: &[String], _verbose: bool) -> Result<(), AppError> {
-        self.events.borrow_mut().push(format!("run_playbook: {} with tags {:?}", profile, tags));
+    fn run_playbook(
+        &self,
+        profile: &str,
+        tags: &[String],
+        vars: &crate::provisioning::runner::PlaybookVars,
+        _verbose: bool,
+    ) -> Result<(), AppError> {
+        self.events.borrow_mut().push(format!(
+            "run_playbook: {} with tags {:?} and casks {:?}",
+            profile, tags, vars.brew_cask_tokens
+        ));
         Ok(())
     }
 }
@@ -51,6 +62,10 @@ impl ProvisioningCatalog for FakeProvisioningPort {
 
     fn full_setup_tags(&self) -> &[String] {
         &self.full_setup_tags
+    }
+
+    fn cask_requirements(&self) -> &HashMap<String, Vec<String>> {
+        &self.cask_requirements
     }
 
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {

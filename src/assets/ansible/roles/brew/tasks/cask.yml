@@ -1,19 +1,69 @@
 ---
+- name: "Read global cask bundle"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/brew/global/Brewfile.casks"
+  register: brew_global_cask_bundle_content
+  when: brew_cask_tokens is defined
+
+- name: "Check profile cask bundle file for selected casks"
+  ansible.builtin.stat:
+    path: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.casks"
+  register: brew_selected_profile_cask_bundle
+  when: brew_cask_tokens is defined
+
+- name: "Read profile cask bundle for selected casks"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.casks"
+  register: brew_profile_cask_bundle_content
+  when:
+    - brew_cask_tokens is defined
+    - brew_selected_profile_cask_bundle.stat.exists
+
+- name: "Resolve selected cask tokens"
+  ansible.builtin.set_fact:
+    brew_requested_cask_tokens: "{{ brew_cask_tokens | unique | list }}"
+    brew_available_cask_tokens: >-
+      {{
+        ((brew_global_cask_bundle_content.content | b64decode) | regex_findall('(?m)^\s*cask\s+"([^"]+)"'))
+        + (((brew_profile_cask_bundle_content.content | default('') | b64decode) | regex_findall('(?m)^\s*cask\s+"([^"]+)"'))
+          if brew_profile_cask_bundle_content is defined else [])
+      }}
+  when: brew_cask_tokens is defined
+
+- name: "Reject unknown selected cask tokens"
+  ansible.builtin.fail:
+    msg: "Unknown Homebrew cask tokens: {{ brew_requested_cask_tokens | difference(brew_available_cask_tokens) | join(', ') }}"
+  when:
+    - brew_cask_tokens is defined
+    - (brew_requested_cask_tokens | difference(brew_available_cask_tokens) | length) > 0
+
+- name: "Install selected cask packages"
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ brew_requested_cask_tokens }}"
+  when: brew_cask_tokens is defined
+
 - name: "Install global cask packages"
   ansible.builtin.command:
     cmd: "brew bundle --file={{ local_config_root }}/brew/global/Brewfile.casks"
   register: brew_global_cask_result
   changed_when: "'Installing' in brew_global_cask_result.stdout"
-  when: brew_global_casks_enabled_by_profile[profile] | default(true) | bool
+  when:
+    - brew_cask_tokens is not defined
+    - brew_global_casks_enabled_by_profile[profile] | default(true) | bool
 
 - name: "Check profile cask bundle file"
   ansible.builtin.stat:
     path: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.casks"
   register: brew_profile_cask_bundle
+  when: brew_cask_tokens is not defined
 
 - name: "Install profile cask packages"
   ansible.builtin.command:
     cmd: "brew bundle --file={{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.casks"
   register: brew_profile_cask_result
   changed_when: "'Installing' in brew_profile_cask_result.stdout"
-  when: brew_profile_cask_bundle.stat.exists
+  when:
+    - brew_cask_tokens is not defined
+    - brew_profile_cask_bundle.stat.exists

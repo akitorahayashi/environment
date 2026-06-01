@@ -1,8 +1,8 @@
 ---
-- name: "Install Google Antigravity IDE"
-  community.general.homebrew_cask:
-    name: antigravity-ide
-    state: present
+- name: "Verify Antigravity IDE command is available"
+  ansible.builtin.command:
+    cmd: "which agy-ide"
+  changed_when: false
 
 - name: "Ensure Antigravity IDE User directory exists"
   ansible.builtin.file:

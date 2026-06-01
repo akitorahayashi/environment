@@ -6,8 +6,10 @@ use crate::provisioning::catalog::ProvisioningCatalog;
 use crate::provisioning::execution_plan::ExecutionPlan;
 use crate::provisioning::profile::Profile;
 use crate::provisioning::role_configs;
-use crate::provisioning::runner::ProvisioningRunner;
+use crate::provisioning::runner::{PlaybookVars, ProvisioningRunner};
 use crate::provisioning::tag_selection;
+
+const CASK_PHASE_TAG: &str = "brew-cask";
 
 /// Execute the `make` command: deploy configs and run specified tags.
 pub fn execute(
@@ -28,11 +30,16 @@ pub fn execute(
         }
     }
 
-    let plan = ExecutionPlan::make(profile, tags_to_run, verbose);
+    let plan =
+        ExecutionPlan::make(profile, tags_to_run, ctx.provisioning.cask_requirements(), verbose);
 
     // Deploy configs for roles about to be executed
+    let mut config_tags = plan.tags.clone();
+    if !plan.cask_tokens.is_empty() && !config_tags.iter().any(|tag| tag == CASK_PHASE_TAG) {
+        config_tags.push(CASK_PHASE_TAG.to_string());
+    }
     role_configs::deploy_for_tags(
-        &plan.tags,
+        &config_tags,
         &ctx.host_fs,
         &ctx.local_config_root,
         &ctx.provisioning,
@@ -41,12 +48,29 @@ pub fn execute(
     )?;
 
     println!("Running tags: {}", plan.tags.join(", "));
+    if !plan.cask_tokens.is_empty() {
+        println!("Required casks: {}", plan.cask_tokens.join(", "));
+    }
     if plan.profile != Profile::Global {
         println!("Profile: {}", plan.profile);
     }
     println!();
 
-    ctx.provisioning.run_playbook(plan.profile.as_str(), &plan.tags, plan.verbose)?;
+    if !plan.cask_tokens.is_empty() {
+        ctx.provisioning.run_playbook(
+            plan.profile.as_str(),
+            &[CASK_PHASE_TAG.to_string()],
+            &PlaybookVars::brew_casks(plan.cask_tokens.clone()),
+            plan.verbose,
+        )?;
+    }
+
+    ctx.provisioning.run_playbook(
+        plan.profile.as_str(),
+        &plan.tags,
+        &PlaybookVars::default(),
+        plan.verbose,
+    )?;
 
     println!();
     println!("✓ Completed successfully!");

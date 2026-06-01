@@ -9,6 +9,18 @@
       nodejs: ["nodejs-platform", "nodejs-tools"]
       bun: ["bun-platform", "bun-tools"]
       go: ["go-platform", "go-tools"]
+      desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
+    cask_requirements:
+      vscode: ["visual-studio-code"]
+      co: ["visual-studio-code"]
+      antigravity-ide: ["antigravity-ide"]
+      agy-ide: ["antigravity-ide"]
+      antigravity: ["antigravity-ide"]
+      agy: ["antigravity-ide"]
+      zed: ["zed"]
+      zd: ["zed"]
+      ghostty: ["ghostty"]
+      gst: ["ghostty"]
     full_setup_tags:
       - brew-formulae
       - ollama
