@@ -10,11 +10,7 @@
       bun: ["bun-platform", "bun-tools"]
       go: ["go-platform", "go-tools"]
       desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
-    tap_requirements:
-      bun-platform: ["oven-sh/bun"]
-      b-p: ["oven-sh/bun"]
-      bun-tools: ["oven-sh/bun"]
-      b-t: ["oven-sh/bun"]
+    tap_requirements: {}
     formula_requirements:
       python-platform: ["uv"]
       py-p: ["uv"]
@@ -26,10 +22,10 @@
       nd-t: ["fnm", "jq", "pnpm"]
       coder: ["fnm", "jq", "pnpm"]
       cdr: ["fnm", "jq", "pnpm"]
-      bun-platform: ["oven-sh/bun/bun"]
-      b-p: ["oven-sh/bun/bun"]
-      bun-tools: ["oven-sh/bun/bun"]
-      b-t: ["oven-sh/bun/bun"]
+      bun-platform: ["bun"]
+      b-p: ["bun"]
+      bun-tools: ["bun"]
+      b-t: ["bun"]
       ruby: ["openssl@3", "rbenv", "ruby-build"]
       rb: ["openssl@3", "rbenv", "ruby-build"]
       go-platform: ["goenv"]
@@ -81,8 +77,15 @@
       - xcode
   roles:
     - { role: brew, tags: ["brew-formulae", "br-f", "brew-cask", "br-c"] }
-    - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t"] }
-    - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr"] }
+    - {
+        role: python,
+        tags: ["python-platform", "py-p", "python-tools", "py-t"],
+      }
+    - {
+        role: nodejs,
+        tags:
+          ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr"],
+      }
     - { role: bun, tags: ["bun-platform", "b-p", "bun-tools", "b-t"] }
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
@@ -93,6 +96,24 @@
     - { role: nvim, tags: ["nvim", "nv"] }
     - { role: shell, tags: ["shell", "sh"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: editor, tags: ["vscode", "co", "antigravity-ide", "agy-ide", "antigravity", "agy", "zed", "zd", "xcode", "xc"] }
+    - {
+        role: editor,
+        tags:
+          [
+            "vscode",
+            "co",
+            "antigravity-ide",
+            "agy-ide",
+            "antigravity",
+            "agy",
+            "zed",
+            "zd",
+            "xcode",
+            "xc",
+          ],
+      }
     - { role: system, tags: ["system", "sys"] }
-    - { role: llm, tags: ["ollama", "ol", "ollama-models", "ol-m", "mlx", "mlx-models"] }
+    - {
+        role: llm,
+        tags: ["ollama", "ol", "ollama-models", "ol-m", "mlx", "mlx-models"],
+      }
