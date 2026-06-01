@@ -3,6 +3,26 @@ brew "xcodes"
 brew "xcbeautify"
 brew "mint"
 
+## Version Managers & Language Runtimes
+brew "uv"
+brew "pipx"
+brew "fnm"
+brew "pnpm"
+tap "oven-sh/bun"
+brew "oven-sh/bun/bun"
+brew "goenv"
+brew "openssl@3"
+brew "rbenv"
+brew "ruby-build"
+
+## Development Tools
+brew "git"
+brew "gh"
+brew "neovim"
+brew "displayplacer"
+brew "ollama"
+brew "jq"
+
 ## PostgreSQL
 brew "postgresql"
 

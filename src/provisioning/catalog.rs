@@ -14,6 +14,12 @@ pub trait ProvisioningCatalog {
     /// Get cask tokens required by setup tags.
     fn cask_requirements(&self) -> &HashMap<String, Vec<String>>;
 
+    /// Get formula tokens required by setup tags.
+    fn formula_requirements(&self) -> &HashMap<String, Vec<String>>;
+
+    /// Get tap tokens required by setup tags.
+    fn tap_requirements(&self) -> &HashMap<String, Vec<String>>;
+
     /// Get role-to-tag mapping.
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>>;
 

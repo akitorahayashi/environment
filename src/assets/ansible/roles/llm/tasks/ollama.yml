@@ -1,13 +1,13 @@
 ---
 # Ollama Installation and Model Management
 # Tags:
-#   - ollama: Install Ollama via Homebrew
+#   - ollama: Ensure Ollama formula is installed by the brew phase
 #   - ollama-models: Pull configured models (requires running ollama serve)
 
-- name: "Install Ollama via Homebrew"
-  community.general.homebrew:
-    name: ollama
-    state: present
+- name: "Verify Ollama command is available"
+  ansible.builtin.command:
+    cmd: "which ollama"
+  changed_when: false
   when: "'ollama' in ansible_run_tags"
 
 # Model synchronization tasks (only for ollama-models tag)

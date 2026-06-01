@@ -7,15 +7,6 @@
       nodejs role supports macOS only. Current platform is
       {{ ansible_facts['system'] }}.
 
-- name: "Install fnm, jq, and pnpm"
-  community.general.homebrew:
-    name: "{{ item }}"
-    state: present
-  loop:
-    - fnm
-    - jq
-    - pnpm
-
 - name: "Find Homebrew prefix"
   ansible.builtin.command:
     cmd: "brew --prefix"

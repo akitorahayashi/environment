@@ -71,6 +71,8 @@ pub struct AnsibleRuntime {
     tag_groups: HashMap<String, Vec<String>>,
     full_setup_tags: Vec<String>,
     cask_requirements: HashMap<String, Vec<String>>,
+    formula_requirements: HashMap<String, Vec<String>>,
+    tap_requirements: HashMap<String, Vec<String>>,
 }
 
 impl AnsibleRuntime {
@@ -88,6 +90,8 @@ impl AnsibleRuntime {
             tag_groups,
             full_setup_tags,
             cask_requirements,
+            formula_requirements,
+            tap_requirements,
         } = load_catalog(&playbook_path)?;
 
         Ok(Self {
@@ -99,6 +103,8 @@ impl AnsibleRuntime {
             tag_groups,
             full_setup_tags,
             cask_requirements,
+            formula_requirements,
+            tap_requirements,
         })
     }
 
@@ -113,6 +119,8 @@ impl AnsibleRuntime {
             tag_groups: HashMap::new(),
             full_setup_tags: Vec::new(),
             cask_requirements: HashMap::new(),
+            formula_requirements: HashMap::new(),
+            tap_requirements: HashMap::new(),
         }
     }
 
@@ -177,6 +185,8 @@ impl AnsibleRuntime {
 
         if !vars.is_empty() {
             let extra_vars = serde_json::json!({
+                "brew_tap_tokens": &vars.brew_tap_tokens,
+                "brew_formula_tokens": &vars.brew_formula_tokens,
                 "brew_cask_tokens": &vars.brew_cask_tokens,
             });
             cmd.arg("-e").arg(extra_vars.to_string());
@@ -281,6 +291,14 @@ impl ProvisioningCatalog for AnsibleRuntime {
         &self.cask_requirements
     }
 
+    fn formula_requirements(&self) -> &HashMap<String, Vec<String>> {
+        &self.formula_requirements
+    }
+
+    fn tap_requirements(&self) -> &HashMap<String, Vec<String>> {
+        &self.tap_requirements
+    }
+
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
         &self.tags_by_role
     }
@@ -302,6 +320,8 @@ struct TagCatalog {
     tag_groups: HashMap<String, Vec<String>>,
     full_setup_tags: Vec<String>,
     cask_requirements: HashMap<String, Vec<String>>,
+    formula_requirements: HashMap<String, Vec<String>>,
+    tap_requirements: HashMap<String, Vec<String>>,
 }
 
 /// Load tag mappings from a playbook.yml file.
@@ -344,6 +364,14 @@ fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::
                     }
                 }
             }
+            if let Some(requirements) =
+                vars.get("formula_requirements").and_then(|v| v.as_mapping())
+            {
+                read_requirement_mapping(requirements, &mut catalog.formula_requirements);
+            }
+            if let Some(requirements) = vars.get("tap_requirements").and_then(|v| v.as_mapping()) {
+                read_requirement_mapping(requirements, &mut catalog.tap_requirements);
+            }
         }
 
         if let Some(roles) = doc.get("roles").and_then(|r| r.as_sequence()) {
@@ -378,6 +406,19 @@ fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::
     }
 
     Ok(catalog)
+}
+
+fn read_requirement_mapping(
+    requirements: &serde_yaml::Mapping,
+    target: &mut HashMap<String, Vec<String>>,
+) {
+    for (k, v) in requirements {
+        if let (Some(tag), Some(seq)) = (k.as_str(), v.as_sequence()) {
+            let tokens: Vec<String> =
+                seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
+            target.entry(tag.to_string()).or_default().extend(tokens);
+        }
+    }
 }
 #[cfg(test)]
 mod tests {
@@ -486,12 +527,18 @@ mod tests {
             tag_groups: HashMap::new(),
             full_setup_tags: Vec::new(),
             cask_requirements: HashMap::new(),
+            formula_requirements: HashMap::new(),
+            tap_requirements: HashMap::new(),
         };
 
         let cmd_result = adapter.build_command_with_env(
             "my_profile",
             &["tag1".to_string(), "tag2".to_string()],
-            &PlaybookVars::brew_casks(vec!["visual-studio-code".to_string()]),
+            &PlaybookVars {
+                brew_tap_tokens: vec!["oven-sh/bun".to_string()],
+                brew_formula_tokens: vec!["oven-sh/bun/bun".to_string()],
+                brew_cask_tokens: vec!["visual-studio-code".to_string()],
+            },
             true,
             |k| env_map.get(k),
         );
@@ -511,7 +558,10 @@ mod tests {
         assert!(args.contains(&"tag1,tag2".to_string()));
         assert!(args.contains(&"-vvv".to_string()));
         assert!(args.contains(&"local_config_root=/local/config".to_string()));
-        assert!(args.contains(&r#"{"brew_cask_tokens":["visual-studio-code"]}"#.to_string()));
+        assert!(args.contains(
+            &r#"{"brew_cask_tokens":["visual-studio-code"],"brew_formula_tokens":["oven-sh/bun/bun"],"brew_tap_tokens":["oven-sh/bun"]}"#
+                .to_string()
+        ));
         Ok(())
     }
 
@@ -526,6 +576,8 @@ mod tests {
             tag_groups: HashMap::new(),
             full_setup_tags: Vec::new(),
             cask_requirements: HashMap::new(),
+            formula_requirements: HashMap::new(),
+            tap_requirements: HashMap::new(),
         };
 
         let result = adapter.build_command("profile", &[], &PlaybookVars::default(), false);
@@ -581,6 +633,29 @@ mod tests {
             Some(&vec!["visual-studio-code".to_string()])
         );
         assert_eq!(catalog.cask_requirements.get("zed"), Some(&vec!["zed".to_string()]));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_load_catalog_reads_formula_and_tap_requirements()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let playbook_path = dir.path().join("playbook.yml");
+        fs::write(
+            &playbook_path,
+            "- name: setup\n  vars:\n    formula_requirements:\n      bun-platform: [\"oven-sh/bun/bun\"]\n    tap_requirements:\n      bun-platform: [\"oven-sh/bun\"]\n",
+        )?;
+
+        let catalog = load_catalog(playbook_path.as_path())?;
+        assert_eq!(
+            catalog.formula_requirements.get("bun-platform"),
+            Some(&vec!["oven-sh/bun/bun".to_string()])
+        );
+        assert_eq!(
+            catalog.tap_requirements.get("bun-platform"),
+            Some(&vec!["oven-sh/bun".to_string()])
+        );
 
         Ok(())
     }
