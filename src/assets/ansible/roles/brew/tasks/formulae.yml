@@ -26,14 +26,14 @@
     brew_available_tap_tokens: >-
       {{
         ((brew_global_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*tap\s+"([^"]+)"'))
-        + (((brew_profile_formulae_bundle_content.content | default('') | b64decode) | regex_findall('(?m)^\s*tap\s+"([^"]+)"'))
-          if brew_profile_formulae_bundle_content is defined else [])
+        + (((brew_profile_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*tap\s+"([^"]+)"'))
+          if brew_profile_formulae_bundle_content.content is defined else [])
       }}
     brew_available_formula_tokens: >-
       {{
         ((brew_global_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*brew\s+"([^"]+)"'))
-        + (((brew_profile_formulae_bundle_content.content | default('') | b64decode) | regex_findall('(?m)^\s*brew\s+"([^"]+)"'))
-          if brew_profile_formulae_bundle_content is defined else [])
+        + (((brew_profile_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*brew\s+"([^"]+)"'))
+          if brew_profile_formulae_bundle_content.content is defined else [])
       }}
   when: brew_formula_tokens is defined or brew_tap_tokens is defined
 

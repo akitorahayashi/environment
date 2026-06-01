@@ -40,6 +40,7 @@ mev make br-c -p mmn      # Run global casks + Mac mini casks
 #   python → python-platform, python-tools
 #   nodejs → nodejs-platform, nodejs-tools
 #   bun → bun-platform, bun-tools
+#   desktop → vscode, antigravity-ide, zed, ghostty
 ```
 
 Configuration deploys via:

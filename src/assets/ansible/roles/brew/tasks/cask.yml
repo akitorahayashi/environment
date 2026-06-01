@@ -25,8 +25,8 @@
     brew_available_cask_tokens: >-
       {{
         ((brew_global_cask_bundle_content.content | b64decode) | regex_findall('(?m)^\s*cask\s+"([^"]+)"'))
-        + (((brew_profile_cask_bundle_content.content | default('') | b64decode) | regex_findall('(?m)^\s*cask\s+"([^"]+)"'))
-          if brew_profile_cask_bundle_content is defined else [])
+        + (((brew_profile_cask_bundle_content.content | b64decode) | regex_findall('(?m)^\s*cask\s+"([^"]+)"'))
+          if brew_profile_cask_bundle_content.content is defined else [])
       }}
   when: brew_cask_tokens is defined
 

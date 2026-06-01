@@ -352,17 +352,7 @@ fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::
                     .extend(fst.iter().filter_map(|t| t.as_str().map(|s| s.to_string())));
             }
             if let Some(requirements) = vars.get("cask_requirements").and_then(|v| v.as_mapping()) {
-                for (k, v) in requirements {
-                    if let (Some(tag), Some(seq)) = (k.as_str(), v.as_sequence()) {
-                        let tokens: Vec<String> =
-                            seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
-                        catalog
-                            .cask_requirements
-                            .entry(tag.to_string())
-                            .or_default()
-                            .extend(tokens);
-                    }
-                }
+                read_requirement_mapping(requirements, &mut catalog.cask_requirements);
             }
             if let Some(requirements) =
                 vars.get("formula_requirements").and_then(|v| v.as_mapping())
