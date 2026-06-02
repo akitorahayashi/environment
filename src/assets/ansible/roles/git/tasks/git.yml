@@ -1,9 +1,4 @@
 ---
-- name: "Install git"
-  community.general.homebrew:
-    name: git
-    state: present
-
 - name: "Ensure .config/git directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/git"

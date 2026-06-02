@@ -1,19 +1,32 @@
-## Xcode & Swift Development
+## Apple / Xcode / Swift Development
 brew "xcodes"
 brew "xcbeautify"
 brew "mint"
 
-## PostgreSQL
-brew "postgresql"
+## Language Runtimes, Package Managers & Version Managers
+brew "uv"
+brew "pipx"
+brew "fnm"
+brew "pnpm"
+tap "oven-sh/bun"
+brew "oven-sh/bun/bun"
+brew "goenv"
+brew "rbenv"
+brew "ruby-build"
+brew "mise"
 
-## Databases
-brew "redis"
+## Core Development Workflow
+brew "git"
+brew "gh"
+brew "neovim"
 
-## Document
-brew "poppler"
-brew "pandoc"
+## Shell & Scripting
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "shellcheck"
+brew "shfmt"
 
-## Modern Unix
+## Modern Unix / File Navigation & Search
 brew "ripgrep"
 brew "bat"
 brew "eza"
@@ -21,19 +34,24 @@ brew "fzf"
 brew "fd"
 brew "zoxide"
 
-## Zsh
-brew "zsh-autosuggestions"
-brew "zsh-syntax-highlighting"
-
-## CLI Tools
+## Data Processing CLI
+brew "jq"
 brew "yq"
-brew "shellcheck"
-brew "shfmt"
-brew "mise"
-brew "tokei"
-brew "rclone"
 
-## Media
+## Databases & Data Stores
+brew "postgresql"
+brew "redis"
+
+## Documents & PDF Processing
+brew "poppler"
+brew "pandoc"
+
+## Media Processing
 brew "ffmpeg"
-brew "tesseract"
-brew "tesseract-lang"
+
+## System / Local Environment Utilities
+brew "displayplacer"
+brew "openssl@3"
+brew "rclone"
+brew "ollama"
+brew "tokei"

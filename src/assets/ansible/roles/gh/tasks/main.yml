@@ -1,9 +1,4 @@
 ---
-- name: "Install GitHub CLI"
-  community.general.homebrew:
-    name: gh
-    state: present
-
 - name: "Ensure .config/gh directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/gh"

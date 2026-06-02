@@ -1,9 +1,4 @@
 ---
-- name: "Install displayplacer (dependency)"
-  community.general.homebrew:
-    name: displayplacer
-    state: present
-
 - name: "Apply macOS system defaults"
   community.general.osx_defaults:
     domain: "{{ item.domain | default('NSGlobalDomain') }}"

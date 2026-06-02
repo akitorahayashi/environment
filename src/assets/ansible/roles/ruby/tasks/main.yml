@@ -8,15 +8,6 @@
   ansible.builtin.set_fact:
     ruby_version: "{{ ruby_version_file.content | b64decode | trim }}"
 
-- name: "Install Ruby platform packages"
-  community.general.homebrew:
-    name: "{{ item }}"
-    state: present
-  loop:
-    - openssl@3
-    - rbenv
-    - ruby-build
-
 - name: "Find Homebrew prefix"
   ansible.builtin.command:
     cmd: "brew --prefix"

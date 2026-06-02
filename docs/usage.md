@@ -26,6 +26,7 @@ mev make b-t              # Shorthand
 mev make python-tools     # Run python-tools
 mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
+mev make desktop          # Install required editor/terminal casks, then configure them
 
 # Hardware profile behavior for brew tasks
 mev make br-f             # Run global formulae
@@ -39,6 +40,7 @@ mev make br-c -p mmn      # Run global casks + Mac mini casks
 #   python → python-platform, python-tools
 #   nodejs → nodejs-platform, nodejs-tools
 #   bun → bun-platform, bun-tools
+#   desktop → vscode, antigravity-ide, zed, ghostty
 ```
 
 Configuration deploys via:
