@@ -1,19 +1,94 @@
 ---
+- name: "Read global formulae bundle"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/brew/global/Brewfile.formulae"
+  register: brew_global_formulae_bundle_content
+  when: brew_formula_tokens is defined or brew_tap_tokens is defined
+
+- name: "Check profile formulae bundle file for selected formulae"
+  ansible.builtin.stat:
+    path: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
+  register: brew_selected_profile_formulae_bundle
+  when: brew_formula_tokens is defined or brew_tap_tokens is defined
+
+- name: "Read profile formulae bundle for selected formulae"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
+  register: brew_profile_formulae_bundle_content
+  when:
+    - brew_formula_tokens is defined or brew_tap_tokens is defined
+    - brew_selected_profile_formulae_bundle.stat.exists
+
+- name: "Resolve selected tap and formula tokens"
+  ansible.builtin.set_fact:
+    brew_requested_tap_tokens: "{{ brew_tap_tokens | default([]) | unique | list }}"
+    brew_requested_formula_tokens: "{{ brew_formula_tokens | default([]) | unique | list }}"
+    brew_available_tap_tokens: >-
+      {{
+        ((brew_global_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*tap\s+"([^"]+)"'))
+        + (((brew_profile_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*tap\s+"([^"]+)"'))
+          if brew_profile_formulae_bundle_content.content is defined else [])
+      }}
+    brew_available_formula_tokens: >-
+      {{
+        ((brew_global_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*brew\s+"([^"]+)"'))
+        + (((brew_profile_formulae_bundle_content.content | b64decode) | regex_findall('(?m)^\s*brew\s+"([^"]+)"'))
+          if brew_profile_formulae_bundle_content.content is defined else [])
+      }}
+  when: brew_formula_tokens is defined or brew_tap_tokens is defined
+
+- name: "Reject unknown selected tap tokens"
+  ansible.builtin.fail:
+    msg: "Unknown Homebrew tap tokens: {{ brew_requested_tap_tokens | difference(brew_available_tap_tokens) | join(', ') }}"
+  when:
+    - brew_formula_tokens is defined or brew_tap_tokens is defined
+    - (brew_requested_tap_tokens | difference(brew_available_tap_tokens) | length) > 0
+
+- name: "Reject unknown selected formula tokens"
+  ansible.builtin.fail:
+    msg: "Unknown Homebrew formula tokens: {{ brew_requested_formula_tokens | difference(brew_available_formula_tokens) | join(', ') }}"
+  when:
+    - brew_formula_tokens is defined or brew_tap_tokens is defined
+    - (brew_requested_formula_tokens | difference(brew_available_formula_tokens) | length) > 0
+
+- name: "Install selected Homebrew taps"
+  community.general.homebrew_tap:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ brew_requested_tap_tokens }}"
+  when: brew_formula_tokens is defined or brew_tap_tokens is defined
+
+- name: "Install selected formulae packages"
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ brew_requested_formula_tokens }}"
+  when: brew_formula_tokens is defined or brew_tap_tokens is defined
+
 - name: "Install global formulae packages"
   ansible.builtin.command:
     cmd: "brew bundle --file={{ local_config_root }}/brew/global/Brewfile.formulae"
   register: brew_global_formulae_result
   changed_when: "'Installing' in brew_global_formulae_result.stdout"
-  when: brew_install_global_formulae | default(true) | bool
+  when:
+    - brew_formula_tokens is not defined
+    - brew_tap_tokens is not defined
+    - brew_install_global_formulae | default(true) | bool
 
 - name: "Check profile formulae bundle file"
   ansible.builtin.stat:
     path: "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
   register: brew_profile_formulae_bundle
+  when:
+    - brew_formula_tokens is not defined
+    - brew_tap_tokens is not defined
 
 - name: "Install profile formulae packages"
   ansible.builtin.command:
     cmd: "brew bundle --file={{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
   register: brew_profile_formulae_result
   changed_when: "'Installing' in brew_profile_formulae_result.stdout"
-  when: brew_profile_formulae_bundle.stat.exists
+  when:
+    - brew_formula_tokens is not defined
+    - brew_tap_tokens is not defined
+    - brew_profile_formulae_bundle.stat.exists

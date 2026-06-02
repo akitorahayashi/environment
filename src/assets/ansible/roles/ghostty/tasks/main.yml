@@ -1,9 +1,4 @@
 ---
-- name: "Install Ghostty"
-  community.general.homebrew_cask:
-    name: ghostty
-    state: present
-
 - name: "Ensure Ghostty configuration directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/Library/Application Support/com.mitchellh.ghostty"

@@ -6,7 +6,10 @@ use crate::provisioning::catalog::ProvisioningCatalog;
 use crate::provisioning::execution_plan::ExecutionPlan;
 use crate::provisioning::profile::Profile;
 use crate::provisioning::role_configs;
-use crate::provisioning::runner::ProvisioningRunner;
+use crate::provisioning::runner::{PlaybookVars, ProvisioningRunner};
+
+const CASK_PHASE_TAG: &str = "brew-cask";
+const FORMULA_PHASE_TAG: &str = "brew-formulae";
 
 /// Execute the `create` command: deploy configs and run full setup tags.
 pub fn execute(
@@ -27,16 +30,44 @@ pub fn execute(
         return Err(AppError::InvalidTag(names.join(", ")));
     }
 
-    let plan = ExecutionPlan::full_setup(profile, full_setup_tags.to_vec(), verbose);
+    let plan = ExecutionPlan::full_setup(
+        profile,
+        full_setup_tags.to_vec(),
+        ctx.provisioning.tap_requirements(),
+        ctx.provisioning.formula_requirements(),
+        ctx.provisioning.cask_requirements(),
+        verbose,
+    );
 
     println!();
     println!("mev: Creating {} environment", plan.profile);
-    println!("This will run {} tasks.", plan.tags.len());
+    let runs_full_formulae = plan.tags.iter().any(|tag| tag == FORMULA_PHASE_TAG);
+    let setup_tags: Vec<String> = if runs_full_formulae {
+        plan.tags.iter().filter(|tag| tag.as_str() != FORMULA_PHASE_TAG).cloned().collect()
+    } else {
+        plan.tags.clone()
+    };
+    let formula_phase_count = usize::from(
+        runs_full_formulae || !plan.tap_tokens.is_empty() || !plan.formula_tokens.is_empty(),
+    );
+    let cask_phase_count = usize::from(!plan.cask_tokens.is_empty());
+    let phase_count = formula_phase_count + cask_phase_count;
+    println!("This will run {} tasks.", setup_tags.len() + phase_count);
     println!();
 
     // Deploy configs for roles about to be executed
+    let mut config_tags = plan.tags.clone();
+    if (!plan.tap_tokens.is_empty() || !plan.formula_tokens.is_empty())
+        && !runs_full_formulae
+        && !config_tags.iter().any(|tag| tag == FORMULA_PHASE_TAG)
+    {
+        config_tags.push(FORMULA_PHASE_TAG.to_string());
+    }
+    if !plan.cask_tokens.is_empty() && !config_tags.iter().any(|tag| tag == CASK_PHASE_TAG) {
+        config_tags.push(CASK_PHASE_TAG.to_string());
+    }
     role_configs::deploy_for_tags(
-        &plan.tags,
+        &config_tags,
         &ctx.host_fs,
         &ctx.local_config_root,
         &ctx.provisioning,
@@ -44,14 +75,62 @@ pub fn execute(
         overwrite,
     )?;
 
+    if formula_phase_count > 0 {
+        let total = setup_tags.len() + phase_count;
+        let label = if runs_full_formulae {
+            "Installing formulae".to_string()
+        } else {
+            format!("Installing required formulae: {}", plan.formula_tokens.join(", "))
+        };
+        println!("[1/{total}] {label}");
+        let vars = if runs_full_formulae {
+            PlaybookVars::default()
+        } else {
+            PlaybookVars::brew_formulae(plan.tap_tokens.clone(), plan.formula_tokens.clone())
+        };
+        ctx.provisioning
+            .run_playbook(
+                plan.profile.as_str(),
+                &[FORMULA_PHASE_TAG.to_string()],
+                &vars,
+                plan.verbose,
+            )
+            .inspect_err(|e| {
+                eprintln!("Failed at step 1/{total}: required formulae: {e}");
+            })?;
+        println!("  ✓ Completed");
+    }
+
+    if !plan.cask_tokens.is_empty() {
+        let step = formula_phase_count + 1;
+        let total = setup_tags.len() + phase_count;
+        println!("[{step}/{total}] Installing required casks: {}", plan.cask_tokens.join(", "));
+        ctx.provisioning
+            .run_playbook(
+                plan.profile.as_str(),
+                &[CASK_PHASE_TAG.to_string()],
+                &PlaybookVars::brew_casks(plan.cask_tokens.clone()),
+                plan.verbose,
+            )
+            .inspect_err(|e| {
+                eprintln!("Failed at step {step}/{total}: required casks: {e}");
+            })?;
+        println!("  ✓ Completed");
+    }
+
     // Execute each tag
-    for (i, tag) in plan.tags.iter().enumerate() {
-        let step = i + 1;
-        let total = plan.tags.len();
+    for (i, tag) in setup_tags.iter().enumerate() {
+        let step = i + 1 + phase_count;
+        let total = setup_tags.len() + phase_count;
         println!("[{step}/{total}] Running: {tag}");
 
         ctx.provisioning
-            .run_playbook(plan.profile.as_str(), std::slice::from_ref(tag), plan.verbose)
+            .run_playbook(
+                plan.profile.as_str(),
+                std::slice::from_ref(tag),
+                &PlaybookVars::default(),
+                plan.verbose,
+            )
             .inspect_err(|e| {
                 eprintln!("Failed at step {step}/{total}: {tag}: {e}");
             })?;
@@ -64,7 +143,7 @@ pub fn execute(
 
     println!();
     println!("Optional steps (skipped for stability/speed):");
-    println!("  GUI Applications:  mev make br-c --profile {}", plan.profile);
+    println!("  Additional GUI Applications:  mev make br-c --profile {}", plan.profile);
     println!("  Ollama Models:     mev make ollama-models");
     println!("  MLX Models:        mev make mlx-models");
 

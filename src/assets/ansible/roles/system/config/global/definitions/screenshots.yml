@@ -24,6 +24,12 @@
   type: bool
   default: true
 
+# Sets how long screenshot thumbnails stay visible.
+- key: thumbnailExpiration
+  domain: com.apple.screencaptureui
+  type: float
+  default: 15
+
 # Sets the default file format for screenshots (e.g., png, jpg, gif, tiff, bmp).
 - key: type
   domain: com.apple.screencapture

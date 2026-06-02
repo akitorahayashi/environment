@@ -13,7 +13,7 @@ use std::process::{Command, Stdio};
 use crate::error::AppError;
 use crate::provisioning::catalog::ProvisioningCatalog;
 use crate::provisioning::role_configs::RoleConfigLocator;
-use crate::provisioning::runner::ProvisioningRunner;
+use crate::provisioning::runner::{PlaybookVars, ProvisioningRunner};
 
 const ANSIBLE_PLAYBOOK_BIN_ENV: &str = "ANSIBLE_PLAYBOOK_BIN";
 const PIPX_HOME_ENV: &str = "PIPX_HOME";
@@ -70,6 +70,9 @@ pub struct AnsibleRuntime {
     tag_to_role: HashMap<String, String>,
     tag_groups: HashMap<String, Vec<String>>,
     full_setup_tags: Vec<String>,
+    cask_requirements: HashMap<String, Vec<String>>,
+    formula_requirements: HashMap<String, Vec<String>>,
+    tap_requirements: HashMap<String, Vec<String>>,
 }
 
 impl AnsibleRuntime {
@@ -81,8 +84,15 @@ impl AnsibleRuntime {
         let playbook_path = ansible_dir.join("playbook.yml");
         let roles_dir = ansible_dir.join("roles");
 
-        let TagCatalog { tags_by_role, tag_to_role, tag_groups, full_setup_tags } =
-            load_catalog(&playbook_path)?;
+        let TagCatalog {
+            tags_by_role,
+            tag_to_role,
+            tag_groups,
+            full_setup_tags,
+            cask_requirements,
+            formula_requirements,
+            tap_requirements,
+        } = load_catalog(&playbook_path)?;
 
         Ok(Self {
             ansible_dir: ansible_dir.to_path_buf(),
@@ -92,6 +102,9 @@ impl AnsibleRuntime {
             tag_to_role,
             tag_groups,
             full_setup_tags,
+            cask_requirements,
+            formula_requirements,
+            tap_requirements,
         })
     }
 
@@ -105,6 +118,9 @@ impl AnsibleRuntime {
             tag_to_role: HashMap::new(),
             tag_groups: HashMap::new(),
             full_setup_tags: Vec::new(),
+            cask_requirements: HashMap::new(),
+            formula_requirements: HashMap::new(),
+            tap_requirements: HashMap::new(),
         }
     }
 
@@ -113,15 +129,17 @@ impl AnsibleRuntime {
         &self,
         profile: &str,
         tags: &[String],
+        vars: &PlaybookVars,
         verbose: bool,
     ) -> Result<Command, AppError> {
-        self.build_command_with_env(profile, tags, verbose, |k| env::var_os(k))
+        self.build_command_with_env(profile, tags, vars, verbose, |k| env::var_os(k))
     }
 
     pub(crate) fn build_command_with_env<T: AsRef<std::ffi::OsStr>>(
         &self,
         profile: &str,
         tags: &[String],
+        vars: &PlaybookVars,
         verbose: bool,
         env_var: impl Fn(&str) -> Option<T>,
     ) -> Result<Command, AppError> {
@@ -165,6 +183,15 @@ impl AnsibleRuntime {
             .arg("-e")
             .arg(format!("local_config_root={}", self.local_config_root.display()));
 
+        if !vars.is_empty() {
+            let extra_vars = serde_json::json!({
+                "brew_tap_tokens": &vars.brew_tap_tokens,
+                "brew_formula_tokens": &vars.brew_formula_tokens,
+                "brew_cask_tokens": &vars.brew_cask_tokens,
+            });
+            cmd.arg("-e").arg(extra_vars.to_string());
+        }
+
         if !tags.is_empty() {
             cmd.arg("--tags").arg(tags.join(","));
         }
@@ -180,8 +207,14 @@ impl AnsibleRuntime {
 }
 
 impl ProvisioningRunner for AnsibleRuntime {
-    fn run_playbook(&self, profile: &str, tags: &[String], verbose: bool) -> Result<(), AppError> {
-        let mut cmd = self.build_command(profile, tags, verbose)?;
+    fn run_playbook(
+        &self,
+        profile: &str,
+        tags: &[String],
+        vars: &PlaybookVars,
+        verbose: bool,
+    ) -> Result<(), AppError> {
+        let mut cmd = self.build_command(profile, tags, vars, verbose)?;
 
         cmd.stdout(Stdio::inherit());
         cmd.stderr(Stdio::inherit());
@@ -254,6 +287,18 @@ impl ProvisioningCatalog for AnsibleRuntime {
         &self.full_setup_tags
     }
 
+    fn cask_requirements(&self) -> &HashMap<String, Vec<String>> {
+        &self.cask_requirements
+    }
+
+    fn formula_requirements(&self) -> &HashMap<String, Vec<String>> {
+        &self.formula_requirements
+    }
+
+    fn tap_requirements(&self) -> &HashMap<String, Vec<String>> {
+        &self.tap_requirements
+    }
+
     fn tags_by_role(&self) -> &HashMap<String, Vec<String>> {
         &self.tags_by_role
     }
@@ -267,13 +312,16 @@ impl ProvisioningCatalog for AnsibleRuntime {
     }
 }
 
-/// Tag catalog: role→tags, tag→role, tag_groups, and full_setup_tags.
+/// Tag catalog: role→tags, tag→role, tag_groups, full_setup_tags, and cask requirements.
 #[derive(Default)]
 struct TagCatalog {
     tags_by_role: HashMap<String, Vec<String>>,
     tag_to_role: HashMap<String, String>,
     tag_groups: HashMap<String, Vec<String>>,
     full_setup_tags: Vec<String>,
+    cask_requirements: HashMap<String, Vec<String>>,
+    formula_requirements: HashMap<String, Vec<String>>,
+    tap_requirements: HashMap<String, Vec<String>>,
 }
 
 /// Load tag mappings from a playbook.yml file.
@@ -302,6 +350,17 @@ fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::
                 catalog
                     .full_setup_tags
                     .extend(fst.iter().filter_map(|t| t.as_str().map(|s| s.to_string())));
+            }
+            if let Some(requirements) = vars.get("cask_requirements").and_then(|v| v.as_mapping()) {
+                read_requirement_mapping(requirements, &mut catalog.cask_requirements);
+            }
+            if let Some(requirements) =
+                vars.get("formula_requirements").and_then(|v| v.as_mapping())
+            {
+                read_requirement_mapping(requirements, &mut catalog.formula_requirements);
+            }
+            if let Some(requirements) = vars.get("tap_requirements").and_then(|v| v.as_mapping()) {
+                read_requirement_mapping(requirements, &mut catalog.tap_requirements);
             }
         }
 
@@ -337,6 +396,19 @@ fn load_catalog(playbook_path: &Path) -> Result<TagCatalog, Box<dyn std::error::
     }
 
     Ok(catalog)
+}
+
+fn read_requirement_mapping(
+    requirements: &serde_yaml::Mapping,
+    target: &mut HashMap<String, Vec<String>>,
+) {
+    for (k, v) in requirements {
+        if let (Some(tag), Some(seq)) = (k.as_str(), v.as_sequence()) {
+            let tokens: Vec<String> =
+                seq.iter().filter_map(|t| t.as_str().map(|s| s.to_string())).collect();
+            target.entry(tag.to_string()).or_default().extend(tokens);
+        }
+    }
 }
 #[cfg(test)]
 mod tests {
@@ -444,11 +516,19 @@ mod tests {
             tag_to_role: HashMap::new(),
             tag_groups: HashMap::new(),
             full_setup_tags: Vec::new(),
+            cask_requirements: HashMap::new(),
+            formula_requirements: HashMap::new(),
+            tap_requirements: HashMap::new(),
         };
 
         let cmd_result = adapter.build_command_with_env(
             "my_profile",
             &["tag1".to_string(), "tag2".to_string()],
+            &PlaybookVars {
+                brew_tap_tokens: vec!["oven-sh/bun".to_string()],
+                brew_formula_tokens: vec!["oven-sh/bun/bun".to_string()],
+                brew_cask_tokens: vec!["visual-studio-code".to_string()],
+            },
             true,
             |k| env_map.get(k),
         );
@@ -468,6 +548,10 @@ mod tests {
         assert!(args.contains(&"tag1,tag2".to_string()));
         assert!(args.contains(&"-vvv".to_string()));
         assert!(args.contains(&"local_config_root=/local/config".to_string()));
+        assert!(args.contains(
+            &r#"{"brew_cask_tokens":["visual-studio-code"],"brew_formula_tokens":["oven-sh/bun/bun"],"brew_tap_tokens":["oven-sh/bun"]}"#
+                .to_string()
+        ));
         Ok(())
     }
 
@@ -481,9 +565,12 @@ mod tests {
             tag_to_role: HashMap::new(),
             tag_groups: HashMap::new(),
             full_setup_tags: Vec::new(),
+            cask_requirements: HashMap::new(),
+            formula_requirements: HashMap::new(),
+            tap_requirements: HashMap::new(),
         };
 
-        let result = adapter.build_command("profile", &[], false);
+        let result = adapter.build_command("profile", &[], &PlaybookVars::default(), false);
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
     }
 
@@ -517,6 +604,48 @@ mod tests {
 
         let catalog = load_catalog(playbook_path.as_path())?;
         assert_eq!(catalog.full_setup_tags, vec!["vscode".to_string(), "zed".to_string()]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_load_catalog_reads_cask_requirements() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let playbook_path = dir.path().join("playbook.yml");
+        fs::write(
+            &playbook_path,
+            "- name: setup\n  vars:\n    cask_requirements:\n      vscode: [\"visual-studio-code\"]\n      zed:\n        - zed\n",
+        )?;
+
+        let catalog = load_catalog(playbook_path.as_path())?;
+        assert_eq!(
+            catalog.cask_requirements.get("vscode"),
+            Some(&vec!["visual-studio-code".to_string()])
+        );
+        assert_eq!(catalog.cask_requirements.get("zed"), Some(&vec!["zed".to_string()]));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_load_catalog_reads_formula_and_tap_requirements()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let playbook_path = dir.path().join("playbook.yml");
+        fs::write(
+            &playbook_path,
+            "- name: setup\n  vars:\n    formula_requirements:\n      bun-platform: [\"oven-sh/bun/bun\"]\n    tap_requirements:\n      bun-platform: [\"oven-sh/bun\"]\n",
+        )?;
+
+        let catalog = load_catalog(playbook_path.as_path())?;
+        assert_eq!(
+            catalog.formula_requirements.get("bun-platform"),
+            Some(&vec!["oven-sh/bun/bun".to_string()])
+        );
+        assert_eq!(
+            catalog.tap_requirements.get("bun-platform"),
+            Some(&vec!["oven-sh/bun".to_string()])
+        );
 
         Ok(())
     }

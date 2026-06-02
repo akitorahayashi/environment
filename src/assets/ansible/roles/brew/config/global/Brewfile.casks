@@ -4,7 +4,13 @@ cask "tailscale"
 # Development Tools
 # cask "android-studio"
 # cask "android-commandlinetools"
+cask "visual-studio-code"
+cask "antigravity-ide"
+cask "zed"
 cask "docker"
+
+# Terminal
+cask "ghostty"
 
 # Web Browsers & Communication
 cask "google-chrome"

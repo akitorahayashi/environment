@@ -1,9 +1,4 @@
 ---
-- name: "Install Zed"
-  community.general.homebrew_cask:
-    name: zed
-    state: present
-
 - name: "Ensure Zed configuration directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/zed"

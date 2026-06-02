@@ -17,11 +17,6 @@
   ansible.builtin.set_fact:
     go_command_path: "{{ go_environment_root }}/shims:{{ go_environment_root }}/bin:{{ go_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
-- name: "Install goenv"
-  community.general.homebrew:
-    name: goenv
-    state: present
-
 - name: "Install specified Go version with goenv"
   ansible.builtin.command:
     cmd: "goenv install {{ go_version }} --skip-existing"

@@ -1,8 +1,8 @@
 ---
-- name: "Install Visual Studio Code"
-  community.general.homebrew_cask:
-    name: visual-studio-code
-    state: present
+- name: "Verify VS Code command is available"
+  ansible.builtin.command:
+    cmd: "which code"
+  changed_when: false
 
 - name: "Ensure VS Code User directory exists"
   ansible.builtin.file:
@@ -32,6 +32,5 @@
 - name: "Install VS Code extensions"
   ansible.builtin.command: "code --install-extension {{ item }} --force"
   loop: "{{ editor_vscode_extensions }}"
-  ignore_errors: true
   register: editor_vscode_install_result
   changed_when: "'was successfully installed' in editor_vscode_install_result.stdout"
