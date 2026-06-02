@@ -22,7 +22,9 @@ jobs:
         uses: ./.github/actions/setup-ansible
 
       - name: Setup Neovim configuration
+        shell: bash
         run: |
+          set -euo pipefail
           "$RUNNER_TEMP/mev-bin/mev" make nvim
 
       - name: Verify Neovim symlinks

@@ -32,18 +32,21 @@
 
 - name: "Reject unknown selected cask tokens"
   ansible.builtin.fail:
-    msg: "Unknown Homebrew cask tokens: {{ brew_requested_cask_tokens | difference(brew_available_cask_tokens) | join(', ') }}"
+    msg: >-
+      Unknown Homebrew cask tokens:
+      {{ brew_requested_cask_tokens | default([]) | difference(brew_available_cask_tokens | default([])) | join(', ') }}
   when:
     - brew_cask_tokens is defined
-    - (brew_requested_cask_tokens | difference(brew_available_cask_tokens) | length) > 0
+    - (brew_requested_cask_tokens | default([]) | difference(brew_available_cask_tokens | default([])) | length) > 0
 
 - name: "Install selected cask packages"
   community.general.homebrew_cask:
-    name: "{{ brew_requested_cask_tokens }}"
+    name: "{{ item }}"
     state: present
+  loop: "{{ brew_requested_cask_tokens | default([]) }}"
   when:
     - brew_cask_tokens is defined
-    - brew_requested_cask_tokens | length > 0
+    - brew_requested_cask_tokens | default([]) | length > 0
 
 - name: "Install global cask packages"
   ansible.builtin.command:
