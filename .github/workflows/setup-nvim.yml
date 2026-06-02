@@ -15,14 +15,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build
+      - name: Download mev binary
+        uses: ./.github/actions/download-mev-binary
 
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
       - name: Setup Neovim configuration
-        run: mise exec -- just run make nvim
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make nvim
 
       - name: Verify Neovim symlinks
         shell: bash

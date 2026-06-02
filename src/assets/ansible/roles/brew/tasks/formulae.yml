@@ -60,10 +60,11 @@
 
 - name: "Install selected formulae packages"
   community.general.homebrew:
-    name: "{{ item }}"
+    name: "{{ brew_requested_formula_tokens }}"
     state: present
-  loop: "{{ brew_requested_formula_tokens }}"
-  when: brew_formula_tokens is defined or brew_tap_tokens is defined
+  when:
+    - brew_formula_tokens is defined or brew_tap_tokens is defined
+    - brew_requested_formula_tokens | length > 0
 
 - name: "Install global formulae packages"
   ansible.builtin.command:

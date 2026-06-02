@@ -39,10 +39,11 @@
 
 - name: "Install selected cask packages"
   community.general.homebrew_cask:
-    name: "{{ item }}"
+    name: "{{ brew_requested_cask_tokens }}"
     state: present
-  loop: "{{ brew_requested_cask_tokens }}"
-  when: brew_cask_tokens is defined
+  when:
+    - brew_cask_tokens is defined
+    - brew_requested_cask_tokens | length > 0
 
 - name: "Install global cask packages"
   ansible.builtin.command:

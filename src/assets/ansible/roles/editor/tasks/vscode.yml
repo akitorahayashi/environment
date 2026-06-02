@@ -29,8 +29,14 @@
   ansible.builtin.set_fact:
     editor_vscode_extensions: "{{ (editor_vscode_extensions_content.content | b64decode | from_json).extensions }}"
 
+- name: "Read installed VS Code extensions"
+  ansible.builtin.command: "code --list-extensions"
+  register: editor_vscode_installed_extensions
+  changed_when: false
+
 - name: "Install VS Code extensions"
-  ansible.builtin.command: "code --install-extension {{ item }} --force"
+  ansible.builtin.command: "code --install-extension {{ item }}"
   loop: "{{ editor_vscode_extensions }}"
-  register: editor_vscode_install_result
-  changed_when: "'was successfully installed' in editor_vscode_install_result.stdout"
+  when: item not in editor_vscode_installed_extensions.stdout_lines
+  changed_when: true
+  ignore_errors: true # noqa: ignore-errors

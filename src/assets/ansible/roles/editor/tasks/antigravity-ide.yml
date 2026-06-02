@@ -29,9 +29,15 @@
   ansible.builtin.set_fact:
     editor_antigravity_ide_extensions: "{{ (editor_antigravity_ide_extensions_content.content | b64decode | from_json).extensions }}"
 
+- name: "Read installed Antigravity IDE extensions"
+  ansible.builtin.command: "agy-ide --list-extensions"
+  register: editor_antigravity_ide_installed_extensions
+  changed_when: false
+
 - name: "Install Antigravity IDE extensions"
-  ansible.builtin.command: "agy-ide --install-extension {{ item }} --force"
+  ansible.builtin.command: "agy-ide --install-extension {{ item }}"
   loop: "{{ editor_antigravity_ide_extensions }}"
+  when: item not in editor_antigravity_ide_installed_extensions.stdout_lines
   changed_when: true
 
 - name: "Ensure Antigravity IDE agent skills parent directory exists"
