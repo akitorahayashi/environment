@@ -9,6 +9,7 @@ on:
       - '.github/workflows/verify-ansible-setup.yml'
       - '.github/actions/setup-build/**'
       - '.github/actions/setup-ansible/**'
+      - '.github/actions/download-mev-binary/**'
   pull_request:
     branches: [ "main" ]
     paths:
@@ -17,6 +18,7 @@ on:
       - '.github/workflows/verify-ansible-setup.yml'
       - '.github/actions/setup-build/**'
       - '.github/actions/setup-ansible/**'
+      - '.github/actions/download-mev-binary/**'
   workflow_dispatch:
     inputs:
       target:
@@ -56,6 +58,20 @@ jobs:
       setup_ide: ${{ steps.filter.outputs.setup_ide }}
       setup_system: ${{ steps.filter.outputs.setup_system }}
       setup_brew_formulae: ${{ steps.filter.outputs.setup_brew_formulae }}
+      any_setup: >-
+        ${{
+          steps.filter.outputs.all_setups == 'true' ||
+          steps.filter.outputs.setup_python == 'true' ||
+          steps.filter.outputs.setup_nodejs == 'true' ||
+          steps.filter.outputs.setup_bun == 'true' ||
+          steps.filter.outputs.setup_ruby == 'true' ||
+          steps.filter.outputs.setup_rust == 'true' ||
+          steps.filter.outputs.setup_go == 'true' ||
+          steps.filter.outputs.setup_nvim == 'true' ||
+          steps.filter.outputs.setup_ide == 'true' ||
+          steps.filter.outputs.setup_system == 'true' ||
+          steps.filter.outputs.setup_brew_formulae == 'true'
+        }}
     steps:
       - name: Checkout code
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -73,6 +89,7 @@ jobs:
               - 'src/assets/ansible/ansible.cfg'
               - '.github/actions/setup-build/**'
               - '.github/actions/setup-ansible/**'
+              - '.github/actions/download-mev-binary/**'
             setup_python:
               - 'src/assets/ansible/roles/python/**'
               - '.github/workflows/setup-python.yml'
@@ -108,8 +125,47 @@ jobs:
               - 'src/assets/ansible/roles/brew/**'
               - '.github/workflows/setup-brew-formulae.yml'
 
-  setup-python:
+  build-mev:
+    name: Build mev binary
     needs: changes
+    runs-on: macos-15
+    permissions:
+      contents: read
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.any_setup == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build
+
+      - name: Build mev binary
+        run: cargo build --release --locked
+
+      - name: Prepare mev binary artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mev-artifact"
+          cp target/release/mev "$RUNNER_TEMP/mev-artifact/mev"
+          chmod +x "$RUNNER_TEMP/mev-artifact/mev"
+
+      - name: Upload mev binary artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: mev-${{ runner.os }}-${{ runner.arch }}
+          path: ${{ runner.temp }}/mev-artifact/mev
+          if-no-files-found: error
+          retention-days: 1
+
+  setup-python:
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -119,7 +175,9 @@ jobs:
     uses: ./.github/workflows/setup-python.yml
 
   setup-nodejs:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -129,7 +187,9 @@ jobs:
     uses: ./.github/workflows/setup-nodejs.yml
 
   setup-bun:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -139,7 +199,9 @@ jobs:
     uses: ./.github/workflows/setup-bun.yml
 
   setup-ruby:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -149,7 +211,9 @@ jobs:
     uses: ./.github/workflows/setup-ruby.yml
 
   setup-rust:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -159,7 +223,9 @@ jobs:
     uses: ./.github/workflows/setup-rust.yml
 
   setup-go:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -169,7 +235,9 @@ jobs:
     uses: ./.github/workflows/setup-go.yml
 
   setup-nvim:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -179,7 +247,9 @@ jobs:
     uses: ./.github/workflows/setup-nvim.yml
 
   setup-ide:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -189,7 +259,9 @@ jobs:
     uses: ./.github/workflows/setup-ide.yml
 
   setup-system:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |
@@ -199,7 +271,9 @@ jobs:
     uses: ./.github/workflows/setup-system.yml
 
   setup-brew-formulae:
-    needs: changes
+    needs:
+      - changes
+      - build-mev
     permissions:
       contents: read
     if: |

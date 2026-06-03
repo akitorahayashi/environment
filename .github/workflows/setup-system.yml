@@ -15,30 +15,36 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build
+      - name: Download mev binary
+        uses: ./.github/actions/download-mev-binary
 
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
       - name: Setup Git configuration
-        run: mise exec -- just run make git
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make git
 
       - name: Setup GitHub CLI configuration
-        run: mise exec -- just run make gh
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make gh
 
       - name: Setup shell configuration
-        run: mise exec -- just run make shell
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make shell
         
       - name: Test shell aliases functionality
         shell: zsh {0}
         run: |
           set -euo pipefail
+          export PATH="$RUNNER_TEMP/mev-bin:${PATH}"
           source ~/.zshrc
           mk --version
 
       - name: Setup SSH configuration
-        run: mise exec -- just run make ssh
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make ssh
 
       - name: Apply macOS system defaults
-        run: mise exec -- just run make system
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make system

@@ -15,8 +15,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build
+      - name: Download mev binary
+        uses: ./.github/actions/download-mev-binary
 
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
@@ -24,4 +24,5 @@ jobs:
       - name: Run Homebrew formulae setup for common
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
-        run: mise exec -- just run make brew-formulae
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make brew-formulae

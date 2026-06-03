@@ -39,31 +39,36 @@
 
 - name: "Reject unknown selected tap tokens"
   ansible.builtin.fail:
-    msg: "Unknown Homebrew tap tokens: {{ brew_requested_tap_tokens | difference(brew_available_tap_tokens) | join(', ') }}"
+    msg: >-
+      Unknown Homebrew tap tokens:
+      {{ brew_requested_tap_tokens | default([]) | difference(brew_available_tap_tokens | default([])) | join(', ') }}
   when:
     - brew_formula_tokens is defined or brew_tap_tokens is defined
-    - (brew_requested_tap_tokens | difference(brew_available_tap_tokens) | length) > 0
+    - (brew_requested_tap_tokens | default([]) | difference(brew_available_tap_tokens | default([])) | length) > 0
 
 - name: "Reject unknown selected formula tokens"
   ansible.builtin.fail:
-    msg: "Unknown Homebrew formula tokens: {{ brew_requested_formula_tokens | difference(brew_available_formula_tokens) | join(', ') }}"
+    msg: >-
+      Unknown Homebrew formula tokens:
+      {{ brew_requested_formula_tokens | default([]) | difference(brew_available_formula_tokens | default([])) | join(', ') }}
   when:
     - brew_formula_tokens is defined or brew_tap_tokens is defined
-    - (brew_requested_formula_tokens | difference(brew_available_formula_tokens) | length) > 0
+    - (brew_requested_formula_tokens | default([]) | difference(brew_available_formula_tokens | default([])) | length) > 0
 
 - name: "Install selected Homebrew taps"
   community.general.homebrew_tap:
     name: "{{ item }}"
     state: present
-  loop: "{{ brew_requested_tap_tokens }}"
+  loop: "{{ brew_requested_tap_tokens | default([]) }}"
   when: brew_formula_tokens is defined or brew_tap_tokens is defined
 
 - name: "Install selected formulae packages"
   community.general.homebrew:
-    name: "{{ item }}"
+    name: "{{ brew_requested_formula_tokens }}"
     state: present
-  loop: "{{ brew_requested_formula_tokens }}"
-  when: brew_formula_tokens is defined or brew_tap_tokens is defined
+  when:
+    - brew_formula_tokens is defined or brew_tap_tokens is defined
+    - brew_requested_formula_tokens | default([]) | length > 0
 
 - name: "Install global formulae packages"
   ansible.builtin.command:
