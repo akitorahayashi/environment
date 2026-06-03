@@ -15,14 +15,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build
+      - name: Download mev binary
+        uses: ./.github/actions/download-mev-binary
 
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
       - name: Run bun-platform setup
-        run: mise exec -- just run make bun-platform
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make bun-platform
 
       - name: Verify Bun after bun-platform setup
         run: |
@@ -30,7 +31,8 @@ jobs:
           bun --revision
 
       - name: Run bun-tools setup
-        run: mise exec -- just run make bun-tools
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make bun-tools
 
       - name: Verify Bun after bun-tools setup
         run: |

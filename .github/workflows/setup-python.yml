@@ -15,14 +15,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build
+      - name: Download mev binary
+        uses: ./.github/actions/download-mev-binary
 
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
       - name: Run python-platform setup
-        run: mise exec -- just run make python-platform
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make python-platform
 
       - name: Run python-tools setup
-        run: mise exec -- just run make python-tools
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make python-tools

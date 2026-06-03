@@ -15,20 +15,24 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build
+      - name: Download mev binary
+        uses: ./.github/actions/download-mev-binary
 
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
       - name: Setup VSCode configuration
-        run: mise exec -- just run make vscode
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make vscode
 
       - name: Setup Antigravity configuration
-        run: mise exec -- just run make antigravity
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make antigravity
 
       - name: Setup Zed configuration
-        run: mise exec -- just run make zed
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make zed
 
       - name: Setup Xcode configuration
-        run: mise exec -- just run make xcode
+        run: |
+          "$RUNNER_TEMP/mev-bin/mev" make xcode
