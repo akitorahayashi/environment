@@ -74,6 +74,20 @@
     force: true
     mode: "0644"
 
+- name: "Ensure Antigravity configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Antigravity AGENTS file"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity/AGENTS.md"
+    state: link
+    force: true
+    mode: "0644"
+
 - name: "Check if Gemini CLI is available"
   ansible.builtin.command: "fnm exec --using={{ nodejs_version }} -- which gemini"
   register: nodejs_gemini_cli_check
