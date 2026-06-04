@@ -1,4 +1,3 @@
-#!/bin/bash
 alias ms-t='mise trust'
 alias ms-p='mise prepare'
 alias ms-ls='mise ls'

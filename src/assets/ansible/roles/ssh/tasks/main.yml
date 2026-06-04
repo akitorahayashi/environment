@@ -31,3 +31,10 @@
     state: link
     force: true
   loop: "{{ ssh_conf_files.files }}"
+
+- name: Symlink ssh-agent.zsh
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/ssh/global/ssh-agent.zsh"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.ssh/ssh-agent.zsh"
+    state: link
+    force: true

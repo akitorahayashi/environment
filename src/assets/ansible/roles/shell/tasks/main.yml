@@ -1,25 +1,17 @@
 ---
-- name: "Symlink .zprofile"
+- name: "Symlink dotfiles"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/shell/global/.zprofile"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.zprofile"
+    src: "{{ local_config_root }}/shell/global/{{ item }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item }}"
     state: link
     force: true
-
-- name: "Symlink .zshrc"
-  ansible.builtin.file:
-    src: "{{ local_config_root }}/shell/global/.zshrc"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.zshrc"
-    state: link
-    force: true
+  loop:
+    - .zshenv
+    - .zprofile
+    - .zshrc
 
 # --- create symbolic links for all files in local_config_root/shell/global/alias/
-- name: "Clean and recreate ~/.mev/alias directory"
-  ansible.builtin.file:
-    path: "{{ ansible_facts['env']['HOME'] }}/.mev/alias"
-    state: absent
-
-- name: "Create ~/.mev/alias directory"
+- name: "Ensure ~/.mev/alias directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.mev/alias"
     state: directory

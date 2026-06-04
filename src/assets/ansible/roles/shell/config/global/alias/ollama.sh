@@ -1,4 +1,3 @@
-#!/bin/bash
 alias ol="ollama"
 alias ol-ls="ollama list"
 alias ol-pl="ollama pull"

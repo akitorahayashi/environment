@@ -1,4 +1,3 @@
-#!/bin/bash
 alias u="uv"
 alias u-ini="uv init"
 alias u-py="uv python"
