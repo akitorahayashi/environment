@@ -1,23 +1,29 @@
+# shellcheck disable=SC2148
+typeset -U path
+
 _path_prepend() {
-  [[ -d "$1" ]] || return
-  case ":$PATH:" in
-    *":$1:"*) ;;
-    *) export PATH="$1:$PATH" ;;
-  esac
+  [[ -d "$1" ]] && path=("$1" "${path[@]}")
 }
 
 _path_append() {
-  [[ -d "$1" ]] || return
-  case ":$PATH:" in
-    *":$1:"*) ;;
-    *) export PATH="$PATH:$1" ;;
-  esac
+  [[ -d "$1" ]] && path+=("$1")
 }
 
 # Homebrew initialization
-if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+_brew_bin="$(command -v brew 2>/dev/null)"
+if [[ -z "$_brew_bin" ]]; then
+  for _brew_candidate in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+    if [[ -x "$_brew_candidate" ]]; then
+      _brew_bin="$_brew_candidate"
+      break
+    fi
+  done
 fi
+
+if [[ -x "$_brew_bin" ]]; then
+  eval "$("$_brew_bin" shellenv)"
+fi
+unset _brew_bin _brew_candidate
 
 _path_prepend "$HOME/.local/bin"
 _path_prepend "$HOME/.cargo/bin"
@@ -37,5 +43,6 @@ _path_prepend "$HOME/go/bin"
 
 # SSH agent initialization
 if [[ -r "$HOME/.ssh/ssh-agent.zsh" ]]; then
+  # shellcheck disable=SC1091
   source "$HOME/.ssh/ssh-agent.zsh"
 fi

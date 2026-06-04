@@ -24,6 +24,30 @@
     recurse: true
   register: shell_config_files
 
+- name: "Find deployed shell config links"
+  ansible.builtin.find:
+    paths: "{{ ansible_facts['env']['HOME'] }}/.mev/alias"
+    file_type: link
+    recurse: true
+  register: shell_config_deployed_links
+
+- name: "Calculate expected shell config link paths"
+  ansible.builtin.set_fact:
+    shell_config_expected_links: >-
+      {{ shell_config_files.files | map(attribute='path')
+         | map('relpath', local_config_root + '/shell/global/alias')
+         | map('regex_replace', '^(.*)$', ansible_facts['env']['HOME'] + '/.mev/alias/\1')
+         | list }}
+
+- name: "Remove stale shell config links"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ shell_config_deployed_links.files }}"
+  when:
+    - item.path not in shell_config_expected_links
+    - (item.lnk_target | default('')).startswith(local_config_root + '/shell/global/alias/')
+
 - name: "Calculate unique subdirectories for shell config files"
   ansible.builtin.set_fact:
     shell_config_subdirs: >-
