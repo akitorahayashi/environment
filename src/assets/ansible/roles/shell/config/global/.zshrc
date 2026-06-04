@@ -2,13 +2,11 @@ alias me="mev"
 export SHELL_START_DIR="${SHELL_START_DIR:-$PWD}"
 
 # dev_alias_as must be loaded before files that call it.
-[[ -r "$HOME/.mev/alias/dev/dev.sh" ]] && source "$HOME/.mev/alias/dev/dev.sh"
 [[ -r "$HOME/.mev/alias/dev/dev.zsh" ]] && source "$HOME/.mev/alias/dev/dev.zsh"
 
 setopt null_glob
 
-for config_file in "$HOME"/.mev/alias/**/*.(sh|zsh)(N); do
-  [[ "$config_file" == "$HOME/.mev/alias/dev/dev.sh" ]] && continue
+for config_file in "$HOME"/.mev/alias/**/*.zsh(N); do
   [[ "$config_file" == "$HOME/.mev/alias/dev/dev.zsh" ]] && continue
   [[ -r "$config_file" ]] && source "$config_file"
 done
