@@ -1,4 +1,3 @@
-#!/bin/sh
 alias hf="~/.local/bin/hf"
 alias hf-au="~/.local/bin/hf auth"
 alias hf-au-in="~/.local/bin/hf auth login"

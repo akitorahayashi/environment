@@ -28,7 +28,7 @@
   ansible.builtin.set_fact:
     shell_config_subdirs: >-
       {{ shell_config_files.files | map(attribute='path')
-         | map('replace', local_config_root + '/shell/global/alias/', '')
+         | map('relpath', local_config_root + '/shell/global/alias')
          | map('dirname') | unique | reject('equalto', '.') | list }}
 
 - name: "Create subdirectories in ~/.mev/alias"
@@ -42,7 +42,7 @@
   ansible.builtin.file:
     src: "{{ item.path }}"
     dest: >-
-      {{ ansible_facts['env']['HOME'] }}/.mev/alias/{{ item.path | replace(local_config_root + '/shell/global/alias/', '') }}
+      {{ ansible_facts['env']['HOME'] }}/.mev/alias/{{ item.path | relpath(local_config_root + '/shell/global/alias') }}
     state: link
     force: true
   loop: "{{ shell_config_files.files }}"
