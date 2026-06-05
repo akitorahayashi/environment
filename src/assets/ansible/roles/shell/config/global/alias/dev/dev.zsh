@@ -1,4 +1,3 @@
-#!/bin/bash
 # shellcheck disable=SC2139
 # Define development aliases for commands
 # Usage: dev_alias_as <target_command> <prefix> [run_prefix]

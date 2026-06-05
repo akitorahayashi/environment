@@ -43,7 +43,7 @@ fix:
     cargo fmt
     mise exec -- just internal::fix
     mise exec -- just zfix
-    @files=$(mise exec -- just _find_shell_files); \
+    @files=$(mise exec -- just _find_bash_files); \
     if [ -n "$files" ]; then \
         shfmt -w -d $files; \
     fi
@@ -55,10 +55,13 @@ check:
     cargo fmt --check
     cargo clippy --all-targets --all-features -- -D warnings
     mise exec -- just internal::check
-    @files=$(mise exec -- just _find_shell_files); \
+    @files=$(mise exec -- just _find_bash_files); \
     if [ -n "$files" ]; then \
         shellcheck $files; \
     fi
+    @mise exec -- just _find_zsh_files | while IFS= read -r file; do \
+        zsh -n "$file"; \
+    done
     uv run ansible-lint src/assets/ansible/
     mise exec -- just --fmt --check --unstable
 
@@ -137,7 +140,7 @@ clean:
     @echo "Cleanup completed"
 
 # @hidden
-_find_shell_files:
+_find_bash_files:
     @find . -type f \( -name "*.sh" -o -name "*.bash" \) | \
     grep -v "\.git" | \
     grep -v "^./references/" | \
@@ -145,3 +148,12 @@ _find_shell_files:
     grep -v "\.tmp" | \
     grep -v "\.venv" | \
     grep -v "\.jlo"
+
+# @hidden
+_find_zsh_files:
+    @find src/assets/ansible/roles/shell src/assets/ansible/roles/ssh -type f \( \
+        -name "*.zsh" -o \
+        -name ".zshenv" -o \
+        -name ".zprofile" -o \
+        -name ".zshrc" \
+    \)

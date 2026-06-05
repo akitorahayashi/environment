@@ -1,4 +1,3 @@
-#!/bin/bash
 # Ruby
 alias bd-e="bundle exec"
 alias bd-e-f="bundle exec fastlane"

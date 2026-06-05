@@ -1,4 +1,3 @@
-#!/bin/bash
 alias px="pipx"
 alias px-ls="pipx list"
 alias px-i="pipx install"

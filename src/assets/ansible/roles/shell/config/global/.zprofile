@@ -1,88 +1,42 @@
-# Homebrew initialization for Apple Silicon
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# shellcheck disable=SC2148
+typeset -U path
 
-# Disable Homebrew auto-update
-export HOMEBREW_NO_AUTO_UPDATE=1
+_path_prepend() {
+  [[ -d "$1" ]] && path=("$1" "${path[@]}")
+}
 
-# Path for poppler
-export PATH="/opt/homebrew/opt/poppler/bin:$PATH"
+_path_append() {
+  [[ -d "$1" ]] && path+=("$1")
+}
 
-# Path for cli tools
-export PATH="$HOME/.local/bin:$PATH"
-
-# Path for pipx tools
-export PATH="$HOME/.local/pipx/venvs/mlx-hub/bin:$PATH"
-
-# Path for mlx-lm tools under menv
-export PATH="$HOME/.menv/venvs/mlx-lm/bin:$PATH"
-
-# Rust environment
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# Android SDK environment variables
-if [[ -z "$ANDROID_HOME" ]]; then
-    export ANDROID_HOME="$HOME/Library/Android/sdk"
-    export ANDROID_SDK_ROOT="$ANDROID_HOME"
-fi
-
-if [[ ":$PATH:" != *":$ANDROID_HOME/cmdline-tools/latest/bin:"* ]]; then
-    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
-fi
-
-# rbenv initialization
-if command -v rbenv 1>/dev/null 2>&1; then
-  eval "$(rbenv init -)"
-fi
-
-# goenv initialization
-if command -v goenv 1>/dev/null 2>&1; then
-  export GOENV_ROOT="$HOME/.goenv"
-  export PATH="$GOENV_ROOT/bin:$PATH"
-  eval "$(goenv init -)"
-  export PATH="$GOROOT/bin:$PATH"
-  export PATH="$HOME/go/bin:$PATH"
-fi
-
-# Path setting for ollama models
-export OLLAMA_MODELS="$HOME/.ollama/models"
-
-# pnpm initialization
-export PNPM_HOME="$HOME/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-
-# Android SDK (additional PATH only)
-if [ -n "$ANDROID_HOME" ]; then
-  if [ -d "$ANDROID_HOME/emulator" ] && [[ ":$PATH:" != *":$ANDROID_HOME/emulator:"* ]]; then
-    export PATH="$PATH:$ANDROID_HOME/emulator"
-  fi
-  if [ -d "$ANDROID_HOME/platform-tools" ] && [[ ":$PATH:" != *":$ANDROID_HOME/platform-tools:"* ]]; then
-    export PATH="$PATH:$ANDROID_HOME/platform-tools"
-  fi
-fi
-
-# Automatic startup and reuse of SSH Agent
-SSH_AGENT_PID_FILE="$HOME/.ssh/ssh-agent.pid"
-SSH_AUTH_SOCK_FILE="$HOME/.ssh/ssh-agent.sock"
-
-# Check existing SSH agent process
-if [ -f "$SSH_AGENT_PID_FILE" ]; then
-    SSH_AGENT_PID=$(cat "$SSH_AGENT_PID_FILE")
-    if kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
-        # If the process is alive, set environment variables
-        export SSH_AGENT_PID
-        export SSH_AUTH_SOCK=$(cat "$SSH_AUTH_SOCK_FILE")
-    else
-        # If the process is dead, remove files
-        rm -f "$SSH_AGENT_PID_FILE" "$SSH_AUTH_SOCK_FILE"
+# Homebrew initialization
+_brew_bin="$(command -v brew 2>/dev/null)"
+if [[ -z "$_brew_bin" ]]; then
+  for _brew_candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    if [[ -x "$_brew_candidate" ]]; then
+      _brew_bin="$_brew_candidate"
+      break
     fi
+  done
 fi
 
-# If SSH agent is not running, start a new one
-if [ -z "$SSH_AGENT_PID" ] || ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
-    eval "$(ssh-agent -s)"
-    echo "$SSH_AGENT_PID" > "$SSH_AGENT_PID_FILE"
-    echo "$SSH_AUTH_SOCK" > "$SSH_AUTH_SOCK_FILE"
+if [[ -x "$_brew_bin" ]]; then
+  eval "$("$_brew_bin" shellenv)"
 fi
+unset _brew_bin _brew_candidate
+
+_path_prepend "$HOME/.local/bin"
+_path_prepend "$HOME/.cargo/bin"
+_path_prepend "$HOME/.local/pipx/venvs/mlx-hub/bin"
+_path_prepend "$HOME/.menv/venvs/mlx-lm/bin"
+_path_prepend "/opt/homebrew/opt/poppler/bin"
+_path_prepend "$PNPM_HOME"
+
+_path_prepend "$ANDROID_HOME/cmdline-tools/latest/bin"
+_path_prepend "$ANDROID_HOME/tools/bin"
+_path_prepend "$ANDROID_HOME/platform-tools"
+_path_append "$ANDROID_HOME/emulator"
+
+export GOENV_ROOT="${GOENV_ROOT:-$HOME/.goenv}"
+_path_prepend "$GOENV_ROOT/bin"
+_path_prepend "$HOME/go/bin"

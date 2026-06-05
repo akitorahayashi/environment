@@ -17,17 +17,3 @@
     dest: "{{ ansible_facts['env']['HOME'] }}/.ssh/config"
     state: link
     force: true
-
-- name: Find ssh config files in conf.d
-  ansible.builtin.find:
-    paths: "{{ local_config_root }}/ssh/global/conf.d"
-    patterns: "*.conf"
-  register: ssh_conf_files
-
-- name: Symlink individual ssh config files
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.ssh/conf.d/{{ item.path | basename }}"
-    state: link
-    force: true
-  loop: "{{ ssh_conf_files.files }}"

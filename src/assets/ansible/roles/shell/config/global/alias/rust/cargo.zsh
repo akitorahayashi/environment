@@ -1,4 +1,3 @@
-#!/bin/bash
 
 # Basic Cargo Commands
 alias cr="cargo"
