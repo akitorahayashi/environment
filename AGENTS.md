@@ -5,6 +5,11 @@
 Rust CLI for macOS dev environment setup using bundled Ansible playbooks.
 Installable as a standalone Rust binary via `install.sh`.
 
+## Platform Assumption
+
+The project targets macOS hosts.
+Cross-platform behavior is not assumed unless an owning file or role declares it explicitly.
+
 ## Architecture
 
 | Boundary | Path | Responsibility |

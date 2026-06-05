@@ -12,7 +12,7 @@ _path_append() {
 # Homebrew initialization
 _brew_bin="$(command -v brew 2>/dev/null)"
 if [[ -z "$_brew_bin" ]]; then
-  for _brew_candidate in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+  for _brew_candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
     if [[ -x "$_brew_candidate" ]]; then
       _brew_bin="$_brew_candidate"
       break

@@ -11,23 +11,11 @@ fi
 
 _ssh_agent_process_matches() {
   local pid="$1"
-  local process_name process_cmdline
+  local process_name
 
   case "$pid" in
     '' | *[!0-9]*) return 1 ;;
   esac
-
-  if [[ -r "/proc/$pid/comm" ]]; then
-    IFS= read -r process_name <"/proc/$pid/comm" || return 1
-    [[ "$process_name" == "ssh-agent" ]]
-    return
-  fi
-
-  if [[ -r "/proc/$pid/cmdline" ]]; then
-    process_cmdline="$(tr '\0' ' ' <"/proc/$pid/cmdline" 2>/dev/null)" || return 1
-    [[ "$process_cmdline" == *ssh-agent* ]]
-    return
-  fi
 
   process_name="$(ps -p "$pid" -o comm= 2>/dev/null)" || return 1
   process_name="${process_name#"${process_name%%[![:space:]]*}"}"
