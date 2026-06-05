@@ -1,4 +1,3 @@
-#!/bin/bash
 # brew
 alias br="brew"
 alias br-u="brew update"

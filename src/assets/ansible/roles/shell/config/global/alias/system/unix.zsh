@@ -1,4 +1,3 @@
-#!/bin/bash
 alias al="alias"
 al-c() {
 	if [[ $# -eq 0 ]]; then

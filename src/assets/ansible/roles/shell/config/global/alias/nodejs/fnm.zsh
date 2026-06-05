@@ -1,4 +1,3 @@
-#!/bin/bash
 # FNM aliases
 alias fn="fnm"
 alias fn-i='fnm install'

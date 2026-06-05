@@ -1,4 +1,3 @@
-#!/bin/bash
 alias cld="claude"
 
 # Link AGENTS.md or README.md to .claude/CLAUDE.md
