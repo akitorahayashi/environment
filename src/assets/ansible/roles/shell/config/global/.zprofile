@@ -40,9 +40,3 @@ _path_append "$ANDROID_HOME/emulator"
 export GOENV_ROOT="${GOENV_ROOT:-$HOME/.goenv}"
 _path_prepend "$GOENV_ROOT/bin"
 _path_prepend "$HOME/go/bin"
-
-# SSH agent initialization
-if [[ -r "$HOME/.ssh/ssh-agent.zsh" ]]; then
-  # shellcheck disable=SC1091
-  source "$HOME/.ssh/ssh-agent.zsh"
-fi
