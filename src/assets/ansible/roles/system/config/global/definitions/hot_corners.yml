@@ -6,7 +6,7 @@
 - key: wvous-tl-corner
   domain: com.apple.dock
   type: int
-  default: 11
+  default: 10
   comment: "Hot Corners"
 
 # Configures the action for the top-right hot corner.
@@ -19,10 +19,10 @@
 - key: wvous-bl-corner
   domain: com.apple.dock
   type: int
-  default: 10
+  default: 0
 
 # Configures the action for the bottom-right hot corner.
 - key: wvous-br-corner
   domain: com.apple.dock
   type: int
-  default: 10
+  default: 0
