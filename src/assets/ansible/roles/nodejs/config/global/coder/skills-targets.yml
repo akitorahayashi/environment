@@ -1,8 +1,10 @@
 ---
 tools:
   codex:
-    skills_dir: "{{ ansible_facts['env']['HOME'] }}/.codex/skills"
+    skills_dir: ".codex/skills"
   claude:
-    skills_dir: "{{ ansible_facts['env']['HOME'] }}/.claude/skills"
-  antigravity_ide:
-    skills_dir: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity/skills"
+    skills_dir: ".claude/skills"
+  agy-ide:
+    skills_dir: ".config/google/antigravity/skills"
+  agy:
+    skills_dir: ".gemini/antigravity-cli/skills"

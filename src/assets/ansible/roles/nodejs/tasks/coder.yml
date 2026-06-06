@@ -45,25 +45,39 @@
     force: true
     mode: "0644"
 
+- name: "Ensure Gemini configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.gemini"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink Gemini AGENTS file"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/GEMINI.md"
+    state: link
+    force: true
+    mode: "0644"
+
+- name: "Ensure agy configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.gemini/antigravity-cli"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink agy settings.json"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/nodejs/global/coder/agy.json"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/antigravity-cli/settings.json"
+    state: link
+    force: true
+    mode: "0644"
+
 - name: "Create Claude commands directory"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.claude/commands"
     state: directory
     mode: "0755"
-
-- name: "Ensure Antigravity configuration directory exists"
-  ansible.builtin.file:
-    path: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity"
-    state: directory
-    mode: "0755"
-
-- name: "Symlink Antigravity AGENTS file"
-  ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity/AGENTS.md"
-    state: link
-    force: true
-    mode: "0644"
 
 - name: "Ensure Codex configuration directories exist"
   ansible.builtin.file:
@@ -111,14 +125,14 @@
 
 - name: "Ensure agent skills directories exist"
   ansible.builtin.file:
-    path: "{{ item.value.skills_dir }}"
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item.value.skills_dir }}"
     state: directory
     mode: "0755"
   loop: "{{ nodejs_coder_skills_targets.tools | dict2items }}"
 
 - name: "Find deployed agent skill links"
   ansible.builtin.find:
-    paths: "{{ item.value.skills_dir }}"
+    paths: "{{ ansible_facts['env']['HOME'] }}/{{ item.value.skills_dir }}"
     file_type: link
     depth: 1
   register: nodejs_coder_deployed_skill_links
@@ -135,7 +149,7 @@
 
 - name: "Inspect deployed agent skill paths"
   ansible.builtin.stat:
-    path: "{{ item.1.value.skills_dir }}/{{ item.0 }}"
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item.1.value.skills_dir }}/{{ item.0 }}"
   register: nodejs_coder_deployed_skill_stats
   loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools | dict2items) | list }}"
 
@@ -181,7 +195,7 @@
 - name: "Deploy global agent skills to all tools"
   ansible.builtin.file:
     src: "{{ nodejs_coder_skills_source_root }}/{{ item.0 }}"
-    dest: "{{ item.1.value.skills_dir }}/{{ item.0 }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.1.value.skills_dir }}/{{ item.0 }}"
     state: link
     force: true
   loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools | dict2items) | list }}"
