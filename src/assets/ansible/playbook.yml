@@ -26,6 +26,7 @@
       nd-t: ["fnm", "jq", "pnpm"]
       coder: ["fnm", "jq", "pnpm"]
       cdr: ["fnm", "jq", "pnpm"]
+      agy: ["fnm", "jq", "pnpm"]
       bun-platform: ["oven-sh/bun/bun"]
       b-p: ["oven-sh/bun/bun"]
       bun-tools: ["oven-sh/bun/bun"]
@@ -47,10 +48,9 @@
     cask_requirements:
       vscode: ["visual-studio-code"]
       co: ["visual-studio-code"]
+      agy: ["antigravity-cli"]
       antigravity-ide: ["antigravity-ide"]
       agy-ide: ["antigravity-ide"]
-      antigravity: ["antigravity-ide"]
-      agy: ["antigravity-ide"]
       zed: ["zed"]
       zd: ["zed"]
       ghostty: ["ghostty"]
@@ -76,13 +76,14 @@
       - zed
       - nvim
       - coder
+      - agy
       - ghostty
       - mlx
       - xcode
   roles:
     - { role: brew, tags: ["brew-formulae", "br-f", "brew-cask", "br-c"] }
     - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t"] }
-    - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr"] }
+    - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr", "agy"] }
     - { role: bun, tags: ["bun-platform", "b-p", "bun-tools", "b-t"] }
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
@@ -92,6 +93,6 @@
     - { role: ghostty, tags: ["ghostty", "gst"] }
     - { role: nvim, tags: ["nvim", "nv"] }
     - { role: shell, tags: ["shell", "sh"] }
-    - { role: editor, tags: ["vscode", "co", "antigravity-ide", "agy-ide", "antigravity", "agy", "zed", "zd", "xcode", "xc"] }
+    - { role: editor, tags: ["vscode", "co", "antigravity-ide", "agy-ide", "zed", "zd", "xcode", "xc"] }
     - { role: system, tags: ["system", "sys"] }
     - { role: llm, tags: ["ollama", "ol", "ollama-models", "ol-m", "mlx", "mlx-models"] }

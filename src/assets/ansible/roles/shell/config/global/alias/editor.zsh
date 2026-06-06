@@ -6,10 +6,6 @@ alias co-n="code --new-window"
 # Usage: co-w ../path1 /abs/path2
 alias co-w='mev internal shell gen-vscode-workspace'
 
-alias agy="agy-ide"
-alias agy-r="agy-ide --reuse-window"
-alias agy-n="agy-ide --new-window"
-
 alias zd="zed"
 alias zd-r="zed -r"
 alias zd-n="zed -n"

@@ -30,14 +30,6 @@ alias cdx-r="codex resume"
 alias cpt="copilot"
 alias cpt-ln='mkdir -p .github && ln -sf "${MEV_CODER_AGENTS_PATH:-$HOME/.config/mev/roles/nodejs/global/coder/AGENTS.md}" .github/copilot-instructions.md'
 
-# Basic gm alias
-alias gm="gemini"
-alias gm-pr="gemini -m gemini-3.1-pro-preview"
-alias gm-fl="gemini -m gemini-3-flash-preview"
-alias gm-lt="gemini -m gemini-2.5-flash-lite"
-alias gm-i="gemini -m gemini-2.5-flash-image-preview"
-alias gm-il="gemini -m gemini-2.5-flash-image-live-preview"
-
 ml-z() {
 	mlx_lm.server \
 		--model "${MLX_ZED_COMMIT_MODEL:-mlx-community/Qwen2.5-Coder-3B-Instruct-4bit}" \
