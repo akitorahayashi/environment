@@ -151,7 +151,7 @@ _find_bash_files:
 
 # @hidden
 _find_zsh_files:
-    @find src/assets/ansible/roles/shell src/assets/ansible/roles/ssh -type f \( \
+    @find src/assets/ansible/roles/shell -type f \( \
         -name "*.zsh" -o \
         -name ".zshenv" -o \
         -name ".zprofile" -o \

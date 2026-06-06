@@ -26,4 +26,4 @@ tools:
     tag: v1.0.0
   - name: ssv
     url: https://github.com/akitorahayashi/ssv
-    tag: v0.2.0
+    tag: v0.3.0
