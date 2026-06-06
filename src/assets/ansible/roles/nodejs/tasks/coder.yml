@@ -20,7 +20,6 @@
   loop:
     - "@openai/codex"
     - "@anthropic-ai/claude-code"
-    - "@google/gemini-cli"
   environment:
     PATH: "{{ nodejs_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
@@ -52,28 +51,6 @@
     state: directory
     mode: "0755"
 
-- name: "Ensure Gemini configuration directory exists"
-  ansible.builtin.file:
-    path: "{{ ansible_facts['env']['HOME'] }}/.gemini"
-    state: directory
-    mode: "0755"
-
-- name: "Symlink Gemini settings.json"
-  ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/global/coder/gemini.json"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/settings.json"
-    state: link
-    force: true
-    mode: "0644"
-
-- name: "Symlink Gemini AGENTS file"
-  ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/GEMINI.md"
-    state: link
-    force: true
-    mode: "0644"
-
 - name: "Ensure Antigravity configuration directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity"
@@ -87,25 +64,6 @@
     state: link
     force: true
     mode: "0644"
-
-- name: "Check if Gemini CLI is available"
-  ansible.builtin.command: "fnm exec --using={{ nodejs_version }} -- which gemini"
-  register: nodejs_gemini_cli_check
-  failed_when: false
-  changed_when: false
-  environment:
-    PATH: "{{ nodejs_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
-
-- name: "Warning if Gemini CLI not available"
-  ansible.builtin.debug:
-    msg: "Gemini CLI not found. Configuration files copied but MCP servers not installed via CLI."
-  when: nodejs_gemini_cli_check.rc != 0
-
-- name: "Create Gemini commands directory"
-  ansible.builtin.file:
-    path: "{{ ansible_facts['env']['HOME'] }}/.gemini/commands"
-    state: directory
-    mode: "0755"
 
 - name: "Ensure Codex configuration directories exist"
   ansible.builtin.file:
@@ -153,18 +111,18 @@
 
 - name: "Ensure agent skills directories exist"
   ansible.builtin.file:
-    path: "{{ ansible_facts['env']['HOME'] }}/.{{ item }}/skills"
+    path: "{{ item.value.skills_dir }}"
     state: directory
     mode: "0755"
-  loop: "{{ nodejs_coder_skills_targets.tools }}"
+  loop: "{{ nodejs_coder_skills_targets.tools | dict2items }}"
 
 - name: "Find deployed agent skill links"
   ansible.builtin.find:
-    paths: "{{ ansible_facts['env']['HOME'] }}/.{{ item }}/skills"
+    paths: "{{ item.value.skills_dir }}"
     file_type: link
     depth: 1
   register: nodejs_coder_deployed_skill_links
-  loop: "{{ nodejs_coder_skills_targets.tools }}"
+  loop: "{{ nodejs_coder_skills_targets.tools | dict2items }}"
 
 - name: "Remove stale managed agent skill links"
   ansible.builtin.file:
@@ -177,9 +135,9 @@
 
 - name: "Inspect deployed agent skill paths"
   ansible.builtin.stat:
-    path: "{{ ansible_facts['env']['HOME'] }}/.{{ item.1 }}/skills/{{ item.0 }}"
+    path: "{{ item.1.value.skills_dir }}/{{ item.0 }}"
   register: nodejs_coder_deployed_skill_stats
-  loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools) | list }}"
+  loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools | dict2items) | list }}"
 
 - name: "Reject agent skill file conflicts"
   ansible.builtin.fail:
@@ -220,10 +178,10 @@
     - not (item.skipped | default(false))
     - item.matched | default(0) | int == 0
 
-- name: "Deploy global agent skills to all CLIs"
+- name: "Deploy global agent skills to all tools"
   ansible.builtin.file:
     src: "{{ nodejs_coder_skills_source_root }}/{{ item.0 }}"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.{{ item.1 }}/skills/{{ item.0 }}"
+    dest: "{{ item.1.value.skills_dir }}/{{ item.0 }}"
     state: link
     force: true
-  loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools) | list }}"
+  loop: "{{ nodejs_coder_skills | product(nodejs_coder_skills_targets.tools | dict2items) | list }}"

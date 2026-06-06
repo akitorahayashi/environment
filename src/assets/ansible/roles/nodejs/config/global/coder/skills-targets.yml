@@ -1,6 +1,8 @@
 ---
 tools:
-  - codex
-  - claude
-  - gemini
-  - antigravity
+  codex:
+    skills_dir: "{{ ansible_facts['env']['HOME'] }}/.codex/skills"
+  claude:
+    skills_dir: "{{ ansible_facts['env']['HOME'] }}/.claude/skills"
+  antigravity_ide:
+    skills_dir: "{{ ansible_facts['env']['HOME'] }}/.config/google/antigravity/skills"
