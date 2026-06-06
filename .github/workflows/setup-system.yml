@@ -32,7 +32,7 @@ jobs:
       - name: Setup shell configuration
         run: |
           "$RUNNER_TEMP/mev-bin/mev" make shell
-        
+
       - name: Test shell aliases functionality
         shell: zsh {0}
         run: |
@@ -40,10 +40,6 @@ jobs:
           export PATH="$RUNNER_TEMP/mev-bin:${PATH}"
           source ~/.zshrc
           mk --version
-
-      - name: Setup SSH configuration
-        run: |
-          "$RUNNER_TEMP/mev-bin/mev" make ssh
 
       - name: Apply macOS system defaults
         run: |
