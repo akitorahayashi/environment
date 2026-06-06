@@ -46,6 +46,5 @@
     state: directory
     mode: "0755"
 
-# Note: Agent skills deployment is handled by nodejs/coder role via skills-targets.yml
-# Skills are automatically deployed from ~/.config/mev/roles/nodejs/global/coder/skills/
-# to ~/.config/google/antigravity/skills/ when the 'coder' role runs
+# Note: The Antigravity skills directory is created here as the parent for
+# nodejs/coder-managed agent skills at ~/.config/google/antigravity/skills/.

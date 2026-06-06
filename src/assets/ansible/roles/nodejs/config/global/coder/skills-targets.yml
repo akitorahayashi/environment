@@ -1,6 +1,10 @@
 ---
 tools:
-  - codex
-  - claude
-  - gemini
-  - antigravity
+  codex:
+    skills_dir: ".codex/skills"
+  claude:
+    skills_dir: ".claude/skills"
+  agy-ide:
+    skills_dir: ".config/google/antigravity/skills"
+  agy:
+    skills_dir: ".gemini/antigravity-cli/skills"
