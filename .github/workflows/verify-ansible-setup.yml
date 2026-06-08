@@ -35,7 +35,7 @@ on:
           - rust
           - go
           - nvim
-          - ide
+          - editor
           - system
           - brew-formulae
 
@@ -55,7 +55,7 @@ jobs:
       setup_rust: ${{ steps.filter.outputs.setup_rust }}
       setup_go: ${{ steps.filter.outputs.setup_go }}
       setup_nvim: ${{ steps.filter.outputs.setup_nvim }}
-      setup_ide: ${{ steps.filter.outputs.setup_ide }}
+      setup_editor: ${{ steps.filter.outputs.setup_editor }}
       setup_system: ${{ steps.filter.outputs.setup_system }}
       setup_brew_formulae: ${{ steps.filter.outputs.setup_brew_formulae }}
       any_setup: >-
@@ -68,7 +68,7 @@ jobs:
           steps.filter.outputs.setup_rust == 'true' ||
           steps.filter.outputs.setup_go == 'true' ||
           steps.filter.outputs.setup_nvim == 'true' ||
-          steps.filter.outputs.setup_ide == 'true' ||
+          steps.filter.outputs.setup_editor == 'true' ||
           steps.filter.outputs.setup_system == 'true' ||
           steps.filter.outputs.setup_brew_formulae == 'true'
         }}
@@ -111,9 +111,9 @@ jobs:
             setup_nvim:
               - 'src/assets/ansible/roles/nvim/**'
               - '.github/workflows/setup-nvim.yml'
-            setup_ide:
+            setup_editor:
               - 'src/assets/ansible/roles/editor/**'
-              - '.github/workflows/setup-ide.yml'
+              - '.github/workflows/setup-editor.yml'
             setup_system:
               - 'src/assets/ansible/roles/git/**'
               - 'src/assets/ansible/roles/gh/**'
@@ -246,17 +246,17 @@ jobs:
       needs.changes.outputs.setup_nvim == 'true'
     uses: ./.github/workflows/setup-nvim.yml
 
-  setup-ide:
+  setup-editor:
     needs:
       - changes
       - build-mev
     permissions:
       contents: read
     if: |
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'ide')) ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'editor')) ||
       needs.changes.outputs.all_setups == 'true' ||
-      needs.changes.outputs.setup_ide == 'true'
-    uses: ./.github/workflows/setup-ide.yml
+      needs.changes.outputs.setup_editor == 'true'
+    uses: ./.github/workflows/setup-editor.yml
 
   setup-system:
     needs:
