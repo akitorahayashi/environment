@@ -25,6 +25,9 @@ jobs:
         run: |
           "$RUNNER_TEMP/mev-bin/mev" make bun-platform
 
+      - name: Add Bun to PATH
+        run: echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+
       - name: Verify Bun after bun-platform setup
         run: |
           bun --version

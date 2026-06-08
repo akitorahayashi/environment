@@ -31,6 +31,7 @@ _path_prepend "$HOME/.local/pipx/venvs/mlx-hub/bin"
 _path_prepend "$HOME/.menv/venvs/mlx-lm/bin"
 _path_prepend "/opt/homebrew/opt/poppler/bin"
 _path_prepend "$PNPM_HOME"
+_path_prepend "$BUN_INSTALL/bin"
 
 _path_prepend "$ANDROID_HOME/cmdline-tools/latest/bin"
 _path_prepend "$ANDROID_HOME/tools/bin"
