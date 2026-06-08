@@ -33,3 +33,9 @@
   changed_when: false
   environment:
     PATH: "{{ bun_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Deploy global bunfig.toml"
+  ansible.builtin.copy:
+    src: "{{ local_config_root }}/bun/global/.bunfig.toml"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.bunfig.toml"
+    mode: "0644"
