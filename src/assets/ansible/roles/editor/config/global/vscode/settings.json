@@ -5,8 +5,8 @@
   "workbench.browser.openLocalhostLinks": false,
   "workbench.externalBrowser": "chrome",
   "window.commandCenter": true,
+
   "telemetry.telemetryLevel": "off",
-  "chat.disableAIFeatures": true,
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
