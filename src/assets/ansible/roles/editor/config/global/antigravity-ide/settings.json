@@ -1,6 +1,8 @@
 {
   "workbench.colorTheme": "Default Light+",
   "workbench.preferredDarkColorTheme": "Default Dark+",
+  "telemetry.telemetryLevel": "off",
+  "chat.disableAIFeatures": true,
   "editor.formatOnSave": true,
   "explorer.confirmDragAndDrop": false,
   "explorer.confirmDelete": false,
@@ -8,7 +10,7 @@
   "chat.editing.confirmEditRequestRemoval": false,
   "diffEditor.ignoreTrimWhitespace": false,
   "terminal.integrated.enableMultiLinePasteWarning": "never",
-  "github.copilot.nextEditSuggestions.enabled": true,
+  "github.copilot.nextEditSuggestions.enabled": false,
   "editor.minimap.enabled": false,
   "git.enableSmartCommit": true,
   "git.autofetch": true,
@@ -28,7 +30,6 @@
   "editor.renderWhitespace": "all",
   "git.confirmSync": false,
   "git.replaceTagsWhenPull": true,
-  "window.commandCenter": true,
   "chat.agent.maxRequests": 500,
   "python.languageServer": "Default",
   "application.shellEnvironmentResolutionTimeout": 10
