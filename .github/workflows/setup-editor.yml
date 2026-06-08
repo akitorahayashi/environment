@@ -1,4 +1,4 @@
-name: Setup IDE
+name: Setup Editor
 
 on:
   workflow_call:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  setup-ide:
+  setup-editor:
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -27,12 +27,12 @@ jobs:
 
       - name: Setup Antigravity configuration
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make agy-ide
+          "$RUNNER_TEMP/mev-bin/mev" make antigravity-ide
 
       - name: Setup Zed configuration
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make zd
+          "$RUNNER_TEMP/mev-bin/mev" make zed
 
       - name: Setup Xcode configuration
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make xc
+          "$RUNNER_TEMP/mev-bin/mev" make xcode

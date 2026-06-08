@@ -59,15 +59,15 @@
     force: true
     mode: "0644"
 
-- name: "Ensure agy configuration directory exists"
+- name: "Ensure antigravity configuration directory exists"
   ansible.builtin.file:
     path: "{{ ansible_facts['env']['HOME'] }}/.gemini/antigravity-cli"
     state: directory
     mode: "0755"
 
-- name: "Symlink agy settings.json"
+- name: "Symlink antigravity settings.json"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/global/coder/agy.json"
+    src: "{{ local_config_root }}/nodejs/global/coder/antigravity.json"
     dest: "{{ ansible_facts['env']['HOME'] }}/.gemini/antigravity-cli/settings.json"
     state: link
     force: true
