@@ -27,12 +27,12 @@ jobs:
 
       - name: Setup Antigravity configuration
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make antigravity
+          "$RUNNER_TEMP/mev-bin/mev" make agy-ide
 
       - name: Setup Zed configuration
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make zed
+          "$RUNNER_TEMP/mev-bin/mev" make zd
 
       - name: Setup Xcode configuration
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make xcode
+          "$RUNNER_TEMP/mev-bin/mev" make xc
