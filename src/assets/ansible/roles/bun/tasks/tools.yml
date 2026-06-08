@@ -28,7 +28,7 @@
     label: "{{ item.key }}"
   changed_when: true
   environment:
-    PATH: "{{ bun_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ bun_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
   when: >-
     (item.value | default('latest')) == 'latest' or
     bun_global_package_manifests.results[idx].failed | default(false) or

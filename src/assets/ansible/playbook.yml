@@ -10,11 +10,7 @@
       bun: ["bun-platform", "bun-tools"]
       go: ["go-platform", "go-tools"]
       desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
-    tap_requirements:
-      bun-platform: ["oven-sh/bun"]
-      b-p: ["oven-sh/bun"]
-      bun-tools: ["oven-sh/bun"]
-      b-t: ["oven-sh/bun"]
+    tap_requirements: {}
     formula_requirements:
       python-platform: ["uv"]
       py-p: ["uv"]
@@ -27,10 +23,6 @@
       coder: ["fnm", "jq", "pnpm"]
       cdr: ["fnm", "jq", "pnpm"]
       agy: ["fnm", "jq", "pnpm"]
-      bun-platform: ["oven-sh/bun/bun"]
-      b-p: ["oven-sh/bun/bun"]
-      bun-tools: ["oven-sh/bun/bun"]
-      b-t: ["oven-sh/bun/bun"]
       ruby: ["openssl@3", "rbenv", "ruby-build"]
       rb: ["openssl@3", "rbenv", "ruby-build"]
       go-platform: ["goenv"]

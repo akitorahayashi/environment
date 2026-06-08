@@ -1,13 +1,22 @@
 ---
-- name: "Find Homebrew prefix"
+- name: "Check if Bun is installed"
   ansible.builtin.command:
-    cmd: "brew --prefix"
-  register: bun_homebrew_prefix
+    cmd: "bun --version"
+  register: bun_check
   changed_when: false
+  failed_when: false
+  environment:
+    PATH: "{{ ansible_facts['env']['HOME'] }}/.bun/bin:{{ ansible_facts['env']['PATH'] }}"
 
-- name: "Set Homebrew binary path"
+- name: "Install Bun via official installer"
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://bun.sh/install | bash"
+  when: bun_check.rc != 0
+  changed_when: true
+
+- name: "Set Bun binary path"
   ansible.builtin.set_fact:
-    bun_homebrew_bin_path: "{{ bun_homebrew_prefix.stdout }}/bin"
+    bun_bin_path: "{{ ansible_facts['env']['HOME'] }}/.bun/bin"
 
 - name: "Verify Bun version"
   ansible.builtin.command:
@@ -15,7 +24,7 @@
   register: bun_version_check
   changed_when: false
   environment:
-    PATH: "{{ bun_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ bun_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
 
 - name: "Verify Bun revision"
   ansible.builtin.command:
@@ -23,4 +32,4 @@
   register: bun_revision_check
   changed_when: false
   environment:
-    PATH: "{{ bun_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ bun_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
