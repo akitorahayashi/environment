@@ -1,13 +1,22 @@
 # Default model to use
-model = "gpt-5-codex"
-
-# Model provider (e.g., "openai", "azure")
+model = "gpt-5.4"
 model_provider = "openai"
+model_reasoning_effort = "medium"
 
 # Approval policy for executing commands
-# Options: "untrusted", "on-failure", "on-request", "never"
 approval_policy = "on-request"
 
 # Sandbox execution mode
-# Options: "read-only", "workspace-write", "danger-full-access"
-sandbox_mode = "danger-full-access"
+sandbox_mode = "workspace-write"
+
+[analytics]
+enabled = false
+
+[otel]
+exporter = "none"
+metrics_exporter = "none"
+trace_exporter = "none"
+log_user_prompt = false
+
+[sandbox_workspace_write]
+network_access = false
