@@ -28,7 +28,7 @@ alias cdx-e="codex exec"
 alias cdx-r="codex resume"
 
 alias cpt="copilot"
-alias cpt-ln='mkdir -p .github && ln -sf "${MEV_CODER_AGENTS_PATH:-$HOME/.config/mev/roles/nodejs/global/coder/AGENTS.md}" .github/copilot-instructions.md'
+alias cpt-ln='mkdir -p .github && ln -sf "${MEV_CODER_AGENTS_PATH:-$HOME/.config/mev/roles/coder/global/AGENTS.md}" .github/copilot-instructions.md'
 
 ml-z() {
 	mlx_lm.server \

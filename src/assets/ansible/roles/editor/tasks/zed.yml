@@ -19,7 +19,7 @@
 
 - name: "Symlink Zed AGENTS file"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/nodejs/global/coder/AGENTS.md"
+    src: "{{ local_config_root }}/coder/global/AGENTS.md"
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/zed/AGENTS.md"
     state: link
     force: true

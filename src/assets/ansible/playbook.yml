@@ -6,7 +6,6 @@
     tag_groups:
       rust: ["rust-platform", "rust-tools"]
       python: ["python-platform", "python-tools"]
-      nodejs: ["nodejs-platform", "nodejs-tools"]
       bun: ["bun"]
       go: ["go-platform", "go-tools"]
       desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
@@ -16,13 +15,10 @@
       py-p: ["uv"]
       python-tools: ["uv", "pipx"]
       py-t: ["uv", "pipx"]
-      nodejs-platform: ["fnm", "jq", "pnpm"]
-      nd-p: ["fnm", "jq", "pnpm"]
-      nodejs-tools: ["fnm", "jq", "pnpm"]
-      nd-t: ["fnm", "jq", "pnpm"]
-      coder: ["fnm", "jq", "pnpm"]
-      cdr: ["fnm", "jq", "pnpm"]
-      agy: ["fnm", "jq", "pnpm"]
+      nodejs: ["fnm"]
+      nd: ["fnm"]
+      pnpm: ["pnpm"]
+      pn: ["pnpm"]
       ruby: ["openssl@3", "rbenv", "ruby-build"]
       rb: ["openssl@3", "rbenv", "ruby-build"]
       go-platform: ["goenv"]
@@ -40,7 +36,6 @@
     cask_requirements:
       vscode: ["visual-studio-code"]
       co: ["visual-studio-code"]
-      agy: ["antigravity-cli"]
       antigravity-ide: ["antigravity-ide"]
       agy-ide: ["antigravity-ide"]
       zed: ["zed"]
@@ -55,28 +50,29 @@
       - git
       - gh
       - python-platform
-      - nodejs-platform
+      - nodejs
+      - pnpm
       - bun
       - ruby
       - rust-platform
       - go-platform
       - python-tools
-      - nodejs-tools
       - rust-tools
       - go-tools
       - vscode
       - zed
       - nvim
       - coder
-      - agy
       - ghostty
       - mlx
       - xcode
   roles:
     - { role: brew, tags: ["brew-formulae", "br-f", "brew-cask", "br-c"] }
     - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t"] }
-    - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr", "agy"] }
+    - { role: nodejs, tags: ["nodejs", "nd"] }
+    - { role: pnpm, tags: ["pnpm", "pn"] }
     - { role: bun, tags: ["bun", "b"] }
+    - { role: coder, tags: ["coder", "cdr", "agy"] }
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
     - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
