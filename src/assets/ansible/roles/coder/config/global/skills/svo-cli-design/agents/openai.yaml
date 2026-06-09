@@ -1,0 +1,5 @@
+---
+interface:
+  display_name: "SVO CLI Designer"
+  short_description: "Design CLI commands with SVO-first structure"
+  default_prompt: "Use $svo-cli-design to review this CLI proposal and produce SVO-first changes."

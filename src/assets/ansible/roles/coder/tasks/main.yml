@@ -1,0 +1,197 @@
+---
+- name: "Set coder CLI paths"
+  ansible.builtin.set_fact:
+    coder_bin_dir: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
+    coder_command_path: "{{ ansible_facts['env']['HOME'] }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Check Claude Code binary"
+  ansible.builtin.stat:
+    path: "{{ coder_bin_dir }}/claude"
+  register: coder_claude_binary
+
+- name: "Install Claude Code via official installer" # noqa: command-instead-of-module risky-shell-pipe
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://claude.ai/install.sh | bash"
+    executable: /bin/bash
+  environment:
+    PATH: "{{ coder_command_path }}"
+  register: coder_claude_install
+  retries: 3
+  delay: 5
+  until: coder_claude_install is succeeded
+  when: not coder_claude_binary.stat.exists
+  changed_when: true
+
+- name: "Check Codex binary"
+  ansible.builtin.stat:
+    path: "{{ coder_bin_dir }}/codex"
+  register: coder_codex_binary
+
+- name: "Install Codex via official installer" # noqa: command-instead-of-module risky-shell-pipe
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://chatgpt.com/codex/install.sh | sh"
+    executable: /bin/sh
+  environment:
+    CODEX_NON_INTERACTIVE: "true"
+    PATH: "{{ coder_command_path }}"
+  register: coder_codex_install
+  retries: 3
+  delay: 5
+  until: coder_codex_install is succeeded
+  when: not coder_codex_binary.stat.exists
+  changed_when: true
+
+- name: "Check Antigravity CLI binary"
+  ansible.builtin.stat:
+    path: "{{ coder_bin_dir }}/agy"
+  register: coder_antigravity_cli_binary
+
+- name: "Install Antigravity CLI via official installer" # noqa: command-instead-of-module risky-shell-pipe
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+    executable: /bin/bash
+  environment:
+    PATH: "{{ coder_command_path }}"
+  register: coder_antigravity_cli_install
+  retries: 3
+  delay: 5
+  until: coder_antigravity_cli_install is succeeded
+  when: not coder_antigravity_cli_binary.stat.exists
+  changed_when: true
+
+- name: "Verify coder CLI versions"
+  ansible.builtin.command:
+    argv:
+      - "{{ coder_bin_dir }}/{{ item }}"
+      - --version
+  loop:
+    - claude
+    - codex
+    - agy
+  changed_when: false
+
+- name: "Ensure coder configuration directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - .claude
+    - .claude/commands
+    - .codex
+    - .codex/prompts
+    - .config/zed
+    - .gemini
+    - .gemini/antigravity-cli
+
+- name: "Symlink coder configuration files"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/coder/global/{{ item.src }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.dest }}"
+    state: link
+    force: true
+    mode: "0644"
+  loop:
+    - { src: "claude/settings.json", dest: ".claude/settings.json" }
+    - { src: "AGENTS.md", dest: ".claude/CLAUDE.md" }
+    - { src: "codex/config.toml", dest: ".codex/config.toml" }
+    - { src: "AGENTS.md", dest: ".codex/AGENTS.md" }
+    - { src: "AGENTS.md", dest: ".config/zed/AGENTS.md" }
+    - { src: "AGENTS.md", dest: ".gemini/GEMINI.md" }
+    - { src: "antigravity-cli/settings.json", dest: ".gemini/antigravity-cli/settings.json" }
+
+- name: "Load agent skills targets"
+  ansible.builtin.set_fact:
+    coder_skills_targets: "{{ lookup('file', local_config_root + '/coder/global/skills-targets.yml') | from_yaml }}"
+
+- name: "Discover global agent skills"
+  ansible.builtin.find:
+    paths: "{{ local_config_root }}/coder/global/skills"
+    file_type: directory
+    depth: 1
+  register: coder_skills_find
+
+- name: "Set agent skills list"
+  ansible.builtin.set_fact:
+    coder_skills: "{{ coder_skills_find.files | map(attribute='path') | map('basename') | list }}"
+
+- name: "Set agent skills source root"
+  ansible.builtin.set_fact:
+    coder_skills_source_root: "{{ [local_config_root, 'coder/global/skills'] | path_join }}"
+
+- name: "Ensure agent skills directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item.value.skills_dir }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ coder_skills_targets.tools | dict2items }}"
+
+- name: "Find deployed agent skill links"
+  ansible.builtin.find:
+    paths: "{{ ansible_facts['env']['HOME'] }}/{{ item.value.skills_dir }}"
+    file_type: link
+    depth: 1
+  register: coder_deployed_skill_links
+  loop: "{{ coder_skills_targets.tools | dict2items }}"
+
+- name: "Remove stale managed agent skill links"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ coder_deployed_skill_links.results | map(attribute='files') | flatten }}"
+  when:
+    - (item.lnk_target | default('')).startswith(coder_skills_source_root ~ '/')
+    - item.path | basename not in coder_skills
+
+- name: "Inspect deployed agent skill paths"
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item.1.value.skills_dir }}/{{ item.0 }}"
+  register: coder_deployed_skill_stats
+  loop: "{{ coder_skills | product(coder_skills_targets.tools | dict2items) | list }}"
+
+- name: "Reject agent skill file conflicts"
+  ansible.builtin.fail:
+    msg: "Managed agent skill path {{ item.stat.path }} already exists as a file. Remove or rename it before deploying managed skills."
+  loop: "{{ coder_deployed_skill_stats.results }}"
+  when:
+    - item.stat.exists
+    - not item.stat.islnk
+    - not item.stat.isdir
+
+- name: "Inspect agent skill directory conflicts"
+  ansible.builtin.find:
+    paths: "{{ item.stat.path }}"
+    recurse: false
+    hidden: true
+    file_type: any
+  register: coder_skill_directory_entries
+  loop: "{{ coder_deployed_skill_stats.results }}"
+  when:
+    - item.stat.exists
+    - not item.stat.islnk
+    - item.stat.isdir
+
+- name: "Reject non-empty agent skill directory conflicts"
+  ansible.builtin.fail:
+    msg: "Managed agent skill path {{ item.item.stat.path }} already exists as a non-empty directory. Remove or rename it before deploying managed skills."
+  loop: "{{ coder_skill_directory_entries.results }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.matched | default(0) | int > 0
+
+- name: "Remove empty agent skill directory conflicts"
+  ansible.builtin.file:
+    path: "{{ item.item.stat.path }}"
+    state: absent
+  loop: "{{ coder_skill_directory_entries.results }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.matched | default(0) | int == 0
+
+- name: "Deploy global agent skills to all tools"
+  ansible.builtin.file:
+    src: "{{ coder_skills_source_root }}/{{ item.0 }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.1.value.skills_dir }}/{{ item.0 }}"
+    state: link
+    force: true
+  loop: "{{ coder_skills | product(coder_skills_targets.tools | dict2items) | list }}"
