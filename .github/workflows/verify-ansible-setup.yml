@@ -21,6 +21,7 @@ on:
       - 'src/assets/ansible/roles/python/**'
       - 'src/assets/ansible/roles/ruby/**'
       - 'src/assets/ansible/roles/rust/**'
+      - 'src/assets/ansible/roles/rust_cli/**'
       - 'src/assets/ansible/roles/shell/**'
       - 'src/assets/ansible/roles/system/**'
       - '.github/workflows/setup-*.yml'
@@ -41,6 +42,7 @@ on:
       - 'src/assets/ansible/roles/python/**'
       - 'src/assets/ansible/roles/ruby/**'
       - 'src/assets/ansible/roles/rust/**'
+      - 'src/assets/ansible/roles/rust_cli/**'
       - 'src/assets/ansible/roles/shell/**'
       - 'src/assets/ansible/roles/system/**'
       - '.github/workflows/setup-*.yml'
@@ -61,6 +63,7 @@ on:
           - bun
           - ruby
           - rust
+          - rust-cli
           - go
           - nvim
           - editor
@@ -83,6 +86,7 @@ jobs:
       setup_bun: ${{ steps.filter.outputs.setup_bun }}
       setup_ruby: ${{ steps.filter.outputs.setup_ruby }}
       setup_rust: ${{ steps.filter.outputs.setup_rust }}
+      setup_rust_cli: ${{ steps.filter.outputs.setup_rust_cli }}
       setup_go: ${{ steps.filter.outputs.setup_go }}
       setup_nvim: ${{ steps.filter.outputs.setup_nvim }}
       setup_editor: ${{ steps.filter.outputs.setup_editor }}
@@ -98,6 +102,7 @@ jobs:
           steps.filter.outputs.setup_bun == 'true' ||
           steps.filter.outputs.setup_ruby == 'true' ||
           steps.filter.outputs.setup_rust == 'true' ||
+          steps.filter.outputs.setup_rust_cli == 'true' ||
           steps.filter.outputs.setup_go == 'true' ||
           steps.filter.outputs.setup_nvim == 'true' ||
           steps.filter.outputs.setup_editor == 'true' ||
@@ -141,6 +146,9 @@ jobs:
             setup_rust:
               - 'src/assets/ansible/roles/rust/**'
               - '.github/workflows/setup-rust.yml'
+            setup_rust_cli:
+              - 'src/assets/ansible/roles/rust_cli/**'
+              - '.github/workflows/setup-rust-cli.yml'
             setup_go:
               - 'src/assets/ansible/roles/go/**'
               - '.github/workflows/setup-go.yml'
@@ -284,6 +292,17 @@ jobs:
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'rust')) ||
       needs.changes.outputs.setup_rust == 'true'
     uses: ./.github/workflows/setup-rust.yml
+
+  setup-rust-cli:
+    needs:
+      - changes
+      - build-mev
+    permissions:
+      contents: read
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'rust-cli')) ||
+      needs.changes.outputs.setup_rust_cli == 'true'
+    uses: ./.github/workflows/setup-rust-cli.yml
 
   setup-go:
     needs:

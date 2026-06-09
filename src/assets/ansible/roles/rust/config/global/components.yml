@@ -1,0 +1,6 @@
+---
+# Standard components provided by the Rust toolchain.
+components:
+  - rustfmt
+  - clippy
+  - rust-analyzer

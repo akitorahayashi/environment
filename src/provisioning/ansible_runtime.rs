@@ -581,13 +581,13 @@ mod tests {
         let playbook_path = dir.path().join("playbook.yml");
         fs::write(
             &playbook_path,
-            "- name: first\n  vars:\n    tag_groups:\n      rust: [\"rust-platform\"]\n- name: second\n  vars:\n    tag_groups:\n      rust: [\"rust-tools\"]\n",
+            "- name: first\n  vars:\n    tag_groups:\n      desktop: [\"vscode\"]\n- name: second\n  vars:\n    tag_groups:\n      desktop: [\"zed\"]\n",
         )?;
 
         let catalog = load_catalog(playbook_path.as_path())?;
         assert_eq!(
-            catalog.tag_groups.get("rust"),
-            Some(&vec!["rust-platform".to_string(), "rust-tools".to_string()])
+            catalog.tag_groups.get("desktop"),
+            Some(&vec!["vscode".to_string(), "zed".to_string()])
         );
 
         Ok(())
