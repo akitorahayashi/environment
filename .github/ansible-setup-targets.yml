@@ -47,6 +47,8 @@ targets:
     name: Rust CLI
     roles: [rust_cli]
     commands: [rust-cli]
+    env:
+      GH_TOKEN: "${{ github.token }}"
 
   go:
     name: Go
