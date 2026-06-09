@@ -26,8 +26,6 @@ jobs:
 
       - name: Run rust-cli setup
         shell: bash
-        env:
-          GH_TOKEN: "${{ github.token }}"
         run: |
           set -euo pipefail
           "$RUNNER_TEMP/mev-bin/mev" make rust-cli
