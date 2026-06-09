@@ -7,7 +7,7 @@
       rust: ["rust-platform", "rust-tools"]
       python: ["python-platform", "python-tools"]
       nodejs: ["nodejs-platform", "nodejs-tools"]
-      bun: ["bun-platform", "bun-tools"]
+      bun: ["bun"]
       go: ["go-platform", "go-tools"]
       desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
     tap_requirements: {}
@@ -56,7 +56,7 @@
       - gh
       - python-platform
       - nodejs-platform
-      - bun-platform
+      - bun
       - ruby
       - rust-platform
       - go-platform
@@ -76,7 +76,7 @@
     - { role: brew, tags: ["brew-formulae", "br-f", "brew-cask", "br-c"] }
     - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t"] }
     - { role: nodejs, tags: ["nodejs-platform", "nd-p", "nodejs-tools", "nd-t", "coder", "cdr", "agy"] }
-    - { role: bun, tags: ["bun-platform", "b-p", "bun-tools", "b-t"] }
+    - { role: bun, tags: ["bun", "b"] }
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
     - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
