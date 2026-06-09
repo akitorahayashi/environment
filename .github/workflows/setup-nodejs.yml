@@ -1,4 +1,7 @@
-name: Setup Node.js and LLM Tools
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
+name: Setup Node.js
 
 on:
   workflow_call:
@@ -21,14 +24,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run nodejs-platform setup
+      - name: Run nodejs setup
+        shell: bash
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make nodejs-platform
-
-      - name: Run nodejs-tools setup
-        run: |
-          "$RUNNER_TEMP/mev-bin/mev" make nodejs-tools
-
-      - name: Setup Node.js LLM Tools
-        run: |
-          "$RUNNER_TEMP/mev-bin/mev" make coder
+          set -euo pipefail
+          "$RUNNER_TEMP/mev-bin/mev" make nodejs

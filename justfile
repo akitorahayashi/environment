@@ -43,6 +43,7 @@ fix:
     cargo fmt
     mise exec -- just internal::fix
     mise exec -- just zfix
+    mise exec -- just generate-ansible-setups
     @files=$(mise exec -- just _find_bash_files); \
     if [ -n "$files" ]; then \
         shfmt -w -d $files; \
@@ -55,6 +56,7 @@ check:
     cargo fmt --check
     cargo clippy --all-targets --all-features -- -D warnings
     mise exec -- just internal::check
+    mise exec -- just verify-generated-ansible-setups
     @files=$(mise exec -- just _find_bash_files); \
     if [ -n "$files" ]; then \
         shellcheck $files; \
@@ -106,6 +108,14 @@ build-release-darwin-aarch64:
 # ==============================================================================
 # Workflow Validation
 # ==============================================================================
+
+# Generate Ansible setup workflows from the target manifest
+generate-ansible-setups:
+    uv run python .github/scripts/generate_ansible_setup_workflows.py
+
+# Verify committed Ansible setup workflows match the target manifest
+verify-generated-ansible-setups:
+    uv run python .github/scripts/generate_ansible_setup_workflows.py --check
 
 # Apply safe zizmor auto-fixes to committed workflows
 zfix:

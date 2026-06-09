@@ -46,5 +46,13 @@ The CLI commands are detailed in [Docs Usage](docs/usage.md).
 
 ## Python Surface
 
-Python ownership is limited to development tooling (`ansible` and `ansible-lint`) managed by `pyproject.toml`.
+Python ownership is limited to development tooling managed by `pyproject.toml`.
 Runtime command ownership belongs to the Rust implementation.
+
+## Generated Ansible Setup Workflows
+
+- `.github/ansible-setup-targets.yml` is the source of truth for Ansible setup CI targets.
+- `.github/scripts/generate_ansible_setup_workflows.py` generates `.github/workflows/setup-*.yml` and `.github/workflows/verify-ansible-setup.yml`.
+- Generated setup workflows are derived artifacts and are excluded from routine inspection and direct editing.
+- `just generate-ansible-setups` updates generated workflows.
+- `just verify-generated-ansible-setups` verifies generated workflows match their source.

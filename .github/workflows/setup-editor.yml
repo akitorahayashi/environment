@@ -1,3 +1,6 @@
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
 name: Setup Editor
 
 on:
@@ -21,18 +24,11 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup VSCode configuration
+      - name: Run editor setup
+        shell: bash
         run: |
+          set -euo pipefail
           "$RUNNER_TEMP/mev-bin/mev" make vscode
-
-      - name: Setup Antigravity configuration
-        run: |
           "$RUNNER_TEMP/mev-bin/mev" make antigravity-ide
-
-      - name: Setup Zed configuration
-        run: |
           "$RUNNER_TEMP/mev-bin/mev" make zed
-
-      - name: Setup Xcode configuration
-        run: |
           "$RUNNER_TEMP/mev-bin/mev" make xcode
