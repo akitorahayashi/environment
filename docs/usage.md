@@ -22,8 +22,9 @@ mev make bun              # Run Bun setup and global packages
 mev make b                # Shorthand
 mev make nodejs           # Install and configure the Node.js runtime
 mev make pnpm             # Configure pnpm and install global packages
+mev make python           # Install and configure uv-managed Python
+mev make pipx             # Install Python applications with pipx
 mev make coder            # Install and configure coding agent CLIs
-mev make python-tools     # Run python-tools
 mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
 mev make desktop          # Install required editor/terminal casks, then configure them
@@ -37,7 +38,6 @@ mev make br-c -p mmn      # Run global casks + Mac mini casks
 # Tag groups expand automatically:
 #   rust → rust-platform, rust-tools
 #   go → go-platform, go-tools
-#   python → python-platform, python-tools
 #   bun → bun
 #   desktop → vscode, antigravity-ide, zed, ghostty
 ```
@@ -53,6 +53,7 @@ mev cf dp                 # Shorthand
 mev config deploy rust    # Deploy only rust role config
 mev config deploy bun     # Deploy only bun role config
 mev config deploy pnpm    # Deploy only pnpm role config
+mev config deploy pipx    # Deploy only pipx role config
 mev config deploy coder   # Deploy only coding agent config
 ```
 

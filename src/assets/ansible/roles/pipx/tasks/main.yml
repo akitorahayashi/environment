@@ -1,0 +1,169 @@
+---
+- name: "Find Homebrew prefix"
+  ansible.builtin.command:
+    cmd: "brew --prefix"
+  register: pipx_homebrew_prefix
+  changed_when: false
+
+- name: "Set pipx paths"
+  ansible.builtin.set_fact:
+    pipx_homebrew_bin_path: "{{ pipx_homebrew_prefix.stdout }}/bin"
+    pipx_home: >-
+      {{
+        ansible_facts['env']['PIPX_HOME']
+        if (ansible_facts['env']['PIPX_HOME'] | default('') | length > 0)
+        else ([ansible_facts['env']['HOME'], '.local', 'pipx'] | path_join)
+      }}
+
+- name: "Set pipx venv directory"
+  ansible.builtin.set_fact:
+    pipx_venvs_dir: "{{ [pipx_home, 'venvs'] | path_join }}"
+
+- name: "Load tools configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/pipx/global/tools.yml"
+    name: pipx_config
+
+- name: "Read installed tools"
+  ansible.builtin.command:
+    cmd: "pipx list --json"
+  register: pipx_list
+  changed_when: false
+  check_mode: false
+  environment:
+    PATH: "{{ pipx_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Set installed tools"
+  ansible.builtin.set_fact:
+    pipx_installed_packages: >-
+      {%- set installed = {} -%}
+      {%- for venv in ((pipx_list.stdout | from_json).venvs | dict2items) -%}
+      {%-   set package = venv.value.metadata.main_package.package -%}
+      {%-   set _ = installed.update({
+              package: {
+                'venv_name': venv.key,
+                'package_or_url': venv.value.metadata.main_package.package_or_url,
+                'package_version': venv.value.metadata.main_package.package_version,
+                'dependency_packages': (
+                  venv.value.metadata.main_package.app_paths_of_dependencies.keys() | list
+                )
+              }
+            }) -%}
+      {%- endfor -%}
+      {{ installed }}
+
+- name: "Uninstall outdated tools"
+  ansible.builtin.command:
+    argv:
+      - pipx
+      - uninstall
+      - "{{ item.package }}"
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.package }}"
+  when: >
+    item.package in pipx_installed_packages and
+    (
+      (
+        item.install_spec is defined and
+        item.install_spec != pipx_installed_packages[item.package].package_or_url
+      ) or
+      (
+        item.version is defined and
+        item.version != pipx_installed_packages[item.package].package_version
+      )
+    )
+  changed_when: true
+  environment:
+    PATH: "{{ pipx_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Remove residual tool environments"
+  ansible.builtin.file:
+    path: "{{ [pipx_venvs_dir, item.package] | path_join }}"
+    state: absent
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.package }}"
+  when: >
+    item.package not in pipx_installed_packages or
+    (
+      item.package in pipx_installed_packages and
+      (
+        (
+          item.install_spec is defined and
+          item.install_spec != pipx_installed_packages[item.package].package_or_url
+        ) or
+        (
+          item.version is defined and
+          item.version != pipx_installed_packages[item.package].package_version
+        )
+      )
+    )
+
+- name: "Install or update tools"
+  ansible.builtin.command:
+    argv:
+      - pipx
+      - install
+      - >-
+        {{
+          item.install_spec
+          | default(
+              item.package ~ ('==' ~ item.version if item.version is defined else '')
+            )
+        }}
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.package }}"
+    index_var: idx
+  register: pipx_install_result
+  changed_when: "'installed package' in pipx_install_result.stdout or 'upgraded package' in pipx_install_result.stdout"
+  when: >
+    item.package not in pipx_installed_packages or
+    (
+      item.package in pipx_installed_packages and
+      (
+        (
+          item.install_spec is defined and
+          item.install_spec != pipx_installed_packages[item.package].package_or_url
+        ) or
+        (
+          item.version is defined and
+          item.version != pipx_installed_packages[item.package].package_version
+        )
+      )
+    )
+  environment:
+    PATH: "{{ pipx_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Inject tool dependencies"
+  ansible.builtin.command:
+    argv: "{{ ['pipx', 'inject', item.package] + item.inject }}"
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.package }}"
+    index_var: idx
+  register: pipx_inject_result
+  changed_when: true
+  when:
+    - item.inject is defined
+    - >
+      pipx_install_result.results[idx].changed or
+      item.package not in pipx_installed_packages or
+      (item.inject | difference(pipx_installed_packages[item.package].dependency_packages) | length > 0)
+  environment:
+    PATH: "{{ pipx_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Run post-install commands"
+  ansible.builtin.command:
+    argv: "{{ item.post_install.argv }}"
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.package }}"
+    index_var: idx
+  changed_when: true
+  when:
+    - item.post_install is defined
+    - >
+      pipx_install_result.results[idx].changed or
+      (item.inject is defined and pipx_inject_result.results[idx].changed | default(false))

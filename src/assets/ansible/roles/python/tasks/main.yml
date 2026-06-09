@@ -8,14 +8,33 @@
   ansible.builtin.set_fact:
     python_version: "{{ python_version_file.content | b64decode | trim }}"
 
-- name: "Setup Python platform"
-  ansible.builtin.include_tasks: platform.yml
-  when: >
-    'python-platform' in ansible_run_tags or
-    'py-p' in ansible_run_tags or
-    'python-tools' in ansible_run_tags or
-    'py-t' in ansible_run_tags
+- name: "Find Homebrew prefix"
+  ansible.builtin.command:
+    cmd: "brew --prefix"
+  register: python_homebrew_prefix
+  changed_when: false
 
-- name: "Install Python tools"
-  ansible.builtin.include_tasks: tools.yml
-  when: "'python-tools' in ansible_run_tags or 'py-t' in ansible_run_tags"
+- name: "Set Homebrew binary path"
+  ansible.builtin.set_fact:
+    python_homebrew_bin_path: "{{ python_homebrew_prefix.stdout }}/bin"
+
+- name: "Ensure .config/uv directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/uv"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink uv.toml"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/python/global/uv.toml"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/uv/uv.toml"
+    state: link
+    force: true
+
+- name: "Install uv-managed Python version"
+  ansible.builtin.command:
+    cmd: "uv python install {{ python_version }} --default --no-progress"
+  register: python_uv_install
+  changed_when: "'Installed Python' in python_uv_install.stderr"
+  environment:
+    PATH: "{{ python_homebrew_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
