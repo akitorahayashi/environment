@@ -1,0 +1,23 @@
+---
+# Python applications installed in isolated environments by pipx.
+# Each tool can specify:
+#   - package: package name used by pipx metadata (required)
+#   - version: pinned package version to retain (optional)
+#   - install_spec: explicit pipx install target such as a git URL (optional)
+#   - inject: extra packages to inject into the tool venv (optional)
+#   - post_install.argv: post-install command arguments (optional)
+tools:
+  - package: mlx-hub
+  - package: mlx-lm
+  - package: huggingface-hub
+  - package: openai-whisper
+  - package: dcv
+    version: 0.5.0
+    install_spec: git+https://github.com/akitorahayashi/dcv.git@v0.5.0
+    inject:
+      - playwright
+    post_install:
+      argv:
+        - "{{ [pipx_venvs_dir, 'dcv', 'bin', 'playwright'] | path_join }}"
+        - install
+        - chromium

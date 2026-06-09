@@ -5,16 +5,15 @@
   vars:
     tag_groups:
       rust: ["rust-platform", "rust-tools"]
-      python: ["python-platform", "python-tools"]
       bun: ["bun"]
       go: ["go-platform", "go-tools"]
       desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
     tap_requirements: {}
     formula_requirements:
-      python-platform: ["uv"]
-      py-p: ["uv"]
-      python-tools: ["uv", "pipx"]
-      py-t: ["uv", "pipx"]
+      python: ["uv"]
+      py: ["uv"]
+      pipx: ["pipx"]
+      px: ["pipx"]
       nodejs: ["fnm"]
       nd: ["fnm"]
       pnpm: ["pnpm"]
@@ -49,14 +48,14 @@
       - system
       - git
       - gh
-      - python-platform
+      - python
+      - pipx
       - nodejs
       - pnpm
       - bun
       - ruby
       - rust-platform
       - go-platform
-      - python-tools
       - rust-tools
       - go-tools
       - vscode
@@ -68,7 +67,8 @@
       - xcode
   roles:
     - { role: brew, tags: ["brew-formulae", "br-f", "brew-cask", "br-c"] }
-    - { role: python, tags: ["python-platform", "py-p", "python-tools", "py-t"] }
+    - { role: python, tags: ["python", "py"] }
+    - { role: pipx, tags: ["pipx", "px"] }
     - { role: nodejs, tags: ["nodejs", "nd"] }
     - { role: pnpm, tags: ["pnpm", "pn"] }
     - { role: bun, tags: ["bun", "b"] }
