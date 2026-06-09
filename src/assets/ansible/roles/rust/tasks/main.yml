@@ -20,7 +20,6 @@
     cmd: /tmp/rustup-init.sh -y --no-modify-path --profile minimal --default-toolchain {{ rust_version }}
   args:
     creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/rustup"
-  changed_when: false
 
 - name: "Remove rustup installer"
   ansible.builtin.file:
@@ -48,4 +47,6 @@
     cmd: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/rustup component add {{ item }}"
   loop: "{{ rust_components_config.components }}"
   register: rust_component_add_result
-  changed_when: "'is up to date' not in rust_component_add_result.stdout"
+  changed_when:
+    - "'is up to date' not in rust_component_add_result.stdout"
+    - "'is up to date' not in rust_component_add_result.stderr"

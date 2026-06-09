@@ -104,5 +104,8 @@
     mode: "0755"
   loop: "{{ rust_cli_config.tools }}"
   loop_control:
+    index_var: idx
     label: "{{ item.name }}"
-  when: item.url is match('^git@')
+  when:
+    - item.url is match('^git@')
+    - not ansible_check_mode or rust_cli_version_check.results[idx].rc == 0
