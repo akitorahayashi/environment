@@ -525,8 +525,8 @@ mod tests {
             "my_profile",
             &["tag1".to_string(), "tag2".to_string()],
             &PlaybookVars {
-                brew_tap_tokens: vec!["oven-sh/bun".to_string()],
-                brew_formula_tokens: vec!["oven-sh/bun/bun".to_string()],
+                brew_tap_tokens: vec!["example/tools".to_string()],
+                brew_formula_tokens: vec!["example/tools/tool".to_string()],
                 brew_cask_tokens: vec!["visual-studio-code".to_string()],
             },
             true,
@@ -549,7 +549,7 @@ mod tests {
         assert!(args.contains(&"-vvv".to_string()));
         assert!(args.contains(&"local_config_root=/local/config".to_string()));
         assert!(args.contains(
-            &r#"{"brew_cask_tokens":["visual-studio-code"],"brew_formula_tokens":["oven-sh/bun/bun"],"brew_tap_tokens":["oven-sh/bun"]}"#
+            &r#"{"brew_cask_tokens":["visual-studio-code"],"brew_formula_tokens":["example/tools/tool"],"brew_tap_tokens":["example/tools"]}"#
                 .to_string()
         ));
         Ok(())
@@ -634,15 +634,18 @@ mod tests {
         let playbook_path = dir.path().join("playbook.yml");
         fs::write(
             &playbook_path,
-            "- name: setup\n  vars:\n    formula_requirements:\n      bun: [\"oven-sh/bun/bun\"]\n    tap_requirements:\n      bun: [\"oven-sh/bun\"]\n",
+            "- name: setup\n  vars:\n    formula_requirements:\n      tools: [\"example/tools/tool\"]\n    tap_requirements:\n      tools: [\"example/tools\"]\n",
         )?;
 
         let catalog = load_catalog(playbook_path.as_path())?;
         assert_eq!(
-            catalog.formula_requirements.get("bun"),
-            Some(&vec!["oven-sh/bun/bun".to_string()])
+            catalog.formula_requirements.get("tools"),
+            Some(&vec!["example/tools/tool".to_string()])
         );
-        assert_eq!(catalog.tap_requirements.get("bun"), Some(&vec!["oven-sh/bun".to_string()]));
+        assert_eq!(
+            catalog.tap_requirements.get("tools"),
+            Some(&vec!["example/tools".to_string()])
+        );
 
         Ok(())
     }
