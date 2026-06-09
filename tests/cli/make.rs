@@ -73,9 +73,25 @@ fn make_python_runs_required_formula_phase_before_configuration() {
     let lines: Vec<&str> = log.lines().collect();
 
     assert_eq!(lines.len(), 2);
-    assert!(lines[0].contains(r#""brew_formula_tokens":["uv","pipx"]"#));
+    assert!(lines[0].contains(r#""brew_formula_tokens":["uv"]"#));
     assert!(lines[0].contains("--tags brew-formulae"));
-    assert!(lines[1].contains("--tags python-platform,python-tools"));
+    assert!(lines[1].contains("--tags python"));
+}
+
+#[test]
+fn make_pipx_runs_required_formula_phase_before_configuration() {
+    let ctx = TestContext::new();
+    let ansible_path = install_ansible_recorder(&ctx);
+
+    ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", "pipx"]).assert().success();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    assert_eq!(lines.len(), 2);
+    assert!(lines[0].contains(r#""brew_formula_tokens":["pipx"]"#));
+    assert!(lines[0].contains("--tags brew-formulae"));
+    assert!(lines[1].contains("--tags pipx"));
 }
 
 #[test]
@@ -129,8 +145,10 @@ fn make_pnpm_installs_pnpm_before_running_pnpm_role() {
 }
 
 #[test]
-fn make_nodejs_and_pnpm_aliases_target_owner_roles() {
-    for (alias, formula, tag) in [("nd", "fnm", "nd"), ("pn", "pnpm", "pn")] {
+fn make_runtime_and_package_manager_aliases_target_owner_roles() {
+    for (alias, formula, tag) in
+        [("py", "uv", "py"), ("px", "pipx", "px"), ("nd", "fnm", "nd"), ("pn", "pnpm", "pn")]
+    {
         let ctx = TestContext::new();
         let ansible_path = install_ansible_recorder(&ctx);
 

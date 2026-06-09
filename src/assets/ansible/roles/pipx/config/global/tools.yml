@@ -1,0 +1,12 @@
+---
+# Python applications installed in isolated environments by pipx.
+tools:
+  - name: mlx-hub
+  - name: mlx-lm
+  - name: huggingface-hub
+  - name: openai-whisper
+  - name: dcv
+    git: https://github.com/akitorahayashi/dcv.git
+    tag: v0.5.0
+    post_install_inject: "playwright"
+    post_install_exec: "$HOME/.local/pipx/venvs/dcv/bin/playwright install chromium"

@@ -4,6 +4,11 @@ targets:
     roles: [python]
     commands: [python]
 
+  pipx:
+    name: pipx
+    roles: [pipx]
+    commands: [pipx]
+
   nodejs:
     name: Node.js
     roles: [nodejs]

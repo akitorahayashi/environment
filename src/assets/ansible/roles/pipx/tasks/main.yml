@@ -1,0 +1,77 @@
+---
+- name: "Load tools configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/pipx/global/tools.yml"
+    name: pipx_config
+
+- name: "Read installed tools"
+  ansible.builtin.command:
+    cmd: "pipx list --json"
+  register: pipx_list
+  changed_when: false
+  check_mode: false
+
+- name: "Set installed tools"
+  ansible.builtin.set_fact:
+    pipx_installed_venvs: "{{ (pipx_list.stdout | from_json).venvs }}"
+
+- name: "Uninstall outdated tools"
+  ansible.builtin.command:
+    cmd: "pipx uninstall {{ item.name }}"
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: >
+    item.name in pipx_installed_venvs and
+    item.tag is defined and
+    item.tag | regex_replace('^v', '') !=
+      pipx_installed_venvs[item.name].metadata.main_package.package_version
+  changed_when: true
+
+- name: "Remove residual tool environments"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/pipx/venvs/{{ item.name }}"
+    state: absent
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name not in pipx_installed_venvs
+
+- name: "Install or update tools"
+  ansible.builtin.command:
+    cmd: >-
+      pipx install
+      {% if item.git is defined %}
+      git+{{ item.git }}{% if item.tag is defined %}@{{ item.tag }}{% endif %}
+      {% else %}
+      {{ item.name }}{% if item.tag is defined %}=={{ item.tag }}{% endif %}
+      {% endif %}
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: pipx_install_result
+  changed_when: "'installed package' in pipx_install_result.stdout or 'upgraded package' in pipx_install_result.stdout"
+  when: >
+    item.name not in pipx_installed_venvs or
+    (
+      item.tag is defined and
+      item.tag | regex_replace('^v', '') !=
+        pipx_installed_venvs[item.name].metadata.main_package.package_version
+    )
+
+- name: "Inject tool dependencies"
+  ansible.builtin.command: "pipx inject {{ item.name }} {{ item.post_install_inject }}"
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  changed_when: false
+  failed_when: false
+  when: item.post_install_inject is defined
+
+- name: "Run post-install commands"
+  ansible.builtin.command: "{{ item.post_install_exec }}"
+  loop: "{{ pipx_config.tools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  changed_when: true
+  when: item.post_install_exec is defined

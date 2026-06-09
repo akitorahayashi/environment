@@ -36,6 +36,7 @@ on:
         options:
           - all
           - python
+          - pipx
           - nodejs
           - pnpm
           - coder
@@ -58,6 +59,7 @@ jobs:
     outputs:
       all_setups: ${{ steps.filter.outputs.all_setups }}
       setup_python: ${{ steps.filter.outputs.setup_python }}
+      setup_pipx: ${{ steps.filter.outputs.setup_pipx }}
       setup_nodejs: ${{ steps.filter.outputs.setup_nodejs }}
       setup_pnpm: ${{ steps.filter.outputs.setup_pnpm }}
       setup_coder: ${{ steps.filter.outputs.setup_coder }}
@@ -73,6 +75,7 @@ jobs:
         ${{
           steps.filter.outputs.all_setups == 'true' ||
           steps.filter.outputs.setup_python == 'true' ||
+          steps.filter.outputs.setup_pipx == 'true' ||
           steps.filter.outputs.setup_nodejs == 'true' ||
           steps.filter.outputs.setup_pnpm == 'true' ||
           steps.filter.outputs.setup_coder == 'true' ||
@@ -109,6 +112,9 @@ jobs:
             setup_python:
               - 'src/assets/ansible/roles/python/**'
               - '.github/workflows/setup-python.yml'
+            setup_pipx:
+              - 'src/assets/ansible/roles/pipx/**'
+              - '.github/workflows/setup-pipx.yml'
             setup_nodejs:
               - 'src/assets/ansible/roles/nodejs/**'
               - '.github/workflows/setup-nodejs.yml'
@@ -195,6 +201,18 @@ jobs:
       needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_python == 'true'
     uses: ./.github/workflows/setup-python.yml
+
+  setup-pipx:
+    needs:
+      - changes
+      - build-mev
+    permissions:
+      contents: read
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'pipx')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_pipx == 'true'
+    uses: ./.github/workflows/setup-pipx.yml
 
   setup-nodejs:
     needs:
