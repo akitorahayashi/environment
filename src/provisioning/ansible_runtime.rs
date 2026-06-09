@@ -634,18 +634,15 @@ mod tests {
         let playbook_path = dir.path().join("playbook.yml");
         fs::write(
             &playbook_path,
-            "- name: setup\n  vars:\n    formula_requirements:\n      bun-platform: [\"oven-sh/bun/bun\"]\n    tap_requirements:\n      bun-platform: [\"oven-sh/bun\"]\n",
+            "- name: setup\n  vars:\n    formula_requirements:\n      bun: [\"oven-sh/bun/bun\"]\n    tap_requirements:\n      bun: [\"oven-sh/bun\"]\n",
         )?;
 
         let catalog = load_catalog(playbook_path.as_path())?;
         assert_eq!(
-            catalog.formula_requirements.get("bun-platform"),
+            catalog.formula_requirements.get("bun"),
             Some(&vec!["oven-sh/bun/bun".to_string()])
         );
-        assert_eq!(
-            catalog.tap_requirements.get("bun-platform"),
-            Some(&vec!["oven-sh/bun".to_string()])
-        );
+        assert_eq!(catalog.tap_requirements.get("bun"), Some(&vec!["oven-sh/bun".to_string()]));
 
         Ok(())
     }

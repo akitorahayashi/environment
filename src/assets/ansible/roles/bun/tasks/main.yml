@@ -1,10 +1,37 @@
 ---
-- name: "Install Bun platform"
-  ansible.builtin.include_tasks: platform.yml
-  when:
-    - "'bun-platform' in ansible_run_tags or 'b-p' in ansible_run_tags or 'bun-tools' in ansible_run_tags or 'b-t' in ansible_run_tags"
+- name: "Check if Bun binary exists"
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/.bun/bin/bun"
+  register: bun_binary
 
-- name: "Install Bun tools"
-  ansible.builtin.include_tasks: tools.yml
-  when:
-    - "'bun-tools' in ansible_run_tags or 'b-t' in ansible_run_tags"
+- name: "Install Bun via official installer" # noqa: command-instead-of-module risky-shell-pipe
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://bun.sh/install | bash"
+  when: not bun_binary.stat.exists
+  changed_when: true
+
+- name: "Set Bun binary path"
+  ansible.builtin.set_fact:
+    bun_bin_path: "{{ ansible_facts['env']['HOME'] }}/.bun/bin"
+
+- name: "Verify Bun version"
+  ansible.builtin.command:
+    cmd: "bun --version"
+  register: bun_version_check
+  changed_when: false
+  environment:
+    PATH: "{{ bun_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Verify Bun revision"
+  ansible.builtin.command:
+    cmd: "bun --revision"
+  register: bun_revision_check
+  changed_when: false
+  environment:
+    PATH: "{{ bun_bin_path }}:{{ ansible_facts['env']['PATH'] }}"
+
+- name: "Deploy global bunfig.toml"
+  ansible.builtin.copy:
+    src: "{{ local_config_root }}/bun/global/.bunfig.toml"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.bunfig.toml"
+    mode: "0644"
