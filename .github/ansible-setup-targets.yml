@@ -60,7 +60,7 @@ targets:
     roles: [git, gh, shell, system]
     commands: [git, gh, shell, system]
     verify:
-      - zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; source "$HOME/.zshrc"; mk --version'
+      - zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; setopt aliases; source "$HOME/.zshrc"; eval "mk --version"'
 
   brew-formulae:
     name: Brew Formulae

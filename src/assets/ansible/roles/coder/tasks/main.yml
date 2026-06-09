@@ -90,7 +90,6 @@
     dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.dest }}"
     state: link
     force: true
-    mode: "0644"
   loop:
     - { src: "claude/settings.json", dest: ".claude/settings.json" }
     - { src: "AGENTS.md", dest: ".claude/CLAUDE.md" }
@@ -155,8 +154,8 @@
   loop: "{{ coder_deployed_skill_stats.results }}"
   when:
     - item.stat.exists
-    - not item.stat.islnk
-    - not item.stat.isdir
+    - not (item.stat.islnk | default(false))
+    - not (item.stat.isdir | default(false))
 
 - name: "Inspect agent skill directory conflicts"
   ansible.builtin.find:
@@ -168,8 +167,8 @@
   loop: "{{ coder_deployed_skill_stats.results }}"
   when:
     - item.stat.exists
-    - not item.stat.islnk
-    - item.stat.isdir
+    - not (item.stat.islnk | default(false))
+    - item.stat.isdir | default(false)
 
 - name: "Reject non-empty agent skill directory conflicts"
   ansible.builtin.fail:

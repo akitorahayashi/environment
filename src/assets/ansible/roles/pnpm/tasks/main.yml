@@ -57,35 +57,16 @@
     pnpm_packages: >-
       {{ (pnpm_package_config.dependencies | default({}))
          | combine(pnpm_package_config.globalPackages | default({}))
-         | dict2items | map(attribute='key') | list }}
-
-- name: "Check installed global pnpm packages"
-  ansible.builtin.command:
-    cmd: "fnm exec --using=default -- {{ pnpm_bin_path }} ls -g {{ item }} --depth=0"
-  loop: "{{ pnpm_packages }}"
-  register: pnpm_installed_packages
-  changed_when: false
-  failed_when: false
-  environment:
-    PNPM_HOME: "{{ pnpm_home }}"
-    PATH: "{{ pnpm_command_path }}"
-
-- name: "Uninstall existing global pnpm packages before reinstall"
-  ansible.builtin.command:
-    cmd: "fnm exec --using=default -- {{ pnpm_bin_path }} rm -g {{ item.item }}"
-  loop: "{{ pnpm_installed_packages.results | default([]) }}"
-  loop_control:
-    label: "{{ item.item }}"
-  when: item.rc == 0 and "No matching global packages found" not in (item.stdout + item.stderr)
-  changed_when: true
-  environment:
-    PNPM_HOME: "{{ pnpm_home }}"
-    PATH: "{{ pnpm_command_path }}"
+         | dict2items }}
 
 - name: "Install global pnpm packages"
   ansible.builtin.command:
-    cmd: "fnm exec --using=default -- {{ pnpm_bin_path }} add -g {{ item }}@latest"
+    cmd: >-
+      fnm exec --using=default -- {{ pnpm_bin_path }} add -g
+      {{ item.key }}{{ '@' ~ item.value if (item.value | default('') | string | length > 0) else '' }}
   loop: "{{ pnpm_packages }}"
+  loop_control:
+    label: "{{ item.key }}"
   changed_when: true
   environment:
     PNPM_HOME: "{{ pnpm_home }}"

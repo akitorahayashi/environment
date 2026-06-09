@@ -37,4 +37,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; source "$HOME/.zshrc"; mk --version'
+          zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; setopt aliases; source "$HOME/.zshrc"; eval "mk --version"'
