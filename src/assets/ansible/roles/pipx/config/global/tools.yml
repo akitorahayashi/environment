@@ -18,6 +18,6 @@ tools:
       - playwright
     post_install:
       argv:
-        - "{{ ansible_facts['env']['HOME'] }}/.local/pipx/venvs/dcv/bin/playwright"
+        - "{{ [pipx_venvs_dir, 'dcv', 'bin', 'playwright'] | path_join }}"
         - install
         - chromium
