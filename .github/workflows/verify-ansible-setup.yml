@@ -1,3 +1,6 @@
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
 name: Verify Ansible Setup
 
 on:
@@ -5,24 +8,28 @@ on:
     branches: [ "main" ]
     paths:
       - 'src/assets/ansible/**'
+      - '.github/ansible-setup-targets.yml'
       - '.github/workflows/setup-*.yml'
       - '.github/workflows/verify-ansible-setup.yml'
       - '.github/actions/setup-build/**'
       - '.github/actions/setup-ansible/**'
       - '.github/actions/download-mev-binary/**'
+      - '.github/scripts/generate_ansible_setup_workflows.py'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'src/assets/ansible/**'
+      - '.github/ansible-setup-targets.yml'
       - '.github/workflows/setup-*.yml'
       - '.github/workflows/verify-ansible-setup.yml'
       - '.github/actions/setup-build/**'
       - '.github/actions/setup-ansible/**'
       - '.github/actions/download-mev-binary/**'
+      - '.github/scripts/generate_ansible_setup_workflows.py'
   workflow_dispatch:
     inputs:
       target:
-        description: 'Setup target to run (all or a specific setup workflow)'
+        description: 'Setup target to run'
         required: false
         default: 'all'
         type: choice
@@ -30,6 +37,8 @@ on:
           - all
           - python
           - nodejs
+          - pnpm
+          - coder
           - bun
           - ruby
           - rust
@@ -50,6 +59,8 @@ jobs:
       all_setups: ${{ steps.filter.outputs.all_setups }}
       setup_python: ${{ steps.filter.outputs.setup_python }}
       setup_nodejs: ${{ steps.filter.outputs.setup_nodejs }}
+      setup_pnpm: ${{ steps.filter.outputs.setup_pnpm }}
+      setup_coder: ${{ steps.filter.outputs.setup_coder }}
       setup_bun: ${{ steps.filter.outputs.setup_bun }}
       setup_ruby: ${{ steps.filter.outputs.setup_ruby }}
       setup_rust: ${{ steps.filter.outputs.setup_rust }}
@@ -63,6 +74,8 @@ jobs:
           steps.filter.outputs.all_setups == 'true' ||
           steps.filter.outputs.setup_python == 'true' ||
           steps.filter.outputs.setup_nodejs == 'true' ||
+          steps.filter.outputs.setup_pnpm == 'true' ||
+          steps.filter.outputs.setup_coder == 'true' ||
           steps.filter.outputs.setup_bun == 'true' ||
           steps.filter.outputs.setup_ruby == 'true' ||
           steps.filter.outputs.setup_rust == 'true' ||
@@ -87,15 +100,25 @@ jobs:
             all_setups:
               - 'src/assets/ansible/playbook.yml'
               - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/workflows/verify-ansible-setup.yml'
               - '.github/actions/setup-build/**'
               - '.github/actions/setup-ansible/**'
               - '.github/actions/download-mev-binary/**'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
             setup_python:
               - 'src/assets/ansible/roles/python/**'
               - '.github/workflows/setup-python.yml'
             setup_nodejs:
               - 'src/assets/ansible/roles/nodejs/**'
               - '.github/workflows/setup-nodejs.yml'
+            setup_pnpm:
+              - 'src/assets/ansible/roles/nodejs/**'
+              - 'src/assets/ansible/roles/pnpm/**'
+              - '.github/workflows/setup-pnpm.yml'
+            setup_coder:
+              - 'src/assets/ansible/roles/coder/**'
+              - '.github/workflows/setup-coder.yml'
             setup_bun:
               - 'src/assets/ansible/roles/bun/**'
               - '.github/workflows/setup-bun.yml'
@@ -118,7 +141,6 @@ jobs:
               - 'src/assets/ansible/roles/git/**'
               - 'src/assets/ansible/roles/gh/**'
               - 'src/assets/ansible/roles/shell/**'
-              - 'src/assets/ansible/roles/ssh/**'
               - 'src/assets/ansible/roles/system/**'
               - '.github/workflows/setup-system.yml'
             setup_brew_formulae:
@@ -185,6 +207,30 @@ jobs:
       needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_nodejs == 'true'
     uses: ./.github/workflows/setup-nodejs.yml
+
+  setup-pnpm:
+    needs:
+      - changes
+      - build-mev
+    permissions:
+      contents: read
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'pnpm')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_pnpm == 'true'
+    uses: ./.github/workflows/setup-pnpm.yml
+
+  setup-coder:
+    needs:
+      - changes
+      - build-mev
+    permissions:
+      contents: read
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'coder')) ||
+      needs.changes.outputs.all_setups == 'true' ||
+      needs.changes.outputs.setup_coder == 'true'
+    uses: ./.github/workflows/setup-coder.yml
 
   setup-bun:
     needs:

@@ -1,3 +1,6 @@
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
 name: Setup Brew Formulae
 
 on:
@@ -21,8 +24,10 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run Homebrew formulae setup for common
+      - name: Run brew-formulae setup
+        shell: bash
         env:
-          HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
+          HOMEBREW_GITHUB_API_TOKEN: "${{ github.token }}"
         run: |
+          set -euo pipefail
           "$RUNNER_TEMP/mev-bin/mev" make brew-formulae

@@ -46,5 +46,4 @@
     state: directory
     mode: "0755"
 
-# Note: The Antigravity skills directory is created here as the parent for
-# nodejs/coder-managed agent skills at ~/.config/google/antigravity/skills/.
+# The coder role deploys managed agent skills below this directory.

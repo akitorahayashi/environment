@@ -16,6 +16,8 @@
 
 Role-specific provisioning data lives under `src/assets/ansible/roles/<role>/config/global/`.
 The Bun role uses `src/assets/ansible/roles/bun/config/global/global-packages.json` to declare Bun global packages.
+The pnpm role uses `src/assets/ansible/roles/pnpm/config/global/global-packages.json` to declare global packages.
+The Coder role stores each tool's configuration under its tool name and uses the deployed file's actual name.
 
 ## Release
 

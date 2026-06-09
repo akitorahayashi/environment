@@ -1,3 +1,6 @@
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
 name: Setup Rust
 
 on:
@@ -21,6 +24,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup rust
+      - name: Run rust setup
+        shell: bash
         run: |
+          set -euo pipefail
           "$RUNNER_TEMP/mev-bin/mev" make rust

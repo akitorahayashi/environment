@@ -125,6 +125,7 @@ tests/
 - Profile-specific configs apply: `brew` role supports profile-specific configs (macbook/mac-mini)
 - Roles store configs in `config/global/` (all roles) and `config/profiles/` (e.g., brew, llm)
 - Bun stores its global package configuration in `config/global/global-packages.json`
+- pnpm stores its global package configuration in `config/global/global-packages.json`
 
 ### Config Deployment Strategy
 Two-stage config deployment executes via:

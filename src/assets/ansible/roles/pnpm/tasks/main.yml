@@ -1,0 +1,73 @@
+---
+- name: "Find Homebrew prefix"
+  ansible.builtin.command:
+    cmd: "brew --prefix"
+  register: pnpm_homebrew_prefix
+  changed_when: false
+
+- name: "Set pnpm paths"
+  ansible.builtin.set_fact:
+    pnpm_bin_path: "{{ pnpm_homebrew_prefix.stdout }}/bin/pnpm"
+    pnpm_command_path: "{{ pnpm_homebrew_prefix.stdout }}/bin:{{ ansible_facts['env']['HOME'] }}/Library/pnpm/bin:{{ ansible_facts['env']['PATH'] }}"
+    pnpm_home: "{{ ansible_facts['env']['HOME'] }}/Library/pnpm"
+    pnpm_global_config_path: >-
+      {{ ([ansible_facts['env']['XDG_CONFIG_HOME'], 'pnpm', 'config.yaml'] | path_join)
+         if (ansible_facts['env']['XDG_CONFIG_HOME'] | default('') | length > 0)
+         else ([ansible_facts['env']['HOME'], 'Library', 'Preferences', 'pnpm', 'config.yaml'] | path_join) }}
+
+- name: "Verify default Node.js runtime"
+  ansible.builtin.command:
+    cmd: "fnm exec --using=default -- node --version"
+  register: pnpm_nodejs_runtime
+  changed_when: false
+  failed_when: false
+  environment:
+    PATH: "{{ pnpm_command_path }}"
+
+- name: "Reject missing default Node.js runtime"
+  ansible.builtin.assert:
+    that:
+      - pnpm_nodejs_runtime.rc == 0
+    fail_msg: "pnpm requires a default Node.js runtime. Run 'mev make nodejs' first."
+
+- name: "Ensure pnpm global config directory exists"
+  ansible.builtin.file:
+    path: "{{ pnpm_global_config_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: "Symlink pnpm global config"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/pnpm/global/config.yaml"
+    dest: "{{ pnpm_global_config_path }}"
+    state: link
+    force: true
+
+- name: "Load packages JSON content"
+  ansible.builtin.slurp:
+    src: "{{ local_config_root }}/pnpm/global/global-packages.json"
+  register: pnpm_package_file
+
+- name: "Parse package JSON"
+  ansible.builtin.set_fact:
+    pnpm_package_config: "{{ pnpm_package_file.content | b64decode | from_json }}"
+
+- name: "Combine dependency keys (dependencies and globalPackages)"
+  ansible.builtin.set_fact:
+    pnpm_packages: >-
+      {{ (pnpm_package_config.dependencies | default({}))
+         | combine(pnpm_package_config.globalPackages | default({}))
+         | dict2items }}
+
+- name: "Install global pnpm packages"
+  ansible.builtin.command:
+    cmd: >-
+      fnm exec --using=default -- {{ pnpm_bin_path }} add -g
+      {{ item.key }}{{ '@' ~ item.value if (item.value | default('') | string | length > 0) else '' }}
+  loop: "{{ pnpm_packages }}"
+  loop_control:
+    label: "{{ item.key }}"
+  changed_when: true
+  environment:
+    PNPM_HOME: "{{ pnpm_home }}"
+    PATH: "{{ pnpm_command_path }}"
