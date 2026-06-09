@@ -50,7 +50,11 @@
 
 - name: "Install global cask packages"
   ansible.builtin.command:
-    cmd: "brew bundle --file={{ local_config_root }}/brew/global/Brewfile.cask"
+    argv:
+      - brew
+      - bundle
+      - --file
+      - "{{ local_config_root }}/brew/global/Brewfile.cask"
   register: brew_global_cask_result
   changed_when: "'Installing' in brew_global_cask_result.stdout"
   when:
@@ -65,7 +69,11 @@
 
 - name: "Install profile cask packages"
   ansible.builtin.command:
-    cmd: "brew bundle --file={{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.cask"
+    argv:
+      - brew
+      - bundle
+      - --file
+      - "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.cask"
   register: brew_profile_cask_result
   changed_when: "'Installing' in brew_profile_cask_result.stdout"
   when:

@@ -72,7 +72,11 @@
 
 - name: "Install global formulae packages"
   ansible.builtin.command:
-    cmd: "brew bundle --file={{ local_config_root }}/brew/global/Brewfile.formulae"
+    argv:
+      - brew
+      - bundle
+      - --file
+      - "{{ local_config_root }}/brew/global/Brewfile.formulae"
   register: brew_global_formulae_result
   changed_when: "'Installing' in brew_global_formulae_result.stdout"
   when:
@@ -90,7 +94,11 @@
 
 - name: "Install profile formulae packages"
   ansible.builtin.command:
-    cmd: "brew bundle --file={{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
+    argv:
+      - brew
+      - bundle
+      - --file
+      - "{{ local_config_root }}/brew/profiles/{{ profile }}/Brewfile.formulae"
   register: brew_profile_formulae_result
   changed_when: "'Installing' in brew_profile_formulae_result.stdout"
   when:
