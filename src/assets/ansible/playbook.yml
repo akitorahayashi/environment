@@ -36,7 +36,7 @@
       vscode: ["visual-studio-code"]
       co: ["visual-studio-code"]
       antigravity-ide: ["antigravity-ide"]
-      agy-ide: ["antigravity-ide"]
+      agi: ["antigravity-ide"]
       zed: ["zed"]
       zd: ["zed"]
       ghostty: ["ghostty"]
@@ -72,7 +72,7 @@
     - { role: nodejs, tags: ["nodejs", "nd"] }
     - { role: pnpm, tags: ["pnpm", "pn"] }
     - { role: bun, tags: ["bun", "b"] }
-    - { role: coder, tags: ["coder", "cdr", "agy"] }
+    - { role: coder, tags: ["coder", "cdr"] }
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
     - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
@@ -81,6 +81,6 @@
     - { role: ghostty, tags: ["ghostty", "gst"] }
     - { role: nvim, tags: ["nvim", "nv"] }
     - { role: shell, tags: ["shell", "sh"] }
-    - { role: editor, tags: ["vscode", "co", "antigravity-ide", "agy-ide", "zed", "zd", "xcode", "xc"] }
+    - { role: editor, tags: ["vscode", "co", "antigravity-ide", "agi", "zed", "zd", "xcode", "xc"] }
     - { role: system, tags: ["system", "sys"] }
     - { role: llm, tags: ["ollama", "ol", "ollama-models", "ol-m", "mlx", "mlx-models"] }
