@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo="${MEV_GITHUB_REPO:-akitorahayashi/mev}"
 version="${MEV_VERSION:-latest}"
-install_dir="${MEV_INSTALL_DIR:-$HOME/.local/bin}"
+install_dir="${MEV_INSTALL_DIR:-$HOME/.cargo/bin}"
 binary_name="mev"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
