@@ -18,11 +18,8 @@ mev ls                    # Shorthand
 
 mev make rust             # Run rust-platform + rust-tools
 mev make go               # Run go-platform + go-tools
-mev make bun              # Run bun-platform + bun-tools
-mev make bun-platform     # Run bun-platform only
-mev make b-p              # Shorthand
-mev make bun-tools        # Run bun-tools only
-mev make b-t              # Shorthand
+mev make bun              # Run Bun setup and global packages
+mev make b                # Shorthand
 mev make python-tools     # Run python-tools
 mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
@@ -39,7 +36,7 @@ mev make br-c -p mmn      # Run global casks + Mac mini casks
 #   go → go-platform, go-tools
 #   python → python-platform, python-tools
 #   nodejs → nodejs-platform, nodejs-tools
-#   bun → bun-platform, bun-tools
+#   bun → bun
 #   desktop → vscode, antigravity-ide, zed, ghostty
 ```
 

@@ -21,20 +21,14 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run bun-platform setup
+      - name: Run bun setup
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make bun-platform
+          "$RUNNER_TEMP/mev-bin/mev" make bun
 
-      - name: Verify Bun after bun-platform setup
-        run: |
-          bun --version
-          bun --revision
+      - name: Add Bun to PATH
+        run: echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
 
-      - name: Run bun-tools setup
-        run: |
-          "$RUNNER_TEMP/mev-bin/mev" make bun-tools
-
-      - name: Verify Bun after bun-tools setup
+      - name: Verify Bun setup
         run: |
           bun --version
           bun --revision
