@@ -27,6 +27,7 @@ mev make pipx             # Install Python applications with pipx
 mev make coder            # Install and configure coding agent CLIs
 mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
+mev make agi              # Shorthand for Antigravity IDE
 mev make desktop          # Install required editor/terminal casks, then configure them
 
 # Hardware profile behavior for brew tasks
@@ -71,6 +72,7 @@ Backup initiates via:
 ```sh
 mev backup system         # Backup macOS system defaults
 mev backup vscode         # Backup VSCode extensions list and settings.json
+mev backup agi            # Backup Antigravity IDE extensions list and settings
 mev backup --list         # List available backup components
 mev backup -l             # Short flag
 mev bk system             # Shorthand
