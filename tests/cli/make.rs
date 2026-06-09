@@ -83,11 +83,7 @@ fn make_bun_runs_bun_role_directly() {
     let ctx = TestContext::new();
     let ansible_path = install_ansible_recorder(&ctx);
 
-    ctx.cli()
-        .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
-        .args(["make", "bun"])
-        .assert()
-        .success();
+    ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", "bun"]).assert().success();
 
     let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
     let lines: Vec<&str> = log.lines().collect();
