@@ -1,0 +1,31 @@
+---
+- name: "Download private release binary"
+  ansible.builtin.command:
+    argv:
+      - gh
+      - release
+      - download
+      - "{{ item.tag }}"
+      - --repo
+      - "{{ item.url | regex_replace('^git@github\\.com:', '') }}"
+      - --pattern
+      - "{{ item.name }}-{{ rust_cli_os }}-{{ rust_cli_arch }}"
+      - --output
+      - "{{ rust_cli_bin_dir }}/{{ item.name }}"
+      - --clobber
+  register: rust_cli_private_download
+  changed_when: rust_cli_private_download.rc == 0
+  failed_when: false
+
+- name: "Report skipped private release binary"
+  ansible.builtin.debug:
+    msg: >-
+      Skipping {{ item.name }} because GitHub authentication or repository access
+      is unavailable: {{ rust_cli_private_download.stderr | trim }}
+  when: rust_cli_private_download.rc != 0
+
+- name: "Ensure private release binary is executable"
+  ansible.builtin.file:
+    path: "{{ rust_cli_bin_dir }}/{{ item.name }}"
+    mode: "0755"
+  when: rust_cli_private_download.rc == 0

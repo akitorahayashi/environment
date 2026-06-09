@@ -28,6 +28,11 @@ Rust:
 - Modules: `snake_case`, organized by ownership boundary (`cli/`, `app/`, `provisioning/`, `identity/`, `backup/`, `update/`, `host_fs/`, `test_support/`)
 - Constants: `UPPER_SNAKE_CASE`
 
+Ansible:
+- Role directory names: `snake_case`
+- User-facing tags and aliases: lowercase, with hyphens permitted when they improve readability
+- External tag names and internal role names are independent contracts and may differ
+
 ### Testing Strategies
 
 Owner logic tests reside as self-contained unit tests within their respective owner modules inside a `#[cfg(test)]` block. Redundant logic coverage in external `tests/library/` integration tests is avoided.

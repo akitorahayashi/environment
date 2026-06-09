@@ -43,6 +43,11 @@ targets:
     roles: [rust]
     commands: [rust]
 
+  rust-cli:
+    name: Rust CLI
+    roles: [rust_cli]
+    commands: [rust-cli]
+
   go:
     name: Go
     roles: [go]

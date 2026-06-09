@@ -16,17 +16,14 @@ mod tests {
 
     fn test_groups() -> HashMap<String, Vec<String>> {
         let mut groups = HashMap::new();
-        groups.insert(
-            "rust".to_string(),
-            vec!["rust-platform".to_string(), "rust-tools".to_string()],
-        );
+        groups.insert("desktop".to_string(), vec!["vscode".to_string(), "zed".to_string()]);
         groups
     }
 
     #[test]
     fn resolves_group_tag() {
-        let tags = resolve_tags("rust", &test_groups());
-        assert_eq!(tags, vec!["rust-platform", "rust-tools"]);
+        let tags = resolve_tags("desktop", &test_groups());
+        assert_eq!(tags, vec!["vscode", "zed"]);
     }
 
     #[test]
