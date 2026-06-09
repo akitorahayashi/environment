@@ -48,11 +48,6 @@ targets:
     roles: [rust_cli]
     commands: [rust-cli]
 
-  go:
-    name: Go
-    roles: [go]
-    commands: [go]
-
   nvim:
     name: Neovim
     roles: [nvim]

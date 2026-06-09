@@ -5,7 +5,6 @@
   vars:
     tag_groups:
       bun: ["bun"]
-      go: ["go-platform", "go-tools"]
       desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
     tap_requirements: {}
     formula_requirements:
@@ -21,10 +20,6 @@
       rb: ["openssl@3", "rbenv", "ruby-build"]
       rust-cli: ["gh"]
       rs-c: ["gh"]
-      go-platform: ["goenv"]
-      go-p: ["goenv"]
-      go-tools: ["goenv"]
-      go-t: ["goenv"]
       git: ["git"]
       gh: ["gh"]
       nvim: ["neovim"]
@@ -57,8 +52,6 @@
       - ruby
       - rust
       - rust-cli
-      - go-platform
-      - go-tools
       - vscode
       - zed
       - nvim
@@ -77,7 +70,6 @@
     - { role: ruby, tags: ["ruby", "rb"] }
     - { role: rust, tags: ["rust", "rs"] }
     - { role: rust_cli, tags: ["rust-cli", "rs-c"] }
-    - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
     - { role: git, tags: ["git"] }
     - { role: gh, tags: ["gh"] }
     - { role: ghostty, tags: ["ghostty", "gst"] }
