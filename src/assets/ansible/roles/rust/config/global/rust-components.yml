@@ -1,6 +1,0 @@
----
-# Rust components to install via rustup
-# These are standard toolchain components provided by the Rust project
-components:
-  - rustfmt
-  - clippy

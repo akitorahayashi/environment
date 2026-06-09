@@ -4,7 +4,6 @@
   connection: local
   vars:
     tag_groups:
-      rust: ["rust-platform", "rust-tools"]
       bun: ["bun"]
       go: ["go-platform", "go-tools"]
       desktop: ["vscode", "antigravity-ide", "zed", "ghostty"]
@@ -20,6 +19,8 @@
       pn: ["pnpm"]
       ruby: ["openssl@3", "rbenv", "ruby-build"]
       rb: ["openssl@3", "rbenv", "ruby-build"]
+      rust-cli: ["gh"]
+      rs-c: ["gh"]
       go-platform: ["goenv"]
       go-p: ["goenv"]
       go-tools: ["goenv"]
@@ -54,9 +55,9 @@
       - pnpm
       - bun
       - ruby
-      - rust-platform
+      - rust
+      - rust-cli
       - go-platform
-      - rust-tools
       - go-tools
       - vscode
       - zed
@@ -74,7 +75,8 @@
     - { role: bun, tags: ["bun", "b"] }
     - { role: coder, tags: ["coder", "cdr"] }
     - { role: ruby, tags: ["ruby", "rb"] }
-    - { role: rust, tags: ["rust-platform", "rs-p", "rust-tools", "rs-t"] }
+    - { role: rust, tags: ["rust", "rs"] }
+    - { role: rust_cli, tags: ["rust-cli", "rs-c"] }
     - { role: go, tags: ["go-platform", "go-p", "go-tools", "go-t"] }
     - { role: git, tags: ["git"] }
     - { role: gh, tags: ["gh"] }

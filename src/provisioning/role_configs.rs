@@ -14,6 +14,10 @@ pub trait RoleConfigLocator {
     fn role_config_dir(&self, role: &str) -> Option<PathBuf>;
 }
 
+fn canonical_role_name(role: &str) -> String {
+    role.replace('-', "_")
+}
+
 /// Deploy role configs required by the selected tags.
 pub fn deploy_for_tags(
     tags: &[String],
@@ -70,13 +74,14 @@ pub fn deploy_selected(
     let available = role_config_locator.roles_with_config()?;
 
     let roles_to_deploy = if let Some(role_name) = role {
-        if !available.contains(&role_name) {
+        let canonical_role = canonical_role_name(&role_name);
+        if !available.contains(&canonical_role) {
             return Err(AppError::Config(format!(
                 "role '{role_name}' has no config directory. Available: {}",
                 available.join(", ")
             )));
         }
-        vec![role_name]
+        vec![canonical_role]
     } else {
         if available.is_empty() {
             println!("No roles with config directories found.");
@@ -185,6 +190,24 @@ mod tests {
             deploy_selected(&fs, &fake, &local_config_root, Some("git".to_string()), false);
         assert!(result.is_ok());
         assert!(fs.exists(Path::new("/local/config/git/.gitconfig")));
+    }
+
+    #[test]
+    fn deploy_selected_accepts_hyphenated_role_name() {
+        let fs = FakeFsPort::new();
+        let mut fake = FakeProvisioningPort::new();
+        fake.roles_with_config = vec!["rust_cli".to_string()];
+        fake.roles_config_dir
+            .insert("rust_cli".to_string(), PathBuf::from("/ansible/roles/rust_cli/config"));
+
+        fs.add_dir(Path::new("/ansible/roles/rust_cli/config"));
+        fs.add_file(Path::new("/ansible/roles/rust_cli/config/tools.yml"), "tools: []");
+
+        let local_config_root = PathBuf::from("/local/config");
+        let result =
+            deploy_selected(&fs, &fake, &local_config_root, Some("rust-cli".to_string()), false);
+        assert!(result.is_ok());
+        assert!(fs.exists(Path::new("/local/config/rust_cli/tools.yml")));
     }
 
     #[test]

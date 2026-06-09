@@ -125,6 +125,40 @@ fn make_bun_runs_bun_role_directly() {
 }
 
 #[test]
+fn make_rust_and_alias_run_rust_role_directly() {
+    for tag in ["rust", "rs"] {
+        let ctx = TestContext::new();
+        let ansible_path = install_ansible_recorder(&ctx);
+
+        ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", tag]).assert().success();
+
+        let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+        let lines: Vec<&str> = log.lines().collect();
+
+        assert_eq!(lines.len(), 1);
+        assert!(lines[0].contains(&format!("--tags {tag}")));
+    }
+}
+
+#[test]
+fn make_rust_cli_and_alias_install_gh_before_running_owner_role() {
+    for tag in ["rust-cli", "rs-c"] {
+        let ctx = TestContext::new();
+        let ansible_path = install_ansible_recorder(&ctx);
+
+        ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", tag]).assert().success();
+
+        let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+        let lines: Vec<&str> = log.lines().collect();
+
+        assert_eq!(lines.len(), 2);
+        assert!(lines[0].contains(r#""brew_formula_tokens":["gh"]"#));
+        assert!(lines[0].contains("--tags brew-formulae"));
+        assert!(lines[1].contains(&format!("--tags {tag}")));
+    }
+}
+
+#[test]
 fn make_nodejs_installs_only_fnm_before_running_nodejs_role() {
     let ctx = TestContext::new();
     let ansible_path = install_ansible_recorder(&ctx);

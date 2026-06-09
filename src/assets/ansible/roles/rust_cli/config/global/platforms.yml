@@ -1,0 +1,10 @@
+---
+# Platform mapping for GitHub release asset names.
+os_mapping:
+  Darwin: darwin
+  Linux: linux
+
+arch_mapping:
+  x86_64: x86_64
+  aarch64: aarch64
+  arm64: aarch64

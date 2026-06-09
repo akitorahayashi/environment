@@ -16,7 +16,8 @@ Individual tasks execute via:
 mev list                  # List available tags
 mev ls                    # Shorthand
 
-mev make rust             # Run rust-platform + rust-tools
+mev make rust             # Install and configure the Rust toolchain
+mev make rust-cli         # Install Rust CLI binaries from GitHub Releases
 mev make go               # Run go-platform + go-tools
 mev make bun              # Run Bun setup and global packages
 mev make b                # Shorthand
@@ -37,7 +38,6 @@ mev make br-f -p mbk      # Run global formulae with the MacBook profile
 mev make br-c -p mmn      # Run global casks + Mac mini casks
 
 # Tag groups expand automatically:
-#   rust → rust-platform, rust-tools
 #   go → go-platform, go-tools
 #   bun → bun
 #   desktop → vscode, antigravity-ide, zed, ghostty
@@ -52,6 +52,7 @@ mev id show               # Shorthand
 mev config deploy         # Deploy all role configs to ~/.config/mev/roles/
 mev cf dp                 # Shorthand
 mev config deploy rust    # Deploy only rust role config
+mev config deploy rust-cli # Deploy only rust-cli role config
 mev config deploy bun     # Deploy only bun role config
 mev config deploy pnpm    # Deploy only pnpm role config
 mev config deploy pipx    # Deploy only pipx role config
