@@ -1,3 +1,6 @@
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
 name: Setup Bun
 
 on:
@@ -22,13 +25,15 @@ jobs:
         uses: ./.github/actions/setup-ansible
 
       - name: Run bun setup
+        shell: bash
         run: |
+          set -euo pipefail
           "$RUNNER_TEMP/mev-bin/mev" make bun
 
-      - name: Add Bun to PATH
-        run: echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
-
-      - name: Verify Bun setup
+      - name: Verify bun setup
+        shell: bash
         run: |
+          set -euo pipefail
+          export PATH="$HOME/.bun/bin:$PATH"
           bun --version
           bun --revision

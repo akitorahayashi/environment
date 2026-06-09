@@ -1,7 +1,7 @@
 {
   "theme": {
     "mode": "system",
-    "light": "VSCode Light+",
+    "light": "One Light",
     "dark": "One Dark",
   },
   "base_keymap": "VSCode",
@@ -25,8 +25,8 @@
   },
   "icon_theme": {
     "mode": "system",
-    "light": "Material Icon Theme",
-    "dark": "Material Icon Theme",
+    "light": "Zed (Default)",
+    "dark": "Zed (Default)",
   },
   "show_edit_predictions": true,
   "diff_view_style": "split",

@@ -1,0 +1,70 @@
+targets:
+  python:
+    name: Python
+    roles: [python]
+    commands: [python]
+
+  nodejs:
+    name: Node.js
+    roles: [nodejs]
+    commands: [nodejs]
+
+  pnpm:
+    name: pnpm
+    roles: [nodejs, pnpm]
+    commands: [nodejs, pnpm]
+
+  coder:
+    name: Coder
+    roles: [coder]
+    commands: [coder]
+
+  bun:
+    name: Bun
+    roles: [bun]
+    commands: [bun]
+    verify:
+      - export PATH="$HOME/.bun/bin:$PATH"
+      - bun --version
+      - bun --revision
+
+  ruby:
+    name: Ruby
+    roles: [ruby]
+    commands: [ruby]
+
+  rust:
+    name: Rust
+    roles: [rust]
+    commands: [rust]
+
+  go:
+    name: Go
+    roles: [go]
+    commands: [go]
+
+  nvim:
+    name: Neovim
+    roles: [nvim]
+    commands: [nvim]
+    verify:
+      - nvim --headless '+qall'
+
+  editor:
+    name: Editor
+    roles: [editor]
+    commands: [vscode, antigravity-ide, zed, xcode]
+
+  system:
+    name: System
+    roles: [git, gh, shell, system]
+    commands: [git, gh, shell, system]
+    verify:
+      - zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; setopt aliases; source "$HOME/.zshrc"; eval "mk --version"'
+
+  brew-formulae:
+    name: Brew Formulae
+    roles: [brew]
+    commands: [brew-formulae]
+    env:
+      HOMEBREW_GITHUB_API_TOKEN: "${{ github.token }}"

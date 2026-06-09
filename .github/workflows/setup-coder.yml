@@ -1,7 +1,7 @@
 # This file is auto-generated. Do not edit manually.
 # Source: .github/ansible-setup-targets.yml
 
-name: Setup Ruby
+name: Setup Coder
 
 on:
   workflow_call:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  setup-ruby:
+  setup-coder:
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -24,8 +24,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run ruby setup
+      - name: Run coder setup
         shell: bash
         run: |
           set -euo pipefail
-          "$RUNNER_TEMP/mev-bin/mev" make ruby
+          "$RUNNER_TEMP/mev-bin/mev" make coder

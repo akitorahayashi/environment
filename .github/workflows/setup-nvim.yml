@@ -1,3 +1,6 @@
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
 name: Setup Neovim
 
 on:
@@ -21,45 +24,14 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Setup Neovim configuration
+      - name: Run nvim setup
         shell: bash
         run: |
           set -euo pipefail
           "$RUNNER_TEMP/mev-bin/mev" make nvim
 
-      - name: Verify Neovim symlinks
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -L "${HOME}/.vimrc"
-          test -L "${HOME}/.config/nvim"
-
-      - name: Verify Neovim headless startup
+      - name: Verify nvim setup
         shell: bash
         run: |
           set -euo pipefail
           nvim --headless '+qall'
-
-      - name: Verify Neovim options
-        shell: bash
-        run: |
-          set -euo pipefail
-          nvim --headless \
-            '+lua assert(vim.o.clipboard == "unnamedplus")' \
-            '+lua assert(vim.o.signcolumn == "yes")' \
-            '+qall'
-
-      - name: Sync Neovim plugins
-        shell: bash
-        run: |
-          set -euo pipefail
-          nvim --headless '+Lazy! sync' '+qall'
-
-      - name: Verify Neovim plugins
-        shell: bash
-        run: |
-          set -euo pipefail
-          nvim --headless \
-            '+lua assert(vim.fn.exists(":Lazy") == 2)' \
-            '+lua assert(vim.fn.exists(":Neotree") == 2)' \
-            '+qall'

@@ -91,3 +91,60 @@ fn make_bun_runs_bun_role_directly() {
     assert_eq!(lines.len(), 1);
     assert!(lines[0].contains("--tags bun"));
 }
+
+#[test]
+fn make_nodejs_installs_only_fnm_before_running_nodejs_role() {
+    let ctx = TestContext::new();
+    let ansible_path = install_ansible_recorder(&ctx);
+
+    ctx.cli()
+        .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
+        .args(["make", "nodejs"])
+        .assert()
+        .success();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    assert_eq!(lines.len(), 2);
+    assert!(lines[0].contains(r#""brew_formula_tokens":["fnm"]"#));
+    assert!(lines[0].contains("--tags brew-formulae"));
+    assert!(lines[1].contains("--tags nodejs"));
+}
+
+#[test]
+fn make_pnpm_installs_pnpm_before_running_pnpm_role() {
+    let ctx = TestContext::new();
+    let ansible_path = install_ansible_recorder(&ctx);
+
+    ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", "pnpm"]).assert().success();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    assert_eq!(lines.len(), 2);
+    assert!(lines[0].contains(r#""brew_formula_tokens":["pnpm"]"#));
+    assert!(lines[0].contains("--tags brew-formulae"));
+    assert!(lines[1].contains("--tags pnpm"));
+}
+
+#[test]
+fn make_nodejs_and_pnpm_aliases_target_owner_roles() {
+    for (alias, formula, tag) in [("nd", "fnm", "nd"), ("pn", "pnpm", "pn")] {
+        let ctx = TestContext::new();
+        let ansible_path = install_ansible_recorder(&ctx);
+
+        ctx.cli()
+            .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
+            .args(["make", alias])
+            .assert()
+            .success();
+
+        let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+        let lines: Vec<&str> = log.lines().collect();
+
+        assert_eq!(lines.len(), 2);
+        assert!(lines[0].contains(&format!(r#""brew_formula_tokens":["{formula}"]"#)));
+        assert!(lines[1].contains(&format!("--tags {tag}")));
+    }
+}

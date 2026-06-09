@@ -1,3 +1,6 @@
+# This file is auto-generated. Do not edit manually.
+# Source: .github/ansible-setup-targets.yml
+
 name: Setup Python
 
 on:
@@ -21,10 +24,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run python-platform setup
+      - name: Run python setup
+        shell: bash
         run: |
-          "$RUNNER_TEMP/mev-bin/mev" make python-platform
-
-      - name: Run python-tools setup
-        run: |
-          "$RUNNER_TEMP/mev-bin/mev" make python-tools
+          set -euo pipefail
+          "$RUNNER_TEMP/mev-bin/mev" make python
