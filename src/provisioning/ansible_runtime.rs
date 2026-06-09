@@ -642,10 +642,7 @@ mod tests {
             catalog.formula_requirements.get("tools"),
             Some(&vec!["example/tools/tool".to_string()])
         );
-        assert_eq!(
-            catalog.tap_requirements.get("tools"),
-            Some(&vec!["example/tools".to_string()])
-        );
+        assert_eq!(catalog.tap_requirements.get("tools"), Some(&vec!["example/tools".to_string()]));
 
         Ok(())
     }
