@@ -7,25 +7,43 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'src/assets/ansible/**'
-      - '.github/ansible-setup-targets.yml'
+      - 'src/assets/ansible/roles/brew/**'
+      - 'src/assets/ansible/roles/bun/**'
+      - 'src/assets/ansible/roles/coder/**'
+      - 'src/assets/ansible/roles/editor/**'
+      - 'src/assets/ansible/roles/gh/**'
+      - 'src/assets/ansible/roles/git/**'
+      - 'src/assets/ansible/roles/go/**'
+      - 'src/assets/ansible/roles/nodejs/**'
+      - 'src/assets/ansible/roles/nvim/**'
+      - 'src/assets/ansible/roles/pipx/**'
+      - 'src/assets/ansible/roles/pnpm/**'
+      - 'src/assets/ansible/roles/python/**'
+      - 'src/assets/ansible/roles/ruby/**'
+      - 'src/assets/ansible/roles/rust/**'
+      - 'src/assets/ansible/roles/shell/**'
+      - 'src/assets/ansible/roles/system/**'
       - '.github/workflows/setup-*.yml'
-      - '.github/workflows/verify-ansible-setup.yml'
-      - '.github/actions/setup-build/**'
-      - '.github/actions/setup-ansible/**'
-      - '.github/actions/download-mev-binary/**'
-      - '.github/scripts/generate_ansible_setup_workflows.py'
   pull_request:
     branches: [ "main" ]
     paths:
-      - 'src/assets/ansible/**'
-      - '.github/ansible-setup-targets.yml'
+      - 'src/assets/ansible/roles/brew/**'
+      - 'src/assets/ansible/roles/bun/**'
+      - 'src/assets/ansible/roles/coder/**'
+      - 'src/assets/ansible/roles/editor/**'
+      - 'src/assets/ansible/roles/gh/**'
+      - 'src/assets/ansible/roles/git/**'
+      - 'src/assets/ansible/roles/go/**'
+      - 'src/assets/ansible/roles/nodejs/**'
+      - 'src/assets/ansible/roles/nvim/**'
+      - 'src/assets/ansible/roles/pipx/**'
+      - 'src/assets/ansible/roles/pnpm/**'
+      - 'src/assets/ansible/roles/python/**'
+      - 'src/assets/ansible/roles/ruby/**'
+      - 'src/assets/ansible/roles/rust/**'
+      - 'src/assets/ansible/roles/shell/**'
+      - 'src/assets/ansible/roles/system/**'
       - '.github/workflows/setup-*.yml'
-      - '.github/workflows/verify-ansible-setup.yml'
-      - '.github/actions/setup-build/**'
-      - '.github/actions/setup-ansible/**'
-      - '.github/actions/download-mev-binary/**'
-      - '.github/scripts/generate_ansible_setup_workflows.py'
   workflow_dispatch:
     inputs:
       target:
@@ -57,7 +75,6 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      all_setups: ${{ steps.filter.outputs.all_setups }}
       setup_python: ${{ steps.filter.outputs.setup_python }}
       setup_pipx: ${{ steps.filter.outputs.setup_pipx }}
       setup_nodejs: ${{ steps.filter.outputs.setup_nodejs }}
@@ -73,7 +90,6 @@ jobs:
       setup_brew_formulae: ${{ steps.filter.outputs.setup_brew_formulae }}
       any_setup: >-
         ${{
-          steps.filter.outputs.all_setups == 'true' ||
           steps.filter.outputs.setup_python == 'true' ||
           steps.filter.outputs.setup_pipx == 'true' ||
           steps.filter.outputs.setup_nodejs == 'true' ||
@@ -100,15 +116,6 @@ jobs:
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v3.0.2
         with:
           filters: |
-            all_setups:
-              - 'src/assets/ansible/playbook.yml'
-              - 'src/assets/ansible/ansible.cfg'
-              - '.github/ansible-setup-targets.yml'
-              - '.github/workflows/verify-ansible-setup.yml'
-              - '.github/actions/setup-build/**'
-              - '.github/actions/setup-ansible/**'
-              - '.github/actions/download-mev-binary/**'
-              - '.github/scripts/generate_ansible_setup_workflows.py'
             setup_python:
               - 'src/assets/ansible/roles/python/**'
               - '.github/workflows/setup-python.yml'
@@ -198,7 +205,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'python')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_python == 'true'
     uses: ./.github/workflows/setup-python.yml
 
@@ -210,7 +216,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'pipx')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_pipx == 'true'
     uses: ./.github/workflows/setup-pipx.yml
 
@@ -222,7 +227,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'nodejs')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_nodejs == 'true'
     uses: ./.github/workflows/setup-nodejs.yml
 
@@ -234,7 +238,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'pnpm')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_pnpm == 'true'
     uses: ./.github/workflows/setup-pnpm.yml
 
@@ -246,7 +249,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'coder')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_coder == 'true'
     uses: ./.github/workflows/setup-coder.yml
 
@@ -258,7 +260,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'bun')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_bun == 'true'
     uses: ./.github/workflows/setup-bun.yml
 
@@ -270,7 +271,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'ruby')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_ruby == 'true'
     uses: ./.github/workflows/setup-ruby.yml
 
@@ -282,7 +282,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'rust')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_rust == 'true'
     uses: ./.github/workflows/setup-rust.yml
 
@@ -294,7 +293,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'go')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_go == 'true'
     uses: ./.github/workflows/setup-go.yml
 
@@ -306,7 +304,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'nvim')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_nvim == 'true'
     uses: ./.github/workflows/setup-nvim.yml
 
@@ -318,7 +315,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'editor')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_editor == 'true'
     uses: ./.github/workflows/setup-editor.yml
 
@@ -330,7 +326,6 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'system')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_system == 'true'
     uses: ./.github/workflows/setup-system.yml
 
@@ -342,6 +337,5 @@ jobs:
       contents: read
     if: |
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'brew-formulae')) ||
-      needs.changes.outputs.all_setups == 'true' ||
       needs.changes.outputs.setup_brew_formulae == 'true'
     uses: ./.github/workflows/setup-brew-formulae.yml

@@ -82,9 +82,15 @@ def setup_workflow(target: str, config: dict[str, object]) -> str:
 def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
     names = list(targets)
     setup_outputs = [f"setup_{name.replace('-', '_')}" for name in names]
+    target_paths = sorted(
+        {
+            f"src/assets/ansible/roles/{role}/**"
+            for config in targets.values()
+            for role in config["roles"]
+        }
+    )
     any_setup = "\n          ".join(
-        ["steps.filter.outputs.all_setups == 'true' ||"]
-        + [f"steps.filter.outputs.{name} == 'true' ||" for name in setup_outputs[:-1]]
+        [f"steps.filter.outputs.{name} == 'true' ||" for name in setup_outputs[:-1]]
         + [f"steps.filter.outputs.{setup_outputs[-1]} == 'true'"]
     )
 
@@ -95,35 +101,31 @@ def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
         "  push:",
         '    branches: [ "main" ]',
         "    paths:",
-        "      - 'src/assets/ansible/**'",
-        "      - '.github/ansible-setup-targets.yml'",
-        "      - '.github/workflows/setup-*.yml'",
-        "      - '.github/workflows/verify-ansible-setup.yml'",
-        "      - '.github/actions/setup-build/**'",
-        "      - '.github/actions/setup-ansible/**'",
-        "      - '.github/actions/download-mev-binary/**'",
-        "      - '.github/scripts/generate_ansible_setup_workflows.py'",
-        "  pull_request:",
-        '    branches: [ "main" ]',
-        "    paths:",
-        "      - 'src/assets/ansible/**'",
-        "      - '.github/ansible-setup-targets.yml'",
-        "      - '.github/workflows/setup-*.yml'",
-        "      - '.github/workflows/verify-ansible-setup.yml'",
-        "      - '.github/actions/setup-build/**'",
-        "      - '.github/actions/setup-ansible/**'",
-        "      - '.github/actions/download-mev-binary/**'",
-        "      - '.github/scripts/generate_ansible_setup_workflows.py'",
-        "  workflow_dispatch:",
-        "    inputs:",
-        "      target:",
-        "        description: 'Setup target to run'",
-        "        required: false",
-        "        default: 'all'",
-        "        type: choice",
-        "        options:",
-        "          - all",
     ]
+    lines.extend(f"      - '{path}'" for path in target_paths)
+    lines.append("      - '.github/workflows/setup-*.yml'")
+    lines.extend(
+        [
+            "  pull_request:",
+            '    branches: [ "main" ]',
+            "    paths:",
+        ]
+    )
+    lines.extend(f"      - '{path}'" for path in target_paths)
+    lines.extend(
+        [
+            "      - '.github/workflows/setup-*.yml'",
+            "  workflow_dispatch:",
+            "    inputs:",
+            "      target:",
+            "        description: 'Setup target to run'",
+            "        required: false",
+            "        default: 'all'",
+            "        type: choice",
+            "        options:",
+            "          - all",
+        ]
+    )
     lines.extend(f"          - {name}" for name in names)
     lines.extend(
         [
@@ -136,7 +138,6 @@ def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
             "      contents: read",
             "      pull-requests: read",
             "    outputs:",
-            "      all_setups: ${{ steps.filter.outputs.all_setups }}",
         ]
     )
     lines.extend(f"      {name}: ${{{{ steps.filter.outputs.{name} }}}}" for name in setup_outputs)
@@ -158,15 +159,6 @@ def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
             f"        uses: {PATHS_FILTER}",
             "        with:",
             "          filters: |",
-            "            all_setups:",
-            "              - 'src/assets/ansible/playbook.yml'",
-            "              - 'src/assets/ansible/ansible.cfg'",
-            "              - '.github/ansible-setup-targets.yml'",
-            "              - '.github/workflows/verify-ansible-setup.yml'",
-            "              - '.github/actions/setup-build/**'",
-            "              - '.github/actions/setup-ansible/**'",
-            "              - '.github/actions/download-mev-binary/**'",
-            "              - '.github/scripts/generate_ansible_setup_workflows.py'",
         ]
     )
     for name, config in targets.items():
@@ -230,7 +222,6 @@ def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
                 "      contents: read",
                 "    if: |",
                 f"      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == '{name}')) ||",
-                "      needs.changes.outputs.all_setups == 'true' ||",
                 f"      needs.changes.outputs.{output} == 'true'",
                 f"    uses: ./.github/workflows/setup-{name}.yml",
             ]
