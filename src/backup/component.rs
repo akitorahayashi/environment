@@ -72,9 +72,7 @@ const BACKUP_COMPONENT_ALIASES: &[(&str, BackupComponent)] = &[
     ("vscode-extensions", BackupComponent::Vscode),
     ("co", BackupComponent::Vscode),
     ("antigravity-ide", BackupComponent::AntigravityIde),
-    ("agy-ide", BackupComponent::AntigravityIde),
-    ("antigravity", BackupComponent::AntigravityIde),
-    ("agy", BackupComponent::AntigravityIde),
+    ("agi", BackupComponent::AntigravityIde),
 ];
 
 /// Look up a backup component corresponding to the user's input.
@@ -126,11 +124,6 @@ mod tests {
     }
 
     #[test]
-    fn backup_component_resolves_antigravity() {
-        assert_eq!(resolve_backup_component("antigravity"), Some(BackupComponent::AntigravityIde));
-    }
-
-    #[test]
     fn backup_component_resolves_antigravity_ide() {
         assert_eq!(
             resolve_backup_component("antigravity-ide"),
@@ -139,13 +132,8 @@ mod tests {
     }
 
     #[test]
-    fn backup_component_resolves_agy_ide() {
-        assert_eq!(resolve_backup_component("agy-ide"), Some(BackupComponent::AntigravityIde));
-    }
-
-    #[test]
-    fn backup_component_resolves_antigravity_agy_alias() {
-        assert_eq!(resolve_backup_component("agy"), Some(BackupComponent::AntigravityIde));
+    fn backup_component_resolves_agi_alias() {
+        assert_eq!(resolve_backup_component("agi"), Some(BackupComponent::AntigravityIde));
     }
 
     #[test]
@@ -159,8 +147,8 @@ mod tests {
     }
 
     #[test]
-    fn backup_component_resolves_antigravity_alias_case_insensitively() {
-        assert_eq!(resolve_backup_component("AGY"), Some(BackupComponent::AntigravityIde));
+    fn backup_component_resolves_agi_alias_case_insensitively() {
+        assert_eq!(resolve_backup_component("AGI"), Some(BackupComponent::AntigravityIde));
     }
 
     #[test]
@@ -172,8 +160,10 @@ mod tests {
     }
 
     #[test]
-    fn backup_component_resolves_agy_ide_alias_case_insensitively() {
-        assert_eq!(resolve_backup_component("AGY-IDE"), Some(BackupComponent::AntigravityIde));
+    fn backup_component_rejects_removed_antigravity_aliases() {
+        assert_eq!(resolve_backup_component("antigravity"), None);
+        assert_eq!(resolve_backup_component("agy"), None);
+        assert_eq!(resolve_backup_component("agy-ide"), None);
     }
 
     #[test]

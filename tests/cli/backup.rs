@@ -129,6 +129,27 @@ fn backup_antigravity_ide_success_via_canonical_name() -> Result<(), Box<dyn std
 }
 
 #[test]
+fn backup_antigravity_ide_success_via_agi_alias() -> Result<(), Box<dyn std::error::Error>> {
+    let ctx = TestContext::new();
+
+    let antigravity_ide_settings_dir =
+        ctx.work_dir().join("Library/Application Support/Antigravity IDE/User");
+    std::fs::create_dir_all(&antigravity_ide_settings_dir)?;
+    std::fs::write(antigravity_ide_settings_dir.join("settings.json"), "{}\n")?;
+    std::fs::write(antigravity_ide_settings_dir.join("keybindings.json"), "[]\n")?;
+
+    ctx.create_mock_command("agy-ide", "#!/bin/sh\necho \"mushan.vscode-paste-image\"\nexit 0\n");
+
+    ctx.cli().env("PATH", ctx.path_with_mock_commands()).args(["backup", "agi"]).assert().success();
+
+    let output_file =
+        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/extensions.json");
+    assert!(output_file.exists());
+
+    Ok(())
+}
+
+#[test]
 fn backup_antigravity_ide_keeps_managed_settings_symlink_unchanged()
 -> Result<(), Box<dyn std::error::Error>> {
     let ctx = TestContext::new();

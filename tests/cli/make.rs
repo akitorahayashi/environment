@@ -59,6 +59,22 @@ fn make_desktop_batches_required_casks_once() {
 }
 
 #[test]
+fn make_agi_runs_antigravity_ide_configuration() {
+    let ctx = TestContext::new();
+    let ansible_path = install_ansible_recorder(&ctx);
+
+    ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", "agi"]).assert().success();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    assert_eq!(lines.len(), 2);
+    assert!(lines[0].contains(r#""brew_cask_tokens":["antigravity-ide"]"#));
+    assert!(lines[0].contains("--tags brew-cask"));
+    assert!(lines[1].contains("--tags agi"));
+}
+
+#[test]
 fn make_python_runs_required_formula_phase_before_configuration() {
     let ctx = TestContext::new();
     let ansible_path = install_ansible_recorder(&ctx);
