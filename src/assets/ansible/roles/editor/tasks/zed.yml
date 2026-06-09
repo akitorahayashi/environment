@@ -16,21 +16,3 @@
       dest: settings.json
     - src: keymap.json
       dest: keymap.json
-
-- name: "Check Zed AGENTS source"
-  ansible.builtin.stat:
-    path: "{{ local_config_root }}/coder/global/AGENTS.md"
-  register: editor_zed_agents_source
-
-- name: "Reject missing Zed AGENTS source"
-  ansible.builtin.fail:
-    msg: "Zed AGENTS source {{ local_config_root }}/coder/global/AGENTS.md is missing."
-  when: not editor_zed_agents_source.stat.exists
-
-- name: "Symlink Zed AGENTS file"
-  ansible.builtin.file:
-    src: "{{ local_config_root }}/coder/global/AGENTS.md"
-    dest: "{{ ansible_facts['env']['HOME'] }}/.config/zed/AGENTS.md"
-    state: link
-    force: true
-  when: editor_zed_agents_source.stat.exists
