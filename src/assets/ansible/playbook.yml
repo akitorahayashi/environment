@@ -26,8 +26,6 @@
       nv: ["neovim"]
       system: ["displayplacer", "duti"]
       sys: ["displayplacer", "duti"]
-      ollama: ["ollama"]
-      ol: ["ollama"]
     cask_requirements:
       vscode: ["visual-studio-code"]
       co: ["visual-studio-code"]
