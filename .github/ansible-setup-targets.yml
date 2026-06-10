@@ -60,6 +60,11 @@ targets:
     roles: [editor]
     commands: [vscode, antigravity-ide, zed, xcode]
 
+  ghostty:
+    name: Ghostty
+    roles: [ghostty]
+    commands: [ghostty]
+
   system:
     name: System
     roles: [git, gh, shell, system]
