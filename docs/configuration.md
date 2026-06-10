@@ -21,6 +21,7 @@ The pnpm role uses `src/assets/ansible/roles/pnpm/config/global/global-packages.
 The pipx role uses `src/assets/ansible/roles/pipx/config/global/tools.yml` to declare isolated Python applications by `package`, with optional `version`, `install_spec`, `inject`, and `post_install.argv` fields.
 The rust-cli role uses `src/assets/ansible/roles/rust_cli/config/global/tools.yml` to declare GitHub Release binaries.
 The Coder role stores each tool's configuration under its tool name and uses the deployed file's actual name.
+The Coder role stores agent skills once and deploys them to the interoperable `~/.agents/skills/` location plus tool-specific locations required by Claude Code and Antigravity.
 The system role uses `src/assets/ansible/roles/system/config/global/default_apps.yml` to declare default applications grouped by application bundle identifier.
 
 ### System Default Applications
