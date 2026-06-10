@@ -55,10 +55,25 @@ targets:
     verify:
       - nvim --headless '+qall'
 
-  editor:
-    name: Editor
-    roles: [editor]
-    commands: [vscode, antigravity-ide, zed, xcode]
+  vscode:
+    name: VS Code
+    roles: [editor/vscode]
+    commands: [vscode]
+
+  antigravity-ide:
+    name: Antigravity IDE
+    roles: [editor/antigravity_ide]
+    commands: [antigravity-ide]
+
+  zed:
+    name: Zed
+    roles: [editor/zed]
+    commands: [zed]
+
+  xcode:
+    name: Xcode
+    roles: [editor/xcode]
+    commands: [xcode]
 
   ghostty:
     name: Ghostty

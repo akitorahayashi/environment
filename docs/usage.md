@@ -56,6 +56,7 @@ mev config deploy bun     # Deploy only bun role config
 mev config deploy pnpm    # Deploy only pnpm role config
 mev config deploy pipx    # Deploy only pipx role config
 mev config deploy coder   # Deploy only coding agent config
+mev config deploy editor/vscode # Deploy only VS Code config
 ```
 
 Git identity switches via:

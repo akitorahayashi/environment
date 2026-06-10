@@ -9,14 +9,16 @@ use crate::provisioning::profile;
 pub fn execute(ctx: &AppContext) -> Result<(), AppError> {
     let tags_map = ctx.provisioning.tags_by_role();
 
-    // Role -> tags table
-    println!("Available Tags");
-    println!("{:<20} Tags", "Role");
-    println!("{:-<20} {:-<40}", "", "");
     let mut roles: Vec<_> = tags_map.iter().collect();
     roles.sort_by_key(|&(name, _)| name);
+    let role_width = roles.iter().map(|(name, _)| name.len()).max().unwrap_or(0).max(4);
+
+    // Role -> tags table
+    println!("Available Tags");
+    println!("{:<role_width$} Tags", "Role");
+    println!("{:-<role_width$} {:-<40}", "", "");
     for (role, tags) in &roles {
-        println!("{:<20} {}", role, tags.join(", "));
+        println!("{:<role_width$} {}", role, tags.join(", "));
     }
     println!();
 

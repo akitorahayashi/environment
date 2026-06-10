@@ -19,6 +19,12 @@ HEADER = (
 CHECKOUT = "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1"
 PATHS_FILTER = "dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v3.0.2"
 UPLOAD_ARTIFACT = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1"
+SHARED_PATHS = [
+    "src/assets/ansible/playbook.yml",
+    "src/assets/ansible/ansible.cfg",
+    ".github/ansible-setup-targets.yml",
+    ".github/scripts/generate_ansible_setup_workflows.py",
+]
 
 
 def indent(lines: list[str], spaces: int) -> list[str]:
@@ -88,6 +94,7 @@ def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
             for config in targets.values()
             for role in config["roles"]
         }
+        | set(SHARED_PATHS)
     )
     any_setup = "\n          ".join(
         [f"steps.filter.outputs.{name} == 'true' ||" for name in setup_outputs[:-1]]
@@ -165,6 +172,7 @@ def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
         output = f"setup_{name.replace('-', '_')}"
         lines.append(f"            {output}:")
         lines.extend(f"              - 'src/assets/ansible/roles/{role}/**'" for role in config["roles"])
+        lines.extend(f"              - '{path}'" for path in SHARED_PATHS)
         lines.append(f"              - '.github/workflows/setup-{name}.yml'")
 
     lines.extend(

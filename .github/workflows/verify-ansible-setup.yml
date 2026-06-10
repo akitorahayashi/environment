@@ -7,10 +7,17 @@ on:
   push:
     branches: [ "main" ]
     paths:
+      - '.github/ansible-setup-targets.yml'
+      - '.github/scripts/generate_ansible_setup_workflows.py'
+      - 'src/assets/ansible/ansible.cfg'
+      - 'src/assets/ansible/playbook.yml'
       - 'src/assets/ansible/roles/brew/**'
       - 'src/assets/ansible/roles/bun/**'
       - 'src/assets/ansible/roles/coder/**'
-      - 'src/assets/ansible/roles/editor/**'
+      - 'src/assets/ansible/roles/editor/antigravity_ide/**'
+      - 'src/assets/ansible/roles/editor/vscode/**'
+      - 'src/assets/ansible/roles/editor/xcode/**'
+      - 'src/assets/ansible/roles/editor/zed/**'
       - 'src/assets/ansible/roles/gh/**'
       - 'src/assets/ansible/roles/ghostty/**'
       - 'src/assets/ansible/roles/git/**'
@@ -28,10 +35,17 @@ on:
   pull_request:
     branches: [ "main" ]
     paths:
+      - '.github/ansible-setup-targets.yml'
+      - '.github/scripts/generate_ansible_setup_workflows.py'
+      - 'src/assets/ansible/ansible.cfg'
+      - 'src/assets/ansible/playbook.yml'
       - 'src/assets/ansible/roles/brew/**'
       - 'src/assets/ansible/roles/bun/**'
       - 'src/assets/ansible/roles/coder/**'
-      - 'src/assets/ansible/roles/editor/**'
+      - 'src/assets/ansible/roles/editor/antigravity_ide/**'
+      - 'src/assets/ansible/roles/editor/vscode/**'
+      - 'src/assets/ansible/roles/editor/xcode/**'
+      - 'src/assets/ansible/roles/editor/zed/**'
       - 'src/assets/ansible/roles/gh/**'
       - 'src/assets/ansible/roles/ghostty/**'
       - 'src/assets/ansible/roles/git/**'
@@ -65,7 +79,10 @@ on:
           - rust
           - rust-cli
           - nvim
-          - editor
+          - vscode
+          - antigravity-ide
+          - zed
+          - xcode
           - ghostty
           - system
           - brew-formulae
@@ -88,7 +105,10 @@ jobs:
       setup_rust: ${{ steps.filter.outputs.setup_rust }}
       setup_rust_cli: ${{ steps.filter.outputs.setup_rust_cli }}
       setup_nvim: ${{ steps.filter.outputs.setup_nvim }}
-      setup_editor: ${{ steps.filter.outputs.setup_editor }}
+      setup_vscode: ${{ steps.filter.outputs.setup_vscode }}
+      setup_antigravity_ide: ${{ steps.filter.outputs.setup_antigravity_ide }}
+      setup_zed: ${{ steps.filter.outputs.setup_zed }}
+      setup_xcode: ${{ steps.filter.outputs.setup_xcode }}
       setup_ghostty: ${{ steps.filter.outputs.setup_ghostty }}
       setup_system: ${{ steps.filter.outputs.setup_system }}
       setup_brew_formulae: ${{ steps.filter.outputs.setup_brew_formulae }}
@@ -104,7 +124,10 @@ jobs:
           steps.filter.outputs.setup_rust == 'true' ||
           steps.filter.outputs.setup_rust_cli == 'true' ||
           steps.filter.outputs.setup_nvim == 'true' ||
-          steps.filter.outputs.setup_editor == 'true' ||
+          steps.filter.outputs.setup_vscode == 'true' ||
+          steps.filter.outputs.setup_antigravity_ide == 'true' ||
+          steps.filter.outputs.setup_zed == 'true' ||
+          steps.filter.outputs.setup_xcode == 'true' ||
           steps.filter.outputs.setup_ghostty == 'true' ||
           steps.filter.outputs.setup_system == 'true' ||
           steps.filter.outputs.setup_brew_formulae == 'true'
@@ -123,49 +146,126 @@ jobs:
           filters: |
             setup_python:
               - 'src/assets/ansible/roles/python/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-python.yml'
             setup_pipx:
               - 'src/assets/ansible/roles/pipx/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-pipx.yml'
             setup_nodejs:
               - 'src/assets/ansible/roles/nodejs/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-nodejs.yml'
             setup_pnpm:
               - 'src/assets/ansible/roles/nodejs/**'
               - 'src/assets/ansible/roles/pnpm/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-pnpm.yml'
             setup_coder:
               - 'src/assets/ansible/roles/coder/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-coder.yml'
             setup_bun:
               - 'src/assets/ansible/roles/bun/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-bun.yml'
             setup_ruby:
               - 'src/assets/ansible/roles/ruby/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-ruby.yml'
             setup_rust:
               - 'src/assets/ansible/roles/rust/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-rust.yml'
             setup_rust_cli:
               - 'src/assets/ansible/roles/rust_cli/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-rust-cli.yml'
             setup_nvim:
               - 'src/assets/ansible/roles/nvim/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-nvim.yml'
-            setup_editor:
-              - 'src/assets/ansible/roles/editor/**'
-              - '.github/workflows/setup-editor.yml'
+            setup_vscode:
+              - 'src/assets/ansible/roles/editor/vscode/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
+              - '.github/workflows/setup-vscode.yml'
+            setup_antigravity_ide:
+              - 'src/assets/ansible/roles/editor/antigravity_ide/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
+              - '.github/workflows/setup-antigravity-ide.yml'
+            setup_zed:
+              - 'src/assets/ansible/roles/editor/zed/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
+              - '.github/workflows/setup-zed.yml'
+            setup_xcode:
+              - 'src/assets/ansible/roles/editor/xcode/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
+              - '.github/workflows/setup-xcode.yml'
             setup_ghostty:
               - 'src/assets/ansible/roles/ghostty/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-ghostty.yml'
             setup_system:
               - 'src/assets/ansible/roles/git/**'
               - 'src/assets/ansible/roles/gh/**'
               - 'src/assets/ansible/roles/shell/**'
               - 'src/assets/ansible/roles/system/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-system.yml'
             setup_brew_formulae:
               - 'src/assets/ansible/roles/brew/**'
+              - 'src/assets/ansible/playbook.yml'
+              - 'src/assets/ansible/ansible.cfg'
+              - '.github/ansible-setup-targets.yml'
+              - '.github/scripts/generate_ansible_setup_workflows.py'
               - '.github/workflows/setup-brew-formulae.yml'
 
   build-mev:
@@ -315,16 +415,49 @@ jobs:
       needs.changes.outputs.setup_nvim == 'true'
     uses: ./.github/workflows/setup-nvim.yml
 
-  setup-editor:
+  setup-vscode:
     needs:
       - changes
       - build-mev
     permissions:
       contents: read
     if: |
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'editor')) ||
-      needs.changes.outputs.setup_editor == 'true'
-    uses: ./.github/workflows/setup-editor.yml
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'vscode')) ||
+      needs.changes.outputs.setup_vscode == 'true'
+    uses: ./.github/workflows/setup-vscode.yml
+
+  setup-antigravity-ide:
+    needs:
+      - changes
+      - build-mev
+    permissions:
+      contents: read
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'antigravity-ide')) ||
+      needs.changes.outputs.setup_antigravity_ide == 'true'
+    uses: ./.github/workflows/setup-antigravity-ide.yml
+
+  setup-zed:
+    needs:
+      - changes
+      - build-mev
+    permissions:
+      contents: read
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'zed')) ||
+      needs.changes.outputs.setup_zed == 'true'
+    uses: ./.github/workflows/setup-zed.yml
+
+  setup-xcode:
+    needs:
+      - changes
+      - build-mev
+    permissions:
+      contents: read
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'xcode')) ||
+      needs.changes.outputs.setup_xcode == 'true'
+    uses: ./.github/workflows/setup-xcode.yml
 
   setup-ghostty:
     needs:

@@ -73,5 +73,8 @@
     - { role: ghostty, tags: ["ghostty", "gst"] }
     - { role: nvim, tags: ["nvim", "nv"] }
     - { role: shell, tags: ["shell", "sh"] }
-    - { role: editor, tags: ["vscode", "co", "antigravity-ide", "agi", "zed", "zd", "xcode", "xc"] }
+    - { role: editor/vscode, tags: ["vscode", "co"] } # noqa: role-name[path]
+    - { role: editor/antigravity_ide, tags: ["antigravity-ide", "agi"] } # noqa: role-name[path]
+    - { role: editor/zed, tags: ["zed", "zd"] } # noqa: role-name[path]
+    - { role: editor/xcode, tags: ["xcode", "xc"] } # noqa: role-name[path]
     - { role: system, tags: ["system", "sys"] }
