@@ -24,8 +24,10 @@
       gh: ["gh"]
       nvim: ["neovim"]
       nv: ["neovim"]
-      system: ["displayplacer"]
-      sys: ["displayplacer"]
+      system: ["displayplacer", "duti"]
+      sys: ["displayplacer", "duti"]
+      ollama: ["ollama"]
+      ol: ["ollama"]
     cask_requirements:
       vscode: ["visual-studio-code"]
       co: ["visual-studio-code"]

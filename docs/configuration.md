@@ -20,6 +20,21 @@ The pnpm role uses `src/assets/ansible/roles/pnpm/config/global/global-packages.
 The pipx role uses `src/assets/ansible/roles/pipx/config/global/tools.yml` to declare isolated Python applications by `package`, with optional `version`, `install_spec`, `inject`, and `post_install.argv` fields.
 The rust-cli role uses `src/assets/ansible/roles/rust_cli/config/global/tools.yml` to declare GitHub Release binaries.
 The Coder role stores each tool's configuration under its tool name and uses the deployed file's actual name.
+The system role uses `src/assets/ansible/roles/system/config/global/default_apps.yml` to declare default applications by filename extension and application bundle identifier.
+
+### System Default Applications
+
+Filename extensions are declared without a leading dot. Each application handles all LaunchServices roles for its declared extensions.
+The bundled collection is empty, and deployed role configuration declares the desired associations.
+
+```yaml
+---
+default_apps:
+  - extension: md
+    bundle_id: com.microsoft.VSCode
+  - extension: pdf
+    bundle_id: com.apple.Preview
+```
 
 ## Release
 

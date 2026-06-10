@@ -1,8 +1,6 @@
 ---
-- name: "Apply macOS system defaults"
-  community.general.osx_defaults:
-    domain: "{{ item.domain | default('NSGlobalDomain') }}"
-    key: "{{ item.key }}"
-    type: "{{ item.type }}"
-    value: "{{ item.value }}"
-  loop: "{{ lookup('file', local_config_root + '/system/global/system.yml') | from_yaml }}"
+- name: "Apply macOS defaults"
+  ansible.builtin.include_tasks: defaults.yml
+
+- name: "Apply default applications"
+  ansible.builtin.include_tasks: default_apps.yml

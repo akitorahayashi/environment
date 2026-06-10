@@ -66,6 +66,7 @@ targets:
     commands: [git, gh, shell, system]
     verify:
       - zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; setopt aliases; source "$HOME/.zshrc"; eval "mk --version"'
+      - duti -V
 
   brew-formulae:
     name: Brew Formulae

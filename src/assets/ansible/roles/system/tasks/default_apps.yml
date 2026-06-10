@@ -1,0 +1,80 @@
+---
+- name: "Load default applications configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/system/global/default_apps.yml"
+    name: system_default_apps
+
+- name: "Validate default applications collection"
+  ansible.builtin.assert:
+    that:
+      - system_default_apps.default_apps is defined
+      - system_default_apps.default_apps is sequence
+    fail_msg: "default_apps must be a sequence"
+
+- name: "Validate default application entries"
+  ansible.builtin.assert:
+    that:
+      - item is mapping
+      - item.extension | default('') is string
+      - item.extension | default('') is match('^[^./\\s]+$')
+      - item.bundle_id | default('') is string
+      - item.bundle_id | default('') | trim | length > 0
+      - item.bundle_id | default('') == item.bundle_id | default('') | trim
+    fail_msg: "Each default_apps entry requires an extension without dots or whitespace and a bundle_id"
+  loop: "{{ system_default_apps.default_apps }}"
+  loop_control:
+    label: "{{ item.extension | default('invalid entry') }}"
+
+- name: "Reject duplicate default application extensions"
+  ansible.builtin.assert:
+    that:
+      - >-
+        system_default_apps.default_apps
+        | map(attribute='extension')
+        | map('lower')
+        | list
+        | length
+        ==
+        system_default_apps.default_apps
+        | map(attribute='extension')
+        | map('lower')
+        | unique
+        | list
+        | length
+    fail_msg: "default_apps contains duplicate extensions"
+
+- name: "Read current default applications"
+  ansible.builtin.command:
+    argv:
+      - duti
+      - -x
+      - "{{ item.extension }}"
+  loop: "{{ system_default_apps.default_apps }}"
+  loop_control:
+    label: "{{ item.extension }}"
+  register: system_default_app_queries
+  changed_when: false
+  failed_when: system_default_app_queries.rc not in [0, 1]
+  check_mode: false
+
+- name: "Set default applications"
+  ansible.builtin.command:
+    argv:
+      - duti
+      - -s
+      - "{{ item.bundle_id }}"
+      - ".{{ item.extension }}"
+      - all
+  loop: "{{ system_default_apps.default_apps }}"
+  loop_control:
+    index_var: system_default_app_index
+    label: "{{ item.extension }}"
+  when: >-
+    system_default_app_queries.results[system_default_app_index].rc != 0
+    or
+    (
+      system_default_app_queries.results[system_default_app_index].stdout_lines
+      | last
+      | default('')
+    ) != item.bundle_id
+  changed_when: true

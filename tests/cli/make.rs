@@ -195,6 +195,24 @@ fn make_pnpm_installs_pnpm_before_running_pnpm_role() {
 }
 
 #[test]
+fn make_system_installs_required_formulae_before_configuration() {
+    for tag in ["system", "sys"] {
+        let ctx = TestContext::new();
+        let ansible_path = install_ansible_recorder(&ctx);
+
+        ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", tag]).assert().success();
+
+        let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+        let lines: Vec<&str> = log.lines().collect();
+
+        assert_eq!(lines.len(), 2);
+        assert!(lines[0].contains(r#""brew_formula_tokens":["displayplacer","duti"]"#));
+        assert!(lines[0].contains("--tags brew-formulae"));
+        assert!(lines[1].contains(&format!("--tags {tag}")));
+    }
+}
+
+#[test]
 fn make_runtime_and_package_manager_aliases_target_owner_roles() {
     for (alias, formula, tag) in
         [("py", "uv", "py"), ("px", "pipx", "px"), ("nd", "fnm", "nd"), ("pn", "pnpm", "pn")]
