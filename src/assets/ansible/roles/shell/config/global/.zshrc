@@ -2,6 +2,12 @@
 alias me="mev"
 export SHELL_START_DIR="${SHELL_START_DIR:-$PWD}"
 
+autoload -Uz compinit
+compinit
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
 # dev_alias_as must be loaded before files that call it.
 for config_file in "$HOME/.mev/alias/dev/dev.zsh" "$HOME/.mev/alias/dev/dev.sh"; do
   [[ -r "$config_file" ]] || continue
