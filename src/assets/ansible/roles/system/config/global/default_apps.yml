@@ -1,40 +1,27 @@
 ---
 default_apps:
-  - extension: md
-    bundle_id: dev.zed.Zed
-  - extension: txt
-    bundle_id: dev.zed.Zed
-  - extension: json
-    bundle_id: dev.zed.Zed
-  - extension: yml
-    bundle_id: dev.zed.Zed
-  - extension: yaml
-    bundle_id: dev.zed.Zed
-  - extension: toml
-    bundle_id: dev.zed.Zed
-  - extension: rs
-    bundle_id: dev.zed.Zed
-  - extension: py
-    bundle_id: dev.zed.Zed
-  - extension: sh
-    bundle_id: dev.zed.Zed
-  - extension: js
-    bundle_id: dev.zed.Zed
-  - extension: ts
-    bundle_id: dev.zed.Zed
-  - extension: css
-    bundle_id: dev.zed.Zed
-  - extension: html
-    bundle_id: com.google.Chrome
-  - extension: htm
-    bundle_id: com.google.Chrome
-  - extension: pdf
-    bundle_id: com.apple.Preview
-  - extension: png
-    bundle_id: com.apple.Preview
-  - extension: jpg
-    bundle_id: com.apple.Preview
-  - extension: jpeg
-    bundle_id: com.apple.Preview
-  - extension: gif
-    bundle_id: com.apple.Preview
+  - bundle_id: dev.zed.Zed
+    extensions:
+      - md
+      - txt
+      - json
+      - yml
+      - yaml
+      - toml
+      - rs
+      - py
+      - sh
+      - js
+      - ts
+      - css
+  - bundle_id: com.google.Chrome
+    extensions:
+      - html
+      - htm
+  - bundle_id: com.apple.Preview
+    extensions:
+      - pdf
+      - png
+      - jpg
+      - jpeg
+      - gif
