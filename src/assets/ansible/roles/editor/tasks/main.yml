@@ -11,6 +11,6 @@
   ansible.builtin.include_tasks: zed.yml
   when: "'zed' in ansible_run_tags or 'zd' in ansible_run_tags"
 
-- name: Configure Xcode settings
+- name: "Configure Xcode settings"
   ansible.builtin.include_tasks: xcode.yml
   when: "'xcode' in ansible_run_tags or 'xc' in ansible_run_tags"
