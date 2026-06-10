@@ -3,7 +3,7 @@
 - { key: "ShowExternalHardDrivesOnDesktop", domain: "com.apple.finder", type: "bool", value: true }
 - { key: "EnableStandardClickToShowDesktop", domain: "com.apple.WindowManager", type: "bool", value: true }
 # Dock
-- { key: "tilesize", domain: "com.apple.dock", type: "int", value: 50 }
+- { key: "tilesize", domain: "com.apple.dock", type: "float", value: 50.0 }
 - { key: "autohide", domain: "com.apple.dock", type: "bool", value: true }
 - { key: "autohide-time-modifier", domain: "com.apple.dock", type: "float", value: 0.5 }
 - { key: "autohide-delay", domain: "com.apple.dock", type: "float", value: 0.0 }
