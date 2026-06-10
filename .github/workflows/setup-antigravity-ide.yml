@@ -1,7 +1,7 @@
 # This file is auto-generated. Do not edit manually.
 # Source: .github/ansible-setup-targets.yml
 
-name: Setup Editor
+name: Setup Antigravity IDE
 
 on:
   workflow_call:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  setup-editor:
+  setup-antigravity-ide:
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -24,11 +24,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run editor setup
+      - name: Run antigravity-ide setup
         shell: bash
         run: |
           set -euo pipefail
-          "$RUNNER_TEMP/mev-bin/mev" make vscode
           "$RUNNER_TEMP/mev-bin/mev" make antigravity-ide
-          "$RUNNER_TEMP/mev-bin/mev" make zed
-          "$RUNNER_TEMP/mev-bin/mev" make xcode

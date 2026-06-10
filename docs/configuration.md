@@ -15,6 +15,7 @@
 ## Ansible Role Configs
 
 Role-specific provisioning data lives under `src/assets/ansible/roles/<role>/config/global/`.
+Category directories contain related roles without owning tasks, tags, or configs. Editor roles live under `src/assets/ansible/roles/editor/<editor>/`.
 The Bun role uses `src/assets/ansible/roles/bun/config/global/global-packages.json` to declare Bun global packages.
 The pnpm role uses `src/assets/ansible/roles/pnpm/config/global/global-packages.json` to declare global packages.
 The pipx role uses `src/assets/ansible/roles/pipx/config/global/tools.yml` to declare isolated Python applications by `package`, with optional `version`, `install_spec`, `inject`, and `post_install.argv` fields.

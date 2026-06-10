@@ -40,8 +40,8 @@ impl BackupComponent {
     pub fn role(self) -> &'static str {
         match self {
             Self::System => "system",
-            Self::Vscode => "editor",
-            Self::AntigravityIde => "editor",
+            Self::Vscode => "editor/vscode",
+            Self::AntigravityIde => "editor/antigravity_ide",
         }
     }
 
@@ -49,8 +49,7 @@ impl BackupComponent {
     pub fn subpath(self) -> &'static str {
         match self {
             Self::System => "global",
-            Self::Vscode => "global/vscode",
-            Self::AntigravityIde => "global/antigravity-ide",
+            Self::Vscode | Self::AntigravityIde => "global",
         }
     }
 }
@@ -198,7 +197,9 @@ mod tests {
     #[test]
     fn backup_component_subpath_targets_owner_config_directory() {
         assert_eq!(BackupComponent::System.subpath(), "global");
-        assert_eq!(BackupComponent::Vscode.subpath(), "global/vscode");
-        assert_eq!(BackupComponent::AntigravityIde.subpath(), "global/antigravity-ide");
+        assert_eq!(BackupComponent::Vscode.role(), "editor/vscode");
+        assert_eq!(BackupComponent::AntigravityIde.role(), "editor/antigravity_ide");
+        assert_eq!(BackupComponent::Vscode.subpath(), "global");
+        assert_eq!(BackupComponent::AntigravityIde.subpath(), "global");
     }
 }

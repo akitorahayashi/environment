@@ -46,16 +46,16 @@ fn backup_vscode_success() -> Result<(), Box<dyn std::error::Error>> {
         .assert()
         .success();
 
-    let output_file = ctx.work_dir().join(".config/mev/roles/editor/global/vscode/extensions.json");
+    let output_file = ctx.work_dir().join(".config/mev/roles/editor/vscode/global/extensions.json");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file)?;
     assert!(content.contains("ms-python.python"));
 
     let settings_output =
-        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/settings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/vscode/global/settings.json");
     assert!(settings_output.exists());
     let keybindings_output =
-        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/keybindings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/vscode/global/keybindings.json");
     assert!(keybindings_output.exists());
     Ok(())
 }
@@ -66,9 +66,9 @@ fn backup_vscode_keeps_managed_settings_symlink_unchanged() -> Result<(), Box<dy
     let ctx = TestContext::new();
 
     let managed_settings =
-        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/settings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/vscode/global/settings.json");
     let managed_keybindings =
-        ctx.work_dir().join(".config/mev/roles/editor/global/vscode/keybindings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/vscode/global/keybindings.json");
     std::fs::create_dir_all(managed_settings.parent().unwrap())?;
     std::fs::write(&managed_settings, "{\"workbench.colorTheme\":\"Default Light+\"}\n")?;
     std::fs::write(&managed_keybindings, "[]\n")?;
@@ -114,16 +114,16 @@ fn backup_antigravity_ide_success_via_canonical_name() -> Result<(), Box<dyn std
         .success();
 
     let output_file =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/extensions.json");
+        ctx.work_dir().join(".config/mev/roles/editor/antigravity_ide/global/extensions.json");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file)?;
     assert!(content.contains("mushan.vscode-paste-image"));
 
     let settings_output =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/settings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/antigravity_ide/global/settings.json");
     assert!(settings_output.exists());
     let keybindings_output =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/keybindings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/antigravity_ide/global/keybindings.json");
     assert!(keybindings_output.exists());
     Ok(())
 }
@@ -143,7 +143,7 @@ fn backup_antigravity_ide_success_via_agi_alias() -> Result<(), Box<dyn std::err
     ctx.cli().env("PATH", ctx.path_with_mock_commands()).args(["backup", "agi"]).assert().success();
 
     let output_file =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/extensions.json");
+        ctx.work_dir().join(".config/mev/roles/editor/antigravity_ide/global/extensions.json");
     assert!(output_file.exists());
 
     Ok(())
@@ -155,9 +155,9 @@ fn backup_antigravity_ide_keeps_managed_settings_symlink_unchanged()
     let ctx = TestContext::new();
 
     let managed_settings =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/settings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/antigravity_ide/global/settings.json");
     let managed_keybindings =
-        ctx.work_dir().join(".config/mev/roles/editor/global/antigravity-ide/keybindings.json");
+        ctx.work_dir().join(".config/mev/roles/editor/antigravity_ide/global/keybindings.json");
     std::fs::create_dir_all(managed_settings.parent().unwrap())?;
     std::fs::write(&managed_settings, "{\"workbench.colorTheme\":\"Default Light+\"}\n")?;
     std::fs::write(&managed_keybindings, "[]\n")?;
