@@ -120,11 +120,17 @@
     "biome": true,
   },
   "languages": {
+    "Kotlin": {
+      "tab_size": 4,
+    },
     "Python": {
       "language_servers": [
         "basedpyright",
         "ruff"
       ],
+    },
+    "Swift": {
+      "tab_size": 4,
     },
     "JavaScript": {
       "formatter": {
