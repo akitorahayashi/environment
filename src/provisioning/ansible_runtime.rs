@@ -242,22 +242,8 @@ impl RoleConfigLocator for AnsibleRuntime {
             return Ok(Vec::new());
         }
 
-        let entries = std::fs::read_dir(&self.roles_dir).map_err(|e| {
-            AppError::Config(format!(
-                "failed to read roles directory '{}': {e}",
-                self.roles_dir.display()
-            ))
-        })?;
-        let mut roles: Vec<String> = entries
-            .filter_map(|entry| {
-                let path = entry.ok()?.path();
-                if path.is_dir() && path.join("config").is_dir() {
-                    path.file_name()?.to_str().map(String::from)
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let mut roles = Vec::new();
+        collect_roles_with_config(&self.roles_dir, &self.roles_dir, &mut roles)?;
         roles.sort();
         Ok(roles)
     }
@@ -270,6 +256,43 @@ impl RoleConfigLocator for AnsibleRuntime {
         let config_dir = self.roles_dir.join(role).join("config");
         if config_dir.is_dir() { Some(config_dir) } else { None }
     }
+}
+
+fn collect_roles_with_config(
+    roles_dir: &Path,
+    directory: &Path,
+    roles: &mut Vec<String>,
+) -> Result<(), AppError> {
+    let entries = std::fs::read_dir(directory).map_err(|e| {
+        AppError::Config(format!("failed to read roles directory '{}': {e}", directory.display()))
+    })?;
+
+    for entry in entries {
+        let path = entry
+            .map_err(|e| {
+                AppError::Config(format!(
+                    "failed to read entry in roles directory '{}': {e}",
+                    directory.display()
+                ))
+            })?
+            .path();
+        if !path.is_dir() {
+            continue;
+        }
+        if path.join("config").is_dir() {
+            let relative = path.strip_prefix(roles_dir).map_err(|e| {
+                AppError::Config(format!("failed to resolve role path '{}': {e}", path.display()))
+            })?;
+            let role = relative.to_str().ok_or_else(|| {
+                AppError::Config(format!("role path is not valid UTF-8: {}", relative.display()))
+            })?;
+            roles.push(role.to_string());
+        } else {
+            collect_roles_with_config(roles_dir, &path, roles)?;
+        }
+    }
+
+    Ok(())
 }
 
 impl ProvisioningCatalog for AnsibleRuntime {
@@ -572,6 +595,28 @@ mod tests {
 
         let result = adapter.build_command("profile", &[], &PlaybookVars::default(), false);
         assert!(matches!(result, Err(AppError::AnsibleExecution { .. })));
+    }
+
+    #[test]
+    fn role_config_locator_discovers_nested_roles() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = tempdir()?;
+        let ansible_dir = dir.path().join("ansible");
+        fs::create_dir_all(ansible_dir.join("roles/editor/vscode/config/global"))?;
+        fs::create_dir_all(ansible_dir.join("roles/editor/zed/config/global"))?;
+        fs::create_dir_all(ansible_dir.join("roles/coder/config/global"))?;
+        fs::write(ansible_dir.join("playbook.yml"), "")?;
+
+        let runtime = AnsibleRuntime::new(&ansible_dir, Path::new("/local/config"))?;
+
+        assert_eq!(
+            runtime.roles_with_config()?,
+            vec!["coder".to_string(), "editor/vscode".to_string(), "editor/zed".to_string()]
+        );
+        assert_eq!(
+            runtime.role_config_dir("editor/vscode"),
+            Some(ansible_dir.join("roles/editor/vscode/config"))
+        );
+        Ok(())
     }
 
     #[test]

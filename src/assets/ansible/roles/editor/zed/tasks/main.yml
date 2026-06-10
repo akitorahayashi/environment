@@ -7,7 +7,7 @@
 
 - name: "Symlink Zed config files"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/editor/global/zed/{{ item.src }}"
+    src: "{{ local_config_root }}/editor/zed/global/{{ item.src }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/.config/zed/{{ item.dest }}"
     state: link
     force: true

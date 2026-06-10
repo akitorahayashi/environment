@@ -124,6 +124,7 @@ tests/
 - Global profile operates by default: most roles use `global` profile
 - Profile-specific configs apply: `brew` role supports profile-specific configs (macbook/mac-mini)
 - Roles store configs in `config/global/` (all roles) and `config/profiles/` where profile-specific overrides exist (e.g., brew)
+- Category directories group related roles without owning tasks, tags, or configs
 - Bun stores its global package configuration in `config/global/global-packages.json`
 - pnpm stores its global package configuration in `config/global/global-packages.json`
 
@@ -131,3 +132,5 @@ tests/
 Two-stage config deployment executes via:
 1. Package → `~/.config/mev/roles/{role}/`: Copy via `mev config deploy` or auto-deploy on `mev make`
 2. `~/.config/mev/roles/{role}/` → Local destinations: Symbolic links
+
+Role identifiers preserve category paths, such as `editor/vscode`.

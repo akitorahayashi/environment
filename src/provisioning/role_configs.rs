@@ -18,6 +18,14 @@ fn canonical_role_name(role: &str) -> String {
     role.replace('-', "_")
 }
 
+fn staging_dir(local_config_root: &Path, role: &str) -> Result<PathBuf, AppError> {
+    let target = local_config_root.join(role);
+    let role_name = target.file_name().ok_or_else(|| {
+        AppError::Config(format!("role '{role}' does not identify a config directory"))
+    })?;
+    Ok(target.with_file_name(format!(".{}.staging", role_name.to_string_lossy())))
+}
+
 /// Deploy role configs required by the selected tags.
 pub fn deploy_for_tags(
     tags: &[String],
@@ -100,7 +108,7 @@ pub fn deploy_selected(
             println!("  {role_name}: config exists (use --overwrite to replace)");
             continue;
         }
-        let staging = local_config_root.join(format!(".{role_name}.staging"));
+        let staging = staging_dir(local_config_root, role_name)?;
         if fs.exists(&staging) {
             fs.remove_dir_all(&staging).map_err(|e| {
                 AppError::Config(format!("failed to clean staging for {role_name}: {e}"))
@@ -208,6 +216,31 @@ mod tests {
             deploy_selected(&fs, &fake, &local_config_root, Some("rust-cli".to_string()), false);
         assert!(result.is_ok());
         assert!(fs.exists(Path::new("/local/config/rust_cli/tools.yml")));
+    }
+
+    #[test]
+    fn deploy_selected_supports_nested_role_name() {
+        let fs = FakeFsPort::new();
+        let mut fake = FakeProvisioningPort::new();
+        fake.roles_with_config = vec!["editor/antigravity_ide".to_string()];
+        fake.roles_config_dir.insert(
+            "editor/antigravity_ide".to_string(),
+            PathBuf::from("/ansible/roles/editor/antigravity_ide/config"),
+        );
+
+        fs.add_dir(Path::new("/ansible/roles/editor/antigravity_ide/config"));
+        fs.add_file(Path::new("/ansible/roles/editor/antigravity_ide/config/settings.json"), "{}");
+
+        let result = deploy_selected(
+            &fs,
+            &fake,
+            Path::new("/local/config"),
+            Some("editor/antigravity-ide".to_string()),
+            false,
+        );
+
+        assert!(result.is_ok());
+        assert!(fs.exists(Path::new("/local/config/editor/antigravity_ide/settings.json")));
     }
 
     #[test]
