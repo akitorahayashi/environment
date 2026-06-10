@@ -25,7 +25,8 @@ The system role uses `src/assets/ansible/roles/system/config/global/default_apps
 ### System Default Applications
 
 Filename extensions are declared without a leading dot under each application's `extensions` list. Each application handles all LaunchServices roles for its declared extensions.
-The bundled collection provides a conservative default set: `Zed` for source and config files, `Google Chrome` for browser-oriented HTML files, and `Preview` for common document and image formats.
+The bundled collection provides a conservative default set: `Zed` for source and config files and `Preview` for common document and image formats.
+Browser defaults are not managed because macOS may require interactive user approval.
 
 ```yaml
 ---
@@ -33,9 +34,6 @@ default_apps:
   - bundle_id: dev.zed.Zed
     extensions:
       - md
-  - bundle_id: com.google.Chrome
-    extensions:
-      - html
   - bundle_id: com.apple.Preview
     extensions:
       - pdf

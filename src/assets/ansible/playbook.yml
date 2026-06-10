@@ -37,6 +37,8 @@
       zd: ["zed"]
       ghostty: ["ghostty"]
       gst: ["ghostty"]
+      system: ["zed"]
+      sys: ["zed"]
     full_setup_tags:
       - brew-formulae
       - shell
