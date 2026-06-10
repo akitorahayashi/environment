@@ -1,5 +1,0 @@
----
-interface:
-  display_name: "Google Jules"
-  short_description: "Understand Jules before discussing Jules or Jules API"
-  default_prompt: "Use $google-jules to understand the Jules service model before discussing Jules or Jules API."

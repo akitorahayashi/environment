@@ -1,10 +1,13 @@
 ---
-tools:
-  codex:
-    skills_dir: ".codex/skills"
+targets:
+  agent-skills-standard:
+    skills_dir: ".agents/skills"
   claude:
     skills_dir: ".claude/skills"
-  agy-ide:
+  antigravity-ide:
     skills_dir: ".config/google/antigravity/skills"
-  agy:
+  antigravity-cli:
     skills_dir: ".gemini/antigravity-cli/skills"
+retired_targets:
+  codex:
+    skills_dir: ".codex/skills"
