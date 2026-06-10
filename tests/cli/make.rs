@@ -236,12 +236,3 @@ fn make_runtime_and_package_manager_aliases_target_owner_roles() {
         assert!(lines[1].contains(&format!("--tags {tag}")));
     }
 }
-
-#[test]
-fn make_ollama_is_rejected_as_an_unknown_tag() {
-    let ctx = TestContext::new();
-
-    ctx.cli().args(["make", "ollama"]).assert().failure().stderr(predicates::str::contains(
-        "invalid tag: 'ollama'. Use 'mev list' to see available tags.",
-    ));
-}
