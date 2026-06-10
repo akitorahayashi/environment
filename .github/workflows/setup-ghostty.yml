@@ -1,7 +1,7 @@
 # This file is auto-generated. Do not edit manually.
 # Source: .github/ansible-setup-targets.yml
 
-name: Setup System
+name: Setup Ghostty
 
 on:
   workflow_call:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  setup-system:
+  setup-ghostty:
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -24,18 +24,8 @@ jobs:
       - name: Setup Ansible environment
         uses: ./.github/actions/setup-ansible
 
-      - name: Run system setup
+      - name: Run ghostty setup
         shell: bash
         run: |
           set -euo pipefail
-          "$RUNNER_TEMP/mev-bin/mev" make git
-          "$RUNNER_TEMP/mev-bin/mev" make gh
-          "$RUNNER_TEMP/mev-bin/mev" make shell
-          "$RUNNER_TEMP/mev-bin/mev" make system
-
-      - name: Verify system setup
-        shell: bash
-        run: |
-          set -euo pipefail
-          zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; setopt aliases; source "$HOME/.zshrc"; eval "mk --version"'
-          duti -V
+          "$RUNNER_TEMP/mev-bin/mev" make ghostty

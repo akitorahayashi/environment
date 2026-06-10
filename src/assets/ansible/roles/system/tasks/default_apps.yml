@@ -1,0 +1,120 @@
+---
+- name: "Load default applications configuration"
+  ansible.builtin.include_vars:
+    file: "{{ local_config_root }}/system/global/default_apps.yml"
+    name: system_default_apps
+
+- name: "Validate default applications collection"
+  ansible.builtin.assert:
+    that:
+      - system_default_apps.default_apps is defined
+      - system_default_apps.default_apps is sequence
+    fail_msg: "default_apps must be a sequence"
+
+- name: "Validate default application entries"
+  ansible.builtin.assert:
+    that:
+      - item is mapping
+      - item.bundle_id | default('') is string
+      - item.bundle_id | default('') | trim | length > 0
+      - item.bundle_id | default('') == item.bundle_id | default('') | trim
+      - item.extensions | default([]) is sequence
+      - item.extensions | default([]) | length > 0
+    fail_msg: >-
+      Each default_apps entry requires a bundle_id and a non-empty
+      extensions sequence
+  loop: "{{ system_default_apps.default_apps }}"
+  loop_control:
+    label: "{{ item.bundle_id | default('invalid entry') }}"
+
+- name: "Validate default application extensions"
+  ansible.builtin.assert:
+    that:
+      - item.1 is string
+      - item.1 is match('^[^./\\s]+$')
+    fail_msg: "Each extension must be a string without dots or whitespace"
+  loop: "{{ system_default_apps.default_apps | subelements('extensions') }}"
+  loop_control:
+    label: "{{ item.0.bundle_id }}:{{ item.1 }}"
+
+- name: "Normalize default applications"
+  ansible.builtin.set_fact:
+    system_default_app_items: >-
+      {%- set items = [] -%}
+      {%- for app in system_default_apps.default_apps -%}
+      {%-   for extension in app.extensions -%}
+      {%-     set _ = items.append({
+                'bundle_id': app.bundle_id,
+                'extension': extension
+              }) -%}
+      {%-   endfor -%}
+      {%- endfor -%}
+      {{ items }}
+
+- name: "Reject duplicate default application extensions"
+  ansible.builtin.assert:
+    that:
+      - >-
+        system_default_app_items
+        | map(attribute='extension')
+        | map('lower')
+        | list
+        | length
+        ==
+        system_default_app_items
+        | map(attribute='extension')
+        | map('lower')
+        | unique
+        | list
+        | length
+    fail_msg: "default_apps contains duplicate extensions"
+
+- name: "Read current default applications"
+  ansible.builtin.command:
+    argv:
+      - duti
+      - -x
+      - "{{ item.extension }}"
+  loop: "{{ system_default_app_items }}"
+  loop_control:
+    label: "{{ item.extension }}"
+  register: system_default_app_queries
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: "Reject unexpected default application query failures"
+  ansible.builtin.assert:
+    that:
+      - >-
+        item.rc in [0, 1]
+        or "Failed to get default application for extension"
+        in (item.stderr | default(''))
+    fail_msg: >-
+      Failed to inspect the current default application for extension
+      '{{ item.item.extension }}': {{ item.stderr | default('unknown error') }}
+  loop: "{{ system_default_app_queries.results }}"
+  loop_control:
+    label: "{{ item.item.extension }}"
+
+- name: "Set default applications"
+  ansible.builtin.command:
+    argv:
+      - duti
+      - -s
+      - "{{ item.bundle_id }}"
+      - ".{{ item.extension }}"
+      - all
+  loop: "{{ system_default_app_items }}"
+  loop_control:
+    index_var: system_default_app_index
+    label: "{{ item.extension }}"
+  when: >-
+    system_default_app_queries.results[system_default_app_index].rc != 0
+    or
+    (
+      system_default_app_queries.results[system_default_app_index].stdout_lines
+      | last
+      | default('')
+    ) != item.bundle_id
+  changed_when: true

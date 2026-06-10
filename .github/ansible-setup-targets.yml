@@ -60,12 +60,18 @@ targets:
     roles: [editor]
     commands: [vscode, antigravity-ide, zed, xcode]
 
+  ghostty:
+    name: Ghostty
+    roles: [ghostty]
+    commands: [ghostty]
+
   system:
     name: System
     roles: [git, gh, shell, system]
     commands: [git, gh, shell, system]
     verify:
       - zsh -c 'export PATH="$RUNNER_TEMP/mev-bin:$PATH"; setopt aliases; source "$HOME/.zshrc"; eval "mk --version"'
+      - duti -V
 
   brew-formulae:
     name: Brew Formulae
