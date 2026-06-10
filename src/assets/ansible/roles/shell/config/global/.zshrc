@@ -25,10 +25,6 @@ if command -v rbenv >/dev/null 2>&1; then
   eval "$(rbenv init - zsh)"
 fi
 
-if command -v goenv >/dev/null 2>&1; then
-  eval "$(goenv init - zsh)"
-fi
-
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"
 fi

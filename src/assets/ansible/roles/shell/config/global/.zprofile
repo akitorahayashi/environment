@@ -37,7 +37,3 @@ _path_prepend "$ANDROID_HOME/cmdline-tools/latest/bin"
 _path_prepend "$ANDROID_HOME/tools/bin"
 _path_prepend "$ANDROID_HOME/platform-tools"
 _path_append "$ANDROID_HOME/emulator"
-
-export GOENV_ROOT="${GOENV_ROOT:-$HOME/.goenv}"
-_path_prepend "$GOENV_ROOT/bin"
-_path_prepend "$HOME/go/bin"

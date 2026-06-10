@@ -18,7 +18,6 @@ mev ls                    # Shorthand
 
 mev make rust             # Install and configure the Rust toolchain
 mev make rust-cli         # Install Rust CLI binaries from GitHub Releases
-mev make go               # Run go-platform + go-tools
 mev make bun              # Run Bun setup and global packages
 mev make b                # Shorthand
 mev make nodejs           # Install and configure the Node.js runtime
@@ -38,7 +37,6 @@ mev make br-f -p mbk      # Run global formulae with the MacBook profile
 mev make br-c -p mmn      # Run global casks + Mac mini casks
 
 # Tag groups expand automatically:
-#   go → go-platform, go-tools
 #   bun → bun
 #   desktop → vscode, antigravity-ide, zed, ghostty
 ```

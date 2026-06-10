@@ -13,7 +13,6 @@ on:
       - 'src/assets/ansible/roles/editor/**'
       - 'src/assets/ansible/roles/gh/**'
       - 'src/assets/ansible/roles/git/**'
-      - 'src/assets/ansible/roles/go/**'
       - 'src/assets/ansible/roles/nodejs/**'
       - 'src/assets/ansible/roles/nvim/**'
       - 'src/assets/ansible/roles/pipx/**'
@@ -34,7 +33,6 @@ on:
       - 'src/assets/ansible/roles/editor/**'
       - 'src/assets/ansible/roles/gh/**'
       - 'src/assets/ansible/roles/git/**'
-      - 'src/assets/ansible/roles/go/**'
       - 'src/assets/ansible/roles/nodejs/**'
       - 'src/assets/ansible/roles/nvim/**'
       - 'src/assets/ansible/roles/pipx/**'
@@ -64,7 +62,6 @@ on:
           - ruby
           - rust
           - rust-cli
-          - go
           - nvim
           - editor
           - system
@@ -87,7 +84,6 @@ jobs:
       setup_ruby: ${{ steps.filter.outputs.setup_ruby }}
       setup_rust: ${{ steps.filter.outputs.setup_rust }}
       setup_rust_cli: ${{ steps.filter.outputs.setup_rust_cli }}
-      setup_go: ${{ steps.filter.outputs.setup_go }}
       setup_nvim: ${{ steps.filter.outputs.setup_nvim }}
       setup_editor: ${{ steps.filter.outputs.setup_editor }}
       setup_system: ${{ steps.filter.outputs.setup_system }}
@@ -103,7 +99,6 @@ jobs:
           steps.filter.outputs.setup_ruby == 'true' ||
           steps.filter.outputs.setup_rust == 'true' ||
           steps.filter.outputs.setup_rust_cli == 'true' ||
-          steps.filter.outputs.setup_go == 'true' ||
           steps.filter.outputs.setup_nvim == 'true' ||
           steps.filter.outputs.setup_editor == 'true' ||
           steps.filter.outputs.setup_system == 'true' ||
@@ -149,9 +144,6 @@ jobs:
             setup_rust_cli:
               - 'src/assets/ansible/roles/rust_cli/**'
               - '.github/workflows/setup-rust-cli.yml'
-            setup_go:
-              - 'src/assets/ansible/roles/go/**'
-              - '.github/workflows/setup-go.yml'
             setup_nvim:
               - 'src/assets/ansible/roles/nvim/**'
               - '.github/workflows/setup-nvim.yml'
@@ -303,17 +295,6 @@ jobs:
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'rust-cli')) ||
       needs.changes.outputs.setup_rust_cli == 'true'
     uses: ./.github/workflows/setup-rust-cli.yml
-
-  setup-go:
-    needs:
-      - changes
-      - build-mev
-    permissions:
-      contents: read
-    if: |
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'all' || github.event.inputs.target == 'go')) ||
-      needs.changes.outputs.setup_go == 'true'
-    uses: ./.github/workflows/setup-go.yml
 
   setup-nvim:
     needs:
