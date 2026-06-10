@@ -10,7 +10,6 @@
 
     "DISABLE_FEEDBACK_COMMAND": "1",
     "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
-    "CLAUDE_CODE_SKIP_PROMPT_HISTORY": "1",
     "API_TIMEOUT_MS": "600000",
     "DO_NOT_TRACK": "1",
     "DISABLE_AUTOUPDATER": "1",
@@ -27,7 +26,6 @@
     ],
     "deny": [
       "WebFetch",
-      "Bash(curl *)",
       "Bash(wget *)",
       "Bash(nc *)",
       "Bash(netcat *)",
@@ -43,12 +41,7 @@
       "Bash(pip:*)",
       "Bash(pip3:*)"
     ],
-    "ask": [
-      "Bash(rm:*)",
-      "Bash(rmdir:*)",
-      "Bash(rm -rf:*)",
-      "Bash(rm -r:*)"
-    ]
+    "ask": ["Bash(rm:*)", "Bash(rmdir:*)", "Bash(rm -rf:*)", "Bash(rm -r:*)"]
   },
   "alwaysThinkingEnabled": false,
   "model": "opus"
