@@ -26,8 +26,6 @@
       nv: ["neovim"]
       system: ["displayplacer"]
       sys: ["displayplacer"]
-      ollama: ["ollama"]
-      ol: ["ollama"]
     cask_requirements:
       vscode: ["visual-studio-code"]
       co: ["visual-studio-code"]
@@ -39,7 +37,6 @@
       gst: ["ghostty"]
     full_setup_tags:
       - brew-formulae
-      - ollama
       - shell
       - system
       - git
@@ -57,7 +54,6 @@
       - nvim
       - coder
       - ghostty
-      - mlx
       - xcode
   roles:
     - { role: brew, tags: ["brew-formulae", "br-f", "brew-cask", "br-c"] }
@@ -77,4 +73,3 @@
     - { role: shell, tags: ["shell", "sh"] }
     - { role: editor, tags: ["vscode", "co", "antigravity-ide", "agi", "zed", "zd", "xcode", "xc"] }
     - { role: system, tags: ["system", "sys"] }
-    - { role: llm, tags: ["ollama", "ol", "ollama-models", "ol-m", "mlx", "mlx-models"] }
