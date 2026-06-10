@@ -121,7 +121,10 @@
   },
   "languages": {
     "Python": {
-      "language_servers": ["basedpyright", "ruff"],
+      "language_servers": [
+        "basedpyright",
+        "ruff"
+      ],
     },
     "JavaScript": {
       "formatter": {

@@ -123,7 +123,7 @@ tests/
 ### Profile Design
 - Global profile operates by default: most roles use `global` profile
 - Profile-specific configs apply: `brew` role supports profile-specific configs (macbook/mac-mini)
-- Roles store configs in `config/global/` (all roles) and `config/profiles/` (e.g., brew, llm)
+- Roles store configs in `config/global/` (all roles) and `config/profiles/` where profile-specific overrides exist (e.g., brew)
 - Bun stores its global package configuration in `config/global/global-packages.json`
 - pnpm stores its global package configuration in `config/global/global-packages.json`
 

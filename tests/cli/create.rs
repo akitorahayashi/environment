@@ -27,5 +27,7 @@ echo "localhost                  : ok=10   changed=5    unreachable=0    failed=
         .args(["create", "macbook"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Environment created successfully"));
+        .stdout(predicate::str::contains("Environment created successfully"))
+        .stdout(predicate::str::contains("Ollama Models").not())
+        .stdout(predicate::str::contains("MLX Models").not());
 }
