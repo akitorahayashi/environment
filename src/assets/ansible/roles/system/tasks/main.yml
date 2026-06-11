@@ -1,6 +1,3 @@
 ---
 - name: "Apply macOS defaults"
   ansible.builtin.include_tasks: defaults.yml
-
-- name: "Apply default applications"
-  ansible.builtin.include_tasks: default_apps.yml

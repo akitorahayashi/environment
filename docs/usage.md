@@ -25,7 +25,8 @@ mev make pnpm             # Configure pnpm and install global packages
 mev make python           # Install and configure uv-managed Python
 mev make pipx             # Install Python applications with pipx
 mev make coder            # Install and configure coding agent CLIs
-mev make system           # Apply macOS defaults and default applications
+mev make system           # Apply macOS defaults
+mev make duti             # Apply LaunchServices file associations explicitly
 mev make shell --overwrite # Force overwrite configs
 mev mk vscode             # Shorthand
 mev make agi              # Shorthand for Antigravity IDE

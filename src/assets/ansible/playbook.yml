@@ -10,6 +10,8 @@
     formula_requirements:
       python: ["uv"]
       py: ["uv"]
+      duti: ["duti"]
+      du: ["duti"]
       pipx: ["pipx"]
       px: ["pipx"]
       nodejs: ["fnm"]
@@ -24,9 +26,11 @@
       gh: ["gh"]
       nvim: ["neovim"]
       nv: ["neovim"]
-      system: ["displayplacer", "duti"]
-      sys: ["displayplacer", "duti"]
+      system: ["displayplacer"]
+      sys: ["displayplacer"]
     cask_requirements:
+      duti: ["zed"]
+      du: ["zed"]
       vscode: ["visual-studio-code"]
       co: ["visual-studio-code"]
       antigravity-ide: ["antigravity-ide"]
@@ -35,8 +39,6 @@
       zd: ["zed"]
       ghostty: ["ghostty"]
       gst: ["ghostty"]
-      system: ["zed"]
-      sys: ["zed"]
     full_setup_tags:
       - brew-formulae
       - shell
@@ -72,6 +74,7 @@
     - { role: gh, tags: ["gh"] }
     - { role: ghostty, tags: ["ghostty", "gst"] }
     - { role: nvim, tags: ["nvim", "nv"] }
+    - { role: duti, tags: ["duti", "du"] }
     - { role: shell, tags: ["shell", "sh"] }
     - { role: editor/vscode, tags: ["vscode", "co"] } # noqa: role-name[path]
     - { role: editor/antigravity_ide, tags: ["antigravity-ide", "agi"] } # noqa: role-name[path]
