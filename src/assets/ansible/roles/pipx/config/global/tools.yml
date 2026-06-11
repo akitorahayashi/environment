@@ -9,6 +9,7 @@
 tools:
   - package: mlx-hub
   - package: mlx-lm
+  - package: yt-dlp
   - package: huggingface-hub
   - package: openai-whisper
   - package: dcv
