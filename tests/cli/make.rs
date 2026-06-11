@@ -205,8 +205,26 @@ fn make_system_installs_required_packages_before_configuration() {
         let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
         let lines: Vec<&str> = log.lines().collect();
 
+        assert_eq!(lines.len(), 2);
+        assert!(lines[0].contains(r#""brew_formula_tokens":["displayplacer"]"#));
+        assert!(lines[0].contains("--tags brew-formulae"));
+        assert!(lines[1].contains(&format!("--tags {tag}")));
+    }
+}
+
+#[test]
+fn make_duti_installs_required_packages_before_configuration() {
+    for tag in ["duti", "du"] {
+        let ctx = TestContext::new();
+        let ansible_path = install_ansible_recorder(&ctx);
+
+        ctx.cli().env("ANSIBLE_PLAYBOOK_BIN", &ansible_path).args(["make", tag]).assert().success();
+
+        let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+        let lines: Vec<&str> = log.lines().collect();
+
         assert_eq!(lines.len(), 3);
-        assert!(lines[0].contains(r#""brew_formula_tokens":["displayplacer","duti"]"#));
+        assert!(lines[0].contains(r#""brew_formula_tokens":["duti"]"#));
         assert!(lines[0].contains("--tags brew-formulae"));
         assert!(lines[1].contains(r#""brew_cask_tokens":["zed"]"#));
         assert!(lines[1].contains("--tags brew-cask"));
