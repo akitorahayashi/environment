@@ -2,8 +2,8 @@
 # Sets the size of the icons in the Dock (in pixels).
 - key: tilesize
   domain: com.apple.dock
-  type: float
-  default: 50.0
+  type: int
+  default: 50
   comment: "Dock"
 
 # Enables or disables the auto-hiding feature of the Dock.

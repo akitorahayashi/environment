@@ -172,7 +172,6 @@ def verify_workflow(targets: dict[str, dict[str, object]]) -> str:
         output = f"setup_{name.replace('-', '_')}"
         lines.append(f"            {output}:")
         lines.extend(f"              - 'src/assets/ansible/roles/{role}/**'" for role in config["roles"])
-        lines.extend(f"              - '{path}'" for path in SHARED_PATHS)
         lines.append(f"              - '.github/workflows/setup-{name}.yml'")
 
     lines.extend(

@@ -1,17 +1,17 @@
 ---
-- name: "Load default applications configuration"
+- name: "Load application configuration"
   ansible.builtin.include_vars:
-    file: "{{ local_config_root }}/system/global/default_apps.yml"
-    name: system_default_apps
+    file: "{{ local_config_root }}/duti/global/default_apps.yml"
+    name: duti_default_apps
 
-- name: "Validate default applications collection"
+- name: "Validate application collection"
   ansible.builtin.assert:
     that:
-      - system_default_apps.default_apps is defined
-      - system_default_apps.default_apps is sequence
+      - duti_default_apps.default_apps is defined
+      - duti_default_apps.default_apps is sequence
     fail_msg: "default_apps must be a sequence"
 
-- name: "Validate default application entries"
+- name: "Validate application entries"
   ansible.builtin.assert:
     that:
       - item is mapping
@@ -23,25 +23,25 @@
     fail_msg: >-
       Each default_apps entry requires a bundle_id and a non-empty
       extensions sequence
-  loop: "{{ system_default_apps.default_apps }}"
+  loop: "{{ duti_default_apps.default_apps }}"
   loop_control:
     label: "{{ item.bundle_id | default('invalid entry') }}"
 
-- name: "Validate default application extensions"
+- name: "Validate application extensions"
   ansible.builtin.assert:
     that:
       - item.1 is string
       - item.1 is match('^[^./\\s]+$')
     fail_msg: "Each extension must be a string without dots or whitespace"
-  loop: "{{ system_default_apps.default_apps | subelements('extensions') }}"
+  loop: "{{ duti_default_apps.default_apps | subelements('extensions') }}"
   loop_control:
     label: "{{ item.0.bundle_id }}:{{ item.1 }}"
 
-- name: "Normalize default applications"
+- name: "Normalize applications"
   ansible.builtin.set_fact:
-    system_default_app_items: >-
+    duti_app_items: >-
       {%- set items = [] -%}
-      {%- for app in system_default_apps.default_apps -%}
+      {%- for app in duti_default_apps.default_apps -%}
       {%-   for extension in app.extensions -%}
       {%-     set _ = items.append({
                 'bundle_id': app.bundle_id,
@@ -51,17 +51,17 @@
       {%- endfor -%}
       {{ items }}
 
-- name: "Reject duplicate default application extensions"
+- name: "Reject duplicate application extensions"
   ansible.builtin.assert:
     that:
       - >-
-        system_default_app_items
+        duti_app_items
         | map(attribute='extension')
         | map('lower')
         | list
         | length
         ==
-        system_default_app_items
+        duti_app_items
         | map(attribute='extension')
         | map('lower')
         | unique
@@ -69,21 +69,21 @@
         | length
     fail_msg: "default_apps contains duplicate extensions"
 
-- name: "Read current default applications"
+- name: "Read current applications"
   ansible.builtin.command:
     argv:
       - duti
       - -x
       - "{{ item.extension }}"
-  loop: "{{ system_default_app_items }}"
+  loop: "{{ duti_app_items }}"
   loop_control:
     label: "{{ item.extension }}"
-  register: system_default_app_queries
+  register: duti_app_queries
   changed_when: false
   failed_when: false
   check_mode: false
 
-- name: "Reject unexpected default application query failures"
+- name: "Reject unexpected application query failures"
   ansible.builtin.assert:
     that:
       - >-
@@ -93,11 +93,11 @@
     fail_msg: >-
       Failed to inspect the current default application for extension
       '{{ item.item.extension }}': {{ item.stderr | default('unknown error') }}
-  loop: "{{ system_default_app_queries.results }}"
+  loop: "{{ duti_app_queries.results }}"
   loop_control:
     label: "{{ item.item.extension }}"
 
-- name: "Set default applications"
+- name: "Apply applications"
   ansible.builtin.command:
     argv:
       - duti
@@ -105,15 +105,15 @@
       - "{{ item.bundle_id }}"
       - ".{{ item.extension }}"
       - all
-  loop: "{{ system_default_app_items }}"
+  loop: "{{ duti_app_items }}"
   loop_control:
-    index_var: system_default_app_index
+    index_var: duti_app_index
     label: "{{ item.extension }}"
   when: >-
-    system_default_app_queries.results[system_default_app_index].rc != 0
+    duti_app_queries.results[duti_app_index].rc != 0
     or
     (
-      system_default_app_queries.results[system_default_app_index].stdout_lines
+      duti_app_queries.results[duti_app_index].stdout_lines
       | last
       | default('')
     ) != item.bundle_id

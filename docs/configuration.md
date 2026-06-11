@@ -22,13 +22,14 @@ The pipx role uses `src/assets/ansible/roles/pipx/config/global/tools.yml` to de
 The rust-cli role uses `src/assets/ansible/roles/rust_cli/config/global/tools.yml` to declare GitHub Release binaries.
 The Coder role stores each tool's configuration under its tool name and uses the deployed file's actual name.
 The Coder role stores agent skills once and deploys them to the interoperable `~/.agents/skills/` location plus tool-specific locations required by Claude Code and Antigravity.
-The system role uses `src/assets/ansible/roles/system/config/global/default_apps.yml` to declare default applications grouped by application bundle identifier.
+The duti role uses `src/assets/ansible/roles/duti/config/global/default_apps.yml` to declare default applications grouped by bundle identifier.
 
-### System Default Applications
+### Default Applications
 
 Filename extensions are declared without a leading dot under each application's `extensions` list. Each application handles all LaunchServices roles for its declared extensions.
+The bundled collection excludes extensions that resolve to dynamic or ambiguous LaunchServices types on macOS.
 The bundled collection provides a conservative default set: `Zed` for source and config files and `Preview` for common document and image formats.
-Browser defaults are not managed because macOS may require interactive user approval.
+Browser defaults are not managed because macOS may require interactive user approval. The handler changes execute only when the `duti` role is selected explicitly.
 
 ```yaml
 ---
