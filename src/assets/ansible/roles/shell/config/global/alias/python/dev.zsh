@@ -4,6 +4,10 @@ alias py="python"
 alias pts="pytest"
 
 ws() {
+  if [[ $# -eq 0 ]]; then
+    echo "Error: No input file provided." >&2
+    return 1
+  fi
   local input_dir
   local filename
   input_dir=$(dirname "$1")
@@ -21,6 +25,10 @@ ws() {
 }
 
 grabmp4() {
+  if [[ $# -eq 0 ]]; then
+    echo "Error: No URL provided." >&2
+    return 1
+  fi
   yt-dlp \
     --no-playlist \
     -P "$PWD" \
