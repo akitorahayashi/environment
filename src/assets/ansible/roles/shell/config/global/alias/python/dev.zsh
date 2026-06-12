@@ -24,7 +24,7 @@ ws() {
     --temperature 0
 }
 
-grabmp4() {
+gmp4() {
   if [[ $# -eq 0 ]]; then
     echo "Error: No URL provided." >&2
     return 1

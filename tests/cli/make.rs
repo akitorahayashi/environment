@@ -159,6 +159,70 @@ fn make_rust_cli_and_alias_install_gh_before_running_owner_role() {
 }
 
 #[test]
+fn make_multiple_tags_executes_sequentially() {
+    let ctx = TestContext::new();
+    let ansible_path = install_ansible_recorder(&ctx);
+
+    ctx.cli()
+        .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
+        .args(["make", "rust", "nodejs", "python"])
+        .assert()
+        .success();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    // rust (1 call)
+    // nodejs (2 calls: brew-formulae, nodejs)
+    // python (2 calls: brew-formulae, python)
+    // Total: 5 calls
+    assert_eq!(lines.len(), 5);
+    assert!(lines[0].contains("--tags rust"));
+    assert!(lines[1].contains("--tags brew-formulae"));
+    assert!(lines[1].contains(r#""brew_formula_tokens":["fnm"]"#));
+    assert!(lines[2].contains("--tags nodejs"));
+    assert!(lines[3].contains("--tags brew-formulae"));
+    assert!(lines[3].contains(r#""brew_formula_tokens":["uv"]"#));
+    assert!(lines[4].contains("--tags python"));
+}
+
+#[test]
+fn make_multiple_tags_stops_on_error() {
+    let ctx = TestContext::new();
+    let mocks_dir = ctx.work_dir().join(".local/pipx/venvs/ansible/bin");
+    std::fs::create_dir_all(&mocks_dir).unwrap();
+    let ansible_path = mocks_dir.join("ansible-playbook");
+
+    // Fails if "nodejs" tag is present
+    let recorder = r#"#!/bin/bash
+printf '%s\n' "$*" >> "$HOME/ansible-args.log"
+if [[ "$*" == *"--tags nodejs"* ]]; then
+    exit 1
+fi
+"#;
+    std::fs::write(&ansible_path, recorder).unwrap();
+    std::fs::set_permissions(&ansible_path, std::fs::Permissions::from_mode(0o755)).unwrap();
+
+    ctx.cli()
+        .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
+        .args(["make", "rust", "nodejs", "python"])
+        .assert()
+        .failure();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    // 1. rust (success)
+    // 2. nodejs pre-phase (brew-formulae) (success)
+    // 3. nodejs (fails)
+    // python should not be executed.
+    assert_eq!(lines.len(), 3);
+    assert!(lines[0].contains("--tags rust"));
+    assert!(lines[1].contains("--tags brew-formulae"));
+    assert!(lines[2].contains("--tags nodejs"));
+}
+
+#[test]
 fn make_nodejs_installs_only_fnm_before_running_nodejs_role() {
     let ctx = TestContext::new();
     let ansible_path = install_ansible_recorder(&ctx);
