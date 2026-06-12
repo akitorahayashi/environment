@@ -19,6 +19,8 @@ zpd() (
 
   cd "$root" || exit 1
 
+  local overwrite=0
+  [ -f "$out" ] && overwrite=1
   rm -f "$out"
 
   local files
@@ -34,7 +36,11 @@ zpd() (
       exit 1
     }
 
-  echo "created: $out"
+  if [ "$overwrite" -eq 1 ]; then
+    echo "overwritten: $out"
+  else
+    echo "created: $out"
+  fi
 )
 
 # Usage: dev_alias_as <target_command> <prefix> [run_prefix]
