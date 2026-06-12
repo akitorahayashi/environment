@@ -1,13 +1,27 @@
 # shellcheck disable=SC2139
 # Define development aliases for commands
 
-zipdir() {
-	local name="${1:-$(basename "$PWD").zip}"
-	cd .. || return
-	zip -r "$name" "$(basename "$OLDPWD")" \
-		-x "*.DS_Store" \
-		-x "__MACOSX/*"
-}
+# zip project directory
+# Usage: zpd [output_filename]
+zpd() (
+  local root
+  root="$(git rev-parse --show-toplevel)" || exit 1
+
+  local dir
+  dir="$(basename "$root")"
+
+  local name="${1:-$dir.zip}"
+  local out="$root/../$name"
+
+  cd "$root" || exit 1
+
+  rm -f "$out"
+
+  git ls-files -co --exclude-standard -z |
+    xargs -0 zip -q "$out" --
+
+  echo "created: $out"
+)
 
 # Usage: dev_alias_as <target_command> <prefix> [run_prefix]
 dev_alias_as() {
