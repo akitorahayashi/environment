@@ -17,6 +17,7 @@ mev list                  # List available tags
 mev ls                    # Shorthand
 
 mev make rust             # Install and configure the Rust toolchain
+mev mk sh sys pipx -o     # Sequential execution (stops on error)
 mev make rust-cli         # Install Rust CLI binaries from GitHub Releases
 mev make bun              # Run Bun setup and global packages
 mev make b                # Shorthand
