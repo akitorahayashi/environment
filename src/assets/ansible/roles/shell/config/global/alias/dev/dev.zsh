@@ -10,15 +10,29 @@ zpd() (
   local dir
   dir="$(basename "$root")"
 
-  local name="${1:-$dir.zip}"
-  local out="$root/../$name"
+  local out
+  if [ -n "$1" ]; then
+    out="${1:A}"
+  else
+    out="$(dirname "$root")/$dir.zip"
+  fi
 
   cd "$root" || exit 1
 
   rm -f "$out"
 
-  git ls-files -co --exclude-standard -z |
-    xargs -0 zip -q "$out" --
+  local files
+  files="$(git ls-files -c --exclude-standard)"
+  if [ -z "$files" ]; then
+    echo "Error: no tracked files to archive." >&2
+    exit 1
+  fi
+
+  git ls-files -c --exclude-standard -z |
+    xargs -0 zip -q "$out" -- || {
+      echo "Error: Failed to create zip archive." >&2
+      exit 1
+    }
 
   echo "created: $out"
 )
