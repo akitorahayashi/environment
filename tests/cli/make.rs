@@ -159,6 +159,67 @@ fn make_rust_cli_and_alias_install_gh_before_running_owner_role() {
 }
 
 #[test]
+fn make_multiple_targets_executes_in_order() {
+    let ctx = TestContext::new();
+    let ansible_path = install_ansible_recorder(&ctx);
+
+    ctx.cli()
+        .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
+        .args(["make", "sh", "sys", "-o"])
+        .assert()
+        .success();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    // sh: 1 line (direct role)
+    // sys: 2 lines (brew-formulae + sys role)
+    assert_eq!(lines.len(), 3);
+    assert!(lines[0].contains("--tags sh"));
+    assert!(lines[1].contains("--tags brew-formulae"));
+    assert!(lines[2].contains("--tags sys"));
+}
+
+#[test]
+fn make_multiple_targets_stops_on_error() {
+    let ctx = TestContext::new();
+    let mocks_dir = ctx.work_dir().join(".local/pipx/venvs/ansible/bin");
+    std::fs::create_dir_all(&mocks_dir).unwrap();
+    let ansible_path = mocks_dir.join("ansible-playbook");
+
+    // Fail if "sys" is in the arguments
+    let recorder = r#"#!/bin/bash
+printf '%s\n' "$*" >> "$HOME/ansible-args.log"
+if [[ "$*" == *"--tags sys"* ]]; then
+  exit 1
+fi
+"#;
+    std::fs::write(&ansible_path, recorder).unwrap();
+    std::fs::set_permissions(&ansible_path, std::fs::Permissions::from_mode(0o755)).unwrap();
+
+    ctx.cli()
+        .env("ANSIBLE_PLAYBOOK_BIN", &ansible_path)
+        .args(["make", "sh", "sys", "pipx", "-o"])
+        .assert()
+        .failure();
+
+    let log = std::fs::read_to_string(ctx.work_dir().join("ansible-args.log")).unwrap();
+    let lines: Vec<&str> = log.lines().collect();
+
+    // 1. sh succeeds
+    // 2. sys fails
+    // 3. pipx is never reached
+    assert_eq!(lines.len(), 3);
+    assert!(lines[0].contains("--tags sh"));
+    assert!(lines[1].contains("--tags brew-formulae")); // from sys
+    assert!(lines[2].contains("--tags sys"));
+    // No pipx in logs
+    for line in &lines {
+        assert!(!line.contains("--tags pipx"));
+    }
+}
+
+#[test]
 fn make_nodejs_installs_only_fnm_before_running_nodejs_role() {
     let ctx = TestContext::new();
     let ansible_path = install_ansible_recorder(&ctx);

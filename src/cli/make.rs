@@ -7,8 +7,9 @@ use crate::provisioning::profile;
 
 #[derive(Args)]
 pub struct MakeArgs {
-    /// Ansible tag to run (e.g., rust, python, pipx, shell, br-c).
-    pub tag: String,
+    /// Ansible tag(s) to run (e.g., rust, python, pipx, shell, br-c).
+    #[arg(required = true, num_args = 1..)]
+    pub tags: Vec<String>,
 
     /// Profile to use (global, macbook/mbk, mac-mini/mmn).
     #[arg(short = 'p', long, default_value = "global")]
@@ -25,5 +26,8 @@ pub struct MakeArgs {
 
 pub fn run(args: MakeArgs) -> Result<(), AppError> {
     let profile = profile::validate_profile(&args.profile)?;
-    crate::make(profile, &args.tag, args.overwrite, args.verbose)
+    for tag in args.tags {
+        crate::make(profile, &tag, args.overwrite, args.verbose)?;
+    }
+    Ok(())
 }
