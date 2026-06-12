@@ -1,5 +1,48 @@
 # shellcheck disable=SC2139
 # Define development aliases for commands
+
+# zip project directory
+# Usage: zpd [output_filename]
+zpd() (
+  local root
+  root="$(git rev-parse --show-toplevel)" || exit 1
+
+  local dir
+  dir="$(basename "$root")"
+
+  local out
+  if [ -n "$1" ]; then
+    out="${1:A}"
+  else
+    out="$(dirname "$root")/$dir.zip"
+  fi
+
+  cd "$root" || exit 1
+
+  local overwrite=0
+  [ -f "$out" ] && overwrite=1
+  rm -f "$out"
+
+  local files
+  files="$(git ls-files -c --exclude-standard)"
+  if [ -z "$files" ]; then
+    echo "Error: no tracked files to archive." >&2
+    exit 1
+  fi
+
+  git ls-files -c --exclude-standard -z |
+    xargs -0 zip -q "$out" -- || {
+      echo "Error: Failed to create zip archive." >&2
+      exit 1
+    }
+
+  if [ "$overwrite" -eq 1 ]; then
+    echo "overwritten: $out"
+  else
+    echo "created: $out"
+  fi
+)
+
 # Usage: dev_alias_as <target_command> <prefix> [run_prefix]
 dev_alias_as() {
 	local target_command="$1"
