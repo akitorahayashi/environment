@@ -1,5 +1,14 @@
 # shellcheck disable=SC2139
 # Define development aliases for commands
+
+zipdir() {
+	local name="${1:-$(basename "$PWD").zip}"
+	cd .. || return
+	zip -r "$name" "$(basename "$OLDPWD")" \
+		-x "*.DS_Store" \
+		-x "__MACOSX/*"
+}
+
 # Usage: dev_alias_as <target_command> <prefix> [run_prefix]
 dev_alias_as() {
 	local target_command="$1"
