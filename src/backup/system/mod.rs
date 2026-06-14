@@ -143,12 +143,43 @@ pub fn execute(
         ctx.host_fs.write(&output_file, lines.join("\n").as_bytes())?;
     }
 
-    if ctx.host_fs.exists(local_definitions_dir) {
-        ctx.host_fs.remove_dir_all(local_definitions_dir)?;
-    }
-    ctx.host_fs.rename(&staging_dir, local_definitions_dir)?;
+    activate_snapshot(&ctx.host_fs, &staging_dir, local_definitions_dir)?;
 
     println!("Generated system definition snapshot: {}", local_definitions_dir.display());
+    Ok(())
+}
+
+fn activate_snapshot(
+    fs: &dyn FsPort,
+    staging_dir: &Path,
+    target_dir: &Path,
+) -> Result<(), AppError> {
+    let backup_dir = target_dir.with_file_name(".global.backup");
+    if fs.exists(&backup_dir) {
+        return Err(AppError::Backup(format!(
+            "backup system configuration already exists: {}",
+            backup_dir.display()
+        )));
+    }
+
+    let had_target = fs.exists(target_dir);
+    if had_target {
+        fs.rename(target_dir, &backup_dir)?;
+    }
+
+    if let Err(activation_error) = fs.rename(staging_dir, target_dir) {
+        if had_target && let Err(rollback_error) = fs.rename(&backup_dir, target_dir) {
+            return Err(AppError::Backup(format!(
+                "failed to activate system configuration: {activation_error}; rollback failed: \
+                 {rollback_error}"
+            )));
+        }
+        return Err(activation_error);
+    }
+
+    if had_target {
+        fs.remove_dir_all(&backup_dir)?;
+    }
     Ok(())
 }
 
@@ -163,20 +194,24 @@ fn load_definitions(fs: &dyn FsPort, root: &Path) -> Result<Vec<SourcedDefinitio
     let mut definitions = Vec::new();
     for path in paths {
         let content = fs.read_to_string(&path)?;
-        let items: Option<Vec<SettingDefinition>> = serde_yaml::from_str(&content)
+        let yaml: serde_yaml::Value = serde_yaml::from_str(&content)
             .map_err(|e| AppError::Backup(format!("invalid YAML in {}: {e}", path.display())))?;
-        if let Some(items) = items {
-            let relative_path = path.strip_prefix(root).map_err(|e| {
-                AppError::Backup(format!(
-                    "failed to resolve definition path '{}': {e}",
-                    path.display()
-                ))
-            })?;
-            definitions.extend(items.into_iter().map(|definition| SourcedDefinition {
-                definition,
-                relative_path: relative_path.to_path_buf(),
-            }));
+        if !matches!(yaml, serde_yaml::Value::Sequence(_)) {
+            return Err(AppError::Backup(format!(
+                "system definition file must contain a YAML list: {}",
+                path.display()
+            )));
         }
+        let items: Vec<SettingDefinition> = serde_yaml::from_value(yaml).map_err(|e| {
+            AppError::Backup(format!("invalid system definitions in {}: {e}", path.display()))
+        })?;
+        let relative_path = path.strip_prefix(root).map_err(|e| {
+            AppError::Backup(format!("failed to resolve definition path '{}': {e}", path.display()))
+        })?;
+        definitions.extend(items.into_iter().map(|definition| SourcedDefinition {
+            definition,
+            relative_path: relative_path.to_path_buf(),
+        }));
     }
 
     Ok(definitions)
@@ -328,6 +363,36 @@ fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_support::host_fs::FakeFsPort;
+
+    #[test]
+    fn load_definitions_rejects_empty_yaml_file() {
+        let fs = FakeFsPort::new();
+        let root = Path::new("/definitions");
+        fs.add_file(&root.join("empty.yml"), "");
+
+        let error = load_definitions(&fs, root).err().expect("empty YAML must fail");
+
+        assert!(error.to_string().contains("must contain a YAML list"));
+    }
+
+    #[test]
+    fn activate_snapshot_restores_target_when_activation_fails() {
+        let fs = FakeFsPort::new();
+        let target = Path::new("/config/global");
+        let staging = Path::new("/config/.global.staging");
+        let backup = Path::new("/config/.global.backup");
+        fs.add_file(&target.join("original.yml"), "original");
+        fs.add_file(&staging.join("replacement.yml"), "replacement");
+        fs.fail_rename(staging, target);
+
+        let error = activate_snapshot(&fs, staging, target).expect_err("activation must fail");
+
+        assert!(error.to_string().contains("configured rename failure"));
+        assert!(fs.exists(&target.join("original.yml")));
+        assert!(fs.exists(&staging.join("replacement.yml")));
+        assert!(!fs.exists(backup));
+    }
 
     #[test]
     fn test_value_to_string() {

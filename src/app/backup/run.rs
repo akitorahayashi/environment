@@ -16,8 +16,12 @@ pub fn execute(ctx: &AppContext, component_input: &str) -> Result<(), AppError> 
 
     match component {
         BackupComponent::System => {
-            let package_definitions =
-                ctx.provisioning_asset_root().join("roles/system/config/global");
+            let package_definitions = ctx
+                .provisioning_asset_root()
+                .join("roles")
+                .join(component.role())
+                .join("config")
+                .join(component.subpath());
             let local_definitions = local_config_dir;
             backup::system::execute(ctx, &package_definitions, &local_definitions)
         }

@@ -23,6 +23,28 @@
     system_package_definitions: []
     system_local_definitions: []
 
+- name: Validate package system definition files
+  ansible.builtin.assert:
+    that:
+      - (lookup('ansible.builtin.file', item) | from_yaml) is sequence
+      - (lookup('ansible.builtin.file', item) | from_yaml) is not string
+    fail_msg: "System definition file must contain a YAML list: {{ item }}"
+    quiet: true
+  loop: "{{ system_package_definition_files }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Validate local system definition files
+  ansible.builtin.assert:
+    that:
+      - (lookup('ansible.builtin.file', item) | from_yaml) is sequence
+      - (lookup('ansible.builtin.file', item) | from_yaml) is not string
+    fail_msg: "System definition file must contain a YAML list: {{ item }}"
+    quiet: true
+  loop: "{{ system_local_definition_files }}"
+  loop_control:
+    label: "{{ item }}"
+
 - name: Load package system definitions
   ansible.builtin.set_fact:
     system_package_definitions: >-
@@ -83,22 +105,21 @@
     fail_msg: "System definitions contain duplicate (domain, key) identities within one layer."
     quiet: true
 
-- name: Initialize effective system definitions
-  ansible.builtin.set_fact:
-    system_effective_definitions_by_identity: {}
-
 - name: Merge package and local system definitions
   ansible.builtin.set_fact:
     system_effective_definitions_by_identity: >-
       {{
-        system_effective_definitions_by_identity
-        | combine({
-            ((item.domain | default('NSGlobalDomain')) + '\u001f' + item.key): item
-          })
+        dict(
+          system_package_definition_identities
+          | zip(system_package_definitions)
+        )
+        | combine(
+            dict(
+              system_local_definition_identities
+              | zip(system_local_definitions)
+            )
+          )
       }}
-  loop: "{{ system_package_definitions + system_local_definitions }}"
-  loop_control:
-    label: "{{ item.domain | default('NSGlobalDomain') }} {{ item.key }}"
 
 - name: Apply macOS system defaults
   community.general.osx_defaults:

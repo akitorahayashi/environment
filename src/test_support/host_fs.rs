@@ -12,6 +12,7 @@ pub struct FakeFsPort {
     pub dirs: RefCell<HashSet<PathBuf>>,
     /// tracks method calls for assertions
     pub events: RefCell<Vec<String>>,
+    rename_failures: RefCell<HashSet<(PathBuf, PathBuf)>>,
 }
 
 impl FakeFsPort {
@@ -20,6 +21,7 @@ impl FakeFsPort {
             files: RefCell::new(HashMap::new()),
             dirs: RefCell::new(HashSet::new()),
             events: RefCell::new(Vec::new()),
+            rename_failures: RefCell::new(HashSet::new()),
         }
     }
 
@@ -42,6 +44,10 @@ impl FakeFsPort {
             }
         }
         dirs.insert(path.to_path_buf());
+    }
+
+    pub fn fail_rename(&self, from: &Path, to: &Path) {
+        self.rename_failures.borrow_mut().insert((from.to_path_buf(), to.to_path_buf()));
     }
 }
 
@@ -141,6 +147,9 @@ impl FsPort for FakeFsPort {
 
     fn rename(&self, from: &Path, to: &Path) -> Result<(), AppError> {
         self.events.borrow_mut().push(format!("rename: {} -> {}", from.display(), to.display()));
+        if self.rename_failures.borrow().contains(&(from.to_path_buf(), to.to_path_buf())) {
+            return Err(AppError::Io(std::io::Error::other("configured rename failure")));
+        }
 
         let to_rename_dirs: Vec<PathBuf> =
             self.dirs.borrow().iter().filter(|p| p.starts_with(from)).cloned().collect();
