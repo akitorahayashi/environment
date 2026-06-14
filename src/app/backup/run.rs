@@ -1,17 +1,9 @@
 //! `backup` command orchestration — backup system settings or configurations.
 
-use std::path::{Path, PathBuf};
-
 use crate::app::AppContext;
 use crate::backup;
 use crate::backup::component::{BackupComponent, validate_backup_component};
 use crate::error::AppError;
-use crate::provisioning::role_configs::RoleConfigLocator;
-
-enum DefinitionsDirResolution {
-    Local(PathBuf),
-    PackageDefault { resolved_dir: PathBuf, missing_local_dir: PathBuf },
-}
 
 /// Execute the `backup` command for a given component.
 pub fn execute(ctx: &AppContext, component_input: &str) -> Result<(), AppError> {
@@ -24,19 +16,14 @@ pub fn execute(ctx: &AppContext, component_input: &str) -> Result<(), AppError> 
 
     match component {
         BackupComponent::System => {
-            let definitions_dir = match resolve_definitions_dir(&local_config_dir, ctx, &component)
-            {
-                DefinitionsDirResolution::Local(path) => path,
-                DefinitionsDirResolution::PackageDefault { resolved_dir, missing_local_dir } => {
-                    println!(
-                        "Local definitions not found at {}. Using package defaults.",
-                        missing_local_dir.display()
-                    );
-                    resolved_dir
-                }
-            };
-            let output_file = local_config_dir.join("system.yml");
-            backup::system::execute(ctx, &definitions_dir, &output_file)
+            let package_definitions = ctx
+                .provisioning_asset_root()
+                .join("roles")
+                .join(component.role())
+                .join("config")
+                .join(component.subpath());
+            let local_definitions = local_config_dir;
+            backup::system::execute(ctx, &package_definitions, &local_definitions)
         }
         BackupComponent::Vscode | BackupComponent::AntigravityIde => {
             backup::code_editors::execute(ctx, component, &local_config_dir)
@@ -47,33 +34,6 @@ pub fn execute(ctx: &AppContext, component_input: &str) -> Result<(), AppError> 
     println!("✓ Backup completed successfully!");
 
     Ok(())
-}
-
-// ---------------------------------------------------------------------------
-// Directory resolution
-// ---------------------------------------------------------------------------
-
-/// Resolve definitions directory with fallback from local to package defaults.
-fn resolve_definitions_dir(
-    local_config_dir: &Path,
-    ctx: &AppContext,
-    component: &BackupComponent,
-) -> DefinitionsDirResolution {
-    let local_definitions = local_config_dir.join("definitions");
-    if local_definitions.exists() {
-        return DefinitionsDirResolution::Local(local_definitions);
-    }
-
-    let package_default_dir = ctx
-        .provisioning
-        .role_config_dir(component.role())
-        .map(|p| p.join(component.subpath()).join("definitions"))
-        .unwrap_or_default();
-
-    DefinitionsDirResolution::PackageDefault {
-        resolved_dir: package_default_dir,
-        missing_local_dir: local_definitions,
-    }
 }
 
 pub fn list_components() {

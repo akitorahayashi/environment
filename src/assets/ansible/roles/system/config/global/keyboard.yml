@@ -3,35 +3,35 @@
 - key: KeyRepeat
   domain: NSGlobalDomain
   type: int
-  default: 6
+  value: 6
   comment: "Keyboard"
 
 # Sets the delay until key repeat begins. A smaller value means a shorter delay.
 - key: InitialKeyRepeat
   domain: NSGlobalDomain
   type: int
-  default: 25
+  value: 25
 
 # Enables or disables the press-and-hold feature for accented characters.
 - key: ApplePressAndHoldEnabled
   domain: NSGlobalDomain
   type: bool
-  default: true
+  value: true
 
 # Controls keyboard navigation access for UI controls. (1: Text boxes and lists only, 3: All controls)
 - key: AppleKeyboardUIMode
   domain: NSGlobalDomain
   type: int
-  default: 1
+  value: 1
 
 # Toggles the behavior of the function keys. (true: Standard function keys, false: Special features)
 - key: com.apple.keyboard.fnState
   domain: NSGlobalDomain
   type: bool
-  default: false
+  value: false
 
 # Enables or disables "natural" scrolling.
 - key: com.apple.swipescrolldirection
   domain: NSGlobalDomain
   type: bool
-  default: true
+  value: true

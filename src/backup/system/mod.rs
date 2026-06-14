@@ -1,6 +1,7 @@
 //! System settings backup implementation.
 
 use std::borrow::Cow;
+use std::collections::{BTreeMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -58,17 +59,21 @@ impl MacosDefaultsPort for MacosDefaultsCli {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct SettingDefinition {
     key: String,
     #[serde(default = "default_domain")]
     domain: String,
     #[serde(rename = "type")]
     type_name: String,
-    #[serde(default)]
-    default: serde_yaml::Value,
+    value: serde_yaml::Value,
     #[serde(default)]
     comment: Option<String>,
+}
+
+struct SourcedDefinition {
+    definition: SettingDefinition,
+    relative_path: PathBuf,
 }
 
 fn default_domain() -> String {
@@ -77,66 +82,171 @@ fn default_domain() -> String {
 
 pub fn execute(
     ctx: &AppContext,
-    definitions_dir: &Path,
-    output_file: &Path,
+    package_definitions_dir: &Path,
+    local_definitions_dir: &Path,
 ) -> Result<(), AppError> {
-    if !ctx.host_fs.exists(definitions_dir) {
+    if !ctx.host_fs.exists(package_definitions_dir) {
         return Err(AppError::Backup(format!(
-            "definitions directory not found: {}",
-            definitions_dir.display()
+            "package definitions directory not found: {}",
+            package_definitions_dir.display()
         )));
     }
 
-    let definitions = load_definitions(&ctx.host_fs, definitions_dir)?;
-    if definitions.is_empty() {
+    let package_definitions = load_definitions(&ctx.host_fs, package_definitions_dir)?;
+    if package_definitions.is_empty() {
         return Err(AppError::Backup(format!(
             "no setting definitions found in {}",
-            definitions_dir.display()
+            package_definitions_dir.display()
         )));
     }
+    let local_definitions = if ctx.host_fs.exists(local_definitions_dir) {
+        load_definitions(&ctx.host_fs, local_definitions_dir)?
+    } else {
+        Vec::new()
+    };
+    let definitions = merge_definitions(package_definitions, local_definitions)?;
 
-    let mut lines = vec!["---".to_string()];
     let home_dir = ctx.home_dir.to_string_lossy();
+    let mut files: BTreeMap<PathBuf, Vec<String>> = BTreeMap::new();
 
-    for def in &definitions {
+    for sourced in definitions.values() {
+        let def = &sourced.definition;
         let raw_value = match ctx.macos_defaults.read_key(&def.domain, &def.key)? {
             Some(v) => v,
-            None => value_to_string(&def.default).into_owned(),
+            None => {
+                println!(
+                    "Setting absent for domain='{}', key='{}'; retaining configured value.",
+                    def.domain, def.key
+                );
+                value_to_string(&def.value).into_owned()
+            }
         };
         let formatted = format_value(def, &raw_value, &home_dir)?;
-        lines.extend(build_entry(def, &formatted));
+        files
+            .entry(sourced.relative_path.clone())
+            .or_insert_with(|| vec!["---".to_string()])
+            .extend(build_entry(def, &formatted));
     }
 
-    lines.push(String::new());
-
-    if let Some(parent) = output_file.parent() {
-        ctx.host_fs.create_dir_all(parent)?;
+    let staging_dir = local_definitions_dir.with_file_name(".global.staging");
+    if ctx.host_fs.exists(&staging_dir) {
+        ctx.host_fs.remove_dir_all(&staging_dir)?;
     }
-    ctx.host_fs.write(output_file, lines.join("\n").as_bytes())?;
+    ctx.host_fs.create_dir_all(&staging_dir)?;
 
-    println!("Generated system defaults YAML: {}", output_file.display());
+    for (relative_path, mut lines) in files {
+        lines.push(String::new());
+        let output_file = staging_dir.join(relative_path);
+        if let Some(parent) = output_file.parent() {
+            ctx.host_fs.create_dir_all(parent)?;
+        }
+        ctx.host_fs.write(&output_file, lines.join("\n").as_bytes())?;
+    }
+
+    activate_snapshot(&ctx.host_fs, &staging_dir, local_definitions_dir)?;
+
+    println!("Generated system definition snapshot: {}", local_definitions_dir.display());
     Ok(())
 }
 
-fn load_definitions(fs: &dyn FsPort, dir: &Path) -> Result<Vec<SettingDefinition>, AppError> {
-    let entries = fs.read_dir(dir)?;
-    let mut paths: Vec<PathBuf> = entries
+fn activate_snapshot(
+    fs: &dyn FsPort,
+    staging_dir: &Path,
+    target_dir: &Path,
+) -> Result<(), AppError> {
+    let backup_dir = target_dir.with_file_name(".global.backup");
+    if fs.exists(&backup_dir) {
+        return Err(AppError::Backup(format!(
+            "backup system configuration already exists: {}",
+            backup_dir.display()
+        )));
+    }
+
+    let had_target = fs.exists(target_dir);
+    if had_target {
+        fs.rename(target_dir, &backup_dir)?;
+    }
+
+    if let Err(activation_error) = fs.rename(staging_dir, target_dir) {
+        if had_target && let Err(rollback_error) = fs.rename(&backup_dir, target_dir) {
+            return Err(AppError::Backup(format!(
+                "failed to activate system configuration: {activation_error}; rollback failed: \
+                 {rollback_error}"
+            )));
+        }
+        return Err(activation_error);
+    }
+
+    if had_target {
+        fs.remove_dir_all(&backup_dir)?;
+    }
+    Ok(())
+}
+
+fn load_definitions(fs: &dyn FsPort, root: &Path) -> Result<Vec<SourcedDefinition>, AppError> {
+    let mut paths: Vec<PathBuf> = fs
+        .read_dir(root)?
         .into_iter()
-        .filter(|p| matches!(p.extension().and_then(|ext| ext.to_str()), Some("yml" | "yaml")))
+        .filter(|path| matches!(path.extension().and_then(|ext| ext.to_str()), Some("yml")))
         .collect();
     paths.sort();
 
     let mut definitions = Vec::new();
     for path in paths {
         let content = fs.read_to_string(&path)?;
-        let items: Option<Vec<SettingDefinition>> = serde_yaml::from_str(&content)
+        let yaml: serde_yaml::Value = serde_yaml::from_str(&content)
             .map_err(|e| AppError::Backup(format!("invalid YAML in {}: {e}", path.display())))?;
-        if let Some(items) = items {
-            definitions.extend(items);
+        if !matches!(yaml, serde_yaml::Value::Sequence(_)) {
+            return Err(AppError::Backup(format!(
+                "system definition file must contain a YAML list: {}",
+                path.display()
+            )));
         }
+        let items: Vec<SettingDefinition> = serde_yaml::from_value(yaml).map_err(|e| {
+            AppError::Backup(format!("invalid system definitions in {}: {e}", path.display()))
+        })?;
+        let relative_path = path.strip_prefix(root).map_err(|e| {
+            AppError::Backup(format!("failed to resolve definition path '{}': {e}", path.display()))
+        })?;
+        definitions.extend(items.into_iter().map(|definition| SourcedDefinition {
+            definition,
+            relative_path: relative_path.to_path_buf(),
+        }));
     }
 
     Ok(definitions)
+}
+
+fn merge_definitions(
+    package: Vec<SourcedDefinition>,
+    local: Vec<SourcedDefinition>,
+) -> Result<BTreeMap<(String, String), SourcedDefinition>, AppError> {
+    reject_duplicate_definitions(&package, "package")?;
+    reject_duplicate_definitions(&local, "local")?;
+
+    let mut effective = BTreeMap::new();
+    for sourced in package.into_iter().chain(local) {
+        let identity = (sourced.definition.domain.clone(), sourced.definition.key.clone());
+        effective.insert(identity, sourced);
+    }
+    Ok(effective)
+}
+
+fn reject_duplicate_definitions(
+    definitions: &[SourcedDefinition],
+    layer: &str,
+) -> Result<(), AppError> {
+    let mut identities = HashSet::new();
+    for sourced in definitions {
+        let identity = (sourced.definition.domain.clone(), sourced.definition.key.clone());
+        if !identities.insert(identity.clone()) {
+            return Err(AppError::Backup(format!(
+                "duplicate system definition in {layer} layer: domain='{}', key='{}'",
+                identity.0, identity.1
+            )));
+        }
+    }
+    Ok(())
 }
 
 fn value_to_string(v: &serde_yaml::Value) -> Cow<'_, str> {
@@ -155,20 +265,14 @@ fn format_value(
     home_dir: &str,
 ) -> Result<String, AppError> {
     match def.type_name.to_lowercase().as_str() {
-        "bool" => Ok(format_bool(raw_value, &def.default)),
-        "int" => Ok(format_numeric(raw_value, &def.default, false)),
-        "float" => Ok(format_numeric(raw_value, &def.default, true)),
-        "string" => format_string(raw_value, &def.key, &def.default, home_dir),
-        _ => {
-            let value = if raw_value.is_empty() {
-                value_to_string(&def.default)
-            } else {
-                Cow::Borrowed(raw_value)
-            };
-            serde_json::to_string(&value).map_err(|e| {
-                AppError::Backup(format!("failed to serialize value for key '{}': {e}", def.key))
-            })
-        }
+        "bool" => Ok(format_bool(raw_value, &def.value)),
+        "int" => Ok(format_numeric(raw_value, &def.value, false)),
+        "float" => Ok(format_numeric(raw_value, &def.value, true)),
+        "string" => format_string(raw_value, &def.key, &def.value, home_dir),
+        _ => Err(AppError::Backup(format!(
+            "unsupported type '{}' for domain='{}', key='{}'",
+            def.type_name, def.domain, def.key
+        ))),
     }
 }
 
@@ -180,14 +284,14 @@ fn is_truthy(s: &str) -> Option<bool> {
     }
 }
 
-fn format_bool(raw_value: &str, default: &serde_yaml::Value) -> String {
+fn format_bool(raw_value: &str, configured: &serde_yaml::Value) -> String {
     if let Some(b) = is_truthy(raw_value) {
         return b.to_string();
     }
-    if let Some(b) = default.as_bool() {
+    if let Some(b) = configured.as_bool() {
         return b.to_string();
     }
-    if let Some(s) = default.as_str()
+    if let Some(s) = configured.as_str()
         && let Some(b) = is_truthy(s)
     {
         return b.to_string();
@@ -195,9 +299,9 @@ fn format_bool(raw_value: &str, default: &serde_yaml::Value) -> String {
     "false".to_string()
 }
 
-fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) -> String {
+fn format_numeric(raw_value: &str, configured: &serde_yaml::Value, as_float: bool) -> String {
     let value_str = if raw_value.trim().is_empty() {
-        value_to_string(default).into_owned()
+        value_to_string(configured).into_owned()
     } else {
         raw_value.trim().to_string()
     };
@@ -213,11 +317,11 @@ fn format_numeric(raw_value: &str, default: &serde_yaml::Value, as_float: bool) 
 fn format_string(
     raw_value: &str,
     key: &str,
-    default: &serde_yaml::Value,
+    configured: &serde_yaml::Value,
     home_dir: &str,
 ) -> Result<String, AppError> {
     let mut value = if raw_value.is_empty() {
-        match default {
+        match configured {
             serde_yaml::Value::String(s) => Cow::Borrowed(s.as_str()),
             _ => Cow::Borrowed(""),
         }
@@ -259,6 +363,36 @@ fn build_entry(def: &SettingDefinition, value: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_support::host_fs::FakeFsPort;
+
+    #[test]
+    fn load_definitions_rejects_empty_yaml_file() {
+        let fs = FakeFsPort::new();
+        let root = Path::new("/definitions");
+        fs.add_file(&root.join("empty.yml"), "");
+
+        let error = load_definitions(&fs, root).err().expect("empty YAML must fail");
+
+        assert!(error.to_string().contains("must contain a YAML list"));
+    }
+
+    #[test]
+    fn activate_snapshot_restores_target_when_activation_fails() {
+        let fs = FakeFsPort::new();
+        let target = Path::new("/config/global");
+        let staging = Path::new("/config/.global.staging");
+        let backup = Path::new("/config/.global.backup");
+        fs.add_file(&target.join("original.yml"), "original");
+        fs.add_file(&staging.join("replacement.yml"), "replacement");
+        fs.fail_rename(staging, target);
+
+        let error = activate_snapshot(&fs, staging, target).expect_err("activation must fail");
+
+        assert!(error.to_string().contains("configured rename failure"));
+        assert!(fs.exists(&target.join("original.yml")));
+        assert!(fs.exists(&staging.join("replacement.yml")));
+        assert!(!fs.exists(backup));
+    }
 
     #[test]
     fn test_value_to_string() {
@@ -313,11 +447,11 @@ mod tests {
             format_string(
                 "",
                 "key",
-                &serde_yaml::Value::String("default".to_string()),
+                &serde_yaml::Value::String("configured".to_string()),
                 "/mock/home"
             )
-            .expect("default string formatting should succeed"),
-            "\"default\""
+            .expect("configured string formatting should succeed"),
+            "\"configured\""
         );
 
         let path = "/mock/home/file.txt";
@@ -341,7 +475,7 @@ mod tests {
             key: "TestKey".to_string(),
             domain: "TestDomain".to_string(),
             type_name: "string".to_string(),
-            default: serde_yaml::Value::Null,
+            value: serde_yaml::Value::Null,
             comment: Some("Test comment\nnewline".to_string()),
         };
         let lines = build_entry(&def, "\"value\"");
@@ -359,7 +493,7 @@ mod tests {
             key: "bool_key".to_string(),
             domain: "TestDomain".to_string(),
             type_name: "bool".to_string(),
-            default: serde_yaml::Value::Bool(false),
+            value: serde_yaml::Value::Bool(false),
             comment: None,
         };
         assert_eq!(
@@ -371,7 +505,7 @@ mod tests {
             key: "int_key".to_string(),
             domain: "TestDomain".to_string(),
             type_name: "int".to_string(),
-            default: serde_yaml::Value::Null,
+            value: serde_yaml::Value::Null,
             comment: None,
         };
         assert_eq!(
@@ -379,22 +513,13 @@ mod tests {
             "42"
         );
 
-        let default_def = SettingDefinition {
+        let configured_def = SettingDefinition {
             key: "other_key".to_string(),
             domain: "TestDomain".to_string(),
             type_name: "dict".to_string(),
-            default: serde_yaml::Value::String("default".to_string()),
+            value: serde_yaml::Value::String("configured".to_string()),
             comment: None,
         };
-        assert_eq!(
-            format_value(&default_def, "", "/mock/home")
-                .expect("default fallback formatting should succeed"),
-            "\"default\""
-        );
-        assert_eq!(
-            format_value(&default_def, "{\"key\":\"value\"}", "/mock/home")
-                .expect("json string formatting should succeed"),
-            "\"{\\\"key\\\":\\\"value\\\"}\""
-        );
+        assert!(format_value(&configured_def, "", "/mock/home").is_err());
     }
 }
