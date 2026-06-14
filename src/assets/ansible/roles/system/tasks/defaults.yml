@@ -1,8 +1,111 @@
 ---
-- name: "Apply macOS system defaults"
+- name: Discover package system definitions
+  ansible.builtin.set_fact:
+    system_package_definition_files: >-
+      {{ query('ansible.builtin.fileglob', role_path + '/config/global/*.yml') | sort }}
+
+- name: Inspect local system definitions
+  ansible.builtin.stat:
+    path: "{{ local_config_root }}/system/global"
+  register: system_local_definitions_dir
+
+- name: Discover local system definitions
+  ansible.builtin.set_fact:
+    system_local_definition_files: >-
+      {{
+        query('ansible.builtin.fileglob', local_config_root + '/system/global/*.yml') | sort
+        if system_local_definitions_dir.stat.isdir | default(false)
+        else []
+      }}
+
+- name: Initialize system definition layers
+  ansible.builtin.set_fact:
+    system_package_definitions: []
+    system_local_definitions: []
+
+- name: Load package system definitions
+  ansible.builtin.set_fact:
+    system_package_definitions: >-
+      {{ system_package_definitions + (lookup('ansible.builtin.file', item) | from_yaml) }}
+  loop: "{{ system_package_definition_files }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Load local system definitions
+  ansible.builtin.set_fact:
+    system_local_definitions: >-
+      {{ system_local_definitions + (lookup('ansible.builtin.file', item) | from_yaml) }}
+  loop: "{{ system_local_definition_files }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Validate system definitions
+  ansible.builtin.assert:
+    that:
+      - item is mapping
+      - item.key is defined
+      - item.key is string
+      - item.key | length > 0
+      - item.type is defined
+      - item.type in ['bool', 'int', 'float', 'string']
+      - item.value is defined
+      - item.domain is not defined or item.domain is string
+    fail_msg: "Invalid system definition: {{ item }}"
+    quiet: true
+  loop: "{{ system_package_definitions + system_local_definitions }}"
+  loop_control:
+    label: "{{ item.key | default('missing key') }}"
+
+- name: Build package system definition identities
+  ansible.builtin.set_fact:
+    system_package_definition_identities: >-
+      {{
+        system_package_definitions
+        | map(attribute='domain', default='NSGlobalDomain')
+        | zip(system_package_definitions | map(attribute='key'))
+        | map('join', '\u001f')
+        | list
+      }}
+    system_local_definition_identities: >-
+      {{
+        system_local_definitions
+        | map(attribute='domain', default='NSGlobalDomain')
+        | zip(system_local_definitions | map(attribute='key'))
+        | map('join', '\u001f')
+        | list
+      }}
+
+- name: Reject duplicate system definitions within a layer
+  ansible.builtin.assert:
+    that:
+      - system_package_definition_identities | unique | length == system_package_definition_identities | length
+      - system_local_definition_identities | unique | length == system_local_definition_identities | length
+    fail_msg: "System definitions contain duplicate (domain, key) identities within one layer."
+    quiet: true
+
+- name: Initialize effective system definitions
+  ansible.builtin.set_fact:
+    system_effective_definitions_by_identity: {}
+
+- name: Merge package and local system definitions
+  ansible.builtin.set_fact:
+    system_effective_definitions_by_identity: >-
+      {{
+        system_effective_definitions_by_identity
+        | combine({
+            ((item.domain | default('NSGlobalDomain')) + '\u001f' + item.key): item
+          })
+      }}
+  loop: "{{ system_package_definitions + system_local_definitions }}"
+  loop_control:
+    label: "{{ item.domain | default('NSGlobalDomain') }} {{ item.key }}"
+
+- name: Apply macOS system defaults
   community.general.osx_defaults:
     domain: "{{ item.domain | default('NSGlobalDomain') }}"
     key: "{{ item.key }}"
     type: "{{ item.type }}"
     value: "{{ item.value }}"
-  loop: "{{ lookup('file', local_config_root + '/system/global/system.yml') | from_yaml }}"
+  loop: "{{ system_effective_definitions_by_identity.values() | list }}"
+  loop_control:
+    label: "{{ item.domain | default('NSGlobalDomain') }} {{ item.key }}"

@@ -127,6 +127,7 @@ tests/
 - Category directories group related roles without owning tasks, tags, or configs
 - Bun stores its global package configuration in `config/global/global-packages.json`
 - pnpm stores its global package configuration in `config/global/global-packages.json`
+- System package definitions remain role-owned under `config/global/`; optional local definitions under `~/.config/mev/roles/system/global/` override them by `(domain, key)`
 
 ### Config Deployment Strategy
 Two-stage config deployment executes via:

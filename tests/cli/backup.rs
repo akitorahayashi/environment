@@ -7,11 +7,11 @@ use predicates::prelude::*;
 fn backup_system_success() -> Result<(), Box<dyn std::error::Error>> {
     let ctx = TestContext::new();
 
-    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global/definitions");
+    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global");
     std::fs::create_dir_all(&defs_dir)?;
     std::fs::write(
         defs_dir.join("test.yml"),
-        r#"[{ "key": "AppleShowAllFiles", "type": "bool", "default": false }]"#,
+        r#"[{ "key": "AppleShowAllFiles", "type": "bool", "value": false }]"#,
     )?;
 
     ctx.create_mock_command("defaults", "#!/bin/sh\nexit 0\n");
@@ -22,7 +22,7 @@ fn backup_system_success() -> Result<(), Box<dyn std::error::Error>> {
         .assert()
         .success();
 
-    let output_file = ctx.work_dir().join(".config/mev/roles/system/global/system.yml");
+    let output_file = ctx.work_dir().join(".config/mev/roles/system/global/test.yml");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file)?;
     assert!(content.contains("AppleShowAllFiles"));
@@ -192,18 +192,21 @@ fn backup_antigravity_ide_keeps_managed_settings_symlink_unchanged()
 }
 
 #[test]
-fn backup_system_failure_no_definitions() -> Result<(), Box<dyn std::error::Error>> {
+fn backup_system_uses_package_definitions_when_local_layer_is_empty()
+-> Result<(), Box<dyn std::error::Error>> {
     let ctx = TestContext::new();
 
-    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global/definitions");
+    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global");
     std::fs::create_dir_all(&defs_dir)?;
-    // Directory exists, but no definitions in it
+    ctx.create_mock_command("defaults", "#!/bin/sh\nexit 0\n");
 
     ctx.cli()
+        .env("PATH", ctx.path_with_mock_commands())
         .args(["backup", "system"])
         .assert()
-        .failure()
-        .stderr(predicate::str::contains("no setting definitions found"));
+        .success();
+
+    assert!(defs_dir.join("finder.yml").exists());
     Ok(())
 }
 
@@ -211,11 +214,11 @@ fn backup_system_failure_no_definitions() -> Result<(), Box<dyn std::error::Erro
 fn backup_system_missing_key_fallback() {
     let ctx = TestContext::new();
 
-    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global/definitions");
+    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global");
     std::fs::create_dir_all(&defs_dir).unwrap();
     std::fs::write(
         defs_dir.join("test.yml"),
-        r#"[{ "key": "AppleShowAllFiles", "type": "bool", "default": true }]"#,
+        r#"[{ "key": "AppleShowAllFiles", "type": "bool", "value": true }]"#,
     )
     .unwrap();
 
@@ -230,7 +233,7 @@ fn backup_system_missing_key_fallback() {
         .assert()
         .success();
 
-    let output_file = ctx.work_dir().join(".config/mev/roles/system/global/system.yml");
+    let output_file = ctx.work_dir().join(".config/mev/roles/system/global/test.yml");
     assert!(output_file.exists());
     let content = std::fs::read_to_string(output_file).unwrap();
     assert!(content.contains("value: true"));
@@ -240,7 +243,7 @@ fn backup_system_missing_key_fallback() {
 fn backup_system_invalid_yaml() {
     let ctx = TestContext::new();
 
-    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global/definitions");
+    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global");
     std::fs::create_dir_all(&defs_dir).unwrap();
     std::fs::write(defs_dir.join("test.yml"), "invalid: yaml: content: [").unwrap();
 
@@ -252,19 +255,34 @@ fn backup_system_invalid_yaml() {
 }
 
 #[test]
-fn backup_system_fallback_to_package_defaults() {
+fn backup_system_rejects_duplicate_local_definitions() {
     let ctx = TestContext::new();
 
-    // Do not create a local definitions directory.
-    // The application should fall back to the embedded package defaults.
+    let defs_dir = ctx.work_dir().join(".config/mev/roles/system/global");
+    std::fs::create_dir_all(&defs_dir).unwrap();
+    let definition = r#"[{ "key": "CustomSetting", "type": "bool", "value": true }]"#;
+    std::fs::write(defs_dir.join("first.yml"), definition).unwrap();
+    std::fs::write(defs_dir.join("second.yml"), definition).unwrap();
 
-    // Mock the `defaults` command so that when it reads the package defaults, it succeeds.
+    ctx.cli()
+        .args(["backup", "system"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("duplicate system definition in local layer"));
+}
+
+#[test]
+fn backup_system_creates_local_snapshot_from_package_definitions() {
+    let ctx = TestContext::new();
+
     ctx.create_mock_command("defaults", "#!/bin/sh\nexit 0\n");
 
     ctx.cli()
         .env("PATH", ctx.path_with_mock_commands())
         .args(["backup", "system"])
         .assert()
-        .success()
-        .stdout(predicate::str::contains("Using package defaults"));
+        .success();
+
+    let output_file = ctx.work_dir().join(".config/mev/roles/system/global/screenshots.yml");
+    assert!(output_file.exists());
 }

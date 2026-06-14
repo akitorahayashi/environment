@@ -3,5 +3,5 @@
 - key: com.apple.mouse.scaling
   domain: .GlobalPreferences
   type: float
-  default: 1
+  value: 1
   comment: "Mouse"

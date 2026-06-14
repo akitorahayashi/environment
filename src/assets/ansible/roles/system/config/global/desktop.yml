@@ -3,11 +3,11 @@
 - key: ShowExternalHardDrivesOnDesktop
   domain: com.apple.finder
   type: bool
-  default: true
+  value: true
   comment: "Desktop"
 
 # Enables or disables the "Click wallpaper to reveal desktop" feature.
 - key: EnableStandardClickToShowDesktop
   domain: com.apple.WindowManager
   type: bool
-  default: true
+  value: true

@@ -23,6 +23,9 @@ The rust-cli role uses `src/assets/ansible/roles/rust_cli/config/global/tools.ym
 The Coder role stores each tool's configuration under its tool name and uses the deployed file's actual name.
 The Coder role stores agent skills once and deploys them to the interoperable `~/.agents/skills/` location plus tool-specific locations required by Claude Code and Antigravity.
 The duti role uses `src/assets/ansible/roles/duti/config/global/default_apps.yml` to declare default applications grouped by bundle identifier.
+The system role uses `src/assets/ansible/roles/system/config/global/*.yml` as its package-owned macOS defaults catalog. Each definition contains `key`, optional `domain`, `type`, and `value`.
+Local system definitions under `~/.config/mev/roles/system/global/*.yml` override or extend package definitions with the same `(domain, key)` identity. Duplicate identities within either layer are invalid.
+`mev backup system` writes the effective current settings to the local system config tree while preserving definition file paths.
 
 ### Default Applications
 
