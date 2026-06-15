@@ -6,6 +6,7 @@ use tempfile::TempDir;
 
 use crate::backup::code_editors::CodeEditorCli;
 use crate::backup::system::MacosDefaultsCli;
+use crate::config_dir;
 use crate::host_fs::std_fs::StdFs;
 use crate::identity::file_store::IdentityFileStore;
 use crate::identity::git_cli::GitCli;
@@ -31,17 +32,14 @@ pub struct AppContext {
 impl AppContext {
     /// Construct full context from a resolved provisioning assets directory.
     pub fn new(resolved_assets: ResolvedAnsibleDir) -> Result<Self, Box<dyn std::error::Error>> {
-        let home_dir =
-            dirs::home_dir().ok_or_else(|| "could not resolve home directory".to_string())?;
-        let local_config_root = home_dir.join(".config").join("mev").join("roles");
+        let home_dir = config_dir::home()?;
+        let local_config_root = config_dir::roles_root(&home_dir);
         let (provisioning_asset_root, provisioning_asset_root_temp_dir) =
             resolved_assets.into_parts();
 
         Ok(Self {
             provisioning: AnsibleRuntime::new(&provisioning_asset_root, &local_config_root)?,
-            identity_store: IdentityFileStore::new(
-                home_dir.join(".config").join("mev").join("identity.json"),
-            ),
+            identity_store: IdentityFileStore::new(config_dir::identity_file(&home_dir)),
             version_source: InstallScriptVersionSource,
             git: GitCli::default(),
             host_fs: StdFs,
@@ -56,15 +54,12 @@ impl AppContext {
 
     /// Construct a lightweight identity-only context.
     pub fn for_identity() -> Result<Self, Box<dyn std::error::Error>> {
-        let home_dir =
-            dirs::home_dir().ok_or_else(|| "could not resolve home directory".to_string())?;
-        let local_config_root = home_dir.join(".config").join("mev").join("roles");
+        let home_dir = config_dir::home()?;
+        let local_config_root = config_dir::roles_root(&home_dir);
 
         Ok(Self {
             provisioning: AnsibleRuntime::empty(&local_config_root),
-            identity_store: IdentityFileStore::new(
-                home_dir.join(".config").join("mev").join("identity.json"),
-            ),
+            identity_store: IdentityFileStore::new(config_dir::identity_file(&home_dir)),
             version_source: InstallScriptVersionSource,
             git: GitCli::default(),
             host_fs: StdFs,

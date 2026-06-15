@@ -8,8 +8,8 @@ use crate::provisioning::profile::Profile;
 use crate::provisioning::role_configs;
 use crate::provisioning::runner::{PlaybookVars, ProvisioningRunner};
 
-const CASK_PHASE_TAG: &str = "brew-cask";
-const FORMULA_PHASE_TAG: &str = "brew-formulae";
+const CASK_PHASE_TAG: &str = ExecutionPlan::CASK_PHASE_TAG;
+const FORMULA_PHASE_TAG: &str = ExecutionPlan::FORMULA_PHASE_TAG;
 
 /// Execute the `create` command: deploy configs and run full setup tags.
 pub fn execute(
@@ -30,7 +30,7 @@ pub fn execute(
         return Err(AppError::InvalidTag(names.join(", ")));
     }
 
-    let plan = ExecutionPlan::full_setup(
+    let plan = ExecutionPlan::new(
         profile,
         full_setup_tags.to_vec(),
         ctx.provisioning.tap_requirements(),
@@ -41,7 +41,7 @@ pub fn execute(
 
     println!();
     println!("mev: Creating {} environment", plan.profile);
-    let runs_full_formulae = plan.tags.iter().any(|tag| tag == FORMULA_PHASE_TAG);
+    let runs_full_formulae = plan.runs_full_formulae();
     let setup_tags: Vec<String> = if runs_full_formulae {
         plan.tags.iter().filter(|tag| tag.as_str() != FORMULA_PHASE_TAG).cloned().collect()
     } else {
@@ -56,16 +56,7 @@ pub fn execute(
     println!();
 
     // Deploy configs for roles about to be executed
-    let mut config_tags = plan.tags.clone();
-    if (!plan.tap_tokens.is_empty() || !plan.formula_tokens.is_empty())
-        && !runs_full_formulae
-        && !config_tags.iter().any(|tag| tag == FORMULA_PHASE_TAG)
-    {
-        config_tags.push(FORMULA_PHASE_TAG.to_string());
-    }
-    if !plan.cask_tokens.is_empty() && !config_tags.iter().any(|tag| tag == CASK_PHASE_TAG) {
-        config_tags.push(CASK_PHASE_TAG.to_string());
-    }
+    let config_tags = plan.config_deployment_tags();
     role_configs::deploy_for_tags(
         &config_tags,
         &ctx.host_fs,

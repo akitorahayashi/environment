@@ -16,8 +16,13 @@ pub struct ExecutionPlan {
 }
 
 impl ExecutionPlan {
-    /// Construct a plan for a full environment creation.
-    pub fn full_setup(
+    /// Brew formula installation phase tag.
+    pub const FORMULA_PHASE_TAG: &str = "brew-formulae";
+    /// Brew cask installation phase tag.
+    pub const CASK_PHASE_TAG: &str = "brew-cask";
+
+    /// Resolve brew token requirements for the given tags into an execution plan.
+    pub fn new(
         profile: Profile,
         tags: Vec<String>,
         tap_requirements: &HashMap<String, Vec<String>>,
@@ -31,19 +36,28 @@ impl ExecutionPlan {
         Self { profile, tap_tokens, formula_tokens, cask_tokens, tags, verbose }
     }
 
-    /// Construct a plan for a single make invocation.
-    pub fn make(
-        profile: Profile,
-        tags: Vec<String>,
-        tap_requirements: &HashMap<String, Vec<String>>,
-        formula_requirements: &HashMap<String, Vec<String>>,
-        cask_requirements: &HashMap<String, Vec<String>>,
-        verbose: bool,
-    ) -> Self {
-        let tap_tokens = required_tokens(&tags, tap_requirements);
-        let formula_tokens = required_tokens(&tags, formula_requirements);
-        let cask_tokens = required_tokens(&tags, cask_requirements);
-        Self { profile, tap_tokens, formula_tokens, cask_tokens, tags, verbose }
+    /// Whether the plan runs the full brew formulae phase (all configured formulae)
+    /// rather than only the tokens required by selected tags.
+    pub fn runs_full_formulae(&self) -> bool {
+        self.tags.iter().any(|tag| tag == Self::FORMULA_PHASE_TAG)
+    }
+
+    /// Tags whose role configs must be deployed before execution: the plan tags plus
+    /// the brew phase tags implied by required tokens that are not already selected.
+    pub fn config_deployment_tags(&self) -> Vec<String> {
+        let mut config_tags = self.tags.clone();
+        if (!self.tap_tokens.is_empty() || !self.formula_tokens.is_empty())
+            && !self.runs_full_formulae()
+            && !config_tags.iter().any(|tag| tag == Self::FORMULA_PHASE_TAG)
+        {
+            config_tags.push(Self::FORMULA_PHASE_TAG.to_string());
+        }
+        if !self.cask_tokens.is_empty()
+            && !config_tags.iter().any(|tag| tag == Self::CASK_PHASE_TAG)
+        {
+            config_tags.push(Self::CASK_PHASE_TAG.to_string());
+        }
+        config_tags
     }
 }
 
@@ -67,9 +81,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn full_setup_contains_all_tags() {
+    fn preserves_profile_verbose_and_tags() {
         let test_tags = vec!["tag1".to_string(), "tag2".to_string()];
-        let plan = ExecutionPlan::full_setup(
+        let plan = ExecutionPlan::new(
             Profile::Macbook,
             test_tags.clone(),
             &HashMap::new(),
@@ -87,27 +101,7 @@ mod tests {
     }
 
     #[test]
-    fn make_contains_provided_tags() {
-        let tags = vec!["tag1".to_string(), "tag2".to_string()];
-        let plan = ExecutionPlan::make(
-            Profile::MacMini,
-            tags,
-            &HashMap::new(),
-            &HashMap::new(),
-            &HashMap::new(),
-            false,
-        );
-
-        assert_eq!(plan.profile, Profile::MacMini);
-        assert!(!plan.verbose);
-        assert!(plan.tap_tokens.is_empty());
-        assert!(plan.formula_tokens.is_empty());
-        assert!(plan.cask_tokens.is_empty());
-        assert_eq!(plan.tags, vec!["tag1".to_string(), "tag2".to_string()]);
-    }
-
-    #[test]
-    fn make_deduplicates_brew_tokens_in_tag_order() {
+    fn deduplicates_brew_tokens_in_tag_order() {
         let tags = vec!["vscode".to_string(), "co".to_string(), "zed".to_string()];
         let mut tap_requirements = HashMap::new();
         tap_requirements.insert("zed".to_string(), vec!["editor/tap".to_string()]);
@@ -119,7 +113,7 @@ mod tests {
         cask_requirements.insert("co".to_string(), vec!["visual-studio-code".to_string()]);
         cask_requirements.insert("zed".to_string(), vec!["zed".to_string()]);
 
-        let plan = ExecutionPlan::make(
+        let plan = ExecutionPlan::new(
             Profile::Global,
             tags,
             &tap_requirements,

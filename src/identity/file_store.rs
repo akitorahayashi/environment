@@ -1,30 +1,13 @@
 //! Identity store adapter — JSON persistence on local disk.
 //!
-//! The config directory is `~/.config/` — the project convention for macOS.
-//! Ansible roles reference `local_config_root` as an extra var and expect
-//! `~/.config/mev/roles/`, so this path must not change.
+//! The identity file path is supplied by the caller; see `crate::config_dir`
+//! for resolution of the mev config directory and its entries.
 
 use std::path::{Path, PathBuf};
 
 use crate::error::AppError;
 use crate::identity::model::{Identity, IdentityScope};
 use crate::identity::store::{IdentityState, IdentityStore};
-
-fn dot_config_dir() -> Result<PathBuf, AppError> {
-    dirs::home_dir()
-        .map(|h| h.join(".config"))
-        .ok_or_else(|| AppError::Config("home directory could not be resolved".to_string()))
-}
-
-/// Default path to the mev identity configuration file.
-pub fn default_identity_path() -> Result<PathBuf, AppError> {
-    Ok(dot_config_dir()?.join("mev").join("identity.json"))
-}
-
-/// Default path to the local config root for deployed role configs.
-pub fn local_config_root() -> Result<PathBuf, AppError> {
-    Ok(dot_config_dir()?.join("mev").join("roles"))
-}
 
 pub struct IdentityFileStore {
     identity_path: PathBuf,
