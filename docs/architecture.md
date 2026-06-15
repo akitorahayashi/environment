@@ -15,7 +15,7 @@
 | Application orchestration | `src/app/` | Use-case flow coordination and dependency composition |
 | Provisioning owner | `src/provisioning/` | Tag catalog, plan construction, playbook execution, role config deployment policy, provisioning assets resolution |
 | Identity owner | `src/identity/` | Identity model, identity persistence contract, Git identity contract and integrations |
-| Backup owner | `src/backup/` | Backup component resolution, system defaults backup, VSCode backup, backup integrations |
+| Backup owner | `src/backup/` | Backup component resolution, system defaults backup, code editor backup, backup integrations |
 | Update owner | `src/update/` | Version source contract and install script integration |
 | Shared kernel | `src/host_fs/` | Reusable host filesystem contract and std implementation |
 | Shared kernel | `src/error.rs` | Typed application error model |
@@ -31,6 +31,7 @@ src/
 ├── main.rs                # Binary entry point
 ├── lib.rs                 # Library root and public entrypoints
 ├── error.rs               # Shared typed errors
+├── config_dir.rs          # mev config directory path resolution
 ├── cli/                   # CLI boundary
 │   ├── mod.rs             # clap parser and top-level dispatch
 │   ├── create.rs
@@ -61,19 +62,15 @@ src/
 │       ├── locator.rs
 │       └── embedded.rs
 ├── identity/
-│   ├── identity.rs
+│   ├── model.rs
 │   ├── store.rs
 │   ├── git_config.rs
 │   ├── file_store.rs
 │   └── git_cli.rs
 ├── backup/
 │   ├── component.rs
-│   ├── system.rs
-│   ├── vscode.rs
-│   ├── macos_defaults_port.rs
-│   ├── macos_defaults_cli.rs
-│   ├── vscode_port.rs
-│   └── vscode_cli.rs
+│   ├── system/            # macOS defaults backup and defaults CLI integration
+│   └── code_editors.rs    # Editor extension/settings backup (VS Code, Antigravity IDE)
 ├── update/
 │   ├── version_source.rs
 │   └── install_script.rs

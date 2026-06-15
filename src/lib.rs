@@ -7,6 +7,7 @@
 pub(crate) mod app;
 pub mod backup;
 pub mod cli;
+pub mod config_dir;
 pub mod error;
 pub mod host_fs;
 pub mod identity;
