@@ -42,11 +42,7 @@ pub fn execute(
 
     // Deploy configs for roles about to be executed
     let runs_full_formulae = plan.runs_full_formulae();
-    let configure_tags: Vec<String> = if runs_full_formulae {
-        plan.tags.iter().filter(|tag| tag.as_str() != FORMULA_PHASE_TAG).cloned().collect()
-    } else {
-        plan.tags.clone()
-    };
+    let configure_tags = plan.execution_tags();
     let config_tags = plan.config_deployment_tags();
     role_configs::deploy_for_tags(
         &config_tags,

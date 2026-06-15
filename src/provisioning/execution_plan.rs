@@ -42,13 +42,22 @@ impl ExecutionPlan {
         self.tags.iter().any(|tag| tag == Self::FORMULA_PHASE_TAG)
     }
 
+    /// Tags to run as discrete role steps, excluding the full formula phase tag, which
+    /// is dispatched separately as a brew phase rather than a role step.
+    pub fn execution_tags(&self) -> Vec<String> {
+        if self.runs_full_formulae() {
+            self.tags.iter().filter(|tag| *tag != Self::FORMULA_PHASE_TAG).cloned().collect()
+        } else {
+            self.tags.clone()
+        }
+    }
+
     /// Tags whose role configs must be deployed before execution: the plan tags plus
     /// the brew phase tags implied by required tokens that are not already selected.
     pub fn config_deployment_tags(&self) -> Vec<String> {
         let mut config_tags = self.tags.clone();
         if (!self.tap_tokens.is_empty() || !self.formula_tokens.is_empty())
             && !self.runs_full_formulae()
-            && !config_tags.iter().any(|tag| tag == Self::FORMULA_PHASE_TAG)
         {
             config_tags.push(Self::FORMULA_PHASE_TAG.to_string());
         }
@@ -125,5 +134,97 @@ mod tests {
         assert_eq!(plan.tap_tokens, vec!["editor/tap".to_string()]);
         assert_eq!(plan.formula_tokens, vec!["jq".to_string()]);
         assert_eq!(plan.cask_tokens, vec!["visual-studio-code".to_string(), "zed".to_string()]);
+    }
+
+    fn plan_with_tags(tags: Vec<String>) -> ExecutionPlan {
+        ExecutionPlan::new(
+            Profile::Global,
+            tags,
+            &HashMap::new(),
+            &HashMap::new(),
+            &HashMap::new(),
+            false,
+        )
+    }
+
+    #[test]
+    fn runs_full_formulae_detects_formula_phase_tag() {
+        let with =
+            plan_with_tags(vec!["zsh".to_string(), ExecutionPlan::FORMULA_PHASE_TAG.to_string()]);
+        assert!(with.runs_full_formulae());
+
+        let without = plan_with_tags(vec!["zsh".to_string()]);
+        assert!(!without.runs_full_formulae());
+    }
+
+    #[test]
+    fn execution_tags_excludes_formula_phase_tag_when_present() {
+        let plan = plan_with_tags(vec![
+            "zsh".to_string(),
+            ExecutionPlan::FORMULA_PHASE_TAG.to_string(),
+            "git".to_string(),
+        ]);
+        assert_eq!(plan.execution_tags(), vec!["zsh".to_string(), "git".to_string()]);
+    }
+
+    #[test]
+    fn execution_tags_returns_all_tags_without_formula_phase() {
+        let tags = vec!["zsh".to_string(), "git".to_string()];
+        let plan = plan_with_tags(tags.clone());
+        assert_eq!(plan.execution_tags(), tags);
+    }
+
+    #[test]
+    fn config_deployment_tags_appends_formula_phase_for_required_formulae() {
+        let mut formula_requirements = HashMap::new();
+        formula_requirements.insert("co".to_string(), vec!["jq".to_string()]);
+        let plan = ExecutionPlan::new(
+            Profile::Global,
+            vec!["co".to_string()],
+            &HashMap::new(),
+            &formula_requirements,
+            &HashMap::new(),
+            false,
+        );
+        assert_eq!(
+            plan.config_deployment_tags(),
+            vec!["co".to_string(), ExecutionPlan::FORMULA_PHASE_TAG.to_string()]
+        );
+    }
+
+    #[test]
+    fn config_deployment_tags_appends_cask_phase_for_required_casks() {
+        let mut cask_requirements = HashMap::new();
+        cask_requirements.insert("vscode".to_string(), vec!["visual-studio-code".to_string()]);
+        let plan = ExecutionPlan::new(
+            Profile::Global,
+            vec!["vscode".to_string()],
+            &HashMap::new(),
+            &HashMap::new(),
+            &cask_requirements,
+            false,
+        );
+        assert_eq!(
+            plan.config_deployment_tags(),
+            vec!["vscode".to_string(), ExecutionPlan::CASK_PHASE_TAG.to_string()]
+        );
+    }
+
+    #[test]
+    fn config_deployment_tags_skips_formula_phase_when_full_formulae_runs() {
+        let mut formula_requirements = HashMap::new();
+        formula_requirements.insert("co".to_string(), vec!["jq".to_string()]);
+        let plan = ExecutionPlan::new(
+            Profile::Global,
+            vec!["co".to_string(), ExecutionPlan::FORMULA_PHASE_TAG.to_string()],
+            &HashMap::new(),
+            &formula_requirements,
+            &HashMap::new(),
+            false,
+        );
+        assert_eq!(
+            plan.config_deployment_tags(),
+            vec!["co".to_string(), ExecutionPlan::FORMULA_PHASE_TAG.to_string()]
+        );
     }
 }

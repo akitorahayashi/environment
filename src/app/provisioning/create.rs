@@ -42,11 +42,7 @@ pub fn execute(
     println!();
     println!("mev: Creating {} environment", plan.profile);
     let runs_full_formulae = plan.runs_full_formulae();
-    let setup_tags: Vec<String> = if runs_full_formulae {
-        plan.tags.iter().filter(|tag| tag.as_str() != FORMULA_PHASE_TAG).cloned().collect()
-    } else {
-        plan.tags.clone()
-    };
+    let setup_tags = plan.execution_tags();
     let formula_phase_count = usize::from(
         runs_full_formulae || !plan.tap_tokens.is_empty() || !plan.formula_tokens.is_empty(),
     );
