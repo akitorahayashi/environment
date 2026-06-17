@@ -84,29 +84,43 @@
     - .gemini
     - .gemini/antigravity-cli
 
+- name: "Resolve coder generated-entity root"
+  ansible.builtin.set_fact:
+    coder_generated_root: "{{ [local_config_root | dirname, 'coder'] | path_join }}"
+
+- name: "Verify generated intermediate AGENTS.md exists"
+  ansible.builtin.stat:
+    path: "{{ coder_generated_root }}/AGENTS.md"
+  register: coder_agents_intermediate
+
+- name: "Fail when generated intermediate AGENTS.md is missing"
+  ansible.builtin.fail:
+    msg: "Intermediate AGENTS.md is missing at {{ coder_generated_root }}/AGENTS.md. Run `mev mk coder` so mev generates it before symlinking."
+  when: not coder_agents_intermediate.stat.exists
+
 - name: "Symlink coder configuration files"
   ansible.builtin.file:
-    src: "{{ local_config_root }}/coder/global/{{ item.src }}"
+    src: "{{ item.src }}"
     dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.dest }}"
     state: link
     force: true
   loop:
-    - { src: "claude/settings.json", dest: ".claude/settings.json" }
-    - { src: "AGENTS.md", dest: ".claude/CLAUDE.md" }
-    - { src: "codex/config.toml", dest: ".codex/config.toml" }
-    - { src: "AGENTS.md", dest: ".codex/AGENTS.md" }
-    - { src: "AGENTS.md", dest: ".config/zed/AGENTS.md" }
-    - { src: "AGENTS.md", dest: ".gemini/GEMINI.md" }
-    - { src: "antigravity-cli/settings.json", dest: ".gemini/antigravity-cli/settings.json" }
+    - { src: "{{ local_config_root }}/coder/global/claude/settings.json", dest: ".claude/settings.json" }
+    - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".claude/CLAUDE.md" }
+    - { src: "{{ local_config_root }}/coder/global/codex/config.toml", dest: ".codex/config.toml" }
+    - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".codex/AGENTS.md" }
+    - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".config/zed/AGENTS.md" }
+    - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".gemini/GEMINI.md" }
+    - { src: "{{ local_config_root }}/coder/global/antigravity-cli/settings.json", dest: ".gemini/antigravity-cli/settings.json" }
 
 - name: "Load agent skills targets"
   ansible.builtin.set_fact:
     coder_skills_target_config: "{{ lookup('file', local_config_root + '/coder/global/skills-targets.yml') | from_yaml }}"
 
-- name: "Discover global agent skills"
+- name: "Discover enabled agent skills"
   ansible.builtin.find:
-    paths: "{{ local_config_root }}/coder/global/skills"
-    file_type: directory
+    paths: "{{ coder_generated_root }}/skills"
+    file_type: link
     depth: 1
   register: coder_skills_find
 
@@ -116,7 +130,7 @@
 
 - name: "Set agent skills source root"
   ansible.builtin.set_fact:
-    coder_skills_source_root: "{{ [local_config_root, 'coder/global/skills'] | path_join }}"
+    coder_skills_source_root: "{{ [coder_generated_root, 'skills'] | path_join }}"
 
 - name: "Ensure agent skills directories exist"
   ansible.builtin.file:

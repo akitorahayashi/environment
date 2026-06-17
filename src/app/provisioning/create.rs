@@ -62,6 +62,11 @@ pub fn execute(
         overwrite,
     )?;
 
+    // Materialize coder intermediate entities before the coder role symlinks them.
+    if config_tags.iter().any(|tag| ctx.provisioning.role_for_tag(tag) == Some("coder")) {
+        crate::app::coder::materialize::execute(ctx)?;
+    }
+
     if formula_phase_count > 0 {
         let total = setup_tags.len() + phase_count;
         let label = if runs_full_formulae {

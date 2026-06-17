@@ -35,4 +35,16 @@ pub trait FsPort {
 
     /// Check whether a path exists and is a directory.
     fn is_dir(&self, path: &Path) -> bool;
+
+    /// Remove a single file or symlink.
+    fn remove_file(&self, path: &Path) -> Result<(), AppError>;
+
+    /// Create a symbolic link at `link` pointing to `target`.
+    fn symlink(&self, target: &Path, link: &Path) -> Result<(), AppError>;
+
+    /// Read the target of a symbolic link.
+    fn read_link(&self, path: &Path) -> Result<PathBuf, AppError>;
+
+    /// Check whether a path is a symbolic link (without following it).
+    fn is_symlink(&self, path: &Path) -> bool;
 }

@@ -10,6 +10,8 @@ pub struct FakeFsPort {
     pub files: RefCell<HashMap<PathBuf, String>>,
     /// set of directory paths
     pub dirs: RefCell<HashSet<PathBuf>>,
+    /// maps a symlink path to its target path
+    pub symlinks: RefCell<HashMap<PathBuf, PathBuf>>,
     /// tracks method calls for assertions
     pub events: RefCell<Vec<String>>,
     rename_failures: RefCell<HashSet<(PathBuf, PathBuf)>>,
@@ -20,8 +22,16 @@ impl FakeFsPort {
         Self {
             files: RefCell::new(HashMap::new()),
             dirs: RefCell::new(HashSet::new()),
+            symlinks: RefCell::new(HashMap::new()),
             events: RefCell::new(Vec::new()),
             rename_failures: RefCell::new(HashSet::new()),
+        }
+    }
+
+    pub fn add_symlink(&self, link: &Path, target: &Path) {
+        self.symlinks.borrow_mut().insert(link.to_path_buf(), target.to_path_buf());
+        if let Some(parent) = link.parent() {
+            self.add_dir(parent);
         }
     }
 
@@ -54,7 +64,9 @@ impl FakeFsPort {
 impl FsPort for FakeFsPort {
     fn exists(&self, path: &Path) -> bool {
         self.events.borrow_mut().push(format!("exists: {}", path.display()));
-        self.files.borrow().contains_key(path) || self.dirs.borrow().contains(path)
+        self.files.borrow().contains_key(path)
+            || self.dirs.borrow().contains(path)
+            || self.symlinks.borrow().contains_key(path)
     }
 
     fn read_to_string(&self, path: &Path) -> Result<String, AppError> {
@@ -90,6 +102,14 @@ impl FsPort for FakeFsPort {
                 entries.push(dir.clone());
             }
         }
+        for link in self.symlinks.borrow().keys() {
+            if let Some(parent) = link.parent()
+                && parent == path
+                && !entries.contains(link)
+            {
+                entries.push(link.clone());
+            }
+        }
         Ok(entries)
     }
 
@@ -120,6 +140,12 @@ impl FsPort for FakeFsPort {
             self.files.borrow().keys().filter(|p| p.starts_with(path)).cloned().collect();
         for p in to_remove_files {
             self.files.borrow_mut().remove(&p);
+        }
+
+        let to_remove_symlinks: Vec<PathBuf> =
+            self.symlinks.borrow().keys().filter(|p| p.starts_with(path)).cloned().collect();
+        for p in to_remove_symlinks {
+            self.symlinks.borrow_mut().remove(&p);
         }
 
         Ok(())
@@ -186,5 +212,52 @@ impl FsPort for FakeFsPort {
 
     fn is_dir(&self, path: &Path) -> bool {
         self.dirs.borrow().contains(path)
+    }
+
+    fn remove_file(&self, path: &Path) -> Result<(), AppError> {
+        self.events.borrow_mut().push(format!("remove_file: {}", path.display()));
+        let removed = self.symlinks.borrow_mut().remove(path).is_some()
+            || self.files.borrow_mut().remove(path).is_some();
+        if removed {
+            Ok(())
+        } else {
+            Err(AppError::Io(std::io::Error::new(std::io::ErrorKind::NotFound, "file not found")))
+        }
+    }
+
+    fn symlink(&self, target: &Path, link: &Path) -> Result<(), AppError> {
+        self.events.borrow_mut().push(format!(
+            "symlink: {} -> {}",
+            link.display(),
+            target.display()
+        ));
+        if let Some(parent) = link.parent()
+            && !parent.as_os_str().is_empty()
+            && !self.dirs.borrow().contains(parent)
+        {
+            return Err(AppError::Io(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("parent directory '{}' does not exist", parent.display()),
+            )));
+        }
+        if self.symlinks.borrow().contains_key(link) {
+            return Err(AppError::Io(std::io::Error::new(
+                std::io::ErrorKind::AlreadyExists,
+                format!("symlink '{}' already exists", link.display()),
+            )));
+        }
+        self.symlinks.borrow_mut().insert(link.to_path_buf(), target.to_path_buf());
+        Ok(())
+    }
+
+    fn read_link(&self, path: &Path) -> Result<PathBuf, AppError> {
+        self.events.borrow_mut().push(format!("read_link: {}", path.display()));
+        self.symlinks.borrow().get(path).cloned().ok_or_else(|| {
+            AppError::Io(std::io::Error::new(std::io::ErrorKind::InvalidInput, "not a symlink"))
+        })
+    }
+
+    fn is_symlink(&self, path: &Path) -> bool {
+        self.symlinks.borrow().contains_key(path)
     }
 }

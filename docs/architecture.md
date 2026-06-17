@@ -17,6 +17,7 @@
 | Identity owner | `src/identity/` | Identity model, identity persistence contract, Git identity contract and integrations |
 | Backup owner | `src/backup/` | Backup component resolution, system defaults backup, code editor backup, backup integrations |
 | Update owner | `src/update/` | Version source contract and install script integration |
+| Coder owner | `src/coder/` | AGENTS.md section and skills catalog, selection manifest, intermediate AGENTS.md and skills directory build |
 | Shared kernel | `src/host_fs/` | Reusable host filesystem contract and std implementation |
 | Shared kernel | `src/error.rs` | Typed application error model |
 | Static source content | `src/assets/` | Source-of-truth Ansible playbooks and roles |
@@ -49,6 +50,7 @@ src/
 │   ├── identity/           # Identity use-case orchestration
 │   ├── backup/             # Backup use-case orchestration
 │   ├── update/             # Update use-case orchestration
+│   ├── coder/              # Coder selection and intermediate-entity materialization
 │   └── internal/           # Internal command orchestration
 ├── provisioning/
 │   ├── profile.rs
@@ -74,6 +76,12 @@ src/
 ├── update/
 │   ├── version_source.rs
 │   └── install_script.rs
+├── coder/
+│   ├── catalog.rs           # AGENTS.md section and skills catalogs
+│   ├── manifest.rs          # Disabled-list manifest and version-skew resolution
+│   ├── agents_build.rs      # Enabled-section concatenation into intermediate AGENTS.md
+│   ├── skills_build.rs      # Enabled-skill reconciliation of intermediate skills directory
+│   └── tui.rs               # Multi-select toggle presentation
 ├── host_fs/
 │   ├── fs.rs
 │   └── std_fs.rs
@@ -98,7 +106,7 @@ tests/
 ## Application Structure
 
 - `src/cli/` is the only CLI parsing and dispatch boundary.
-- `src/app/` orchestrates use cases grouped by family (`provisioning`, `identity`, `backup`, `update`, `internal`).
+- `src/app/` orchestrates use cases grouped by family (`provisioning`, `identity`, `backup`, `update`, `coder`, `internal`).
 - `src/app/context.rs` is the composition root for runtime dependencies.
 - Public library entrypoints are exposed from `src/lib.rs` and delegate into app orchestration.
 

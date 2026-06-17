@@ -7,6 +7,7 @@
 pub(crate) mod app;
 pub mod backup;
 pub mod cli;
+pub mod coder;
 pub mod config_dir;
 pub mod error;
 pub mod host_fs;
@@ -51,21 +52,27 @@ pub fn config_deploy(role: Option<String>, overwrite: bool) -> Result<(), AppErr
     app::provisioning::deploy_role_configs::execute(&ctx, role, overwrite)
 }
 
+/// Interactively select which coder configuration entries are enabled.
+pub fn config_select(kind: coder::Selectable) -> Result<(), AppError> {
+    let ctx = local_context()?;
+    app::coder::select::execute(&ctx, kind)
+}
+
 /// Show current Git identity configuration.
 pub fn identity_show() -> Result<(), AppError> {
-    let ctx = identity_context()?;
+    let ctx = local_context()?;
     app::identity::show::execute(&ctx)
 }
 
 /// Interactively set Git identity configuration.
 pub fn identity_set() -> Result<(), AppError> {
-    let ctx = identity_context()?;
+    let ctx = local_context()?;
     app::identity::set::execute(&ctx)
 }
 
 /// Switch the global Git identity between personal and work.
 pub fn switch_identity(identity: IdentityScope) -> Result<(), AppError> {
-    let ctx = identity_context()?;
+    let ctx = local_context()?;
     app::identity::switch::execute(&ctx, identity)
 }
 
@@ -97,6 +104,6 @@ fn provisioning_context() -> Result<AppContext, AppError> {
     AppContext::new(provisioning_assets).map_err(|e| AppError::Config(e.to_string()))
 }
 
-fn identity_context() -> Result<AppContext, AppError> {
-    AppContext::for_identity().map_err(|e| AppError::Config(e.to_string()))
+fn local_context() -> Result<AppContext, AppError> {
+    AppContext::local().map_err(|e| AppError::Config(e.to_string()))
 }
