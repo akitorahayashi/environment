@@ -9,6 +9,18 @@ approval_policy = "on-request"
 # Options: "read-only", "workspace-write", "danger-full-access"
 sandbox_mode = "danger-full-access"
 
+[tui]
+status_line = [
+  "model-with-reasoning",
+  "context-remaining",
+  "context-window-size",
+  "git-branch",
+  "branch-changes",
+  "five-hour-limit",
+  "weekly-limit",
+]
+status_line_use_colors = true
+
 [analytics]
 enabled = false
 

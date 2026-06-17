@@ -106,12 +106,14 @@
     force: true
   loop:
     - { src: "{{ local_config_root }}/coder/global/claude/settings.json", dest: ".claude/settings.json" }
+    - { src: "{{ local_config_root }}/coder/global/claude/statusline.sh", dest: ".claude/statusline.sh" }
     - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".claude/CLAUDE.md" }
     - { src: "{{ local_config_root }}/coder/global/codex/config.toml", dest: ".codex/config.toml" }
     - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".codex/AGENTS.md" }
     - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".config/zed/AGENTS.md" }
     - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".gemini/GEMINI.md" }
     - { src: "{{ local_config_root }}/coder/global/antigravity-cli/settings.json", dest: ".gemini/antigravity-cli/settings.json" }
+    - { src: "{{ local_config_root }}/coder/global/antigravity-cli/statusline.sh", dest: ".gemini/antigravity-cli/statusline.sh" }
 
 - name: "Load agent skills targets"
   ansible.builtin.set_fact:
