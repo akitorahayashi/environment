@@ -53,9 +53,7 @@ impl From<SelectObject> for Selectable {
 pub fn run(cmd: ConfigCommand) -> Result<(), AppError> {
     match cmd {
         ConfigCommand::Deploy { role, overwrite } => crate::config_deploy(role, overwrite),
-        ConfigCommand::Select { object, clear } if clear => {
-            crate::config_select_clear(object.into())
-        }
-        ConfigCommand::Select { object, .. } => crate::config_select(object.into()),
+        ConfigCommand::Select { object, clear: true } => crate::config_select_clear(object.into()),
+        ConfigCommand::Select { object, clear: false } => crate::config_select(object.into()),
     }
 }
