@@ -34,6 +34,9 @@
   "buffer_font_family": "Menlo",
   "buffer_font_size": 12,
   "buffer_line_height": "standard",
+  "markdown_preview_font_family": "Hiragino Sans",
+  "markdown_preview_code_font_family": "Monaco",
+  "markdown_preview_theme": "One Light",
   "terminal": {
     "dock": "bottom",
     "default_height": 280,
