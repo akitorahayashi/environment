@@ -28,3 +28,10 @@ pub fn execute(ctx: &AppContext, kind: Selectable) -> Result<(), AppError> {
 
     Ok(())
 }
+
+/// Disable all entries for the given selectable without opening the TUI.
+pub fn execute_clear(ctx: &AppContext, kind: Selectable) -> Result<(), AppError> {
+    coder::clear_selection(kind, &ctx.host_fs, &ctx.home_dir)?;
+    eprintln!("Cleared {} (0 enabled).", kind.label());
+    Ok(())
+}

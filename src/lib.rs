@@ -58,6 +58,12 @@ pub fn config_select(kind: coder::Selectable) -> Result<(), AppError> {
     app::coder::select::execute(&ctx, kind)
 }
 
+/// Disable all entries for the given selectable, producing an empty intermediate entity.
+pub fn config_select_clear(kind: coder::Selectable) -> Result<(), AppError> {
+    let ctx = local_context()?;
+    app::coder::select::execute_clear(&ctx, kind)
+}
+
 /// Show current Git identity configuration.
 pub fn identity_show() -> Result<(), AppError> {
     let ctx = local_context()?;
