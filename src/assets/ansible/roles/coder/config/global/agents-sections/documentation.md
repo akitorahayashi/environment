@@ -1,4 +1,4 @@
-### Documentation
+## Documentation
 
 - Development-related documentation is written in English. If it's already written in a language other than English and you're going to revise it, then follow the language of that culture.
 - Documentation for LLMs (AGENTS.md, CLAUDE.md, etc.) is kept concise for token efficiency, focusing only on essential information.

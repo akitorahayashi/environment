@@ -4,10 +4,7 @@
 # to a sibling `<name>.md`. A listed name without a `.md`, or a `.md` without a
 # listing, is a startup error.
 sections:
-  - design
-  - implementation
-  - testing
-  - documentation
   - communication
-  - safety
-  - user-specific
+  - coding
+  - documentation
+  - testing

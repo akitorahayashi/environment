@@ -1,4 +1,4 @@
-### Design
+## Design
 
 - Feature additions and refactorings include the removal of old modules and deprecated features to eliminate technical debt, bugs, and complexity.
 - Class and file must not have ambiguous names or responsibilities such as base, common, core, utils, or helpers.
@@ -10,3 +10,9 @@
 - UX simplicity is prioritized over excessive configuration.
 - Validate necessity by contribution to purpose. Usage elsewhere is not a valid justification.
 - Systemic fixes are preferred over patches; invariants and owning components are addressing at boundaries to benefit all call sites without workarounds.
+
+## Implementation
+
+- Post-implementation inventorying (git status, git diff, etc.) is avoided; only evidential verification (testing, etc.) is performed.
+- Validation focuses on the appropriate scope, providing minimal evidence unless intent dictates otherwise.
+- When renaming, deleting, or restructuring, a comprehensive search (e.g., `rg`) for the old structure or terms must be performed at the end to ensure no remnants are left behind.
