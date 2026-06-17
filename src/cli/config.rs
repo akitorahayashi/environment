@@ -24,6 +24,10 @@ pub enum ConfigCommand {
         /// What to select: agents (AGENTS.md sections) or skills.
         #[arg(value_enum)]
         object: SelectObject,
+
+        /// Disable all entries (produces an empty AGENTS.md or skills directory).
+        #[arg(short, long)]
+        clear: bool,
     },
 }
 
@@ -49,6 +53,7 @@ impl From<SelectObject> for Selectable {
 pub fn run(cmd: ConfigCommand) -> Result<(), AppError> {
     match cmd {
         ConfigCommand::Deploy { role, overwrite } => crate::config_deploy(role, overwrite),
-        ConfigCommand::Select { object } => crate::config_select(object.into()),
+        ConfigCommand::Select { object, clear: true } => crate::config_select_clear(object.into()),
+        ConfigCommand::Select { object, clear: false } => crate::config_select(object.into()),
     }
 }

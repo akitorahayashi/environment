@@ -102,6 +102,18 @@ pub fn current_state(
     Ok(CurrentState { entries, unknown_disabled: selection.unknown_disabled })
 }
 
+/// Disable every catalog entry and rebuild the intermediate entity to an empty state.
+pub fn clear_selection(
+    kind: Selectable,
+    fs: &dyn FsPort,
+    home_dir: &std::path::Path,
+) -> Result<(), AppError> {
+    let p = paths(kind, home_dir);
+    let catalog = catalog(kind, fs, &p.source_dir)?;
+    manifest::write_disabled(fs, &p.manifest, catalog.names())?;
+    rebuild(kind, fs, home_dir, &p.source_dir, &[])
+}
+
 /// Persist a new enabled set and rebuild the intermediate entity.
 ///
 /// `enabled_names` is the set the user chose to keep on; every catalog entry not in
