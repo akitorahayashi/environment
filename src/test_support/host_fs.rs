@@ -142,6 +142,12 @@ impl FsPort for FakeFsPort {
             self.files.borrow_mut().remove(&p);
         }
 
+        let to_remove_symlinks: Vec<PathBuf> =
+            self.symlinks.borrow().keys().filter(|p| p.starts_with(path)).cloned().collect();
+        for p in to_remove_symlinks {
+            self.symlinks.borrow_mut().remove(&p);
+        }
+
         Ok(())
     }
 
@@ -225,6 +231,21 @@ impl FsPort for FakeFsPort {
             link.display(),
             target.display()
         ));
+        if let Some(parent) = link.parent()
+            && !parent.as_os_str().is_empty()
+            && !self.dirs.borrow().contains(parent)
+        {
+            return Err(AppError::Io(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("parent directory '{}' does not exist", parent.display()),
+            )));
+        }
+        if self.symlinks.borrow().contains_key(link) {
+            return Err(AppError::Io(std::io::Error::new(
+                std::io::ErrorKind::AlreadyExists,
+                format!("symlink '{}' already exists", link.display()),
+            )));
+        }
         self.symlinks.borrow_mut().insert(link.to_path_buf(), target.to_path_buf());
         Ok(())
     }

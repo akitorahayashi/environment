@@ -54,7 +54,13 @@ pub fn sections(fs: &dyn FsPort, source_dir: &Path) -> Result<Catalog, AppError>
     let listed = parsed.sections;
     let present = markdown_stems(fs, source_dir)?;
 
+    let mut seen = std::collections::HashSet::new();
     for name in &listed {
+        if !seen.insert(name.as_str()) {
+            return Err(AppError::Config(format!(
+                "duplicate section '{name}' listed in catalog.yml"
+            )));
+        }
         if !present.contains(name) {
             return Err(AppError::Config(format!(
                 "section '{name}' is listed in catalog.yml but '{name}.md' is missing in {}",

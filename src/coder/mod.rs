@@ -124,7 +124,14 @@ pub fn apply_selection(
         .collect();
     manifest::write_disabled(fs, &p.manifest, &disabled)?;
 
-    rebuild(kind, fs, home_dir, &p.source_dir, enabled_names)
+    // Derive the canonical enabled set from the catalog (preserves order, excludes non-catalog names).
+    let canonical_enabled: Vec<String> = catalog
+        .names()
+        .iter()
+        .filter(|name| !disabled.iter().any(|d| d == *name))
+        .cloned()
+        .collect();
+    rebuild(kind, fs, home_dir, &p.source_dir, &canonical_enabled)
 }
 
 /// Rebuild the intermediate entity for a selectable from the current manifest.
