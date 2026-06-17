@@ -61,6 +61,21 @@ mev config deploy coder   # Deploy only coding agent config
 mev config deploy editor/vscode # Deploy only VS Code config
 ```
 
+Coder configuration selection runs via:
+
+```sh
+mev config select agents  # Toggle which AGENTS.md sections apply
+mev config select skills  # Toggle which skills deploy
+mev cf sl ag              # Shorthand
+mev cf sl sk              # Shorthand
+```
+
+Selection is a multi-select prompt: space toggles an entry, enter confirms, esc cancels.
+Entries already enabled start checked. Confirming rewrites the intermediate
+`~/.config/mev/coder/AGENTS.md` (for sections) or `~/.config/mev/coder/skills/` (for skills),
+which agent tools reach through the symlinks created during provisioning. Sections and skills
+not turned off stay enabled, so entries introduced by a later mev version are enabled by default.
+
 Git identity switches via:
 
 ```sh

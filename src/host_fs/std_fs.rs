@@ -50,4 +50,20 @@ impl FsPort for StdFs {
     fn is_dir(&self, path: &Path) -> bool {
         path.is_dir()
     }
+
+    fn remove_file(&self, path: &Path) -> Result<(), AppError> {
+        std::fs::remove_file(path).map_err(AppError::Io)
+    }
+
+    fn symlink(&self, target: &Path, link: &Path) -> Result<(), AppError> {
+        std::os::unix::fs::symlink(target, link).map_err(AppError::Io)
+    }
+
+    fn read_link(&self, path: &Path) -> Result<PathBuf, AppError> {
+        std::fs::read_link(path).map_err(AppError::Io)
+    }
+
+    fn is_symlink(&self, path: &Path) -> bool {
+        path.symlink_metadata().map(|m| m.file_type().is_symlink()).unwrap_or(false)
+    }
 }

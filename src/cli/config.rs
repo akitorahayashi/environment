@@ -1,7 +1,8 @@
 //! CLI input contract for the `config` command.
 
-use clap::Subcommand;
+use clap::{Subcommand, ValueEnum};
 
+use crate::coder::Selectable;
 use crate::error::AppError;
 
 #[derive(Subcommand)]
@@ -16,10 +17,38 @@ pub enum ConfigCommand {
         #[arg(short, long)]
         overwrite: bool,
     },
+
+    /// Interactively select enabled AGENTS.md sections or skills.
+    #[command(visible_alias = "sl")]
+    Select {
+        /// What to select: agents (AGENTS.md sections) or skills.
+        #[arg(value_enum)]
+        object: SelectObject,
+    },
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+pub enum SelectObject {
+    /// AGENTS.md sections.
+    #[value(alias = "ag")]
+    Agents,
+    /// Deployable skills.
+    #[value(alias = "sk")]
+    Skills,
+}
+
+impl From<SelectObject> for Selectable {
+    fn from(object: SelectObject) -> Self {
+        match object {
+            SelectObject::Agents => Selectable::Agents,
+            SelectObject::Skills => Selectable::Skills,
+        }
+    }
 }
 
 pub fn run(cmd: ConfigCommand) -> Result<(), AppError> {
     match cmd {
         ConfigCommand::Deploy { role, overwrite } => crate::config_deploy(role, overwrite),
+        ConfigCommand::Select { object } => crate::config_select(object.into()),
     }
 }

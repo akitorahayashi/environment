@@ -20,6 +20,7 @@ Cross-platform behavior is not assumed unless an owning file or role declares it
 | Identity owner | src/identity/ | identity model, storage contract, git config contract, integrations |
 | Backup owner | src/backup/ | backup component model and backup integrations |
 | Update owner | src/update/ | update contract and install script integration |
+| Coder owner | src/coder/ | AGENTS.md section and skills catalog, selection manifest, intermediate-entity build |
 | Shared kernel | src/host_fs/ | reusable filesystem contract and std implementation |
 | Shared kernel | src/error.rs | crate-wide typed errors |
 | Assets | src/assets/ | Source-of-truth embedded static resources |
@@ -29,12 +30,13 @@ Cross-platform behavior is not assumed unless an owning file or role declares it
 ## App structure
 
 - `src/app/context.rs` wires owner contracts to concrete integrations.
-- `src/app/provisioning/`, `src/app/identity/`, `src/app/backup/`, `src/app/update/`, and `src/app/internal/` contain use-case orchestration families.
+- `src/app/provisioning/`, `src/app/identity/`, `src/app/backup/`, `src/app/update/`, `src/app/coder/`, and `src/app/internal/` contain use-case orchestration families.
 
 ## Owner structure
 
 - Each owner module (e.g., `src/provisioning/`, `src/identity/`) contains its own contracts and concrete implementations.
 - Provisioning contracts are split by ownership (`catalog`, `runner`, `role_configs`) instead of a single mixed interface.
+- The coder owner shares a catalog and selection manifest across AGENTS.md sections and skills, splitting only the intermediate-entity build (`agents_build`, `skills_build`).
 
 ## Docs
 

@@ -30,7 +30,7 @@ alias cdx-r="codex resume"
 alias cpt="copilot"
 alias cpt-ln=cpt_ln
 cpt_ln() {
-	local source_path="${MEV_CODER_AGENTS_PATH:-$HOME/.config/mev/roles/coder/global/AGENTS.md}"
+	local source_path="${MEV_CODER_AGENTS_PATH:-$HOME/.config/mev/coder/AGENTS.md}"
 
 	if [ ! -e "$source_path" ]; then
 		echo "Missing Copilot instructions source: $source_path" >&2

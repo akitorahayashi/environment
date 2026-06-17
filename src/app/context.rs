@@ -52,8 +52,12 @@ impl AppContext {
         })
     }
 
-    /// Construct a lightweight identity-only context.
-    pub fn for_identity() -> Result<Self, Box<dyn std::error::Error>> {
+    /// Construct a lightweight context without ansible assets.
+    ///
+    /// Serves use cases that touch only the home directory and host filesystem
+    /// (identity configuration, coder selection), where provisioning assets are
+    /// not needed.
+    pub fn local() -> Result<Self, Box<dyn std::error::Error>> {
         let home_dir = config_dir::home()?;
         let local_config_root = config_dir::roles_root(&home_dir);
 

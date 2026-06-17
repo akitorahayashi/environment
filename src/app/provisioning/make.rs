@@ -53,6 +53,11 @@ pub fn execute(
         overwrite,
     )?;
 
+    // Materialize coder intermediate entities before the coder role symlinks them.
+    if config_tags.iter().any(|tag| ctx.provisioning.role_for_tag(tag) == Some("coder")) {
+        crate::app::coder::materialize::execute(ctx)?;
+    }
+
     println!("Running tags: {}", plan.tags.join(", "));
     if !plan.tap_tokens.is_empty() {
         println!("Required taps: {}", plan.tap_tokens.join(", "));
