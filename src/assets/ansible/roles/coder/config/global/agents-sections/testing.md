@@ -1,4 +1,4 @@
-### Testing
+## Testing
 
 - Tests assert externally observable behavior at the owning boundary.
 - A behavior is part of the test contract only when the boundary explicitly owns it.

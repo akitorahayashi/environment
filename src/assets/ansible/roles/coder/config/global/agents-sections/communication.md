@@ -1,4 +1,4 @@
-### Communication
+## Communication
 
 - Base responses on repository context. Research is mandatory at conversation start.
 - Prefer concise, well-structured replies over verbose responses.
@@ -8,7 +8,7 @@
 - Critique includes a concrete replacement (patch, rewritten text, command, or decision) in the same message.
 - Do not consider or comment on issues that have already been resolved.
 
-### Safety
+## Safety
 
 - Commands that discard uncommitted changes (for example `git checkout -- <path>`, `git restore`, `git reset`) are only run after explicit user approval.
 
