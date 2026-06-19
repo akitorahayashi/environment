@@ -1,15 +1,20 @@
 # Default model to use
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_provider = "openai"
 model_reasoning_effort = "medium"
 
-# Approval policy for executing commands
+# Approval policy for executing commands, Options: "on-request"
 approval_policy = "on-request"
 
 # Options: "read-only", "workspace-write", "danger-full-access"
-sandbox_mode = "danger-full-access"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = true
 
 [tui]
+notifications = false
+show_tooltips = false
 status_line = [
   "model-with-reasoning",
   "context-remaining",
