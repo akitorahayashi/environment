@@ -11,6 +11,7 @@
 ## Safety
 
 - Commands that discard uncommitted changes (for example `git checkout -- <path>`, `git restore`, `git reset`) are only run after explicit user approval.
+- A request to create a branch, commit, push, or perform any other Git write operation applies only to the current requested change and never becomes a standing instruction for later changes.
 
 ## User-specific
 
