@@ -1,19 +1,19 @@
-//! GitHub CLI adapter.
+//! gh CLI execution.
 
 use std::process::Command;
 
-use crate::adapters::process;
-use crate::domain::DomainError;
-use crate::domain::label_catalog::LabelSpec;
-use crate::domain::repository_ref::RepositoryRef;
+use crate::error::VcsError;
+use crate::gh::catalog::LabelSpec;
+use crate::git::repo_ref::RepositoryRef;
+use crate::process;
 
 #[derive(Default)]
-pub struct GhAdapter {
+pub struct Gh {
     pub mock_env_path: Option<String>,
 }
 
-impl GhAdapter {
-    pub fn list_label_names(&self, repo: &RepositoryRef) -> Result<Vec<String>, DomainError> {
+impl Gh {
+    pub fn list_label_names(&self, repo: &RepositoryRef) -> Result<Vec<String>, VcsError> {
         let output = process::run_output(
             self.build_gh_command(
                 &["label", "list", "--limit", "9999", "--json", "name", "--jq", ".[].name"],
@@ -30,14 +30,14 @@ impl GhAdapter {
             .collect())
     }
 
-    pub fn delete_label(&self, repo: &RepositoryRef, label_name: &str) -> Result<(), DomainError> {
+    pub fn delete_label(&self, repo: &RepositoryRef, label_name: &str) -> Result<(), VcsError> {
         process::run_status(
             self.build_gh_command(&["label", "delete", label_name, "--yes"], repo),
             &format!("gh label delete {label_name} --repo {}", repo.as_gh_repo_arg()),
         )
     }
 
-    pub fn create_label(&self, repo: &RepositoryRef, label: &LabelSpec) -> Result<(), DomainError> {
+    pub fn create_label(&self, repo: &RepositoryRef, label: &LabelSpec) -> Result<(), VcsError> {
         process::run_status(
             self.build_gh_command(
                 &[
@@ -93,8 +93,8 @@ mod tests {
         )?;
 
         let repo = RepositoryRef::from_repo_arg("owner/repo")?;
-        let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
-        let labels = adapter.list_label_names(&repo)?;
+        let gh = Gh { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
+        let labels = gh.list_label_names(&repo)?;
         assert_eq!(labels, vec!["bug", "feature", "help wanted"]);
         Ok(())
     }
@@ -122,8 +122,8 @@ mod tests {
             color: "d73a4a".to_string(),
         };
 
-        let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
-        adapter.create_label(&repo, &label)?;
+        let gh = Gh { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
+        gh.create_label(&repo, &label)?;
 
         let executed_args = fs::read_to_string(args_file)?;
         assert_eq!(
@@ -150,8 +150,8 @@ mod tests {
         )?;
 
         let repo = RepositoryRef::from_repo_arg("owner/repo")?;
-        let adapter = GhAdapter { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
-        adapter.delete_label(&repo, "bug")?;
+        let gh = Gh { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
+        gh.delete_label(&repo, "bug")?;
 
         let executed_args = fs::read_to_string(args_file)?;
         assert_eq!(executed_args.trim(), "label delete bug --yes --repo owner/repo");

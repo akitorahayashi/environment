@@ -1,4 +1,6 @@
-//! GitHub repository reference normalization.
+//! Repository reference normalization and resolution.
+
+use crate::error::VcsError;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RepositoryRef {
@@ -7,21 +9,19 @@ pub struct RepositoryRef {
     name: String,
 }
 
-use crate::domain::DomainError;
-
 impl RepositoryRef {
-    pub fn from_repo_arg(input: &str) -> Result<Self, DomainError> {
+    pub fn from_repo_arg(input: &str) -> Result<Self, VcsError> {
         let parts = input.split('/').collect::<Vec<_>>();
         match parts.as_slice() {
             [owner, name] => Self::new(None, owner, name),
             [host, owner, name] => Self::new(Some(*host), owner, name),
-            _ => Err(DomainError::InvalidRepositoryRef(format!(
+            _ => Err(VcsError::InvalidRepositoryRef(format!(
                 "invalid repository reference '{input}'"
             ))),
         }
     }
 
-    pub fn from_remote_url(input: &str) -> Result<Self, DomainError> {
+    pub fn from_remote_url(input: &str) -> Result<Self, VcsError> {
         if let Some(rest) = input.strip_prefix("git@") {
             return parse_scp_like_remote(rest);
         }
@@ -38,7 +38,7 @@ impl RepositoryRef {
             return parse_https_remote(rest);
         }
 
-        Err(DomainError::UnsupportedRemoteUrl(input.to_owned()))
+        Err(VcsError::UnsupportedRemoteUrl(input.to_owned()))
     }
 
     pub fn as_gh_repo_arg(&self) -> String {
@@ -48,9 +48,9 @@ impl RepositoryRef {
         }
     }
 
-    fn new(host: Option<&str>, owner: &str, name: &str) -> Result<Self, DomainError> {
+    fn new(host: Option<&str>, owner: &str, name: &str) -> Result<Self, VcsError> {
         if owner.is_empty() || name.is_empty() {
-            return Err(DomainError::InvalidRepositoryRef(
+            return Err(VcsError::InvalidRepositoryRef(
                 "repository owner and name must not be empty".into(),
             ));
         }
@@ -63,36 +63,56 @@ impl RepositoryRef {
     }
 }
 
-fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) = input.split_once(':').ok_or_else(|| {
-        DomainError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'"))
-    })?;
+/// Determine the repository to operate on based on explicit input or ambient environment.
+/// Fails with `VcsError::MissingRepository` if no explicit repo is provided and no origin remote is configured.
+pub fn resolve(
+    explicit_repo: Option<&str>,
+    origin_url: Option<&str>,
+) -> Result<RepositoryRef, VcsError> {
+    if let Some(explicit_repo) = explicit_repo {
+        return RepositoryRef::from_repo_arg(explicit_repo);
+    }
+
+    if let Some(origin_url) = origin_url {
+        return RepositoryRef::from_remote_url(origin_url);
+    }
+
+    Err(VcsError::MissingRepository(
+        "could not determine repository: pass --repo or run inside a git repository with origin"
+            .into(),
+    ))
+}
+
+fn parse_scp_like_remote(input: &str) -> Result<RepositoryRef, VcsError> {
+    let (host, path) = input
+        .split_once(':')
+        .ok_or_else(|| VcsError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'")))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) = input.split_once('/').ok_or_else(|| {
-        DomainError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'"))
-    })?;
+fn parse_ssh_remote(input: &str) -> Result<RepositoryRef, VcsError> {
+    let (host, path) = input
+        .split_once('/')
+        .ok_or_else(|| VcsError::InvalidRepositoryRef(format!("invalid ssh remote '{input}'")))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn parse_https_remote(input: &str) -> Result<RepositoryRef, DomainError> {
-    let (host, path) = input.split_once('/').ok_or_else(|| {
-        DomainError::InvalidRepositoryRef(format!("invalid https remote '{input}'"))
-    })?;
+fn parse_https_remote(input: &str) -> Result<RepositoryRef, VcsError> {
+    let (host, path) = input
+        .split_once('/')
+        .ok_or_else(|| VcsError::InvalidRepositoryRef(format!("invalid https remote '{input}'")))?;
     let (owner, name) = split_owner_name(path)?;
     RepositoryRef::new(Some(host), owner, name)
 }
 
-fn split_owner_name(path: &str) -> Result<(&str, &str), DomainError> {
+fn split_owner_name(path: &str) -> Result<(&str, &str), VcsError> {
     let trimmed = path.trim_start_matches('/');
     let parts = trimmed.split('/').collect::<Vec<_>>();
     match parts.as_slice() {
         [owner, name] => Ok((owner, name)),
-        _ => Err(DomainError::InvalidRepositoryRef(format!("invalid repository path '{path}'"))),
+        _ => Err(VcsError::InvalidRepositoryRef(format!("invalid repository path '{path}'"))),
     }
 }
 
@@ -203,5 +223,31 @@ mod tests {
                 "from_remote_url should fail for '{input}'"
             );
         }
+    }
+
+    #[test]
+    fn resolve_prefers_explicit_repo() {
+        let repo = resolve(Some("owner/repo"), Some("https://github.com/other/repo.git"))
+            .expect("explicit repo should win");
+        assert_eq!(repo.as_gh_repo_arg(), "owner/repo");
+    }
+
+    #[test]
+    fn resolve_falls_back_to_origin_url() {
+        let repo = resolve(None, Some("git@github.com:owner/repo.git"))
+            .expect("origin url should resolve");
+        assert_eq!(repo.as_gh_repo_arg(), "github.com/owner/repo");
+    }
+
+    #[test]
+    fn resolve_fails_when_both_none() {
+        assert!(resolve(None, None).is_err());
+    }
+
+    #[test]
+    fn resolve_explicit_repo_only() {
+        let repo =
+            resolve(Some("owner/repo"), None).expect("explicit repo without origin should win");
+        assert_eq!(repo.as_gh_repo_arg(), "owner/repo");
     }
 }

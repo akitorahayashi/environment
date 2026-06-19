@@ -1,19 +1,19 @@
-//! Git CLI adapter.
+//! git CLI execution.
 
 use std::fs;
 use std::process::Command;
 
-use crate::adapters::process;
-use crate::domain::DomainError;
+use crate::error::VcsError;
+use crate::process;
 
 #[derive(Default)]
-pub struct GitAdapter {
+pub struct Git {
     pub mock_env_path: Option<String>,
     pub current_dir: Option<std::path::PathBuf>,
 }
 
-impl GitAdapter {
-    pub fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), DomainError> {
+impl Git {
+    pub fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), VcsError> {
         process::run_status(
             self.git_command(["submodule", "deinit", "-f", submodule_path]),
             &format!("git submodule deinit -f {submodule_path}"),
@@ -27,7 +27,7 @@ impl GitAdapter {
         Ok(())
     }
 
-    pub fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), DomainError> {
+    pub fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), VcsError> {
         let current_dir = match &self.current_dir {
             Some(dir) => dir.clone(),
             None => std::env::current_dir()?,
@@ -39,7 +39,7 @@ impl GitAdapter {
         Ok(())
     }
 
-    pub fn remove_submodule_config_section(&self, submodule_path: &str) -> Result<(), DomainError> {
+    pub fn remove_submodule_config_section(&self, submodule_path: &str) -> Result<(), VcsError> {
         let output = process::run_output(
             self.git_command([
                 "config",
@@ -56,7 +56,7 @@ impl GitAdapter {
         }
     }
 
-    pub fn current_origin_url(&self) -> Result<String, DomainError> {
+    pub fn current_origin_url(&self) -> Result<String, VcsError> {
         let output = process::run_output(
             self.git_command(["remote", "get-url", "origin"]),
             "git remote get-url origin",
@@ -106,12 +106,12 @@ mod tests {
             "#,
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        let url = adapter.current_origin_url()?;
+        let url = git.current_origin_url()?;
         assert_eq!(url, "git@github.com:owner/repo.git");
         Ok(())
     }
@@ -128,12 +128,12 @@ mod tests {
             "#,
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        adapter.remove_submodule_config_section("test-submodule")?;
+        git.remove_submodule_config_section("test-submodule")?;
         Ok(())
     }
 
@@ -151,12 +151,12 @@ mod tests {
             "#,
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        adapter.remove_submodule_config_section("test-submodule")?;
+        git.remove_submodule_config_section("test-submodule")?;
         Ok(())
     }
 
@@ -169,10 +169,9 @@ mod tests {
         fs::create_dir_all(&modules_dir)?;
         assert!(modules_dir.exists());
 
-        let adapter =
-            GitAdapter { current_dir: Some(temp_dir.path().to_path_buf()), ..Default::default() };
+        let git = Git { current_dir: Some(temp_dir.path().to_path_buf()), ..Default::default() };
 
-        adapter.remove_submodule_module_dir("test-submodule")?;
+        git.remove_submodule_module_dir("test-submodule")?;
         assert!(!modules_dir.exists());
         Ok(())
     }
@@ -194,12 +193,12 @@ mod tests {
             ),
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        adapter.delete_submodule_worktree("test-submodule")?;
+        git.delete_submodule_worktree("test-submodule")?;
 
         let executed_args = fs::read_to_string(args_file)?;
         let mut lines = executed_args.lines();
