@@ -49,17 +49,20 @@ impl RepositoryRef {
     }
 
     fn new(host: Option<&str>, owner: &str, name: &str) -> Result<Self, VcsError> {
+        let host = host.map(ToOwned::to_owned);
+        let owner = owner.to_owned();
+        let name = name.trim_end_matches(".git").to_owned();
+
         if owner.is_empty() || name.is_empty() {
             return Err(VcsError::InvalidRepositoryRef(
                 "repository owner and name must not be empty".into(),
             ));
         }
+        if host.as_deref().is_some_and(str::is_empty) {
+            return Err(VcsError::InvalidRepositoryRef("repository host must not be empty".into()));
+        }
 
-        Ok(Self {
-            host: host.map(ToOwned::to_owned),
-            owner: owner.to_owned(),
-            name: name.trim_end_matches(".git").to_owned(),
-        })
+        Ok(Self { host, owner, name })
     }
 }
 
@@ -201,6 +204,16 @@ mod tests {
                 "from_repo_arg should fail for '{input}'"
             );
         }
+    }
+
+    #[test]
+    fn from_repo_arg_fails_on_name_that_is_only_git_suffix() {
+        assert!(RepositoryRef::from_repo_arg("owner/.git").is_err());
+    }
+
+    #[test]
+    fn from_remote_url_fails_on_name_that_is_only_git_suffix() {
+        assert!(RepositoryRef::from_remote_url("https://github.com/owner/.git").is_err());
     }
 
     #[test]

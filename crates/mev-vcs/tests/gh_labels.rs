@@ -26,5 +26,6 @@ fn deploy_labels_creates_bundled_labels_on_explicit_repo() -> Result<(), Box<dyn
     let log_content = fs::read_to_string(gh_log)?;
     assert!(log_content.contains("label list"));
     assert!(log_content.contains("label create C-bugs"));
+    assert!(log_content.contains("--repo owner/repo"));
     Ok(())
 }

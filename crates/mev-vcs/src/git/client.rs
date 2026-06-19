@@ -13,7 +13,7 @@ pub struct Git {
 }
 
 impl Git {
-    pub fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), VcsError> {
+    pub(super) fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), VcsError> {
         process::run_status(
             self.git_command(["submodule", "deinit", "-f", submodule_path]),
             &format!("git submodule deinit -f {submodule_path}"),
@@ -27,7 +27,7 @@ impl Git {
         Ok(())
     }
 
-    pub fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), VcsError> {
+    pub(super) fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), VcsError> {
         let current_dir = match &self.current_dir {
             Some(dir) => dir.clone(),
             None => std::env::current_dir()?,
@@ -39,7 +39,10 @@ impl Git {
         Ok(())
     }
 
-    pub fn remove_submodule_config_section(&self, submodule_path: &str) -> Result<(), VcsError> {
+    pub(super) fn remove_submodule_config_section(
+        &self,
+        submodule_path: &str,
+    ) -> Result<(), VcsError> {
         let output = process::run_output(
             self.git_command([
                 "config",
@@ -62,6 +65,10 @@ impl Git {
             "git remote get-url origin",
         )?;
         Ok(String::from_utf8(output.stdout)?.trim().to_owned())
+    }
+
+    pub fn clone(&self, url: &str) -> Result<(), VcsError> {
+        process::run_status(self.git_command(["clone", url]), &format!("git clone {url}"))
     }
 
     fn git_command<const N: usize, S>(&self, args: [S; N]) -> Command
@@ -207,6 +214,34 @@ mod tests {
             "submodule deinit -f test-submodule"
         );
         assert_eq!(lines.next().ok_or("missing second line")?.trim(), "rm -f -r test-submodule");
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn clone_executes_git_clone_with_url() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
+        let args_file = temp_dir.path().join("args.txt");
+        let bin_path = env_mock::create_mock_bin(
+            "git",
+            &temp_dir,
+            &format!(
+                r#"#!/bin/sh
+                echo "$@" >> "{}"
+                "#,
+                args_file.display()
+            ),
+        )?;
+
+        let git = Git {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            ..Default::default()
+        };
+
+        git.clone("git@github.com:owner/repo.git")?;
+
+        let executed_args = fs::read_to_string(args_file)?;
+        assert_eq!(executed_args.trim(), "clone git@github.com:owner/repo.git");
         Ok(())
     }
 }

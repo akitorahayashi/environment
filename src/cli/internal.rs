@@ -16,8 +16,18 @@ pub enum InternalCommand {
 
 #[derive(Subcommand)]
 pub enum GitCommand {
+    /// Clone one or more repositories sequentially.
+    Clone(CloneArgs),
+
     /// Delete a git submodule completely.
     DeleteSubmodule(DeleteSubmoduleArgs),
+}
+
+#[derive(Args)]
+pub struct CloneArgs {
+    /// Repository URLs to clone in order.
+    #[arg(required = true)]
+    pub urls: Vec<String>,
 }
 
 #[derive(Args)]
@@ -51,6 +61,9 @@ pub struct LabelsArgs {
 
 pub fn run(command: InternalCommand) -> Result<(), AppError> {
     let result = match command {
+        InternalCommand::Git(GitCommand::Clone(args)) => {
+            mev_vcs::git::clone_repositories(&args.urls)
+        }
         InternalCommand::Git(GitCommand::DeleteSubmodule(args)) => {
             mev_vcs::git::delete_submodule(&args.submodule_path)
         }
@@ -81,6 +94,7 @@ mod tests {
         let cases: &[&[&str]] = &[
             &["internal", "gh", "labels", "deploy", "--help"],
             &["internal", "gh", "labels", "reset", "--help"],
+            &["internal", "git", "clone", "--help"],
             &["internal", "git", "delete-submodule", "--help"],
         ];
 

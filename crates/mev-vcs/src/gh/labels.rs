@@ -16,13 +16,12 @@ pub fn deploy(repo: Option<&str>) -> Result<(), VcsError> {
 
     for spec in label_specs {
         if existing_names.iter().any(|name| name == &spec.name) {
-            println!("Replacing label {} in {}...", spec.name, target.as_gh_repo_arg());
-            gh.delete_label(&target, &spec.name)?;
+            println!("Updating label {} in {}...", spec.name, target.as_gh_repo_arg());
+            gh.edit_label(&target, &spec)?;
         } else {
             println!("Creating label {} in {}...", spec.name, target.as_gh_repo_arg());
+            gh.create_label(&target, &spec)?;
         }
-
-        gh.create_label(&target, &spec)?;
     }
 
     println!("Deployed bundled labels to {}.", target.as_gh_repo_arg());
@@ -150,8 +149,9 @@ mod tests {
         deploy(Some("owner/repo"))?;
 
         let gh_cmds = fs::read_to_string(&test_env.gh_args_path)?;
-        assert!(gh_cmds.contains("label delete C-bugs"));
-        assert!(gh_cmds.contains("label create C-bugs"));
+        assert!(gh_cmds.contains("label edit C-bugs"));
+        assert!(!gh_cmds.contains("label delete C-bugs"));
+        assert!(!gh_cmds.contains("label create C-bugs"));
 
         Ok(())
     }

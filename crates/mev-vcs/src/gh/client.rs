@@ -30,6 +30,24 @@ impl Gh {
             .collect())
     }
 
+    pub fn edit_label(&self, repo: &RepositoryRef, label: &LabelSpec) -> Result<(), VcsError> {
+        process::run_status(
+            self.build_gh_command(
+                &[
+                    "label",
+                    "edit",
+                    &label.name,
+                    "--description",
+                    &label.description,
+                    "--color",
+                    &label.color,
+                ],
+                repo,
+            ),
+            &format!("gh label edit {} --repo {}", label.name, repo.as_gh_repo_arg()),
+        )
+    }
+
     pub fn delete_label(&self, repo: &RepositoryRef, label_name: &str) -> Result<(), VcsError> {
         process::run_status(
             self.build_gh_command(&["label", "delete", label_name, "--yes"], repo),
@@ -129,6 +147,40 @@ mod tests {
         assert_eq!(
             executed_args.trim(),
             "label create bug --description Something isn't working --color d73a4a --repo owner/repo"
+        );
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn edit_label_executes_correct_command() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
+        let args_file = temp_dir.path().join("args.txt");
+        let bin_path = env_mock::create_mock_bin(
+            "gh",
+            &temp_dir,
+            &format!(
+                r#"#!/bin/sh
+                echo "$@" > "{}"
+                "#,
+                args_file.display()
+            ),
+        )?;
+
+        let repo = RepositoryRef::from_repo_arg("owner/repo")?;
+        let label = LabelSpec {
+            name: "bug".to_string(),
+            description: "Something isn't working".to_string(),
+            color: "d73a4a".to_string(),
+        };
+
+        let gh = Gh { mock_env_path: Some(bin_path.to_string_lossy().to_string()) };
+        gh.edit_label(&repo, &label)?;
+
+        let executed_args = fs::read_to_string(args_file)?;
+        assert_eq!(
+            executed_args.trim(),
+            "label edit bug --description Something isn't working --color d73a4a --repo owner/repo"
         );
         Ok(())
     }
