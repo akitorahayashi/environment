@@ -3,7 +3,7 @@
 
 [alias]
     ini = init
-    cl = !mev internal git clone
+    cl = clone
     rf-cl = !mkdir -p references && echo '*' > references/.gitignore && git -C references clone
 
     co = checkout

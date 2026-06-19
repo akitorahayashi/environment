@@ -25,13 +25,12 @@ Cross-platform behavior is not assumed unless an owning file or role declares it
 | Shared kernel | src/error.rs | crate-wide typed errors |
 | Assets | src/assets/ | Source-of-truth embedded static resources |
 | Test support | src/test_support/ | In-process test doubles reused across owners |
-| Internal dep | crates/mev-vcs/ | git/gh tool-boundary command implementations reused by mev |
+| Internal dep | crates/mev-internal/ | Internal command domain implementations reused by mev |
 
 ## App structure
 
 - `src/app/context.rs` wires owner contracts to concrete integrations.
-- `src/app/provisioning/`, `src/app/identity/`, `src/app/backup/`, `src/app/update/`, and `src/app/coder/` contain use-case orchestration families.
-- `src/cli/internal.rs` owns the `mev internal ...` clap shape and dispatches directly to `mev-vcs` without an `src/app/` orchestration layer.
+- `src/app/provisioning/`, `src/app/identity/`, `src/app/backup/`, `src/app/update/`, `src/app/coder/`, and `src/app/internal/` contain use-case orchestration families.
 
 ## Owner structure
 

@@ -1,9 +1,9 @@
 //! Bundled GitHub label catalog.
 
-use crate::error::VcsError;
+use crate::domain::DomainError;
 use serde::Deserialize;
 
-const LABELS_JSON: &str = include_str!("labels.json");
+const LABELS_JSON: &str = include_str!("../assets/gh/labels.json");
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub struct LabelSpec {
@@ -12,7 +12,7 @@ pub struct LabelSpec {
     pub color: String,
 }
 
-pub fn load_bundled_labels() -> Result<Vec<LabelSpec>, VcsError> {
+pub fn load_bundled_labels() -> Result<Vec<LabelSpec>, DomainError> {
     Ok(serde_json::from_str(LABELS_JSON)?)
 }
 

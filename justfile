@@ -8,7 +8,7 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set dotenv-load := true
 
-mod internal "crates/mev-vcs/justfile"
+mod internal "crates/mev-internal/justfile"
 
 # Show available recipes
 default: help

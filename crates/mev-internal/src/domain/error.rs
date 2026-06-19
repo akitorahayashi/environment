@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum VcsError {
+pub enum DomainError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 

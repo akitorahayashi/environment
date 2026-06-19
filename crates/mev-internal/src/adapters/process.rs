@@ -1,32 +1,32 @@
-//! External command execution primitives shared by the git and gh tool boundaries.
+//! Process execution adapter.
 
-use crate::error::VcsError;
+use crate::domain::DomainError;
 use std::process::{Command, Output};
 
-pub fn run_status(mut command: Command, description: &str) -> Result<(), VcsError> {
+pub fn run_status(mut command: Command, description: &str) -> Result<(), DomainError> {
     let status = command
         .status()
-        .map_err(|source| VcsError::CommandExecution(description.to_string(), source))?;
+        .map_err(|source| DomainError::CommandExecution(description.to_string(), source))?;
     if status.success() {
         return Ok(());
     }
 
-    Err(VcsError::ProcessFailed(format!(
+    Err(DomainError::ProcessFailed(format!(
         "{description} exited with code {}",
         status.code().unwrap_or(1)
     )))
 }
 
-pub fn run_output(mut command: Command, description: &str) -> Result<Output, VcsError> {
+pub fn run_output(mut command: Command, description: &str) -> Result<Output, DomainError> {
     let output = command
         .output()
-        .map_err(|source| VcsError::CommandExecution(description.to_string(), source))?;
+        .map_err(|source| DomainError::CommandExecution(description.to_string(), source))?;
     if output.status.success() {
         return Ok(output);
     }
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    Err(VcsError::ProcessFailed(format!("{description} failed: {}", stderr.trim())))
+    Err(DomainError::ProcessFailed(format!("{description} failed: {}", stderr.trim())))
 }
 
 #[cfg(test)]
@@ -72,7 +72,7 @@ mod tests {
         let error = run_status(command, "missing command").expect_err("expected error");
 
         match error {
-            VcsError::CommandExecution(description, source) => {
+            crate::domain::DomainError::CommandExecution(description, source) => {
                 assert_eq!(description, "missing command");
                 assert_eq!(source.kind(), std::io::ErrorKind::NotFound);
             }
@@ -86,7 +86,7 @@ mod tests {
         let error = run_output(command, "missing command").expect_err("expected error");
 
         match error {
-            VcsError::CommandExecution(description, source) => {
+            crate::domain::DomainError::CommandExecution(description, source) => {
                 assert_eq!(description, "missing command");
                 assert_eq!(source.kind(), std::io::ErrorKind::NotFound);
             }

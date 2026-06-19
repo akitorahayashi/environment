@@ -22,7 +22,7 @@
 | Shared kernel | `src/error.rs` | Typed application error model |
 | Static source content | `src/assets/` | Source-of-truth Ansible playbooks and roles |
 | Test support | `src/test_support/` | Crate-wide in-process test doubles |
-| Internal dep | `crates/mev-vcs/` | git/gh tool-boundary command implementations reused by `mev` |
+| Internal dep | `crates/mev-internal/` | Internal command implementations reused by `mev` |
 | Release assets | `GitHub Releases` | `mev-darwin-aarch64` binary distribution |
 
 ## Package Structure
@@ -92,7 +92,7 @@ src/
 	└── host_fs.rs
 
 crates/
-└── mev-vcs/                # git/gh tool-boundary command implementations
+└── mev-internal/           # Internal command implementations (git, gh)
 
 tests/
 ├── harness/                # Shared fixtures (TestContext)
