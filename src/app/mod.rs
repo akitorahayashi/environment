@@ -2,7 +2,6 @@ pub mod backup;
 pub mod coder;
 pub mod context;
 pub mod identity;
-pub mod internal;
 pub mod provisioning;
 pub mod update;
 

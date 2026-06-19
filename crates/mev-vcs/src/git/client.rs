@@ -1,19 +1,19 @@
-//! Git CLI adapter.
+//! git CLI execution.
 
 use std::fs;
 use std::process::Command;
 
-use crate::adapters::process;
-use crate::domain::DomainError;
+use crate::error::VcsError;
+use crate::process;
 
 #[derive(Default)]
-pub struct GitAdapter {
+pub struct Git {
     pub mock_env_path: Option<String>,
     pub current_dir: Option<std::path::PathBuf>,
 }
 
-impl GitAdapter {
-    pub fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), DomainError> {
+impl Git {
+    pub(super) fn delete_submodule_worktree(&self, submodule_path: &str) -> Result<(), VcsError> {
         process::run_status(
             self.git_command(["submodule", "deinit", "-f", submodule_path]),
             &format!("git submodule deinit -f {submodule_path}"),
@@ -27,19 +27,39 @@ impl GitAdapter {
         Ok(())
     }
 
-    pub fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), DomainError> {
-        let current_dir = match &self.current_dir {
-            Some(dir) => dir.clone(),
-            None => std::env::current_dir()?,
-        };
-        let modules_path = current_dir.join(".git").join("modules").join(submodule_path);
+    pub(super) fn remove_submodule_module_dir(&self, submodule_path: &str) -> Result<(), VcsError> {
+        let git_dir = self.resolve_git_dir()?;
+        let modules_path = git_dir.join("modules").join(submodule_path);
         if modules_path.exists() {
             fs::remove_dir_all(&modules_path)?;
         }
         Ok(())
     }
 
-    pub fn remove_submodule_config_section(&self, submodule_path: &str) -> Result<(), DomainError> {
+    /// Resolve the repository's git directory via `git rev-parse --git-dir`, so
+    /// submodule cleanup works from subdirectories and inside worktrees (where
+    /// `.git` is a file rather than a directory). The returned path is absolute
+    /// relative to the configured working directory.
+    fn resolve_git_dir(&self) -> Result<std::path::PathBuf, VcsError> {
+        let output = process::run_output(
+            self.git_command(["rev-parse", "--git-dir"]),
+            "git rev-parse --git-dir",
+        )?;
+        let git_dir = std::path::PathBuf::from(String::from_utf8(output.stdout)?.trim());
+        if git_dir.is_absolute() {
+            return Ok(git_dir);
+        }
+        let base = match &self.current_dir {
+            Some(dir) => dir.clone(),
+            None => std::env::current_dir()?,
+        };
+        Ok(base.join(git_dir))
+    }
+
+    pub(super) fn remove_submodule_config_section(
+        &self,
+        submodule_path: &str,
+    ) -> Result<(), VcsError> {
         let output = process::run_output(
             self.git_command([
                 "config",
@@ -56,7 +76,7 @@ impl GitAdapter {
         }
     }
 
-    pub fn current_origin_url(&self) -> Result<String, DomainError> {
+    pub fn current_origin_url(&self) -> Result<String, VcsError> {
         let output = process::run_output(
             self.git_command(["remote", "get-url", "origin"]),
             "git remote get-url origin",
@@ -64,8 +84,16 @@ impl GitAdapter {
         Ok(String::from_utf8(output.stdout)?.trim().to_owned())
     }
 
-    fn git_command<const N: usize, S>(&self, args: [S; N]) -> Command
+    pub fn clone(&self, flags: &[String], url: &str) -> Result<(), VcsError> {
+        let mut args = vec!["clone".to_owned()];
+        args.extend(flags.iter().cloned());
+        args.push(url.to_owned());
+        process::run_status(self.git_command(&args), &format!("git {}", args.join(" ")))
+    }
+
+    fn git_command<I, S>(&self, args: I) -> Command
     where
+        I: IntoIterator<Item = S>,
         S: AsRef<std::ffi::OsStr>,
     {
         let mut command = Command::new("git");
@@ -106,12 +134,12 @@ mod tests {
             "#,
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        let url = adapter.current_origin_url()?;
+        let url = git.current_origin_url()?;
         assert_eq!(url, "git@github.com:owner/repo.git");
         Ok(())
     }
@@ -128,12 +156,12 @@ mod tests {
             "#,
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        adapter.remove_submodule_config_section("test-submodule")?;
+        git.remove_submodule_config_section("test-submodule")?;
         Ok(())
     }
 
@@ -151,12 +179,12 @@ mod tests {
             "#,
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        adapter.remove_submodule_config_section("test-submodule")?;
+        git.remove_submodule_config_section("test-submodule")?;
         Ok(())
     }
 
@@ -164,15 +192,26 @@ mod tests {
     #[serial]
     fn remove_submodule_module_dir_removes_directory() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
+        // `git rev-parse --git-dir` resolves the git directory; the mock reports
+        // the conventional relative `.git`, joined onto the configured dir.
+        let bin_path = env_mock::create_mock_bin(
+            "git",
+            &temp_dir,
+            r#"#!/bin/sh
+            echo ".git"
+            "#,
+        )?;
 
         let modules_dir = temp_dir.path().join(".git").join("modules").join("test-submodule");
         fs::create_dir_all(&modules_dir)?;
         assert!(modules_dir.exists());
 
-        let adapter =
-            GitAdapter { current_dir: Some(temp_dir.path().to_path_buf()), ..Default::default() };
+        let git = Git {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            current_dir: Some(temp_dir.path().to_path_buf()),
+        };
 
-        adapter.remove_submodule_module_dir("test-submodule")?;
+        git.remove_submodule_module_dir("test-submodule")?;
         assert!(!modules_dir.exists());
         Ok(())
     }
@@ -194,12 +233,12 @@ mod tests {
             ),
         )?;
 
-        let adapter = GitAdapter {
+        let git = Git {
             mock_env_path: Some(bin_path.to_string_lossy().to_string()),
             ..Default::default()
         };
 
-        adapter.delete_submodule_worktree("test-submodule")?;
+        git.delete_submodule_worktree("test-submodule")?;
 
         let executed_args = fs::read_to_string(args_file)?;
         let mut lines = executed_args.lines();
@@ -208,6 +247,62 @@ mod tests {
             "submodule deinit -f test-submodule"
         );
         assert_eq!(lines.next().ok_or("missing second line")?.trim(), "rm -f -r test-submodule");
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn clone_executes_git_clone_with_url() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
+        let args_file = temp_dir.path().join("args.txt");
+        let bin_path = env_mock::create_mock_bin(
+            "git",
+            &temp_dir,
+            &format!(
+                r#"#!/bin/sh
+                echo "$@" >> "{}"
+                "#,
+                args_file.display()
+            ),
+        )?;
+
+        let git = Git {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            ..Default::default()
+        };
+
+        git.clone(&[], "git@github.com:owner/repo.git")?;
+
+        let executed_args = fs::read_to_string(args_file)?;
+        assert_eq!(executed_args.trim(), "clone git@github.com:owner/repo.git");
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn clone_passes_flags_before_url() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
+        let args_file = temp_dir.path().join("args.txt");
+        let bin_path = env_mock::create_mock_bin(
+            "git",
+            &temp_dir,
+            &format!(
+                r#"#!/bin/sh
+                echo "$@" >> "{}"
+                "#,
+                args_file.display()
+            ),
+        )?;
+
+        let git = Git {
+            mock_env_path: Some(bin_path.to_string_lossy().to_string()),
+            ..Default::default()
+        };
+
+        git.clone(&["--depth".to_string(), "1".to_string()], "git@github.com:owner/repo.git")?;
+
+        let executed_args = fs::read_to_string(args_file)?;
+        assert_eq!(executed_args.trim(), "clone --depth 1 git@github.com:owner/repo.git");
         Ok(())
     }
 }
