@@ -25,9 +25,10 @@ pub enum GitCommand {
 
 #[derive(Args)]
 pub struct CloneArgs {
-    /// Repository URLs to clone in order.
-    #[arg(required = true)]
-    pub urls: Vec<String>,
+    /// Repository URLs to clone in order, optionally mixed with `git clone` flags
+    /// (e.g. `--depth 1`) that are applied to every clone.
+    #[arg(required = true, trailing_var_arg = true, allow_hyphen_values = true)]
+    pub args: Vec<String>,
 }
 
 #[derive(Args)]
@@ -62,7 +63,7 @@ pub struct LabelsArgs {
 pub fn run(command: InternalCommand) -> Result<(), AppError> {
     let result = match command {
         InternalCommand::Git(GitCommand::Clone(args)) => {
-            mev_vcs::git::clone_repositories(&args.urls)
+            mev_vcs::git::clone_repositories(&args.args)
         }
         InternalCommand::Git(GitCommand::DeleteSubmodule(args)) => {
             mev_vcs::git::delete_submodule(&args.submodule_path)

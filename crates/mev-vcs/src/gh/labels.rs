@@ -15,7 +15,7 @@ pub fn deploy(repo: Option<&str>) -> Result<(), VcsError> {
     let label_specs = catalog::load_bundled_labels()?;
 
     for spec in label_specs {
-        if existing_names.iter().any(|name| name == &spec.name) {
+        if existing_names.iter().any(|name| name.eq_ignore_ascii_case(&spec.name)) {
             println!("Updating label {} in {}...", spec.name, target.as_gh_repo_arg());
             gh.edit_label(&target, &spec)?;
         } else {
