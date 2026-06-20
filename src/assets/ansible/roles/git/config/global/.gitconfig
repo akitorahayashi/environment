@@ -10,6 +10,7 @@
     co-m = checkout main
     b = branch
     br = branch
+    b-d = !mev internal git delete-branches
     cln = remote prune origin
     ft = fetch
 
