@@ -35,6 +35,7 @@ pub struct CloneArgs {
 }
 
 #[derive(Args)]
+#[command(dont_delimit_trailing_values = true)]
 pub struct DeleteBranchesArgs {
     /// Local branch names to delete, optionally followed by `-- <checkout-branch>`.
     #[arg(required = true, trailing_var_arg = true, allow_hyphen_values = true)]
@@ -101,6 +102,30 @@ mod tests {
     struct ProbeCli {
         #[command(subcommand)]
         command: InternalCommand,
+    }
+
+    #[test]
+    fn delete_branches_preserves_checkout_separator() {
+        let matches = ProbeCli::command()
+            .try_get_matches_from([
+                "internal",
+                "git",
+                "delete-branches",
+                "feature/a",
+                "--",
+                "develop",
+            ])
+            .unwrap();
+
+        let args = matches
+            .subcommand_matches("git")
+            .and_then(|matches| matches.subcommand_matches("delete-branches"))
+            .and_then(|matches| matches.get_many::<String>("args"))
+            .unwrap()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+
+        assert_eq!(args, ["feature/a", "--", "develop"]);
     }
 
     #[test]

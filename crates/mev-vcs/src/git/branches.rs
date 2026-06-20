@@ -12,6 +12,7 @@ const DEFAULT_CHECKOUT_BRANCH: &str = "main";
 /// before deletion. Without a separator, `main` is used.
 pub fn delete(tokens: &[String]) -> Result<(), VcsError> {
     let request = DeleteBranchesRequest::parse(tokens)?;
+    validate_checkout_branch_is_not_deleted(request.delete_branches, request.checkout_branch)?;
     let git = Git::default();
     git.checkout_branch(request.checkout_branch)?;
     git.pull()?;
@@ -66,6 +67,19 @@ impl<'a> DeleteBranchesRequest<'a> {
 
         Ok(Self { delete_branches: tokens, checkout_branch: DEFAULT_CHECKOUT_BRANCH })
     }
+}
+
+fn validate_checkout_branch_is_not_deleted(
+    delete_branches: &[String],
+    checkout_branch: &str,
+) -> Result<(), VcsError> {
+    if delete_branches.iter().any(|branch| branch == checkout_branch) {
+        return Err(VcsError::InvalidBranchDeletionArgs(format!(
+            "cannot delete the checkout branch '{checkout_branch}'"
+        )));
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -160,6 +174,34 @@ mod tests {
         let _guard = unsafe { env_mock::PathGuard::new(&bin_path)? };
 
         let result = delete(&["feature/a".to_string(), "--".to_string()]);
+
+        assert!(result.is_err());
+        assert!(!args_file.exists());
+        Ok(())
+    }
+
+    #[test]
+    #[serial]
+    fn fails_before_git_commands_when_deleting_checkout_branch()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let temp_dir = tempfile::tempdir()?;
+        let args_file = temp_dir.path().join("git_args.txt");
+        let bin_path = env_mock::create_mock_bin(
+            "git",
+            &temp_dir,
+            &format!(
+                r#"#!/bin/sh
+                echo "$@" >> "{}"
+                exit 0
+            "#,
+                args_file.display()
+            ),
+        )?;
+
+        #[allow(unused_unsafe)]
+        let _guard = unsafe { env_mock::PathGuard::new(&bin_path)? };
+
+        let result = delete(&["main".to_string()]);
 
         assert!(result.is_err());
         assert!(!args_file.exists());

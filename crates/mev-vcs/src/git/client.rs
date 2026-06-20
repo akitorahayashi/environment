@@ -103,8 +103,8 @@ impl Git {
     }
 
     pub fn delete_branches(&self, branches: &[String]) -> Result<(), VcsError> {
-        let mut args = vec!["branch".to_owned(), "-D".to_owned(), "--".to_owned()];
-        args.extend(branches.iter().cloned());
+        let mut args = vec!["branch", "-D", "--"];
+        args.extend(branches.iter().map(String::as_str));
         process::run_status(self.git_command(&args), &format!("git {}", args.join(" ")))
     }
 
