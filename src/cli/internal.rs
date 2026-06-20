@@ -19,6 +19,9 @@ pub enum GitCommand {
     /// Clone one or more repositories sequentially.
     Clone(CloneArgs),
 
+    /// Delete one or more local branches after updating main.
+    DeleteBranches(DeleteBranchesArgs),
+
     /// Delete a git submodule completely.
     DeleteSubmodule(DeleteSubmoduleArgs),
 }
@@ -27,6 +30,13 @@ pub enum GitCommand {
 pub struct CloneArgs {
     /// Repository URLs to clone in order, optionally mixed with `git clone` flags
     /// (e.g. `--depth 1`) that are applied to every clone.
+    #[arg(required = true, trailing_var_arg = true, allow_hyphen_values = true)]
+    pub args: Vec<String>,
+}
+
+#[derive(Args)]
+pub struct DeleteBranchesArgs {
+    /// Local branch names to delete, optionally followed by `-- <checkout-branch>`.
     #[arg(required = true, trailing_var_arg = true, allow_hyphen_values = true)]
     pub args: Vec<String>,
 }
@@ -65,6 +75,9 @@ pub fn run(command: InternalCommand) -> Result<(), AppError> {
         InternalCommand::Git(GitCommand::Clone(args)) => {
             mev_vcs::git::clone_repositories(&args.args)
         }
+        InternalCommand::Git(GitCommand::DeleteBranches(args)) => {
+            mev_vcs::git::delete_branches(&args.args)
+        }
         InternalCommand::Git(GitCommand::DeleteSubmodule(args)) => {
             mev_vcs::git::delete_submodule(&args.submodule_path)
         }
@@ -96,6 +109,7 @@ mod tests {
             &["internal", "gh", "labels", "deploy", "--help"],
             &["internal", "gh", "labels", "reset", "--help"],
             &["internal", "git", "clone", "--help"],
+            &["internal", "git", "delete-branches", "--help"],
             &["internal", "git", "delete-submodule", "--help"],
         ];
 

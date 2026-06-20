@@ -20,6 +20,9 @@ pub enum VcsError {
     #[error("invalid submodule path: {0}")]
     InvalidSubmodulePath(String),
 
+    #[error("invalid branch deletion arguments: {0}")]
+    InvalidBranchDeletionArgs(String),
+
     #[error("{0}")]
     MissingRepository(String),
 

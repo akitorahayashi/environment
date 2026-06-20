@@ -91,6 +91,30 @@ impl Git {
         process::run_status(self.git_command(&args), &format!("git {}", args.join(" ")))
     }
 
+    pub fn checkout_branch(&self, branch: &str) -> Result<(), VcsError> {
+        process::run_status(
+            self.git_command(["checkout", branch]),
+            &format!("git checkout {branch}"),
+        )
+    }
+
+    pub fn pull(&self) -> Result<(), VcsError> {
+        process::run_status(self.git_command(["pull"]), "git pull")
+    }
+
+    pub fn delete_branches(&self, branches: &[String]) -> Result<(), VcsError> {
+        let mut args = vec!["branch".to_owned(), "-D".to_owned(), "--".to_owned()];
+        args.extend(branches.iter().cloned());
+        process::run_status(self.git_command(&args), &format!("git {}", args.join(" ")))
+    }
+
+    pub fn prune_origin(&self) -> Result<(), VcsError> {
+        process::run_status(
+            self.git_command(["remote", "prune", "origin"]),
+            "git remote prune origin",
+        )
+    }
+
     fn git_command<I, S>(&self, args: I) -> Command
     where
         I: IntoIterator<Item = S>,
