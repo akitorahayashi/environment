@@ -33,7 +33,7 @@ Run specific test categories:
 ```bash
 cargo test --test library     # Library integration tests
 cargo test --test runtime     # Runtime CLI tests
-cargo test --test security    # Security tests
+cargo test --test security     # Security tests
 ```
 
 Run tests in a specific module:

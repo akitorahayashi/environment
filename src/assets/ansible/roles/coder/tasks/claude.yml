@@ -1,0 +1,45 @@
+---
+- name: "Check Claude Code binary"
+  ansible.builtin.stat:
+    path: "{{ coder_bin_dir }}/claude"
+  register: coder_claude_binary
+
+- name: "Install Claude Code via official installer" # noqa: command-instead-of-module risky-shell-pipe
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://claude.ai/install.sh | bash"
+    executable: /bin/bash
+  environment:
+    PATH: "{{ coder_command_path }}"
+  register: coder_claude_install
+  retries: 3
+  delay: 5
+  until: coder_claude_install is succeeded
+  when: not coder_claude_binary.stat.exists
+  changed_when: true
+
+- name: "Verify Claude Code version"
+  ansible.builtin.command:
+    argv:
+      - "{{ coder_bin_dir }}/claude"
+      - --version
+  changed_when: false
+
+- name: "Ensure Claude Code configuration directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - .claude
+    - .claude/commands
+
+- name: "Symlink Claude Code configuration files"
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.dest }}"
+    state: link
+    force: true
+  loop:
+    - { src: "{{ local_config_root }}/coder/global/claude/settings.json", dest: ".claude/settings.json" }
+    - { src: "{{ local_config_root }}/coder/global/claude/statusline.sh", dest: ".claude/statusline.sh" }
+    - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".claude/CLAUDE.md" }

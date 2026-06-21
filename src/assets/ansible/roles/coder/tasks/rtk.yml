@@ -1,0 +1,7 @@
+---
+- name: "Verify RTK binary"
+  ansible.builtin.command:
+    argv:
+      - rtk
+      - --version
+  changed_when: false

@@ -16,6 +16,7 @@ brew "mise"
 brew "git"
 brew "gh"
 brew "neovim"
+brew "rtk"
 
 ## Shell & Scripting
 brew "zsh-autosuggestions"

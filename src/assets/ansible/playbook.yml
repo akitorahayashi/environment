@@ -10,6 +10,8 @@
     formula_requirements:
       python: ["uv"]
       py: ["uv"]
+      coder: ["rtk"]
+      cdr: ["rtk"]
       duti: ["duti"]
       du: ["duti"]
       pipx: ["pipx"]
