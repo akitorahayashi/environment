@@ -32,6 +32,8 @@
   loop:
     - .claude
     - .claude/commands
+    - .mev/hooks
+    - .mev/hooks/claude
 
 - name: "Symlink Claude Code configuration files"
   ansible.builtin.file:
@@ -43,3 +45,4 @@
     - { src: "{{ local_config_root }}/coder/global/claude/settings.json", dest: ".claude/settings.json" }
     - { src: "{{ local_config_root }}/coder/global/claude/statusline.sh", dest: ".claude/statusline.sh" }
     - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".claude/CLAUDE.md" }
+    - { src: "{{ local_config_root }}/coder/global/hooks/claude/pre-tool-use.sh", dest: ".mev/hooks/claude/pre-tool-use.sh" }

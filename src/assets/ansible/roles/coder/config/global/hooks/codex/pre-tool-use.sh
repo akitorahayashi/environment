@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -u
+
+command -v jq >/dev/null 2>&1 || exit 0
+
+input="$(cat)"
+[ -n "$input" ] || exit 0
+
+tool_name="$(jq -r '.tool_name // empty' <<<"$input" 2>/dev/null)"
+[ "$tool_name" = "Bash" ] || exit 0
+
+command_input="$(jq -r '.tool_input.command // empty' <<<"$input" 2>/dev/null)"
+[ -n "$command_input" ] || exit 0
+
+rewritten="$(bash ~/.mev/rtk/rewrite.sh "$command_input")"
+rewrite_exit=$?
+
+case "$rewrite_exit" in
+  0)
+    ;;
+  10)
+    exit 0
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+
+updated_input="$(jq -c --arg cmd "$rewritten" '.tool_input.command = $cmd | .tool_input' <<<"$input" 2>/dev/null)" || exit 0
+
+jq -cn --argjson updated_input "$updated_input" '{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow",
+    "permissionDecisionReason": "RTK auto-rewrite",
+    "updatedInput": $updated_input
+  }
+}'

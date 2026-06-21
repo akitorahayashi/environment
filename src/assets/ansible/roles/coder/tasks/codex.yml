@@ -33,6 +33,8 @@
   loop:
     - .codex
     - .codex/prompts
+    - .mev/hooks
+    - .mev/hooks/codex
 
 - name: "Symlink Codex configuration files"
   ansible.builtin.file:
@@ -42,4 +44,6 @@
     force: true
   loop:
     - { src: "{{ local_config_root }}/coder/global/codex/config.toml", dest: ".codex/config.toml" }
+    - { src: "{{ local_config_root }}/coder/global/codex/hooks.json", dest: ".codex/hooks.json" }
     - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".codex/AGENTS.md" }
+    - { src: "{{ local_config_root }}/coder/global/hooks/codex/pre-tool-use.sh", dest: ".mev/hooks/codex/pre-tool-use.sh" }

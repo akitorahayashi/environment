@@ -1,7 +1,20 @@
 ---
+- name: "Ensure RTK integration directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.mev/rtk"
+    state: directory
+    mode: "0755"
+
 - name: "Verify RTK binary"
   ansible.builtin.command:
     argv:
       - rtk
       - --version
   changed_when: false
+
+- name: "Symlink RTK rewrite adapter"
+  ansible.builtin.file:
+    src: "{{ local_config_root }}/coder/global/rtk/rewrite.sh"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.mev/rtk/rewrite.sh"
+    state: link
+    force: true
