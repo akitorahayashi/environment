@@ -12,11 +12,9 @@ rewrite_exit=$?
 
 case "$rewrite_exit" in
   0 | 3)
+    [ -z "$rewritten" ] && exit 10
     [ "$command_input" = "$rewritten" ] && exit 10
     printf '%s\n' "$rewritten"
-    ;;
-  1 | 2)
-    exit 10
     ;;
   *)
     exit 10

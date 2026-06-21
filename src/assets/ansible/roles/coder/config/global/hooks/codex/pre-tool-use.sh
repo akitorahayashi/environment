@@ -13,19 +13,12 @@ tool_name="$(jq -r '.tool_name // empty' <<<"$input" 2>/dev/null)"
 command_input="$(jq -r '.tool_input.command // empty' <<<"$input" 2>/dev/null)"
 [ -n "$command_input" ] || exit 0
 
-rewritten="$(bash ~/.mev/rtk/rewrite.sh "$command_input")"
+rewritten="$(bash ~/.mev/rtk/rewrite.sh "$command_input" 2>/dev/null)"
 rewrite_exit=$?
 
-case "$rewrite_exit" in
-  0)
-    ;;
-  10)
-    exit 0
-    ;;
-  *)
-    exit 0
-    ;;
-esac
+if [ "$rewrite_exit" -ne 0 ] || [ -z "$rewritten" ]; then
+  exit 0
+fi
 
 updated_input="$(jq -c --arg cmd "$rewritten" '.tool_input.command = $cmd | .tool_input' <<<"$input" 2>/dev/null)" || exit 0
 

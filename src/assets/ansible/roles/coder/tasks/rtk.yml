@@ -10,6 +10,8 @@
     argv:
       - rtk
       - --version
+  environment:
+    PATH: "/opt/homebrew/bin:/usr/local/bin:{{ coder_command_path }}"
   changed_when: false
 
 - name: "Symlink RTK rewrite adapter"
