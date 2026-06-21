@@ -16,7 +16,7 @@
   "ensure_final_newline_on_save": true,
   "remove_trailing_whitespace_on_save": true,
   "edit_predictions": {
-    "provider": "copilot"
+    "provider": "none"
   },
   "tabs": {
     "file_icons": true,
@@ -28,7 +28,7 @@
     "light": "Zed (Default)",
     "dark": "Zed (Default)"
   },
-  "show_edit_predictions": true,
+  "show_edit_predictions": false,
   "diff_view_style": "split",
   "ui_font_size": 15,
   "buffer_font_family": "Menlo",
@@ -119,8 +119,7 @@
     "swift": true,
     "kotlin": true,
     "dockerfile": true,
-    "docker-compose": true,
-    "biome": true
+    "docker-compose": true
   },
   "languages": {
     "Kotlin": {
@@ -134,39 +133,6 @@
     },
     "Swift": {
       "tab_size": 4
-    },
-    "JavaScript": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
-    },
-    "TypeScript": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
-    },
-    "TSX": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
     }
   },
   "language_models": {

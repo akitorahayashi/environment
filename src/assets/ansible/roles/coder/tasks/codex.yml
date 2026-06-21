@@ -1,0 +1,49 @@
+---
+- name: "Check Codex binary"
+  ansible.builtin.stat:
+    path: "{{ coder_bin_dir }}/codex"
+  register: coder_codex_binary
+
+- name: "Install Codex via official installer" # noqa: command-instead-of-module risky-shell-pipe
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://chatgpt.com/codex/install.sh | sh"
+    executable: /bin/sh
+  environment:
+    CODEX_NON_INTERACTIVE: "true"
+    PATH: "{{ coder_command_path }}"
+  register: coder_codex_install
+  retries: 3
+  delay: 5
+  until: coder_codex_install is succeeded
+  when: not coder_codex_binary.stat.exists
+  changed_when: true
+
+- name: "Verify Codex version"
+  ansible.builtin.command:
+    argv:
+      - "{{ coder_bin_dir }}/codex"
+      - --version
+  changed_when: false
+
+- name: "Ensure Codex configuration directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - .codex
+    - .codex/prompts
+    - .mev/hooks
+    - .mev/hooks/codex
+
+- name: "Symlink Codex configuration files"
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.dest }}"
+    state: link
+    force: true
+  loop:
+    - { src: "{{ local_config_root }}/coder/global/codex/config.toml", dest: ".codex/config.toml" }
+    - { src: "{{ local_config_root }}/coder/global/codex/hooks.json", dest: ".codex/hooks.json" }
+    - { src: "{{ coder_generated_root }}/AGENTS.md", dest: ".codex/AGENTS.md" }
+    - { src: "{{ local_config_root }}/coder/global/hooks/codex/pre-tool-use.sh", dest: ".mev/hooks/codex/pre-tool-use.sh" }

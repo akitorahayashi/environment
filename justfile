@@ -48,7 +48,7 @@ fix:
     if [ -n "$files" ]; then \
         shfmt -w -d $files; \
     fi
-    uv run ansible-lint src/assets/ansible/ --fix
+    uv run ansible-lint src/assets/ansible/ --fix -q
     mise exec -- just --fmt --unstable
 
 # Verify formatting, lint, and compilation
@@ -64,7 +64,7 @@ check:
     @mise exec -- just _find_zsh_files | while IFS= read -r file; do \
         zsh -n "$file"; \
     done
-    uv run ansible-lint src/assets/ansible/
+    uv run ansible-lint src/assets/ansible/ -q
     mise exec -- just --fmt --check --unstable
 
 # ==============================================================================
@@ -73,7 +73,7 @@ check:
 
 # Run all tests
 test:
-    cargo test --all-targets --all-features
+    cargo test --all-targets --all-features --quiet
     mise exec -- just internal::test
 
 # Generate code coverage report
@@ -119,7 +119,7 @@ verify-generated-ansible-setups:
 
 # Apply safe zizmor auto-fixes to committed workflows
 zfix:
-    mise exec -- zizmor --fix=safe .github/workflows/*.yml
+    mise exec -- zizmor --fix=safe .github/workflows/*.yml --quiet
 
 # Run actionlint against committed workflows
 alint:
@@ -127,7 +127,7 @@ alint:
 
 # Run zizmor against committed workflows
 zlint:
-    mise exec -- zizmor --offline --pedantic --strict-collection --min-severity high .
+    mise exec -- zizmor --offline --pedantic --strict-collection --min-severity high . --quiet
 
 # ==============================================================================
 # Execution

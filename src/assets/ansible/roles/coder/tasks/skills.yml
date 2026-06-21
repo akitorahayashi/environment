@@ -1,0 +1,124 @@
+---
+- name: "Load agent skills targets"
+  ansible.builtin.set_fact:
+    coder_skills_target_config: "{{ lookup('file', local_config_root + '/coder/global/skills-targets.yml') | from_yaml }}"
+
+- name: "Discover enabled agent skills"
+  ansible.builtin.find:
+    paths: "{{ coder_generated_root }}/skills"
+    file_type: link
+    depth: 1
+  register: coder_skills_find
+
+- name: "Set agent skills list"
+  ansible.builtin.set_fact:
+    coder_skills: "{{ coder_skills_find.files | map(attribute='path') | map('basename') | list }}"
+
+- name: "Set agent skills source root"
+  ansible.builtin.set_fact:
+    coder_skills_source_root: "{{ [coder_generated_root, 'skills'] | path_join }}"
+
+- name: "Ensure agent skills directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item.value.skills_dir }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ coder_skills_target_config.targets | dict2items }}"
+
+- name: "Find deployed agent skill links"
+  ansible.builtin.find:
+    paths: "{{ ansible_facts['env']['HOME'] }}/{{ item.value.skills_dir }}"
+    file_type: link
+    depth: 1
+  register: coder_deployed_skill_links
+  loop: "{{ coder_skills_target_config.targets | dict2items }}"
+
+- name: "Remove stale managed agent skill links"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ coder_deployed_skill_links.results | map(attribute='files') | flatten }}"
+  when:
+    - (item.lnk_target | default('')).startswith(coder_skills_source_root ~ '/')
+    - item.path | basename not in coder_skills
+
+- name: "Inspect retired agent skills directories"
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item.value.skills_dir }}"
+  register: coder_retired_skills_directory_stats
+  loop: "{{ coder_skills_target_config.retired_targets | dict2items }}"
+
+- name: "Find retired agent skill links"
+  ansible.builtin.find:
+    paths: "{{ item.stat.path }}"
+    file_type: link
+    depth: 1
+  register: coder_retired_skill_links
+  loop: "{{ coder_retired_skills_directory_stats.results }}"
+  when:
+    - item.stat.isdir | default(false)
+
+- name: "Remove retired managed agent skill links"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: >-
+    {{ coder_retired_skill_links.results
+       | selectattr('files', 'defined')
+       | map(attribute='files')
+       | flatten }}
+  when:
+    - (item.lnk_target | default('')).startswith(coder_skills_source_root ~ '/')
+
+- name: "Inspect deployed agent skill paths"
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item.1.value.skills_dir }}/{{ item.0 }}"
+  register: coder_deployed_skill_stats
+  loop: "{{ coder_skills | product(coder_skills_target_config.targets | dict2items) | list }}"
+
+- name: "Reject agent skill file conflicts"
+  ansible.builtin.fail:
+    msg: "Managed agent skill path {{ item.stat.path }} already exists as a file. Remove or rename it before deploying managed skills."
+  loop: "{{ coder_deployed_skill_stats.results }}"
+  when:
+    - item.stat.exists
+    - not (item.stat.islnk | default(false))
+    - not (item.stat.isdir | default(false))
+
+- name: "Inspect agent skill directory conflicts"
+  ansible.builtin.find:
+    paths: "{{ item.stat.path }}"
+    recurse: false
+    hidden: true
+    file_type: any
+  register: coder_skill_directory_entries
+  loop: "{{ coder_deployed_skill_stats.results }}"
+  when:
+    - item.stat.exists
+    - not (item.stat.islnk | default(false))
+    - item.stat.isdir | default(false)
+
+- name: "Reject non-empty agent skill directory conflicts"
+  ansible.builtin.fail:
+    msg: "Managed agent skill path {{ item.item.stat.path }} already exists as a non-empty directory. Remove or rename it before deploying managed skills."
+  loop: "{{ coder_skill_directory_entries.results }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.matched | default(0) | int > 0
+
+- name: "Remove empty agent skill directory conflicts"
+  ansible.builtin.file:
+    path: "{{ item.item.stat.path }}"
+    state: absent
+  loop: "{{ coder_skill_directory_entries.results }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.matched | default(0) | int == 0
+
+- name: "Deploy global agent skills to targets"
+  ansible.builtin.file:
+    src: "{{ coder_skills_source_root }}/{{ item.0 }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item.1.value.skills_dir }}/{{ item.0 }}"
+    state: link
+    force: true
+  loop: "{{ coder_skills | product(coder_skills_target_config.targets | dict2items) | list }}"

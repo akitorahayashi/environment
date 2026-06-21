@@ -1,0 +1,34 @@
+---
+- name: "Resolve coder generated-entity root"
+  ansible.builtin.set_fact:
+    coder_generated_root: "{{ [local_config_root | dirname, 'coder'] | path_join }}"
+
+- name: "Verify generated intermediate AGENTS.md exists"
+  ansible.builtin.stat:
+    path: "{{ coder_generated_root }}/AGENTS.md"
+  register: coder_agents_intermediate
+
+- name: "Fail when generated intermediate AGENTS.md is missing"
+  ansible.builtin.fail:
+    msg: "Intermediate AGENTS.md is missing at {{ coder_generated_root }}/AGENTS.md. Run `mev mk coder` so mev generates it before symlinking."
+  when: not coder_agents_intermediate.stat.exists
+
+- name: "Ensure shared agent configuration directories exist"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - .mev
+    - .config/zed
+    - .gemini
+
+- name: "Symlink shared agent configuration files"
+  ansible.builtin.file:
+    src: "{{ coder_generated_root }}/AGENTS.md"
+    dest: "{{ ansible_facts['env']['HOME'] }}/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - .config/zed/AGENTS.md
+    - .gemini/GEMINI.md
